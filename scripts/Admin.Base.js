@@ -9,7 +9,14 @@
  * @modified 2022. 4. 27.
  */
 Admin.Base = class {
+	/**
+	 * 객체 아이디
+	 */
 	id = null
+	
+	/**
+	 * 객체 이벤트리스너
+	 */
 	listeners = {}
 	
 	/**
