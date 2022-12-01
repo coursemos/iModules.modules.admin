@@ -1,0 +1,57 @@
+<?php
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 관리자 기본테마 - 메인
+ *
+ * @file /modules/admin/templets/default/index.html
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2022. 4. 7.
+ */
+if (defined('__IM__') == false) {
+    exit();
+} ?>
+<header>
+    <h1>
+        <i></i>
+        <label></label>
+    </h1>
+    <i class="mi mi-plus"></i>
+    <i class="fa fa-plus"></i>
+</header>
+
+<main>
+    <aside>
+        <?php
+/* ?>
+        <ul>
+            <li<?php echo count($index->tree) == 0 ? ' class="opened"' : ''; ?>>
+                <a href="<?php echo $contexts->index->route; ?>"><i class="<?php echo $contexts->index->icon; ?>"></i><span><?php echo $contexts->index->title; ?></span></a>
+            </li>
+            <?php foreach ($contexts->children as $context) { ?>
+            <li<?php echo count($index->tree) > 0 && $index->tree[0] == $context->index->tree[0] ? ' class="opened"' : ''; ?>>
+                <a href="<?php echo $context->index->route; ?>"<?php echo $index->route == $context->index->route ? ' class="selected"' : ''; ?>><i class="<?php echo $context->index->icon; ?>"></i><span><?php echo $context->index->title; ?></span></a>
+                <?php if (count($context->children) > 0) { ?>
+                <button type="button"></button>
+                <ul>
+                    <?php foreach ($context->children as $child) { ?>
+                    <li>
+                        <a href="<?php echo $child->index->route; ?>"<?php echo $index->route == $child->index->route ? ' class="selected"' : ''; ?>><i class="<?php echo $child->index->icon; ?>"></i><span><?php echo $child->index->title; ?></span></a>
+                    </li>
+                    <?php } ?>
+                </ul>
+                <?php } ?>
+            </li>
+            <?php } ?>
+        </ul>
+        <?php */
+?>
+    </aside>
+    
+    <section data-role="admin">
+        <?php echo $content; ?>
+    </section>
+</main>
+
+<footer></footer>
