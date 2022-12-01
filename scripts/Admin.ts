@@ -8,45 +8,44 @@
  * @license MIT License
  * @modified 2022. 12. 1.
  */
-var Admin;
-(function (Admin) {
-    Admin.components = {};
-    Admin.index = 0;
+namespace Admin {
+    export let components: { [key: string]: Admin.Base } = {};
+    export let index: number = 0;
+
     /**
      * 컴포넌트를 등록한다.
      *
      * @param {Admin.Base} component - 컴포넌트 객체
      */
-    function set(component) {
+    export function set(component: Admin.Base): void {
         this.components[component.id] = component;
     }
-    Admin.set = set;
+
     /**
      * 컴포넌트를 가져온다.
      *
      * @param {string} id - 가져올 컴포넌트 고유값
      * @return {Admin.Base} component - 컴포넌트
      */
-    function get(id) {
+    export function get(id: string): Admin.Base {
         return this.components[id];
     }
-    Admin.get = get;
+
     /**
      * 컴포넌트 일련번호를 가져온다.
      *
      * @return {number} index - 일련번호
      */
-    function getIndex() {
+    export function getIndex(): number {
         return ++this.index;
     }
-    Admin.getIndex = getIndex;
+
     /**
      * 관리자 UI 처리가 준비되었을 때 이벤트리스너를 등록한다.
      *
      * @param {EventListener} listener - 이벤트리스너
      */
-    function ready(listener) {
+    export function ready(listener: EventListener): void {
         Html.ready(listener);
     }
-    Admin.ready = ready;
-})(Admin || (Admin = {}));
+}
