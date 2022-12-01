@@ -1,0 +1,417 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 관리자 UI 컴포넌트 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2022. 12. 1.
+ */
+section[data-role='admin'] {
+    * {
+        box-sizing: border-box;
+    }
+}
+
+div[data-component] {
+    &.fit {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/**
+ * 패널
+ */
+div[data-component][data-type='panel'] {
+    > div[data-role='container'] {
+        height: 100%;
+        border-width: 0px;
+        border-style: solid;
+        border-color: #d0d0d0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        background: #fff;
+
+        &.border {
+            border-width: 1px;
+        }
+
+        > div[data-role='header'] {
+            background: red;
+
+            > h4 {
+                width: 100%;
+                height: 42px;
+                line-height: 42px;
+                padding: 0px 12px;
+                background: #60a2dd;
+                color: #fff;
+                font-size: 15px;
+            }
+        }
+
+        > div[data-role='body'] {
+            width: 100%;
+            flex-grow: 1;
+            background: #fff;
+            font-size: 15px;
+            overflow: hidden;
+
+            &.scrollableX {
+                overflow-x: auto;
+            }
+
+            &.scrollableY {
+                overflow-y: auto;
+            }
+        }
+
+        > div[data-role='footer'] {
+            background: blue;
+        }
+    }
+}
+
+/**
+ * 툴바
+ */
+div[data-component][data-type='toolbar'] {
+    border-width: 0px;
+    border-style: solid;
+    border-color: #d0d0d0;
+    background: #fcfcfc;
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+
+    &[data-position='top'] {
+        &.border {
+            border-bottom-width: 1px;
+        }
+    }
+
+    &[data-position='bottom'] {
+        &.border {
+            border-top-width: 1px;
+        }
+    }
+
+    > div[data-component] + div[data-component] {
+        margin-left: 5px;
+    }
+
+    &[data-role='tabbar'] {
+        width: 100%;
+        height: 42px;
+        background: #60a2dd;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 0px 10px;
+
+        &[data-position='top'] {
+            > div[data-component][data-type='button'] > button {
+                margin-top: 6px;
+            }
+        }
+
+        &[data-position='bottom'] {
+            > div[data-component][data-type='button'] > button {
+                margin-bottom: 6px;
+            }
+        }
+
+        > div[data-component][data-type='button'] > button {
+            border: 0;
+            height: 36px;
+            background: transparent;
+            color: #fff;
+
+            &.pressed {
+                background: #fff;
+                color: #4c82b1;
+            }
+        }
+    }
+}
+
+/**
+ * 툴바아이템
+ */
+div[data-component][data-type='toolbaritem'] {
+    height: 32px;
+    line-height: 32px;
+
+    &[data-role='fill'] {
+        flex-grow: 1;
+    }
+
+    &[data-role='separator'] {
+        width: 17px;
+        position: relative;
+
+        &::before {
+            display: block;
+            position: absolute;
+            width: 1px;
+            height: 16px;
+            background: #d0d0d0;
+            top: 8px;
+            left: 8px;
+            content: ' ';
+        }
+    }
+
+    > span {
+        font-size: 13px;
+        color: #4b4c4c;
+    }
+}
+
+/**
+ * 버튼
+ */
+div[data-component][data-type='button'] {
+    > button {
+        height: 32px;
+        border: 1px solid #e4e4e4;
+        background: #f6f6f6;
+        color: #666;
+        line-break: 24px;
+        cursor: pointer;
+        font-size: 13px;
+
+        &:hover {
+            background: #ececec;
+            border-color: #dbdbdb;
+        }
+
+        > i {
+            display: inline-block;
+            font-style: normal;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        > span {
+            display: inline-block;
+            vertical-align: middle;
+            height: 24px;
+            line-height: 24px;
+            padding: 0px 10px;
+            text-align: left;
+        }
+
+        > i + span {
+            padding-left: 0;
+        }
+    }
+}
+
+/**
+ * 그리드패널
+ */
+div[data-component][data-type='panel'][data-role='grid'] {
+    --header-border-color: #d0d0d0;
+    --header-column-background: #f4f4f4;
+    --header-column-background-over: #eaeff4;
+
+    --body-row-border-color: #e9e9e9;
+    --body-row-border-color-over: #d9dfe4;
+    --body-row-border-color-focus: #f0dfab;
+
+    --body-column-background: #fff;
+    --body-column-background-over: #e7ecf2;
+    --body-column-background-focus: #ffedb5;
+    --body-column-border-focus: #5697d6;
+
+    > div[data-role='container'] {
+        &.border {
+            border-color: red;
+        }
+        > div[data-role='body'] {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            position: relative;
+
+            > div[data-role='header'] {
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+                justify-content: flex-start;
+                position: sticky;
+                top: 0;
+                width: fit-content;
+                min-width: 100%;
+                z-index: 10;
+                background: var(--header-border-color);
+                column-gap: 1px;
+                border-bottom: 1px solid var(--header-border-color);
+
+                div[data-role='merge'] {
+                    flex-shrink: 0;
+                    background: var(--header-column-background);
+
+                    > div[data-role='group'] {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: stretch;
+                        justify-content: flex-start;
+                        flex-shrink: 0;
+                        min-height: 100%;
+                        height: fit-content;
+                        background: var(--header-border-color);
+                        row-gap: 1px;
+
+                        > div[data-role='text'] {
+                            background: var(--header-column-background);
+
+                            &:hover {
+                                background: var(--header-column-background-over);
+                            }
+
+                            &.left {
+                                text-align: left;
+                            }
+                            &.center {
+                                text-align: center;
+                            }
+                            &.right {
+                                text-align: right;
+                            }
+                        }
+
+                        > div[data-role='columns'] {
+                            flex-grow: 1;
+                            display: flex;
+                            flex-direction: row;
+                            align-items: stretch;
+                            justify-content: flex-start;
+                            background: var(--header-border-color);
+                            column-gap: 1px;
+                        }
+                    }
+                }
+
+                div[data-role='column'] {
+                    flex-shrink: 0;
+                    background: var(--header-column-background);
+                    display: flex;
+                    flex-direction: row;
+
+                    &.top {
+                        align-items: flex-start;
+                    }
+
+                    &.middle {
+                        align-items: center;
+                    }
+
+                    &.bottom {
+                        align-items: flex-end;
+                    }
+
+                    > label {
+                        flex-grow: 1;
+                        padding: 4px 8px;
+
+                        &.left {
+                            text-align: left;
+                        }
+                        &.center {
+                            text-align: center;
+                        }
+                        &.right {
+                            text-align: right;
+                        }
+                    }
+
+                    > button {
+                        flex-basis: 28px;
+                        flex-shrink: 0;
+                        height: 100%;
+                        display: none;
+                        border: 0;
+                        border-left: 1px solid red;
+                    }
+
+                    &:hover {
+                        background: var(--header-column-background-over);
+                        > button {
+                            display: block;
+                        }
+                    }
+                }
+            }
+
+            > div[data-role='body'] {
+                display: flex;
+                row-gap: 1px;
+                flex-direction: column;
+                background: var(--body-row-border-color);
+                width: fit-content;
+                align-items: stretch;
+                min-width: 100%;
+
+                > div[data-role='row'] {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: stretch;
+                    justify-content: flex-start;
+                    width: fit-content;
+                    min-width: 100%;
+                    column-gap: 1px;
+                    background: var(--body-row-border-color);
+
+                    > div[data-role='column'] {
+                        flex-shrink: 0;
+                        background: var(--body-column-background);
+
+                        &.focus {
+                            outline: 1px solid var(--body-column-border-focus);
+                            z-index: 5;
+                        }
+                        /*
+                        > div[data-display='view'] {
+                            width: 100%;
+                            height: 100%;
+                            position: relative;
+                        }
+                        */
+                    }
+
+                    &:hover {
+                        background: var(--body-row-border-color-over);
+                        outline: 1px solid var(--body-row-border-color-over);
+                        z-index: 1;
+
+                        > div[data-role='column'] {
+                            background: var(--body-column-background-over);
+                        }
+                    }
+
+                    &:has(div[data-role='column'].focus) {
+                        background: var(--body-row-border-color-focus);
+                        outline: 1px solid var(--body-row-border-color-focus);
+                        z-index: 2;
+
+                        > div[data-role='column'] {
+                            background: var(--body-column-background-focus);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
