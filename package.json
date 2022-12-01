@@ -1,0 +1,31 @@
+{
+    "id": "tools.moimz.imodules.modules.admin",
+    "icon": "xi-crown",
+    "title": {
+        "ko": "아이모듈 관리자"
+    },
+    "version": "4.0.0",
+    "description": {
+        "ko": "아이모듈을 관리하기 위한 통합 관리모듈입니다."
+    },
+    "author": {
+        "name": "Arzz",
+        "email": "arzz@arzz.com"
+    },
+    "homepage": "https://www.imodules.io",
+    "versionChecker": "https://api.moimz.com/download/latest",
+    "dependencies": {
+        "core": "4.0.0"
+    },
+    "language": "ko",
+    "configs": {
+        "theme": {
+            "type": "theme",
+            "default": "/modules/admin/default"
+        },
+        "templet": {
+            "type": "templet",
+            "default": "default"
+        }
+    }
+}
