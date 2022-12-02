@@ -55,7 +55,7 @@ namespace Admin {
 
                     for (let item of this.properties.items ?? []) {
                         if (item instanceof Admin.Panel) {
-                            //                            item.hide();
+                            item.hide();
                             item.setTitleHidden(true);
                             this.items.push(item);
                         }
