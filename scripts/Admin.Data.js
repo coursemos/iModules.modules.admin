@@ -36,6 +36,27 @@ var Admin;
         getRecords() {
             return this.records;
         }
+        /**
+         * 데이터를 정렬한다.
+         *
+         * @param {Object} sorters - 정렬기준 [{field:string, direction:(ASC|DESC)}, ...]
+         */
+        sort(sorters) {
+            this.records.sort((left, right) => {
+                for (const sorter of sorters) {
+                    sorter.direction = sorter.direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                    const leftValue = left.get(sorter.field);
+                    const rightValue = right.get(sorter.field);
+                    if (leftValue < rightValue) {
+                        return sorter.direction == 'DESC' ? 1 : -1;
+                    }
+                    else if (leftValue > rightValue) {
+                        return sorter.direction == 'ASC' ? 1 : -1;
+                    }
+                }
+                return 0;
+            });
+        }
     }
     Admin.Data = Data;
     (function (Data) {
