@@ -18,6 +18,7 @@ var Admin;
             store;
             gridHeader;
             $gridBody;
+            focusedCell = { rowIndex: null, columnIndex: null };
             /**
              * 그리드패널을 생성한다.
              *
@@ -28,9 +29,12 @@ var Admin;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.store = this.properties.store ?? new Admin.Store();
                 this.store.addEvent('load', (grid) => {
-                    grid.update();
+                    grid.onLoad();
                 }, [this]);
-                this.gridHeader = new Admin.Grid.Header(this.properties.columns ?? []);
+                this.store.addEvent('beforeLoad', (grid) => {
+                    grid.onBeforeLoad();
+                }, [this]);
+                this.gridHeader = new Admin.Grid.Header(this.properties.columns ?? [], this);
                 this.$gridBody = Html.create('div').setData('role', 'body');
             }
             /**
@@ -58,13 +62,58 @@ var Admin;
                 return this.getGridHeader().getColumns();
             }
             /**
-             * 그리드 데이터를 업데이트한다.
+             * 특정 열에 포커스를 지정한다.
+             *
+             * @param {number} rowIndex - 행 인덱스
              */
-            update() {
-                if (this.getStore().isLoaded() === false)
+            focusRow(rowIndex) {
+                const $row = Html.all('div[data-role=row]', this.$body).get(rowIndex);
+                if ($row == null)
                     return;
-                if (typeof this.updateLayout === 'function')
-                    this.updateLayout();
+                const headerHeight = this.gridHeader.$getComponent().getOuterHeight();
+                const bodyHeight = this.$body.getHeight();
+                const rowHeight = $row.getOuterHeight();
+                const offset = $row.getOffset();
+                const scroll = this.$body.getScroll();
+                const top = offset.top - scroll.top;
+                const bottom = top + $row.getOuterHeight();
+                if (top < headerHeight) {
+                    this.$body.setScroll(offset.top - headerHeight - 1, null, false);
+                }
+                else if (bottom > bodyHeight) {
+                    this.$body.setScroll(offset.top + rowHeight - bodyHeight + 1, null, false);
+                }
+            }
+            /**
+             * 특정 셀에 포커스를 지정한다.
+             *
+             * @param {number} rowIndex - 행 인덱스
+             * @param {number} columnIndex - 컬럼 인덱스
+             */
+            focusCell(rowIndex, columnIndex) {
+                if (this.isRendered() == false)
+                    return;
+                const $column = Html.get('div[data-role=column][data-row="' + rowIndex + '"][data-column="' + columnIndex + '"]', this.$body);
+                if ($column.getEl() == null)
+                    return;
+                this.focusRow(rowIndex);
+                Html.all('div[data-role=column].focus', this.$body).removeClass('focus');
+                $column.addClass('focus');
+                this.focusedCell.rowIndex = rowIndex;
+                this.focusedCell.columnIndex = columnIndex;
+                const lockedWidth = 0;
+                const bodyWidth = this.$body.getWidth();
+                const columnWidth = $column.getOuterWidth();
+                const offset = $column.getOffset();
+                const scroll = this.$body.getScroll();
+                const left = offset.left - scroll.left;
+                const right = left + $column.getOuterWidth();
+                if (left < lockedWidth) {
+                    this.$body.setScroll(null, offset.left - lockedWidth - 1, false);
+                }
+                else if (right > bodyWidth) {
+                    this.$body.setScroll(null, offset.left + columnWidth - bodyWidth + 1, false);
+                }
             }
             /**
              * 바디 레이아웃을 랜더링한다.
@@ -78,6 +127,69 @@ var Admin;
                 this.$body.setData('rendered', true);
             }
             /**
+             * 그리드패널 레이아웃을 갱신한다.
+             */
+            updateLayout() {
+                if (this.$body.getData('rendered') == false) {
+                    this.render();
+                    return;
+                }
+                const $gridHeader = this.getGridHeader().$getComponent();
+                this.getColumns().forEach((column, columnIndex) => {
+                    const $column = Html.all('div[data-role=column]', $gridHeader).get(columnIndex);
+                    let isUpdated = false;
+                    console.log(column.hidden, $column.getStyle('display'));
+                    if ((column.hidden == true && $column.getStyle('display') != 'none') ||
+                        (column.hidden == false && $column.getStyle('display') == 'none')) {
+                        isUpdated = true;
+                        if (column.hidden == true) {
+                            $column.setStyle('display', 'none');
+                            Html.all('div[data-role=row]', this.$body).forEach(($row) => {
+                                const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
+                                $column.setStyle('display', 'none');
+                            });
+                        }
+                        else {
+                            $column.setStyle('display', '');
+                            Html.all('div[data-role=row]', this.$body).forEach(($row) => {
+                                const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
+                                $column.setStyle('display', '');
+                            });
+                        }
+                    }
+                    if (column.width !== null && column.width != $column.getWidth()) {
+                        isUpdated = true;
+                        $column.setStyle('flexGrow', 0);
+                        $column.setStyle('flexBasis', '');
+                        $column.setStyle('width', column.width + 'px');
+                        Html.all('div[data-role=row]', this.$body).forEach(($row) => {
+                            const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
+                            $column.setStyle('flexGrow', 0);
+                            $column.setStyle('flexBasis', '');
+                            $column.setStyle('width', column.width + 'px');
+                        });
+                    }
+                    if (isUpdated == true && column.getParent() != null) {
+                        let parent = column;
+                        let $parent = $column.getParent();
+                        while ($parent.getData('role') == 'columns') {
+                            parent = parent.getParent();
+                            const $merge = $parent.getParent().getParent();
+                            $merge.setStyle('width', parent.getChildrenFlexBasis() + 'px');
+                            $merge.setStyle('flexGrow', parent.getChildrenFlexGrow());
+                            $merge.setStyle('flexBasis', parent.getChildrenFlexBasis() + 'px');
+                            if (parent.isHidden() == true) {
+                                $merge.setStyle('display', 'none');
+                            }
+                            else {
+                                $merge.setStyle('display', '');
+                            }
+                            $parent = $merge.getParent();
+                        }
+                    }
+                });
+            }
+            /**
              * 그리드패널이 화면상에 출력되었을 때 이벤트를 처리한다.
              */
             onRender() {
@@ -87,34 +199,103 @@ var Admin;
                 super.onRender();
             }
             /**
-             * 그리드패널 레이아웃을 갱신한다.
+             * 데이터가 로드되기 전 이벤트를 처리한다.
              */
-            updateLayout() {
+            onBeforeLoad() {
+                //console.log('onBeforeLoad - grid');
+            }
+            /**
+             * 데이터가 로드 이벤트를 처리한다.
+             */
+            onLoad() {
+                if (this.getStore().isLoaded() === false)
+                    return;
+                this.focusedCell = { rowIndex: null, columnIndex: null };
+                this.$gridBody.empty();
                 this.getStore()
                     .getRecords()
                     .forEach((record, rowIndex) => {
                     const $row = Html.create('div').setData('role', 'row').setData('row-index', rowIndex);
-                    this.getColumns().forEach((column, colIndex) => {
+                    this.getColumns().forEach((column, columnIndex) => {
                         const value = record.get(column.dataIndex);
-                        $row.append(column.$getBody(value, record, rowIndex, colIndex));
+                        $row.append(column.$getBody(value, record, rowIndex, columnIndex));
                     });
                     this.$gridBody.append($row);
                 });
+            }
+            /**
+             * keydown 이벤트를 처리한다.
+             *
+             * @param {KeyboardEvent} e - 키보드이벤트
+             */
+            onKeydown(e) {
+                if (e.key.indexOf('Arrow') === 0) {
+                    let rowIndex = 0;
+                    let columnIndex = 0;
+                    switch (e.key) {
+                        case 'ArrowLeft':
+                            rowIndex = this.focusedCell.rowIndex ?? 0;
+                            columnIndex = Math.max(0, (this.focusedCell.columnIndex ?? 0) - 1);
+                            while (columnIndex > 0 &&
+                                this.getGridHeader().getColumnByIndex(columnIndex).isHidden() == true) {
+                                columnIndex--;
+                            }
+                            break;
+                        case 'ArrowRight':
+                            rowIndex = this.focusedCell.rowIndex ?? 0;
+                            columnIndex = Math.min(this.getColumns().length - 1, (this.focusedCell.columnIndex ?? 0) + 1);
+                            while (columnIndex < this.getColumns().length - 1 &&
+                                this.getGridHeader().getColumnByIndex(columnIndex).isHidden() == true) {
+                                columnIndex++;
+                            }
+                            break;
+                        case 'ArrowUp':
+                            rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? 0) - 1);
+                            columnIndex = this.focusedCell.columnIndex ?? 0;
+                            break;
+                        case 'ArrowDown':
+                            rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? 0) + 1);
+                            columnIndex = this.focusedCell.columnIndex ?? 0;
+                            break;
+                    }
+                    this.focusCell(rowIndex, columnIndex);
+                    e.preventDefault();
+                }
+            }
+            /**
+             * 클립보드 이벤트를 처리한다.
+             *
+             * @param {ClipboardEvent} e - 클립보드 이벤트
+             */
+            onCopy(e) {
+                if (this.focusedCell.rowIndex !== null && this.focusedCell.columnIndex !== null) {
+                    const $column = Html.get('div[data-role=column][data-row="' +
+                        this.focusedCell.rowIndex +
+                        '"][data-column="' +
+                        this.focusedCell.columnIndex +
+                        '"]', this.$body);
+                    if ($column == null)
+                        return;
+                    e.clipboardData.setData('text/plain', $column.getData('value'));
+                    e.preventDefault();
+                }
             }
         }
         Grid.Panel = Panel;
         class Header extends Admin.Component {
             type = 'grid';
             role = 'header';
+            grid;
             headers = [1, 2, 3];
             /**
              * 그리드패널 헤더를 생성한다.
              *
              * @param {object[]} columns - 컬럼
              */
-            constructor(columns = []) {
+            constructor(columns = [], grid) {
                 const properties = { items: columns };
                 super(properties);
+                this.grid = grid;
                 this.initColumns();
             }
             /**
@@ -127,6 +308,7 @@ var Admin;
                     if (!(item instanceof Admin.Grid.Column)) {
                         item = new Admin.Grid.Column(item);
                     }
+                    item.setGrid(this.getGrid());
                     this.headers.push(item);
                     this.items.push(...item.getColumns());
                 }
@@ -139,6 +321,14 @@ var Admin;
                     this.$getComponent().append(header.$getHeader());
                 }
                 super.render();
+            }
+            /**
+             * 그리드헤더가 포함된 그리드패널을 가져온다.
+             *
+             * @return {Admin.Grid.Panel} grid
+             */
+            getGrid() {
+                return this.grid;
             }
             /**
              * 전체 컬럼을 가져온다.
@@ -160,7 +350,7 @@ var Admin;
              * @param {number} index - 가져올 컬럼의 인덱스
              * @return {Admin.Grid.Column} column - 컬럼
              */
-            getAt(index) {
+            getColumnByIndex(index) {
                 const item = this.items[index];
                 if (item instanceof Admin.Grid.Column) {
                     return item;
@@ -172,10 +362,13 @@ var Admin;
         }
         Grid.Header = Header;
         class Column extends Admin.Base {
+            grid;
+            parent = null;
             text;
             dataIndex;
             width;
             minWidth;
+            hidden;
             headerWrap;
             headerAlign;
             headerVerticalAlign;
@@ -195,6 +388,7 @@ var Admin;
                 this.width = this.properties.width ?? null;
                 this.minWidth = this.properties.minWidth ?? null;
                 this.minWidth ??= this.width == null ? 50 : null;
+                this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';
                 this.headerVerticalAlign = this.properties.headerVerticalAlign ?? 'middle';
@@ -203,12 +397,11 @@ var Admin;
                 this.textVerticalAlign = this.properties.textVerticalAlign ?? 'middle';
                 this.columns = [];
                 for (let column of properties?.columns ?? []) {
-                    if (column instanceof Admin.Grid.Column) {
-                        this.columns.push(column);
+                    if (!(column instanceof Admin.Grid.Column)) {
+                        column = new Admin.Grid.Column(column);
                     }
-                    else {
-                        this.columns.push(new Admin.Grid.Column(column));
-                    }
+                    column.setParent(this);
+                    this.columns.push(column);
                 }
             }
             /**
@@ -226,6 +419,41 @@ var Admin;
              */
             getChildren() {
                 return this.columns;
+            }
+            /**
+             * 그리드패널을 지정한다.
+             *
+             * @param {Admin.Grid.Panel} grid - 그리드패널
+             */
+            setGrid(grid) {
+                this.grid = grid;
+                this.columns.forEach((column) => {
+                    column.setGrid(grid);
+                });
+            }
+            /**
+             * 컬럼의 그룹헤더 지정한다.
+             *
+             * @param {Admin.Grid.Column} parent - 그리드헤더 그룹컬럼
+             */
+            setParent(parent) {
+                this.parent = parent;
+            }
+            /**
+             * 컬럼이 그룹화되어 있다면 그룹헤더를 가져온다.
+             *
+             * @return {Admin.Grid.Column} parent
+             */
+            getParent() {
+                return this.parent;
+            }
+            /**
+             * 그리드패널을 가져온다.
+             *
+             * @returns {Admin.Grid.Panel} grid
+             */
+            getGrid() {
+                return this.grid;
             }
             /**
              * 현재 컬럼을 포함한 하위 전체 컬럼을 가져온다.
@@ -247,12 +475,17 @@ var Admin;
              * @return {number} flexGrow
              */
             getChildrenFlexGrow() {
+                if (this.hidden == true) {
+                    return 0;
+                }
                 if (this.columns.length == 0) {
                     return this.width === null ? 1 : 0;
                 }
                 else {
                     let flexGrow = 0;
-                    for (let column of this.columns) {
+                    for (const column of this.columns) {
+                        if (column.hidden == true)
+                            continue;
                         flexGrow += column.getChildrenFlexGrow();
                     }
                     return flexGrow;
@@ -264,16 +497,61 @@ var Admin;
              * @return {number} flexBasis
              */
             getChildrenFlexBasis() {
+                if (this.hidden == true) {
+                    return 0;
+                }
                 if (this.columns.length == 0) {
                     return this.width ? this.width : this.minWidth ? this.minWidth : 0;
                 }
                 else {
                     let width = 0;
-                    for (let column of this.columns) {
+                    let count = 0;
+                    for (const column of this.columns) {
+                        if (column.isHidden() == true)
+                            continue;
                         width += column.getChildrenFlexBasis();
+                        count++;
                     }
-                    width += this.columns.length - 1;
+                    width += Math.max(0, count - 1);
                     return width;
+                }
+            }
+            /**
+             * 컬럼너비를 변경한다.
+             *
+             * @param {number} width - 변경할 너비
+             */
+            setWidth(width) {
+                this.width = width;
+                this.minWidth = null;
+                this.getGrid().updateLayout();
+            }
+            /**
+             * 컬럼의 숨김여부를 변경한다.
+             *
+             * @param {boolean} hidden - 숨김여부
+             */
+            setHidden(hidden) {
+                this.hidden = hidden;
+                this.getGrid().updateLayout();
+            }
+            /**
+             * 컬럼의 숨김여부를 가져온다.
+             *
+             * @return {boolean} hidden
+             */
+            isHidden() {
+                if (this.hasChild() == true) {
+                    let count = 0;
+                    this.getChildren().forEach((column) => {
+                        if (column.isHidden() == false) {
+                            count++;
+                        }
+                    });
+                    return count == 0;
+                }
+                else {
+                    return this.hidden;
                 }
             }
             /**
@@ -301,6 +579,9 @@ var Admin;
                         $children.append(child.$getHeader());
                     }
                     $group.append($children);
+                    if (this.isHidden() == true) {
+                        $header.setStyle('display', 'none');
+                    }
                     $header.append($group);
                 }
                 else {
@@ -323,6 +604,9 @@ var Admin;
                     const $button = Html.create('button');
                     $button.text('d');
                     $header.append($button);
+                    if (this.hidden == true) {
+                        $header.setStyle('display', 'none');
+                    }
                 }
                 return $header;
             }
@@ -332,11 +616,16 @@ var Admin;
              * @param {any} value - 컬럼의 dataIndex 데이터
              * @param {Object} record - 컬럼이 속한 행의 모든 데이터셋
              * @param {number} rowIndex - 행 인덱스
-             * @param {number} colIndex - 열 인덱스
+             * @param {number} columnIndex - 열 인덱스
              * @return {Dom} $layout
              */
-            $getBody(value, record, rowIndex, colIndex) {
-                const $column = Html.create('div').setData('role', 'column');
+            $getBody(value, record, rowIndex, columnIndex) {
+                const $column = Html.create('div')
+                    .setData('role', 'column')
+                    .setData('row', rowIndex)
+                    .setData('column', columnIndex)
+                    .setData('record', record, false)
+                    .setData('value', value, false);
                 if (this.width) {
                     $column.setStyle('width', this.width + 'px');
                 }
@@ -349,12 +638,15 @@ var Admin;
                 }
                 $column.addClass(this.textAlign);
                 $column.on('click', (e) => {
-                    // @todo 컬럼을 선택한다.
-                    // Html.el(e.currentTarget).addClass('focus');
+                    const $column = Html.el(e.currentTarget);
+                    this.getGrid().focusCell($column.getData('row'), $column.getData('column'));
                 });
                 const $display = Html.create('div').setData('display', 'view');
                 $display.text(value);
                 $column.append($display);
+                if (this.hidden == true) {
+                    $column.setStyle('display', 'none');
+                }
                 return $column;
             }
         }
