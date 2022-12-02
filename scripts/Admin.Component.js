@@ -158,7 +158,9 @@ var Admin;
             if (this.$contents.length == 0) {
                 for (let item of this.getItems()) {
                     this.$component.append(item.$getComponent());
-                    item.render();
+                    if (this.isRenderable() == true) {
+                        item.render();
+                    }
                 }
             }
             else {
