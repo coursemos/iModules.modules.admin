@@ -12,6 +12,7 @@ var Admin;
 (function (Admin) {
     class Store extends Admin.Base {
         autoLoad = true;
+        remoteSort = false;
         loading = false;
         loaded = false;
         data;
@@ -25,8 +26,9 @@ var Admin;
          */
         constructor(properties = null) {
             super(properties);
-            this.autoLoad = this.properties?.autoLoad !== false;
-            this.fieldTypes = this.properties?.fieldTypes ?? {};
+            this.autoLoad = this.properties.autoLoad !== false;
+            this.remoteSort = this.properties.remoteSort !== true;
+            this.fieldTypes = this.properties.fieldTypes ?? {};
         }
         /**
          * 데이터가 로딩되었는지 확인한다.
@@ -45,6 +47,14 @@ var Admin;
             return this.data;
         }
         /**
+         * 데이터 갯수를 가져온다.
+         *
+         * @return {number} count
+         */
+        getCount() {
+            return this.count ?? 0;
+        }
+        /**
          * 데이터를 가져온다.
          *
          * @return {Admin.Data.Record[]} records
@@ -56,6 +66,37 @@ var Admin;
          * 데이터를 가져온다.
          */
         load() { }
+        /**
+         * 데이터를 정렬한다.
+         *
+         * @param {string} field - 정렬할 필드명
+         * @param {string} direction - 정렬방향 (asc, desc)
+         */
+        sort(field, direction) {
+            this.onBeforeLoad();
+            this.data?.sort([{ field: field, direction: direction }]);
+            this.onLoad();
+        }
+        /**
+         * 데이터를 다중 정렬기준에 따라 정렬한다.
+         *
+         * @param {Object} sorters - 정렬기준 [{field:string, direction:(ASC|DESC)}, ...]
+         */
+        multiSort(sorters) {
+            this.onBeforeLoad();
+            this.data?.sort(sorters);
+            this.onLoad();
+        }
+        /**
+         * 데이터가 로딩되기 전 이벤트를 처리한다.
+         */
+        onBeforeLoad() {
+            if (!this.listeners.beforeLoad)
+                return;
+            for (var listener of this.listeners.beforeLoad) {
+                listener.listener(...listener.params);
+            }
+        }
         /**
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
@@ -98,6 +139,7 @@ var Admin;
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    cache: 'no-store',
                     redirect: 'follow',
                 });
                 return jsonFetch.json();
@@ -106,11 +148,11 @@ var Admin;
              * 데이터를 가져온다.
              */
             load() {
-                console.log('load');
                 if (this.loading == true) {
                     return;
                 }
                 this.loading = true;
+                this.onBeforeLoad();
                 this.getJson()
                     .then((results) => {
                     console.log('datas', results);
