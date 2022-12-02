@@ -44,10 +44,8 @@ class Admin extends \Module
          * 기본 자바스크립트파일을 불러온다.
          * 사용되는 모든 스크립트 파일을 캐시를 이용해 압축한다.
          */
-        //Cache::script('core', '/scripts/jquery.min.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Base.js');
+        Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Component.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Store.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Text.js');
@@ -70,7 +68,6 @@ class Admin extends \Module
          * @todo 관리자 라우팅 처리
          */
         $content = $this->getTemplet()->getLayout('dashboard');
-
         $theme->assign('content', $content);
 
         return $theme->getLayout('index');

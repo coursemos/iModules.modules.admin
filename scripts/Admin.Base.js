@@ -10,6 +10,46 @@
  */
 var Admin;
 (function (Admin) {
+    Admin.components = {};
+    Admin.index = 0;
+    Admin.currentComponent = null;
+    /**
+     * 컴포넌트를 등록한다.
+     *
+     * @param {Admin.Base} component - 컴포넌트 객체
+     */
+    function set(component) {
+        this.components[component.id] = component;
+    }
+    Admin.set = set;
+    /**
+     * 컴포넌트를 가져온다.
+     *
+     * @param {string} id - 가져올 컴포넌트 고유값
+     * @return {Admin.Base} component - 컴포넌트
+     */
+    function get(id) {
+        return this.components[id];
+    }
+    Admin.get = get;
+    /**
+     * 컴포넌트 일련번호를 가져온다.
+     *
+     * @return {number} index - 일련번호
+     */
+    function getIndex() {
+        return ++this.index;
+    }
+    Admin.getIndex = getIndex;
+    /**
+     * 관리자 UI 처리가 준비되었을 때 이벤트리스너를 등록한다.
+     *
+     * @param {EventListener} listener - 이벤트리스너
+     */
+    function ready(listener) {
+        Html.ready(listener);
+    }
+    Admin.ready = ready;
     class Base {
         id;
         properties;
@@ -60,3 +100,25 @@ var Admin;
     }
     Admin.Base = Base;
 })(Admin || (Admin = {}));
+Html.on('click', (e) => {
+    if (e.target instanceof HTMLElement) {
+        const $target = Html.el(e.target);
+        const $component = $target.getParents('div[data-component]');
+        if ($component == null) {
+            Admin.currentComponent = null;
+        }
+        else {
+            Admin.currentComponent = Admin.get($component.getData('component'));
+        }
+    }
+});
+Html.on('keydown', (e) => {
+    if (Admin.currentComponent !== null && typeof Admin.currentComponent['onKeydown'] == 'function') {
+        Admin.currentComponent['onKeydown'](e);
+    }
+});
+Html.on('copy', (e) => {
+    if (Admin.currentComponent !== null && typeof Admin.currentComponent['onCopy'] == 'function') {
+        Admin.currentComponent['onCopy'](e);
+    }
+});
