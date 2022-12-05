@@ -37,8 +37,8 @@ var Admin;
         initItems() {
             if (this.items === null) {
                 this.items = [];
-                for (let item of this.properties.items ?? []) {
-                    if (item instanceof Admin.Toolbar.Item) {
+                for (const item of this.properties.items ?? []) {
+                    if (item instanceof Admin.Component) {
                         this.items.push(item);
                     }
                     else if (typeof item == 'string') {
