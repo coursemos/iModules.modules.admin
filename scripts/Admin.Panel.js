@@ -192,34 +192,35 @@ var Admin;
          * 레이아웃을 렌더링한다.
          */
         render() {
-            if (this.isRenderable() == false)
-                return;
-            if (this.border == true) {
-                this.$container.addClass('border');
-            }
-            if (this.margin !== null) {
-                if (typeof this.margin == 'number') {
-                    this.margin = this.margin + 'px';
+            if (this.isRenderable() == true) {
+                if (this.border == true) {
+                    this.$container.addClass('border');
                 }
-                this.$component.setStyle('padding', this.margin);
+                if (this.margin !== null) {
+                    if (typeof this.margin == 'number') {
+                        this.margin = this.margin + 'px';
+                    }
+                    this.$component.setStyle('padding', this.margin);
+                }
+                if (this.scrollable == true) {
+                    this.$content.addClass('scrollableX');
+                    this.$content.addClass('scrollableY');
+                }
+                else if (this.scrollable == 'X') {
+                    this.$content.addClass('scrollableX');
+                }
+                else if (this.scrollable == 'Y') {
+                    this.$content.addClass('scrollableY');
+                }
+                this.$container.append(this.$top);
+                this.$container.append(this.$content);
+                this.$container.append(this.$bottom);
+                this.$component.append(this.$container);
+                this.renderTop();
+                this.renderBottom();
+                this.renderContent();
+                this.rendered();
             }
-            if (this.scrollable == true) {
-                this.$content.addClass('scrollableX');
-                this.$content.addClass('scrollableY');
-            }
-            else if (this.scrollable == 'X') {
-                this.$content.addClass('scrollableX');
-            }
-            else if (this.scrollable == 'Y') {
-                this.$content.addClass('scrollableY');
-            }
-            this.renderTop();
-            this.renderBottom();
-            this.renderContent();
-            this.$container.append(this.$top);
-            this.$container.append(this.$content);
-            this.$container.append(this.$bottom);
-            this.append(this.$container);
             super.render();
         }
     }
