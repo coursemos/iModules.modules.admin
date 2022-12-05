@@ -14,10 +14,14 @@ namespace Admin {
             type: string = 'panel';
             role: string = 'grid';
 
+            headers: Admin.Grid.Column[];
+            columns: Admin.Grid.Column[];
+
             store: Admin.Store;
 
-            gridHeader: Admin.Grid.Header;
-            $gridBody: Dom;
+            $header: Dom;
+            $body: Dom;
+            $footer: Dom;
 
             focusedCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
 
@@ -48,8 +52,28 @@ namespace Admin {
                     [this]
                 );
 
-                this.gridHeader = new Admin.Grid.Header(this.properties.columns ?? [], this);
-                this.$gridBody = Html.create('div').setData('role', 'body');
+                this.initColumns();
+
+                this.$header = Html.create('div').setData('role', 'header');
+                this.$body = Html.create('div').setData('role', 'body');
+                this.$footer = Html.create('div').setData('role', 'footer');
+            }
+
+            /**
+             * 그리드패널 헤더의 하위 컴포넌트를 초기화한다.
+             */
+            initColumns(): void {
+                this.headers = [];
+                this.columns = [];
+
+                for (let column of this.properties.columns ?? []) {
+                    if (!(column instanceof Admin.Grid.Column)) {
+                        column = new Admin.Grid.Column(column);
+                    }
+                    column.setGrid(this);
+                    this.headers.push(column);
+                    this.columns.push(...column.getColumns());
+                }
             }
 
             /**
@@ -62,12 +86,51 @@ namespace Admin {
             }
 
             /**
-             * 그리드패널의 헤더(테이블 제목행)을 가져온다.
-             *
-             * @return {Admin.Grid.Header} header
+             * 그리드패널의 헤더(제목행)를 랜더링한다.
              */
-            getGridHeader(): Admin.Grid.Header {
-                return this.gridHeader;
+            renderHeader(): void {
+                for (const header of this.headers) {
+                    this.$header.append(header.$getHeader());
+                }
+            }
+
+            /**
+             * 그리드패널의 바디(데이터행)를 랜더링한다.
+             */
+            renderBody(): void {
+                this.$body.empty();
+                this.getStore()
+                    .getRecords()
+                    .forEach((record: Admin.Data.Record, rowIndex: number) => {
+                        const $row = Html.create('div').setData('role', 'row').setData('row-index', rowIndex);
+                        this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
+                            const value = record.get(column.dataIndex);
+                            $row.append(column.$getBody(value, record, rowIndex, columnIndex));
+                        });
+                        this.$body.append($row);
+                    });
+            }
+
+            /**
+             * 그리드패널의 푸터(합계행)를 핸더링한다.
+             */
+            renderFooter(): void {}
+
+            /**
+             * 패널의 본문 레이아웃을 랜더링한다.
+             */
+            renderContent(): void {
+                if (this.$content.getData('rendered') == true) return;
+
+                this.renderHeader();
+                this.renderBody();
+                this.renderFooter();
+
+                this.$content.append(this.$header);
+                this.$content.append(this.$body);
+                this.$content.append(this.$footer);
+
+                this.$content.setData('rendered', true);
             }
 
             /**
@@ -76,7 +139,22 @@ namespace Admin {
              * @return {Admin.Grid.Column[]} columns
              */
             getColumns(): Admin.Grid.Column[] {
-                return this.getGridHeader().getColumns();
+                return this.columns;
+            }
+
+            /**
+             * 특정 순서의 컬럼을 가져온다.
+             *
+             * @param {number} index - 가져올 컬럼의 인덱스
+             * @return {Admin.Grid.Column} column - 컬럼
+             */
+            getColumnByIndex(index: number): Admin.Grid.Column {
+                const column = this.columns[index];
+                if (column instanceof Admin.Grid.Column) {
+                    return column as Admin.Grid.Column;
+                } else {
+                    return null;
+                }
             }
 
             /**
@@ -88,18 +166,18 @@ namespace Admin {
                 const $row = Html.all('div[data-role=row]', this.$body).get(rowIndex);
                 if ($row == null) return;
 
-                const headerHeight = this.gridHeader.$getComponent().getOuterHeight();
-                const bodyHeight = this.$body.getHeight();
+                const headerHeight = this.$header.getOuterHeight();
+                const contentHeight = this.$content.getHeight();
                 const rowHeight = $row.getOuterHeight();
                 const offset = $row.getOffset();
-                const scroll = this.$body.getScroll();
+                const scroll = this.$content.getScroll();
                 const top = offset.top - scroll.top;
                 const bottom = top + $row.getOuterHeight();
 
                 if (top < headerHeight) {
-                    this.$body.setScroll(offset.top - headerHeight - 1, null, false);
-                } else if (bottom > bodyHeight) {
-                    this.$body.setScroll(offset.top + rowHeight - bodyHeight + 1, null, false);
+                    this.$content.setScroll(offset.top - headerHeight - 1, null, false);
+                } else if (bottom > contentHeight) {
+                    this.$content.setScroll(offset.top + rowHeight - contentHeight + 1, null, false);
                 }
             }
 
@@ -125,48 +203,33 @@ namespace Admin {
                 this.focusedCell.columnIndex = columnIndex;
 
                 const lockedWidth = 0;
-                const bodyWidth = this.$body.getWidth();
+                const contentWidth = this.$content.getWidth();
                 const columnWidth = $column.getOuterWidth();
                 const offset = $column.getOffset();
-                const scroll = this.$body.getScroll();
+                const scroll = this.$content.getScroll();
                 const left = offset.left - scroll.left;
                 const right = left + $column.getOuterWidth();
 
                 if (left < lockedWidth) {
-                    this.$body.setScroll(null, offset.left - lockedWidth - 1, false);
-                } else if (right > bodyWidth) {
-                    this.$body.setScroll(null, offset.left + columnWidth - bodyWidth + 1, false);
+                    this.$content.setScroll(null, offset.left - lockedWidth - 1, false);
+                } else if (right > contentWidth) {
+                    this.$content.setScroll(null, offset.left + columnWidth - contentWidth + 1, false);
                 }
-            }
-
-            /**
-             * 바디 레이아웃을 랜더링한다.
-             */
-            renderBody(): void {
-                if (this.$body.getData('rendered') == true) return;
-
-                this.$body.append(this.gridHeader.$getComponent());
-                this.gridHeader.render();
-
-                this.$body.append(this.$gridBody);
-                this.$body.setData('rendered', true);
             }
 
             /**
              * 그리드패널 레이아웃을 갱신한다.
              */
             updateLayout(): void {
-                if (this.$body.getData('rendered') == false) {
+                if (this.isRendered() == false) {
                     this.render();
                     return;
                 }
 
-                const $gridHeader = this.getGridHeader().$getComponent();
                 this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
-                    const $column = Html.all('div[data-role=column]', $gridHeader).get(columnIndex);
+                    const $column = Html.all('div[data-role=column]', this.$header).get(columnIndex);
 
                     let isUpdated = false;
-                    console.log(column.hidden, $column.getStyle('display'));
                     if (
                         (column.hidden == true && $column.getStyle('display') != 'none') ||
                         (column.hidden == false && $column.getStyle('display') == 'none')
@@ -249,17 +312,7 @@ namespace Admin {
                 if (this.getStore().isLoaded() === false) return;
 
                 this.focusedCell = { rowIndex: null, columnIndex: null };
-                this.$gridBody.empty();
-                this.getStore()
-                    .getRecords()
-                    .forEach((record: Admin.Data.Record, rowIndex: number) => {
-                        const $row = Html.create('div').setData('role', 'row').setData('row-index', rowIndex);
-                        this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
-                            const value = record.get(column.dataIndex);
-                            $row.append(column.$getBody(value, record, rowIndex, columnIndex));
-                        });
-                        this.$gridBody.append($row);
-                    });
+                this.renderBody();
             }
 
             /**
@@ -275,10 +328,7 @@ namespace Admin {
                         case 'ArrowLeft':
                             rowIndex = this.focusedCell.rowIndex ?? 0;
                             columnIndex = Math.max(0, (this.focusedCell.columnIndex ?? 0) - 1);
-                            while (
-                                columnIndex > 0 &&
-                                this.getGridHeader().getColumnByIndex(columnIndex).isHidden() == true
-                            ) {
+                            while (columnIndex > 0 && this.getColumnByIndex(columnIndex).isHidden() == true) {
                                 columnIndex--;
                             }
                             break;
@@ -291,7 +341,7 @@ namespace Admin {
                             );
                             while (
                                 columnIndex < this.getColumns().length - 1 &&
-                                this.getGridHeader().getColumnByIndex(columnIndex).isHidden() == true
+                                this.getColumnByIndex(columnIndex).isHidden() == true
                             ) {
                                 columnIndex++;
                             }
@@ -336,95 +386,6 @@ namespace Admin {
             }
         }
 
-        export class Header extends Admin.Component {
-            type: string = 'grid';
-            role: string = 'header';
-
-            grid: Admin.Grid.Panel;
-            headers: any[] = [1, 2, 3];
-
-            /**
-             * 그리드패널 헤더를 생성한다.
-             *
-             * @param {object[]} columns - 컬럼
-             */
-            constructor(columns: object[] = [], grid: Admin.Grid.Panel) {
-                const properties = { items: columns };
-                super(properties);
-
-                this.grid = grid;
-                this.initColumns();
-            }
-
-            /**
-             * 그리드패널 헤더의 하위 컴포넌트를 초기화한다.
-             */
-            initColumns(): void {
-                this.items = [];
-                this.headers = [];
-
-                for (let item of this.properties.items ?? []) {
-                    if (!(item instanceof Admin.Grid.Column)) {
-                        item = new Admin.Grid.Column(item);
-                    }
-                    item.setGrid(this.getGrid());
-                    this.headers.push(item);
-                    this.items.push(...item.getColumns());
-                }
-            }
-
-            /**
-             * 레이아웃을 렌더링한다.
-             */
-            render(): void {
-                for (const header of this.headers) {
-                    this.$getComponent().append(header.$getHeader());
-                }
-
-                super.render();
-            }
-
-            /**
-             * 그리드헤더가 포함된 그리드패널을 가져온다.
-             *
-             * @return {Admin.Grid.Panel} grid
-             */
-            getGrid(): Admin.Grid.Panel {
-                return this.grid;
-            }
-
-            /**
-             * 전체 컬럼을 가져온다.
-             *
-             * @return {Admin.Grid.Column[]} columns
-             */
-            getColumns(): Admin.Grid.Column[] {
-                let columns: Admin.Grid.Column[] = [];
-                for (let item of this.items) {
-                    if (item instanceof Admin.Grid.Column) {
-                        columns.push(item);
-                    }
-                }
-
-                return columns;
-            }
-
-            /**
-             * 특정 순서의 컬럼을 가져온다.
-             *
-             * @param {number} index - 가져올 컬럼의 인덱스
-             * @return {Admin.Grid.Column} column - 컬럼
-             */
-            getColumnByIndex(index: number): Admin.Grid.Column {
-                const item = this.items[index];
-                if (item instanceof Admin.Grid.Column) {
-                    return item as Admin.Grid.Column;
-                } else {
-                    return null;
-                }
-            }
-        }
-
         export class Column extends Admin.Base {
             grid: Admin.Grid.Panel;
             parent: Admin.Grid.Column = null;
@@ -432,6 +393,8 @@ namespace Admin {
             dataIndex: string;
             width: number;
             minWidth: number;
+            resizable: boolean;
+            sortable: boolean;
             hidden: boolean;
             headerWrap: boolean;
             headerAlign: string;
@@ -454,6 +417,8 @@ namespace Admin {
                 this.width = this.properties.width ?? null;
                 this.minWidth = this.properties.minWidth ?? null;
                 this.minWidth ??= this.width == null ? 50 : null;
+                this.resizable = this.properties.resizable ?? true;
+                this.sortable = this.properties.sortable ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';
@@ -720,7 +685,7 @@ namespace Admin {
                 if (this.width) {
                     $column.setStyle('width', this.width + 'px');
                 } else {
-                    $column.setStyle('flexGrow', 1); //.css("flexBasis",0);
+                    $column.setStyle('flexGrow', 1);
                 }
 
                 if (this.minWidth) {
