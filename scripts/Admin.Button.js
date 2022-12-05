@@ -37,26 +37,29 @@ var Admin;
          * 레이아웃을 렌더링한다.
          */
         render() {
-            if (this.iconClass !== null) {
-                let $icon = Html.create('i').addClass('icon');
-                $icon.addClass(...this.iconClass.split(' '));
-                this.$button.append($icon);
+            if (this.isRenderable() == true) {
+                if (this.iconClass !== null) {
+                    let $icon = Html.create('i').addClass('icon');
+                    $icon.addClass(...this.iconClass.split(' '));
+                    this.$button.append($icon);
+                }
+                if (this.text !== null) {
+                    let $text = Html.create('span').text(this.text);
+                    this.$button.append($text);
+                }
+                if (this.handler !== null || this.toggle === true) {
+                    this.$button.on('click', () => {
+                        if (this.toggle == true) {
+                            this.setPressed(!this.pressed);
+                        }
+                        if (this.handler !== null) {
+                            this.handler(this);
+                        }
+                    });
+                }
+                this.$component.append(this.$button);
+                this.rendered();
             }
-            if (this.text !== null) {
-                let $text = Html.create('span').text(this.text);
-                this.$button.append($text);
-            }
-            if (this.handler !== null || this.toggle === true) {
-                this.$button.on('click', () => {
-                    if (this.toggle == true) {
-                        this.setPressed(!this.pressed);
-                    }
-                    if (this.handler !== null) {
-                        this.handler(this);
-                    }
-                });
-            }
-            this.append(this.$button);
             super.render();
         }
         /**
