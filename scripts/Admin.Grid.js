@@ -99,12 +99,12 @@ var Admin;
             renderContent() {
                 if (this.$content.getData('rendered') == true)
                     return;
-                this.renderHeader();
-                this.renderBody();
-                this.renderFooter();
                 this.$content.append(this.$header);
                 this.$content.append(this.$body);
                 this.$content.append(this.$footer);
+                this.renderHeader();
+                this.renderBody();
+                this.renderFooter();
                 this.$content.setData('rendered', true);
             }
             /**
@@ -336,6 +336,7 @@ var Admin;
             minWidth;
             resizable;
             sortable;
+            locked;
             hidden;
             headerWrap;
             headerAlign;
@@ -358,6 +359,7 @@ var Admin;
                 this.minWidth ??= this.width == null ? 50 : null;
                 this.resizable = this.properties.resizable ?? true;
                 this.sortable = this.properties.sortable ?? false;
+                this.locked = this.properties.locked ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';
@@ -531,6 +533,7 @@ var Admin;
              */
             $getHeader() {
                 const $header = Html.create('div');
+                let lockedPosition = 0;
                 if (this.hasChild() == true) {
                     $header.setData('role', 'merge');
                     if (this.getChildrenFlexGrow() > 0) {
@@ -576,6 +579,9 @@ var Admin;
                     $header.append($button);
                     if (this.hidden == true) {
                         $header.setStyle('display', 'none');
+                    }
+                    if (this.locked == true) {
+                        $header.addClass('sticky');
                     }
                 }
                 return $header;

@@ -122,13 +122,13 @@ namespace Admin {
             renderContent(): void {
                 if (this.$content.getData('rendered') == true) return;
 
-                this.renderHeader();
-                this.renderBody();
-                this.renderFooter();
-
                 this.$content.append(this.$header);
                 this.$content.append(this.$body);
                 this.$content.append(this.$footer);
+
+                this.renderHeader();
+                this.renderBody();
+                this.renderFooter();
 
                 this.$content.setData('rendered', true);
             }
@@ -395,6 +395,7 @@ namespace Admin {
             minWidth: number;
             resizable: boolean;
             sortable: boolean;
+            locked: boolean;
             hidden: boolean;
             headerWrap: boolean;
             headerAlign: string;
@@ -419,6 +420,7 @@ namespace Admin {
                 this.minWidth ??= this.width == null ? 50 : null;
                 this.resizable = this.properties.resizable ?? true;
                 this.sortable = this.properties.sortable ?? false;
+                this.locked = this.properties.locked ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';
@@ -606,6 +608,8 @@ namespace Admin {
              */
             $getHeader(): Dom {
                 const $header = Html.create('div');
+
+                let lockedPosition = 0;
                 if (this.hasChild() == true) {
                     $header.setData('role', 'merge');
 
@@ -660,6 +664,10 @@ namespace Admin {
 
                     if (this.hidden == true) {
                         $header.setStyle('display', 'none');
+                    }
+
+                    if (this.locked == true) {
+                        $header.addClass('sticky');
                     }
                 }
 
