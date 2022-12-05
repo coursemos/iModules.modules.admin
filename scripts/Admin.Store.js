@@ -133,7 +133,6 @@ var Admin;
              * @return {Promise<Object>} promise
              */
             async getJson() {
-                console.log('getJson', this.url, this.method);
                 const jsonFetch = await fetch(this.url, {
                     method: this.method,
                     headers: {
@@ -155,7 +154,6 @@ var Admin;
                 this.onBeforeLoad();
                 this.getJson()
                     .then((results) => {
-                    console.log('datas', results);
                     if (results.success == true) {
                         this.loaded = true;
                         this.data = new Admin.Data(results.records, this.fieldTypes);

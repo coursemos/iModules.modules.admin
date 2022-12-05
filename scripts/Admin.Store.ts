@@ -146,7 +146,6 @@ namespace Admin {
              * @return {Promise<Object>} promise
              */
             async getJson(): Promise<Object> {
-                console.log('getJson', this.url, this.method);
                 const jsonFetch = await fetch(this.url, {
                     method: this.method,
                     headers: {
@@ -171,8 +170,6 @@ namespace Admin {
 
                 this.getJson()
                     .then((results: { success: boolean; message?: string; records: object[]; total: number }) => {
-                        console.log('datas', results);
-
                         if (results.success == true) {
                             this.loaded = true;
                             this.data = new Admin.Data(results.records, this.fieldTypes);
