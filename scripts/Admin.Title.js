@@ -43,8 +43,11 @@ var Admin;
          * 레이아웃을 렌더링한다.
          */
         render() {
-            this.$title.text(this.title);
-            this.append(this.$title);
+            if (this.isRenderable() == true) {
+                this.$title.text(this.title);
+                this.$component.append(this.$title);
+                this.rendered();
+            }
             super.render();
         }
     }
