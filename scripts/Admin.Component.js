@@ -15,7 +15,6 @@ var Admin;
         type = 'component';
         role = null;
         $component;
-        $contents;
         items;
         layout;
         padding;
@@ -30,7 +29,6 @@ var Admin;
             super(properties);
             this.parent = null;
             this.role = null;
-            this.$contents = [];
             this.items = null;
             this.role ??= null;
             this.layout ??= this.properties.layout ?? 'auto';
@@ -114,8 +112,8 @@ var Admin;
                 this.$component.hide();
             }
             else {
-                this.render();
                 this.$component.show();
+                this.render();
             }
             return this;
         }
@@ -144,29 +142,33 @@ var Admin;
             return this.$component.getData('rendered') === true;
         }
         /**
+         * 컴포넌트가 랜더링되었는지 기록한다.
+         * 상위 클래스에 의해 더이상 컴포넌트가 랜더링되지 않도록 한다.
+         */
+        rendered() {
+            this.$component.setData('rendered', true, false);
+        }
+        /**
          * 레이아웃을 렌더링한다.
          */
         render() {
-            if (this.isRenderable() == false)
-                return;
             this.$component
                 .setData('component', this.getId())
                 .setData('type', this.type)
                 .setData('role', this.role)
                 .addClass(this.layout);
-            if (this.$contents.length == 0) {
+            if (this.isRenderable() == true) {
                 for (let item of this.getItems()) {
                     this.$component.append(item.$getComponent());
-                    if (this.isRenderable() == true) {
+                    if (item.isRenderable() == true) {
                         item.render();
                     }
                 }
+                this.rendered();
             }
-            else {
-                this.$component.append(this.$contents);
+            if (this.isRendered() == true) {
+                this.onRender();
             }
-            this.$component.setData('rendered', true);
-            this.onRender();
         }
         /**
          * 현재 컴포넌트의 레이아웃을 관리자영역에 출력한다.
@@ -175,14 +177,6 @@ var Admin;
             let $section = Html.get('section[data-role=admin]');
             $section.append(this.$component);
             this.render();
-        }
-        /**
-         * 컨텐츠 DOM 요소를 마지막에 추가한다.
-         *
-         * @param {Dom} $content
-         */
-        append($content) {
-            this.$contents.push($content);
         }
         /**
          * 컴포넌트에 해당하는 하위 요소만 가져온다.
