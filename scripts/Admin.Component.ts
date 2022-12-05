@@ -31,7 +31,6 @@ namespace Admin {
 
             this.parent = null;
             this.role = null;
-            this.$component = null;
             this.$contents = [];
             this.items = null;
 
@@ -48,7 +47,7 @@ namespace Admin {
                 this.addEvent(name, this.properties.listeners[name]);
             }
 
-            this.$component ??= Html.create('div');
+            this.$component = Html.create('div');
 
             this.initItems();
         }
