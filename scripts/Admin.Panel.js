@@ -16,15 +16,13 @@ var Admin;
         border;
         margin;
         scrollable;
-        iconClass;
         title;
-        titleHidden;
-        tbar;
-        bbar;
+        topbar;
+        bottombar;
         $container;
-        $header;
-        $body;
-        $footer;
+        $top;
+        $bottom;
+        $content;
         /**
          * 패널을 생성한다.
          *
@@ -36,44 +34,49 @@ var Admin;
             this.border = this.properties.border ?? true;
             this.margin = this.properties.margin ?? null;
             this.scrollable = this.properties.scrollable ?? false;
-            this.iconClass = this.properties.iconClass ?? null;
-            this.title = this.properties.title ?? null;
-            this.titleHidden = this.properties.titleHidden ?? false;
-            if (this.properties.tbar) {
-                if (this.properties.tbar.constructor.name == 'Array') {
-                    this.tbar = new Admin.Toolbar(this.properties.tbar);
-                }
-                else if (this.properties.tbar.constructor.name == 'Toolbar') {
-                    this.tbar = this.properties.tbar;
+            if (this.properties.title || this.properties.iconClass) {
+                if (this.properties.title instanceof Admin.Title) {
+                    this.title = this.properties.title;
                 }
                 else {
-                    this.tbar = null;
+                    this.title = new Admin.Title(this.properties.title ?? '');
+                }
+                if (this.properties.iconClass) {
+                    this.title.setIconClass(this.properties.iconClass);
+                }
+                this.title.setParent(this);
+            }
+            else {
+                this.title = null;
+            }
+            if (this.properties.topbar) {
+                if (this.properties.topbar instanceof Admin.Toolbar) {
+                    this.topbar = this.properties.topbar;
+                }
+                else {
+                    this.topbar = new Admin.Toolbar(this.properties.topbar);
                 }
             }
             else {
-                this.tbar = null;
+                this.topbar = null;
             }
-            this.tbar?.setPosition('top');
-            if (this.properties.bbar) {
-                if (this.properties.bbar.constructor.name == 'Array') {
-                    this.bbar = new Admin.Toolbar(this.properties.bbar);
-                }
-                else if (this.properties.tbar.constructor.name == 'Toolbar') {
-                    this.tbar = this.properties.tbar;
+            this.topbar?.setPosition('top');
+            if (this.properties.bottombar) {
+                if (this.properties.topbar instanceof Admin.Toolbar) {
+                    this.bottombar = new Admin.Toolbar(this.properties.bottombar);
                 }
                 else {
-                    this.bbar = null;
+                    this.bottombar = new Admin.Toolbar(this.properties.bottombar);
                 }
             }
             else {
-                this.bbar = null;
+                this.bottombar = null;
             }
-            this.bbar?.setPosition('bottom');
-            this.$component = Html.create('div');
-            this.$container = Html.create('div');
-            this.$header = Html.create('div');
-            this.$body = Html.create('div');
-            this.$footer = Html.create('div');
+            this.bottombar?.setPosition('bottom');
+            this.$container = Html.create('div').setData('role', 'container');
+            this.$top = Html.create('div').setData('role', 'top');
+            this.$bottom = Html.create('div').setData('role', 'bottom');
+            this.$content = Html.create('div').setData('role', 'body');
         }
         /**
          * 탭패널의 하위 컴포넌트를 정의한다.
@@ -100,74 +103,82 @@ var Admin;
             return this.$container;
         }
         /**
-         * 패널의 헤더 DOM 을 가져온다.
+         * 패널의 상단 DOM 을 가져온다.
          *
-         * @return {Dom} $header
+         * @return {Dom} $top
          */
-        $getHeader() {
-            return this.$header;
+        $getTop() {
+            return this.$top;
         }
         /**
-         * 패널의 바디 DOM 을 가져온다.
+         * 패널의 하단 DOM 을 가져온다.
          *
-         * @return {Dom} $body
+         * @return {Dom} $bottom
          */
-        $getBody() {
-            return this.$body;
+        $getBottom() {
+            return this.$bottom;
         }
         /**
-         * 패널의 푸터 DOM 을 가져온다.
+         * 패널의 본문 DOM 을 가져온다.
          *
-         * @return {Dom} $footer
+         * @return {Dom} $content
          */
-        $getFooter() {
-            return this.$footer;
+        $getContent() {
+            return this.$content;
         }
         /**
-         * 헤더 레이아웃을 랜더링한다.
+         * 패널의 툴바를 가져온다.
+         *
+         * @param {string} position - 가져올 툴바 위치 (top, bottom)
+         * @return {Admin.Toolbar} toolbar
          */
-        renderHeader() {
-            if (this.$header.getData('rendered') == true)
+        getToolbar(position) {
+            if (position == 'top') {
+                return this.topbar;
+            }
+            else if (position == 'bottom') {
+                return this.bottombar;
+            }
+        }
+        /**
+         * 패널의 상단을 랜더링한다.
+         */
+        renderTop() {
+            if (this.$top.getData('rendered') == true)
                 return;
-            const $title = Html.create('h4');
-            if (this.title !== null)
-                $title.append(Html.create('span').text(this.title));
-            if (this.title !== null && this.titleHidden === false) {
-                $title.show();
+            if (this.title !== null) {
+                this.$top.append(this.title.$getComponent());
+                this.title.render();
             }
-            else {
-                $title.hide();
+            if (this.topbar !== null) {
+                this.$top.append(this.topbar.$getComponent());
+                this.topbar.render();
             }
-            this.$header.append($title);
-            if (this.tbar !== null) {
-                this.$header.append(this.tbar.$getComponent());
-                this.tbar.render();
-            }
-            this.$header.setData('rendered', true);
+            this.$top.setData('rendered', true);
         }
         /**
-         * 바디 레이아웃을 랜더링한다.
+         * 패널의 하단 레이아웃을 랜더링한다.
          */
-        renderBody() {
-            if (this.$body.getData('rendered') == true)
+        renderBottom() {
+            if (this.$bottom.getData('rendered') == true)
+                return;
+            if (this.bottombar !== null) {
+                this.$bottom.append(this.bottombar.$getComponent());
+                this.bottombar.render();
+            }
+            this.$bottom.setData('rendered', true);
+        }
+        /**
+         * 패널의 본문 레이아웃을 랜더링한다.
+         */
+        renderContent() {
+            if (this.$content.getData('rendered') == true)
                 return;
             for (const item of this.getItems()) {
-                this.$body.append(item.$getComponent());
+                this.$content.append(item.$getComponent());
                 item.render();
             }
-            this.$body.setData('rendered', true);
-        }
-        /**
-         * 푸터 레이아웃을 랜더링한다.
-         */
-        renderFooter() {
-            if (this.$footer.getData('rendered') == true)
-                return;
-            if (this.bbar !== null) {
-                this.$footer.append(this.bbar.$getComponent());
-                this.bbar.render();
-            }
-            this.$footer.setData('rendered', true);
+            this.$content.setData('rendered', true);
         }
         /**
          * 레이아웃을 렌더링한다.
@@ -175,10 +186,6 @@ var Admin;
         render() {
             if (this.isRenderable() == false)
                 return;
-            this.$container.setData('role', 'container');
-            this.$header.setData('role', 'header');
-            this.$body.setData('role', 'body');
-            this.$footer.setData('role', 'footer');
             if (this.border == true) {
                 this.$container.addClass('border');
             }
@@ -189,48 +196,24 @@ var Admin;
                 this.$component.setStyle('padding', this.margin);
             }
             if (this.scrollable == true) {
-                this.$body.addClass('scrollableX');
-                this.$body.addClass('scrollableY');
+                this.$content.addClass('scrollableX');
+                this.$content.addClass('scrollableY');
             }
             else if (this.scrollable == 'X') {
-                this.$body.addClass('scrollableX');
+                this.$content.addClass('scrollableX');
             }
             else if (this.scrollable == 'Y') {
-                this.$body.addClass('scrollableY');
+                this.$content.addClass('scrollableY');
             }
-            this.renderHeader();
-            this.renderBody();
-            this.renderFooter();
-            if (this.$header.isEmpty() == false) {
-                this.$container.append(this.$header);
-            }
-            this.$container.append(this.$body);
-            if (this.$footer.isEmpty() == false) {
-                this.$container.append(this.$footer);
-            }
+            this.renderTop();
+            this.renderBottom();
+            this.renderContent();
+            this.$container.append(this.$top);
+            this.$container.append(this.$content);
+            this.$container.append(this.$bottom);
             this.append(this.$container);
             super.render();
         }
-        /**
-         * 타이틀바 숨김여부를 설정한다.
-         *
-         * @param {boolean} hidden 숨김여부
-         * @return {Admin.Panel} this
-         */
-        setTitleHidden(hidden) {
-            this.titleHidden = hidden;
-            if (this.titleHidden == true) {
-                Html.get('h4', this.$header).hide();
-            }
-            else {
-                Html.get('h4', this.$header).show();
-            }
-            return this;
-        }
-        /**
-         * 타이틀바를 숨긴다.
-         */
-        hideTitle() { }
     }
     Admin.Panel = Panel;
 })(Admin || (Admin = {}));
