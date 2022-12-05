@@ -17,6 +17,9 @@ var Admin;
             role = 'grid';
             headers;
             columns;
+            freeze;
+            freezeColumn;
+            freezeWidth;
             store;
             $header;
             $body;
@@ -29,6 +32,7 @@ var Admin;
              */
             constructor(properties = null) {
                 super(properties);
+                this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.store = this.properties.store ?? new Admin.Store();
                 this.store.addEvent('load', (grid) => {
@@ -69,9 +73,22 @@ var Admin;
              * 그리드패널의 헤더(제목행)를 랜더링한다.
              */
             renderHeader() {
-                for (const header of this.headers) {
-                    this.$header.append(header.$getHeader());
-                }
+                let leftPosition = 0;
+                this.freezeColumn = 0;
+                this.headers.forEach((header, headerIndex) => {
+                    const $header = header.$getHeader();
+                    this.$header.append($header);
+                    if (headerIndex < this.freeze) {
+                        $header.addClass('sticky');
+                        $header.setStyle('left', leftPosition + 'px');
+                        leftPosition += header.getMinWidth() + 1;
+                        if (headerIndex == this.freeze - 1) {
+                            $header.addClass('end');
+                        }
+                        this.freezeColumn += header.getColumns().length;
+                    }
+                });
+                this.freezeWidth = leftPosition;
             }
             /**
              * 그리드패널의 바디(데이터행)를 랜더링한다.
@@ -81,10 +98,20 @@ var Admin;
                 this.getStore()
                     .getRecords()
                     .forEach((record, rowIndex) => {
+                    let leftPosition = 0;
                     const $row = Html.create('div').setData('role', 'row').setData('row-index', rowIndex);
                     this.getColumns().forEach((column, columnIndex) => {
                         const value = record.get(column.dataIndex);
-                        $row.append(column.$getBody(value, record, rowIndex, columnIndex));
+                        const $column = column.$getBody(value, record, rowIndex, columnIndex);
+                        $row.append($column);
+                        if (columnIndex < this.freezeColumn) {
+                            $column.addClass('sticky');
+                            $column.setStyle('left', leftPosition + 'px');
+                            leftPosition += column.getMinWidth() + 1;
+                            if (columnIndex == this.freezeColumn - 1) {
+                                $column.addClass('end');
+                            }
+                        }
                     });
                     this.$body.append($row);
                 });
@@ -170,15 +197,14 @@ var Admin;
                 $column.addClass('focus');
                 this.focusedCell.rowIndex = rowIndex;
                 this.focusedCell.columnIndex = columnIndex;
-                const lockedWidth = 0;
                 const contentWidth = this.$content.getWidth();
                 const columnWidth = $column.getOuterWidth();
                 const offset = $column.getOffset();
                 const scroll = this.$content.getScroll();
                 const left = offset.left - scroll.left;
                 const right = left + $column.getOuterWidth();
-                if (left < lockedWidth) {
-                    this.$content.setScroll(null, offset.left - lockedWidth - 1, false);
+                if (left < this.freezeWidth) {
+                    this.$content.setScroll(null, offset.left - this.freezeWidth - 2, false);
                 }
                 else if (right > contentWidth) {
                     this.$content.setScroll(null, offset.left + columnWidth - contentWidth + 1, false);
@@ -336,7 +362,6 @@ var Admin;
             minWidth;
             resizable;
             sortable;
-            locked;
             hidden;
             headerWrap;
             headerAlign;
@@ -359,7 +384,6 @@ var Admin;
                 this.minWidth ??= this.width == null ? 50 : null;
                 this.resizable = this.properties.resizable ?? true;
                 this.sortable = this.properties.sortable ?? false;
-                this.locked = this.properties.locked ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';
@@ -426,6 +450,23 @@ var Admin;
              */
             getGrid() {
                 return this.grid;
+            }
+            /**
+             * 컬럼의 최소 너비를 가져온다.
+             *
+             * @return {number} minWidth - 최소너비
+             */
+            getMinWidth() {
+                if (this.columns.length == 0) {
+                    return this.minWidth ?? this.width;
+                }
+                else {
+                    let minWidth = 0;
+                    for (let column of this.columns) {
+                        minWidth += column.getMinWidth();
+                    }
+                    return minWidth;
+                }
             }
             /**
              * 현재 컬럼을 포함한 하위 전체 컬럼을 가져온다.
@@ -533,7 +574,6 @@ var Admin;
              */
             $getHeader() {
                 const $header = Html.create('div');
-                let lockedPosition = 0;
                 if (this.hasChild() == true) {
                     $header.setData('role', 'merge');
                     if (this.getChildrenFlexGrow() > 0) {
@@ -579,9 +619,6 @@ var Admin;
                     $header.append($button);
                     if (this.hidden == true) {
                         $header.setStyle('display', 'none');
-                    }
-                    if (this.locked == true) {
-                        $header.addClass('sticky');
                     }
                 }
                 return $header;

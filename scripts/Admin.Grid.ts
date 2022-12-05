@@ -16,6 +16,9 @@ namespace Admin {
 
             headers: Admin.Grid.Column[];
             columns: Admin.Grid.Column[];
+            freeze: number;
+            freezeColumn: number;
+            freezeWidth: number;
 
             store: Admin.Store;
 
@@ -33,6 +36,7 @@ namespace Admin {
             constructor(properties: { [key: string]: any } = null) {
                 super(properties);
 
+                this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
 
                 this.store = this.properties.store ?? new Admin.Store();
@@ -89,9 +93,25 @@ namespace Admin {
              * 그리드패널의 헤더(제목행)를 랜더링한다.
              */
             renderHeader(): void {
-                for (const header of this.headers) {
-                    this.$header.append(header.$getHeader());
-                }
+                let leftPosition = 0;
+                this.freezeColumn = 0;
+                this.headers.forEach((header: Admin.Grid.Column, headerIndex: number) => {
+                    const $header = header.$getHeader();
+                    this.$header.append($header);
+
+                    if (headerIndex < this.freeze) {
+                        $header.addClass('sticky');
+                        $header.setStyle('left', leftPosition + 'px');
+                        leftPosition += header.getMinWidth() + 1;
+
+                        if (headerIndex == this.freeze - 1) {
+                            $header.addClass('end');
+                        }
+
+                        this.freezeColumn += header.getColumns().length;
+                    }
+                });
+                this.freezeWidth = leftPosition;
             }
 
             /**
@@ -102,10 +122,22 @@ namespace Admin {
                 this.getStore()
                     .getRecords()
                     .forEach((record: Admin.Data.Record, rowIndex: number) => {
+                        let leftPosition = 0;
                         const $row = Html.create('div').setData('role', 'row').setData('row-index', rowIndex);
                         this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
                             const value = record.get(column.dataIndex);
-                            $row.append(column.$getBody(value, record, rowIndex, columnIndex));
+                            const $column = column.$getBody(value, record, rowIndex, columnIndex);
+                            $row.append($column);
+
+                            if (columnIndex < this.freezeColumn) {
+                                $column.addClass('sticky');
+                                $column.setStyle('left', leftPosition + 'px');
+                                leftPosition += column.getMinWidth() + 1;
+
+                                if (columnIndex == this.freezeColumn - 1) {
+                                    $column.addClass('end');
+                                }
+                            }
                         });
                         this.$body.append($row);
                     });
@@ -202,7 +234,6 @@ namespace Admin {
                 this.focusedCell.rowIndex = rowIndex;
                 this.focusedCell.columnIndex = columnIndex;
 
-                const lockedWidth = 0;
                 const contentWidth = this.$content.getWidth();
                 const columnWidth = $column.getOuterWidth();
                 const offset = $column.getOffset();
@@ -210,8 +241,8 @@ namespace Admin {
                 const left = offset.left - scroll.left;
                 const right = left + $column.getOuterWidth();
 
-                if (left < lockedWidth) {
-                    this.$content.setScroll(null, offset.left - lockedWidth - 1, false);
+                if (left < this.freezeWidth) {
+                    this.$content.setScroll(null, offset.left - this.freezeWidth - 2, false);
                 } else if (right > contentWidth) {
                     this.$content.setScroll(null, offset.left + columnWidth - contentWidth + 1, false);
                 }
@@ -395,7 +426,6 @@ namespace Admin {
             minWidth: number;
             resizable: boolean;
             sortable: boolean;
-            locked: boolean;
             hidden: boolean;
             headerWrap: boolean;
             headerAlign: string;
@@ -420,7 +450,6 @@ namespace Admin {
                 this.minWidth ??= this.width == null ? 50 : null;
                 this.resizable = this.properties.resizable ?? true;
                 this.sortable = this.properties.sortable ?? false;
-                this.locked = this.properties.locked ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';
@@ -494,6 +523,23 @@ namespace Admin {
              */
             getGrid(): Admin.Grid.Panel {
                 return this.grid;
+            }
+
+            /**
+             * 컬럼의 최소 너비를 가져온다.
+             *
+             * @return {number} minWidth - 최소너비
+             */
+            getMinWidth(): number {
+                if (this.columns.length == 0) {
+                    return this.minWidth ?? this.width;
+                } else {
+                    let minWidth = 0;
+                    for (let column of this.columns) {
+                        minWidth += column.getMinWidth();
+                    }
+                    return minWidth;
+                }
             }
 
             /**
@@ -609,7 +655,6 @@ namespace Admin {
             $getHeader(): Dom {
                 const $header = Html.create('div');
 
-                let lockedPosition = 0;
                 if (this.hasChild() == true) {
                     $header.setData('role', 'merge');
 
@@ -664,10 +709,6 @@ namespace Admin {
 
                     if (this.hidden == true) {
                         $header.setStyle('display', 'none');
-                    }
-
-                    if (this.locked == true) {
-                        $header.addClass('sticky');
                     }
                 }
 
