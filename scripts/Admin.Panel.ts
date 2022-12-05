@@ -138,6 +138,15 @@ namespace Admin {
         }
 
         /**
+         * 패널의 제목 객체를 가져온다.
+         *
+         * @return {Admin.Title} title
+         */
+        getTitle(): Admin.Title {
+            return this.title;
+        }
+
+        /**
          * 패널의 툴바를 가져온다.
          *
          * @param {string} position - 가져올 툴바 위치 (top, bottom)

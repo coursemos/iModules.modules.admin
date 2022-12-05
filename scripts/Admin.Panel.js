@@ -127,6 +127,14 @@ var Admin;
             return this.$content;
         }
         /**
+         * 패널의 제목 객체를 가져온다.
+         *
+         * @return {Admin.Title} title
+         */
+        getTitle() {
+            return this.title;
+        }
+        /**
          * 패널의 툴바를 가져온다.
          *
          * @param {string} position - 가져올 툴바 위치 (top, bottom)
