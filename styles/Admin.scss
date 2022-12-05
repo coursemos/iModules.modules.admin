@@ -300,10 +300,22 @@ div[data-component][data-type='panel'][data-role='grid'] {
                 top: 0;
                 width: fit-content;
                 min-width: 100%;
-                z-index: 10;
+                z-index: 50;
                 background: var(--header-border-color);
                 column-gap: 1px;
                 border-bottom: 1px solid var(--header-border-color);
+
+                div[data-role] {
+                    &.sticky {
+                        position: sticky;
+                        box-sizing: content-box;
+                        outline: 1px solid var(--default-border-color);
+
+                        &.end {
+                            border-right: 1px solid var(--default-border-color);
+                        }
+                    }
+                }
 
                 div[data-role='merge'] {
                     flex-shrink: 0;
@@ -449,16 +461,35 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         flex-shrink: 0;
                         background: var(--body-column-background);
 
+                        &.sticky {
+                            position: sticky;
+                            box-sizing: content-box;
+                            box-shadow: -1px 0px 0px var(--body-row-border-color),
+                                1px 0px 0px var(--body-row-border-color), 0px -1px 0px var(--body-row-border-color),
+                                0px 1px 0px var(--body-row-border-color);
+                            z-index: 10;
+
+                            &.end {
+                                //border-right: 1px solid var(--default-border-color);
+                            }
+
+                            &.focus {
+                                z-index: 15;
+                            }
+                        }
+
+                        &.sticky.end + div[data-role='column'] {
+                            margin-left: 1px;
+                        }
+
                         &.focus {
-                            outline: 1px solid var(--body-column-border-focus);
+                            outline: 1px solid var(--body-column-border-focus) !important;
                             z-index: 5;
                         }
 
                         > div[data-display='view'] {
                             width: 100%;
                             height: 100%;
-                            font-size: var(--small-font-size);
-                            position: relative;
                             font-size: var(--small-font-size);
                             padding-top: calc(var(--small-font-size) * 0.5);
                             padding-bottom: calc(var(--small-font-size) * 0.5);
@@ -473,21 +504,31 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                     &:hover {
                         background: var(--body-row-border-color-over);
-                        outline: 1px solid var(--body-row-border-color-over);
-                        z-index: 1;
 
                         > div[data-role='column'] {
                             background: var(--body-column-background-over);
+
+                            &.sticky {
+                                box-shadow: -1px 0px 0px var(--body-row-border-color-over),
+                                    1px 0px 0px var(--body-row-border-color-over),
+                                    0px -1px 0px var(--body-row-border-color-over),
+                                    0px 1px 0px var(--body-row-border-color-over);
+                            }
                         }
                     }
 
                     &:has(div[data-role='column'].focus) {
                         background: var(--body-row-border-color-focus);
-                        outline: 1px solid var(--body-row-border-color-focus);
-                        z-index: 2;
 
                         > div[data-role='column'] {
                             background: var(--body-column-background-focus);
+
+                            &.sticky {
+                                box-shadow: -1px 0px 0px var(--body-row-border-color-focus),
+                                    1px 0px 0px var(--body-row-border-color-focus),
+                                    0px -1px 0px var(--body-row-border-color-focus),
+                                    0px 1px 0px var(--body-row-border-color-focus);
+                            }
                         }
                     }
                 }
