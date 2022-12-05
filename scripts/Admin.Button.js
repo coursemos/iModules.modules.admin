@@ -11,7 +11,7 @@
 var Admin;
 (function (Admin) {
     class Button extends Admin.Component {
-        type = 'button';
+        type = 'input';
         role = 'button';
         text;
         iconClass;
