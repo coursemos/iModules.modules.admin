@@ -62,17 +62,17 @@ var Admin;
              * 레이아웃을 렌더링한다.
              */
             render() {
-                if (this.isRenderable() == false)
-                    return;
-                if (this.tabPosition == 'top') {
-                    this.renderTop();
-                    this.$top.append(this.bar.$getComponent());
+                if (this.isRenderable() == true) {
+                    if (this.tabPosition == 'top') {
+                        this.renderTop();
+                        this.$top.append(this.bar.$getComponent());
+                    }
+                    else {
+                        this.renderBottom();
+                        this.$bottom.append(this.bar.$getComponent());
+                    }
+                    this.bar.render();
                 }
-                else {
-                    this.renderBottom();
-                    this.$bottom.append(this.bar.$getComponent());
-                }
-                this.bar.render();
                 super.render();
             }
             /**
