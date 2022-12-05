@@ -48,6 +48,7 @@ class Admin extends \Module
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Component.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Store.js');
+        Cache::script('admin', $this->getBase() . '/scripts/Admin.Title.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Text.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Button.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Panel.js');
