@@ -101,9 +101,12 @@ var Admin;
              * 레이아웃을 렌더링한다.
              */
             render() {
-                if (this.role == 'text') {
-                    this.$text.text(this.text);
-                    this.append(this.$text);
+                if (this.isRenderable() == true) {
+                    if (this.role == 'text') {
+                        this.$text.text(this.text);
+                        this.$component.append(this.$text);
+                    }
+                    this.rendered();
                 }
                 super.render();
             }
