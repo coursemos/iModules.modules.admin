@@ -1,0 +1,21 @@
+{
+    "title": {
+        "ko": "아이모듈 관리자 기본템플릿"
+    },
+    "version": "4.0.0",
+    "author": {
+        "name": "Arzz",
+        "email": "arzz@arzz.com"
+    },
+    "homepage": "https://www.imodules.io",
+    "language": "ko",
+    "configs": {
+        "theme_color": {
+            "type": "color",
+            "default": "#000000"
+        }
+    },
+    "styles": [
+        "/styles/style.scss"
+    ]
+}
