@@ -19,9 +19,8 @@ namespace Admin {
             activeTab: number;
             activeTabId: string;
             tabPosition: string;
-            tabbar: Admin.Tab.Bar;
 
-            $tabbar: Dom;
+            bar: Admin.Tab.Bar;
 
             /**
              * 탭패널을 생성한다.
@@ -35,15 +34,8 @@ namespace Admin {
                 this.activeTabId = null;
                 this.tabPosition = this.properties.tabPosition ?? 'bottom';
 
-                this.tabbar = new Admin.Tab.Bar(this.properties);
-                this.tabbar.setParent(this);
-
-                this.$component = Html.create('div');
-                this.$container = Html.create('div');
-                this.$header = Html.create('div');
-                this.$body = Html.create('div');
-                this.$footer = Html.create('div');
-                this.$tabbar = Html.create('div');
+                this.bar = new Admin.Tab.Bar(this.properties);
+                this.bar.setParent(this);
             }
 
             /**
@@ -56,7 +48,7 @@ namespace Admin {
                     for (let item of this.properties.items ?? []) {
                         if (item instanceof Admin.Panel) {
                             item.hide();
-                            item.setTitleHidden(true);
+                            item.getTitle().setHidden(true);
                             this.items.push(item);
                         }
                     }
@@ -64,68 +56,28 @@ namespace Admin {
             }
 
             /**
-             * 탭패널의 탭바 DOM 을 가져온다.
+             * 탭바를 가져온다.
              *
-             * @return {Dom} $tabbar
+             * @return {Admin.Tab.Bar} tabBar
              */
-            $getTabbar(): Dom {
-                return this.$tabbar;
-            }
-
-            /**
-             * 헤더 레이아웃을 랜더링한다.
-             */
-            renderHeader(): void {
-                if (this.$header.getData('rendered') == true) return;
-
-                if (true || this.tabPosition == 'top') {
-                    if (this.title !== null && this.titleHidden === false) {
-                        let $title = Html.create('h4');
-                        $title.append(Html.create('span').text(this.title));
-                        this.$header.append($title);
-                    }
-
-                    this.$header.append(this.tabbar.$getComponent());
-                    this.tabbar.render();
-
-                    if (this.tbar !== null) {
-                        this.$header.append(this.tbar.$getComponent());
-                        this.tbar.render();
-                    }
-
-                    this.$header.setData('rendered', true);
-                }
-
-                super.renderHeader();
-            }
-
-            /**
-             * 푸터 레이아웃을 랜더링한다.
-             */
-            renderFooter() {
-                if (this.$footer.getData('rendered') == true) return;
-
-                if (this.tabPosition == 'bottom') {
-                    if (this.bbar !== null) {
-                        this.$footer.append(this.bbar.$getComponent());
-                        this.bbar.render();
-                    }
-
-                    this.$footer.append(this.tabbar.$getComponent());
-                    this.tabbar.render();
-
-                    this.$footer.setData('rendered', true);
-                }
-
-                super.renderFooter();
+            getBar(): Admin.Tab.Bar {
+                return this.bar;
             }
 
             /**
              * 레이아웃을 렌더링한다.
              */
-            render() {
-                this.$container.append(this.tabbar.$getComponent());
-                this.tabbar.render();
+            render(): void {
+                if (this.isRenderable() == false) return;
+
+                if (this.tabPosition == 'top') {
+                    this.renderTop();
+                    this.$top.append(this.bar.$getComponent());
+                } else {
+                    this.renderBottom();
+                    this.$bottom.append(this.bar.$getComponent());
+                }
+                this.bar.render();
 
                 super.render();
             }
@@ -165,7 +117,7 @@ namespace Admin {
                         item.hide();
                     }
                     tab.show();
-                    this.tabbar.active(tab.getId());
+                    this.bar.active(tab.getId());
                 }
             }
 
@@ -183,7 +135,7 @@ namespace Admin {
          */
         export class Bar extends Admin.Toolbar {
             type: string = 'toolbar';
-            role: string = 'tabbar';
+            role: string = 'tab';
 
             /**
              * 탭바를 생성한다.
