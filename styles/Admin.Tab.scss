@@ -1,0 +1,45 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 탭패널 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.Tab.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2022. 12. 7.
+ */
+div[data-component][data-type='toolbar'][data-role='tab'] {
+    width: 100%;
+    height: calc(var(--medium-font-size) * 3);
+    background: var(--theme-color);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0;
+    padding-left: var(--small-font-size);
+    padding-right: var(--small-font-size);
+
+    &[data-position='top'] {
+        > div[data-component] > button {
+            margin-top: calc(var(--small-font-size) * 0.5);
+        }
+    }
+
+    &[data-position='bottom'] {
+        > div[data-component] > button {
+            margin-bottom: calc(var(--small-font-size) * 0.5);
+        }
+    }
+
+    > div[data-component] > button {
+        border: 0;
+        height: calc(var(--medium-font-size) * 3 - var(--small-font-size) * 0.5);
+        background: transparent;
+        color: var(--invert-font-color);
+
+        &.pressed {
+            background: var(--default-background);
+            color: var(--theme-color);
+        }
+    }
+}

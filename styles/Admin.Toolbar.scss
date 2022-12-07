@@ -1,0 +1,107 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 툴바 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.Toolbar.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2022. 12. 7.
+ */
+div[data-component][data-type='toolbar'] {
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--default-border-color);
+    background: var(--default-background);
+    padding-top: calc(var(--small-font-size) * 0.5);
+    padding-bottom: calc(var(--small-font-size) * 0.5);
+    padding-left: var(--small-font-size);
+    padding-right: var(--small-font-size);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    color: var(--default-font-color);
+
+    &[data-position='top'] {
+        &.border {
+            border-bottom-width: 1px;
+        }
+    }
+
+    &[data-position='bottom'] {
+        &.border {
+            border-top-width: 1px;
+        }
+    }
+
+    > div[data-component] + div[data-component] {
+        margin-left: calc(var(--small-font-size) * 0.5);
+    }
+
+    &[data-role='tab'] {
+        width: 100%;
+        height: calc(var(--medium-font-size) * 3);
+        background: var(--theme-color);
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 0;
+        padding-left: var(--small-font-size);
+        padding-right: var(--small-font-size);
+
+        &[data-position='top'] {
+            > div[data-component] > button {
+                margin-top: calc(var(--small-font-size) * 0.5);
+            }
+        }
+
+        &[data-position='bottom'] {
+            > div[data-component] > button {
+                margin-bottom: calc(var(--small-font-size) * 0.5);
+            }
+        }
+
+        > div[data-component] > button {
+            border: 0;
+            height: calc(var(--medium-font-size) * 3 - var(--small-font-size) * 0.5);
+            background: transparent;
+            color: var(--invert-font-color);
+
+            &.pressed {
+                background: var(--default-background);
+                color: var(--theme-color);
+            }
+        }
+    }
+}
+
+div[data-component][data-type='toolbaritem'] {
+    height: calc(var(--default-size) * 2);
+    line-height: calc(var(--default-size) * 2);
+    color: var(--default-font-color);
+
+    &[data-role='fill'] {
+        flex-grow: 1;
+    }
+
+    &[data-role='separator'] {
+        width: calc(var(--small-font-size) * 0.5 + 1px);
+        position: relative;
+
+        &::before {
+            display: block;
+            position: absolute;
+            width: 1px;
+            height: var(--default-size);
+            background: var(--default-border-color);
+            top: calc(var(--default-size) * 0.5);
+            left: 50%;
+            content: ' ';
+        }
+    }
+
+    > span {
+        font-size: var(--small-font-size);
+        color: var(--sub-font-color);
+    }
+}

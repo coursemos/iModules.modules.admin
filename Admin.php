@@ -57,7 +57,16 @@ class Admin extends \Module
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Grid.js');
         Html::script(Cache::script('admin'), 10);
 
-        Html::style($this->getBase() . '/styles/Admin.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Component.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Title.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Text.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Button.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Panel.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.scss');
+        Html::style(Cache::style('admin'), 10);
 
         /**
          * 아이모듈 관리자 테마를 설정한다.

@@ -1,0 +1,29 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 관리자 UI 컴포넌트 기본 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.Base.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2022. 12. 7.
+ */
+section[data-role='admin'] {
+    background: black;
+
+    --default-size: 1rem;
+    --small-font-size: 0.75rem;
+    --medium-font-size: 0.875rem;
+    --default-background: #fff;
+    --inner-background: #f4f4f4;
+    --default-font-color: #404040;
+    --invert-font-color: #fff;
+    --sub-font-color: #4b4c4c;
+    --theme-color: #5fa2dd;
+    --default-border-color: #d0d0d0;
+    --inner-border-color: #f5f5f5;
+
+    * {
+        box-sizing: border-box;
+    }
+}
