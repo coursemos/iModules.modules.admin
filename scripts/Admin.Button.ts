@@ -10,7 +10,7 @@
  */
 namespace Admin {
     export class Button extends Admin.Component {
-        type: string = 'input';
+        type: string = 'button';
         role: string = 'button';
         text: string;
         iconClass: string;
