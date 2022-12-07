@@ -249,6 +249,68 @@ namespace Admin {
             }
 
             /**
+             * 컬럼의 숨김여부를 업데이트한다.
+             *
+             * @param {Admin.Grid.Column} column - 업데이트할 컬럼
+             * @param {number} columnIndex - 컬럼인덱스
+             * @return {boolean} isUpdated - 변경여부
+             */
+            updateColumnVisible(column: Admin.Grid.Column, columnIndex: number): boolean {
+                let isUpdated = false;
+                const $column = Html.all('div[data-role=column]', this.$header).get(columnIndex);
+
+                if (
+                    (column.hidden == true && $column.getStyle('display') != 'none') ||
+                    (column.hidden == false && $column.getStyle('display') == 'none')
+                ) {
+                    isUpdated = true;
+                    if (column.hidden == true) {
+                        $column.setStyle('display', 'none');
+                        Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
+                            const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
+                            $column.setStyle('display', 'none');
+                        });
+                    } else {
+                        $column.setStyle('display', '');
+                        Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
+                            const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
+                            $column.setStyle('display', '');
+                        });
+                    }
+                }
+
+                return isUpdated;
+            }
+
+            /**
+             * 컬럼의 너비를 업데이트한다.
+             *
+             * @param {Admin.Grid.Column} column - 업데이트할 컬럼
+             * @param {number} columnIndex - 컬럼인덱스
+             * @return {boolean} isUpdated - 변경여부
+             */
+            updateColumnWidth(column: Admin.Grid.Column, columnIndex: number): boolean {
+                let isUpdated = false;
+                const $column = Html.all('div[data-role=column]', this.$header).get(columnIndex);
+
+                if (column.width !== null && column.width != $column.getWidth()) {
+                    isUpdated = true;
+                    $column.setStyle('flexGrow', 0);
+                    $column.setStyle('flexBasis', '');
+                    $column.setStyle('width', column.width + 'px');
+
+                    Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
+                        const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
+                        $column.setStyle('flexGrow', 0);
+                        $column.setStyle('flexBasis', '');
+                        $column.setStyle('width', column.width + 'px');
+                    });
+                }
+
+                return isUpdated;
+            }
+
+            /**
              * 그리드패널 레이아웃을 갱신한다.
              */
             updateLayout(): void {
@@ -257,65 +319,98 @@ namespace Admin {
                     return;
                 }
 
+                let isFreezeUpdated: boolean;
+                const headerUpdated: string[] = [];
                 this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
-                    const $column = Html.all('div[data-role=column]', this.$header).get(columnIndex);
+                    const isUpdated =
+                        this.updateColumnVisible(column, columnIndex) || this.updateColumnWidth(column, columnIndex);
 
-                    let isUpdated = false;
-                    if (
-                        (column.hidden == true && $column.getStyle('display') != 'none') ||
-                        (column.hidden == false && $column.getStyle('display') == 'none')
-                    ) {
-                        isUpdated = true;
-                        if (column.hidden == true) {
-                            $column.setStyle('display', 'none');
-                            Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
-                                const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
-                                $column.setStyle('display', 'none');
-                            });
-                        } else {
-                            $column.setStyle('display', '');
-                            Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
-                                const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
-                                $column.setStyle('display', '');
-                            });
+                    if (isUpdated == true) {
+                        if (columnIndex < this.freezeColumn) {
+                            isFreezeUpdated = true;
                         }
-                    }
 
-                    if (column.width !== null && column.width != $column.getWidth()) {
-                        isUpdated = true;
-                        $column.setStyle('flexGrow', 0);
-                        $column.setStyle('flexBasis', '');
-                        $column.setStyle('width', column.width + 'px');
-
-                        Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
-                            const $column = Html.all('div[data-role=column]', $row).get(columnIndex);
-                            $column.setStyle('flexGrow', 0);
-                            $column.setStyle('flexBasis', '');
-                            $column.setStyle('width', column.width + 'px');
-                        });
-                    }
-
-                    if (isUpdated == true && column.getParent() != null) {
-                        let parent = column;
-                        let $parent = $column.getParent();
-                        while ($parent.getData('role') == 'columns') {
-                            parent = parent.getParent();
-                            const $merge = $parent.getParent().getParent();
-
-                            $merge.setStyle('width', parent.getChildrenFlexBasis() + 'px');
-                            $merge.setStyle('flexGrow', parent.getChildrenFlexGrow());
-                            $merge.setStyle('flexBasis', parent.getChildrenFlexBasis() + 'px');
-
-                            if (parent.isHidden() == true) {
-                                $merge.setStyle('display', 'none');
-                            } else {
-                                $merge.setStyle('display', '');
+                        let parent = column.getParent();
+                        while (parent != null) {
+                            if (headerUpdated.indexOf(parent.getId()) == -1) {
+                                headerUpdated.push(parent.getId());
                             }
 
-                            $parent = $merge.getParent();
+                            parent = parent.getParent();
                         }
                     }
                 });
+
+                if (isFreezeUpdated == true) {
+                    this.setFreezeColumn(this.freeze);
+                }
+
+                headerUpdated.forEach((id: string) => {
+                    const header = Admin.get(id);
+                    if (header instanceof Admin.Grid.Column) {
+                        const $header = Html.get('div[data-id=' + id + ']', this.$header);
+                        $header.setStyle('width', header.getChildrenFlexBasis() + 'px');
+                        $header.setStyle('flexGrow', header.getChildrenFlexGrow());
+                        $header.setStyle('flexBasis', header.getChildrenFlexBasis() + 'px');
+                    }
+                });
+            }
+
+            /**
+             * 그리드 고정컬럼 영역을 설정한다.
+             *
+             * @param {number} index - 고정될 컬럼 인덱스
+             */
+            setFreezeColumn(index: number): void {
+                Html.all('div[data-role].sticky', this.$header).forEach(($header: Dom) => {
+                    $header.removeClass('sticky', 'end');
+                    $header.setStyle('left', '');
+                });
+
+                Html.all('div[data-role=column].sticky', this.$body).forEach(($header: Dom) => {
+                    $header.removeClass('sticky', 'end');
+                    $header.setStyle('left', '');
+                });
+
+                this.freeze = index;
+                this.freezeColumn = 0;
+                this.freezeWidth = 0;
+
+                if (index > 0) {
+                    let leftPosition = 0;
+                    console.log('free', Html.all('> div[data-role]', this.$header));
+                    Html.all('> div[data-role]', this.$header).forEach(($header: Dom, headerIndex: number) => {
+                        const header = this.headers[headerIndex];
+                        if (headerIndex < this.freeze) {
+                            $header.addClass('sticky');
+                            $header.setStyle('left', leftPosition + 'px');
+                            leftPosition += header.getMinWidth() + 1;
+
+                            if (headerIndex == this.freeze - 1) {
+                                $header.addClass('end');
+                            }
+
+                            this.freezeColumn += header.getColumns().length;
+                        }
+                    });
+                    this.freezeWidth = leftPosition;
+
+                    Html.all('> div[data-role=row]', this.$body).forEach(($row: Dom) => {
+                        let leftPosition = 0;
+                        Html.all('> div[data-role=column]', $row).forEach(($column: Dom, columnIndex: number) => {
+                            const column = this.columns[columnIndex];
+                            if (columnIndex < this.freezeColumn) {
+                                $column.addClass('sticky');
+                                $column.setStyle('left', leftPosition + 'px');
+                                leftPosition += column.getMinWidth() + 1;
+
+                                if (columnIndex == this.freezeColumn - 1) {
+                                    $column.addClass('end');
+                                }
+                            }
+                        });
+                    });
+                }
             }
 
             /**
@@ -653,8 +748,7 @@ namespace Admin {
              * @return {Dom} $layout
              */
             $getHeader(): Dom {
-                const $header = Html.create('div');
-
+                const $header = Html.create('div').setData('id', this.id);
                 if (this.hasChild() == true) {
                     $header.setData('role', 'merge');
 
