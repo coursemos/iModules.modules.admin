@@ -79,7 +79,9 @@ class Admin extends \Module
         /**
          * @todo 관리자 라우팅 처리
          */
-        $content = $this->getTemplet()->getLayout('dashboard');
+        $paths = explode('/', $route->getSubPath());
+        $menu = count($paths) > 1 ? $paths[1] : 'dashboard';
+        $content = $this->getTemplet()->getLayout($menu);
         $theme->assign('content', $content);
 
         return $theme->getLayout('index');
