@@ -31,7 +31,7 @@ div[data-component][data-type='panel'] {
             width: 100%;
         }
 
-        > div[data-role='body'] {
+        > div[data-role='content'] {
             flex-grow: 1;
             overflow: hidden;
 

@@ -79,7 +79,7 @@ namespace Admin {
             this.$container = Html.create('div').setData('role', 'container');
             this.$top = Html.create('div').setData('role', 'top');
             this.$bottom = Html.create('div').setData('role', 'bottom');
-            this.$content = Html.create('div').setData('role', 'body');
+            this.$content = Html.create('div').setData('role', 'content');
         }
 
         /**
@@ -158,6 +158,80 @@ namespace Admin {
             } else if (position == 'bottom') {
                 return this.bottombar;
             }
+        }
+
+        /**
+         * 패널을 자동으로 스크롤한다.
+         *
+         * @param {string} direction - 스크롤방향 (left, top)
+         * @param {number} speed - 스크롤 속도
+         */
+        startAutoScroll(direction: string, speed: number): void {
+            if (this.isAutoScrolling() == true) {
+                if (this.getAutoScrolling().direction != direction) {
+                    this.stopAutoScroll();
+                } else {
+                    this.$content.setData('autoscroll.speed', speed, false);
+                    return;
+                }
+            }
+
+            if (direction == 'left') {
+                this.$content.setData('autoscroll.direction', direction, false);
+                this.$content.setData('autoscroll.speed', speed, false);
+                this.$content.setData(
+                    'autoscroll.interval',
+                    setInterval(() => {
+                        const speed = this.$content.getData('autoscroll.speed');
+                        this.$content.setScroll(null, this.$content.getScroll().left + speed, true);
+                        if (
+                            this.$content.getScroll().left >=
+                            this.$content.getScrollWidth() - this.$content.getOuterWidth()
+                        ) {
+                            this.stopAutoScroll();
+                        }
+                    }, 10),
+                    false
+                );
+            }
+        }
+
+        /**
+         * 패널의 자동스크롤을 중지한다.
+         */
+        stopAutoScroll(): void {
+            if (this.isAutoScrolling() == true) {
+                clearInterval(this.$content.getData('autoscroll.interval'));
+            }
+            this.$content.setData('autoscroll.interval', false, false);
+        }
+
+        /**
+         * 패널 자동스크롤 정보를 가져온다.
+         *
+         * @return {Object} scroll
+         */
+        getAutoScrolling(): { direction: string; speed: number } {
+            if (this.isAutoScrolling() == false) {
+                return { direction: null, speed: null };
+            } else {
+                return {
+                    direction: this.$content.getData('autoscroll.direction'),
+                    speed: this.$content.getData('autoscroll.speed'),
+                };
+            }
+        }
+
+        /**
+         * 패널이 자동스크롤중인지 가져온다.
+         *
+         * @return {boolean} scrolling
+         */
+        isAutoScrolling(): boolean {
+            return (
+                this.$content.getData('autoscroll.interval') !== null &&
+                this.$content.getData('autoscroll.interval') !== false
+            );
         }
 
         /**
