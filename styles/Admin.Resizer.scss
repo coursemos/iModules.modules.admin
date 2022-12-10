@@ -8,3 +8,24 @@
  * @license MIT License
  * @modified 2022. 12. 7.
  */
+div[data-role='resizer'] {
+    width: 7px;
+    height: 100%;
+    background: transparent;
+    position: absolute;
+    z-index: 1000;
+    pointer-events: all;
+
+    &[data-direction='right'] {
+        top: 0;
+        right: -3px;
+        cursor: ew-resize;
+    }
+}
+
+div[data-role='resize-guide'] {
+    position: absolute;
+    border: 1px solid #000;
+    z-index: 1000;
+    box-sizing: border-box;
+}
