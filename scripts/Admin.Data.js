@@ -31,7 +31,7 @@ var Admin;
         /**
          * 전체 데이터를 가져온다.
          *
-         * @returns {Admin.Data.Record[]} records - 데이터 레코드셋
+         * @return {Admin.Data.Record[]} records - 데이터 레코드셋
          */
         getRecords() {
             return this.records;

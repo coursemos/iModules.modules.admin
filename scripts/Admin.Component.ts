@@ -204,7 +204,7 @@ namespace Admin {
         /**
          * 컴포넌트에 해당하는 하위 요소만 가져온다.
          *
-         * @returns {Admin.Component[]} items - 하위요소
+         * @return {Admin.Component[]} items - 하위요소
          */
         getItems(): Admin.Component[] {
             const items: Admin.Component[] = [];
