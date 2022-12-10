@@ -60,6 +60,10 @@ var Admin;
                     this.headers.push(column);
                     this.columns.push(...column.getColumns());
                 }
+                this.columns.forEach((column, columnIndex) => {
+                    column.setColumnIndex(columnIndex);
+                });
+                this.freeze = Math.min(this.headers.length - 1, this.freeze);
             }
             /**
              * 그리드패널의 데이터스토어를 가져온다.
@@ -68,6 +72,14 @@ var Admin;
              */
             getStore() {
                 return this.store;
+            }
+            /**
+             * 그리드패널의 헤더 Dom 을 가져온다.
+             *
+             * @return {Dom} $header
+             */
+            $getHeader() {
+                return this.$header;
             }
             /**
              * 그리드패널의 헤더(제목행)를 랜더링한다.
@@ -81,6 +93,7 @@ var Admin;
                     if (headerIndex < this.freeze) {
                         $header.addClass('sticky');
                         $header.setStyle('left', leftPosition + 'px');
+                        $header.setStyle('z-index', this.freeze - headerIndex + 1);
                         leftPosition += header.getMinWidth() + 1;
                         if (headerIndex == this.freeze - 1) {
                             $header.addClass('end');
@@ -89,6 +102,8 @@ var Admin;
                     }
                 });
                 this.freezeWidth = leftPosition;
+                this.$header.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+                this.updateColumnFill();
             }
             /**
              * 그리드패널의 바디(데이터행)를 랜더링한다.
@@ -113,6 +128,7 @@ var Admin;
                             }
                         }
                     });
+                    $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                     this.$body.append($row);
                 });
             }
@@ -265,6 +281,19 @@ var Admin;
                 return isUpdated;
             }
             /**
+             * 그리드 우측의 빈컬럼 스타일을 갱신한다.
+             */
+            updateColumnFill() {
+                const $fill = Html.all('div[data-column-type=fill]', this.$content);
+                for (const header of this.headers) {
+                    if (header.getChildrenFlexGrow() > 0) {
+                        $fill.removeClass('grow');
+                        return;
+                    }
+                }
+                $fill.addClass('grow');
+            }
+            /**
              * 그리드패널 레이아웃을 갱신한다.
              */
             updateLayout() {
@@ -301,6 +330,7 @@ var Admin;
                         $header.setStyle('flexBasis', header.getChildrenFlexBasis() + 'px');
                     }
                 });
+                this.updateColumnFill();
             }
             /**
              * 그리드 고정컬럼 영역을 설정한다.
@@ -316,17 +346,17 @@ var Admin;
                     $header.removeClass('sticky', 'end');
                     $header.setStyle('left', '');
                 });
-                this.freeze = index;
+                this.freeze = Math.min(this.headers.length - 1, index);
                 this.freezeColumn = 0;
                 this.freezeWidth = 0;
                 if (index > 0) {
                     let leftPosition = 0;
-                    console.log('free', Html.all('> div[data-role]', this.$header));
                     Html.all('> div[data-role]', this.$header).forEach(($header, headerIndex) => {
                         const header = this.headers[headerIndex];
                         if (headerIndex < this.freeze) {
                             $header.addClass('sticky');
                             $header.setStyle('left', leftPosition + 'px');
+                            $header.setStyle('z-index', this.freeze - headerIndex + 1);
                             leftPosition += header.getMinWidth() + 1;
                             if (headerIndex == this.freeze - 1) {
                                 $header.addClass('end');
@@ -436,6 +466,7 @@ var Admin;
         class Column extends Admin.Base {
             grid;
             parent = null;
+            columnIndex;
             text;
             dataIndex;
             width;
@@ -450,6 +481,7 @@ var Admin;
             textAlign;
             textVerticalAlign;
             columns;
+            resizer;
             /**
              * 그리드패널 컬럼객체를 생성한다.
              *
@@ -508,6 +540,14 @@ var Admin;
                 });
             }
             /**
+             * 컬럼 위치를 설정한다.
+             *
+             * @param {number} columnIndex - 컬럼인덱스
+             */
+            setColumnIndex(columnIndex) {
+                this.columnIndex = columnIndex;
+            }
+            /**
              * 컬럼의 그룹헤더 지정한다.
              *
              * @param {Admin.Grid.Column} parent - 그리드헤더 그룹컬럼
@@ -526,7 +566,7 @@ var Admin;
             /**
              * 그리드패널을 가져온다.
              *
-             * @returns {Admin.Grid.Panel} grid
+             * @return {Admin.Grid.Panel} grid
              */
             getGrid() {
                 return this.grid;
@@ -617,7 +657,7 @@ var Admin;
             setWidth(width) {
                 this.width = width;
                 this.minWidth = null;
-                this.getGrid().updateLayout();
+                this.grid.updateLayout();
             }
             /**
              * 컬럼의 숨김여부를 변경한다.
@@ -626,7 +666,7 @@ var Admin;
              */
             setHidden(hidden) {
                 this.hidden = hidden;
-                this.getGrid().updateLayout();
+                this.grid.updateLayout();
             }
             /**
              * 컬럼의 숨김여부를 가져온다.
@@ -646,6 +686,27 @@ var Admin;
                 else {
                     return this.hidden;
                 }
+            }
+            /**
+             * 컬럼 크기조절가능여부를 가져온다.
+             *
+             * @return {boolean} resizable
+             */
+            isResizable() {
+                if (this.hasChild() == true) {
+                    return false;
+                }
+                else {
+                    return this.resizable;
+                }
+            }
+            /**
+             * 컬럼이 고정된 상태인지 가져온다.
+             *
+             * @return {boolean} freeze
+             */
+            isFreezeColumn() {
+                return this.grid.freezeColumn > this.columnIndex;
             }
             /**
              * 컬럼의 헤더컬럼 레이아웃을 가져온다.
@@ -672,9 +733,6 @@ var Admin;
                         $children.append(child.$getHeader());
                     }
                     $group.append($children);
-                    if (this.isHidden() == true) {
-                        $header.setStyle('display', 'none');
-                    }
                     $header.append($group);
                 }
                 else {
@@ -697,9 +755,51 @@ var Admin;
                     const $button = Html.create('button');
                     $button.text('d');
                     $header.append($button);
-                    if (this.hidden == true) {
-                        $header.setStyle('display', 'none');
-                    }
+                }
+                if (this.isHidden() == true) {
+                    $header.setStyle('display', 'none');
+                }
+                if (this.isResizable() == true) {
+                    this.resizer = new Admin.Resizer($header, this.grid.$content, [false, true, false, false]);
+                    this.resizer.setMinWidth(50);
+                    this.resizer.hover(() => {
+                        this.grid.$getHeader().addClass('locked');
+                    }, () => {
+                        if (Admin.Resizer.current == null) {
+                            this.grid.$getHeader().removeClass('locked');
+                        }
+                    });
+                    this.resizer.addEvent('start', () => {
+                        this.grid.$getHeader().addClass('resizing');
+                        this.grid.$getContent().removeClass('scrollableX', 'scrollableY');
+                    });
+                    this.resizer.addEvent('resize', ($target, rect, position) => {
+                        this.grid.$getHeader().addClass('locked');
+                        /**
+                         * 그리드 패널 우측으로 벗어났을 경우, 그리드패널을 우측으로 스크롤한다.
+                         */
+                        const offset = this.grid.$content.getOffset();
+                        const width = this.grid.$content.getOuterWidth();
+                        if (position.x > offset.left + width - 15) {
+                            const speed = Math.min(Math.ceil((position.x - (offset.left + width - 15)) / 5), 10);
+                            this.grid.startAutoScroll('left', speed);
+                        }
+                        else if (this.isFreezeColumn() == false &&
+                            position.x < offset.left + this.grid.freezeWidth + 15) {
+                            const speed = Math.min(Math.max(Math.floor((position.x - (offset.left + this.grid.freezeWidth - 15)) / 5), -10), -1);
+                            this.grid.startAutoScroll('left', speed);
+                        }
+                        else if (this.grid.isAutoScrolling() == true) {
+                            this.grid.stopAutoScroll();
+                        }
+                    });
+                    this.resizer.addEvent('end', ($target, rect) => {
+                        this.setWidth(rect.width);
+                        this.grid.$getContent().addClass('scrollableX', 'scrollableY');
+                        this.grid.stopAutoScroll();
+                        this.grid.$getHeader().removeClass('locked');
+                        this.grid.$getHeader().removeClass('resizing');
+                    });
                 }
                 return $header;
             }
@@ -732,12 +832,12 @@ var Admin;
                 $column.addClass(this.textAlign);
                 $column.on('click', (e) => {
                     const $column = Html.el(e.currentTarget);
-                    this.getGrid().focusCell($column.getData('row'), $column.getData('column'));
+                    this.grid.focusCell($column.getData('row'), $column.getData('column'));
                 });
                 const $display = Html.create('div').setData('display', 'view');
                 $display.text(value);
                 $column.append($display);
-                if (this.hidden == true) {
+                if (this.isHidden() == true) {
                     $column.setStyle('display', 'none');
                 }
                 return $column;

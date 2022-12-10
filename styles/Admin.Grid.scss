@@ -23,12 +23,20 @@ div[data-component][data-type='panel'][data-role='grid'] {
     --body-column-border-focus: var(--theme-color);
 
     > div[data-role='container'] {
-        > div[data-role='body'] {
+        position: relative;
+
+        > div[data-role='content'] {
             display: flex;
             flex-direction: column;
             align-items: stretch;
             justify-content: flex-start;
             position: relative;
+
+            > div[data-role='resize-guide'] {
+                border-top: 0;
+                border-bottom: 0;
+                height: 100%;
+            }
 
             > div[data-role='header'] {
                 display: flex;
@@ -43,15 +51,64 @@ div[data-component][data-type='panel'][data-role='grid'] {
                 background: var(--header-border-color);
                 column-gap: 1px;
                 border-bottom: 1px solid var(--header-border-color);
+                box-sizing: content-box;
 
-                div[data-role] {
+                > div[data-column-type='fill'] {
+                    flex-basis: 0px;
+                    flex-shrink: 0;
+                    width: 0;
+                    background: var(--header-column-background);
+                    position: relative;
+                    order: 10000;
+
+                    &.grow {
+                        flex-grow: 1;
+                    }
+                }
+
+                > div[data-role] {
                     &.sticky {
                         position: sticky;
                         box-sizing: content-box;
                         outline: 1px solid var(--default-border-color);
+                        z-index: 1;
 
                         &.end {
                             border-right: 1px solid var(--default-border-color);
+                        }
+                    }
+
+                    &:not(.sticky) {
+                        z-index: 0;
+                    }
+
+                    &:last-child {
+                        > div[data-role='resizer'] {
+                            width: 5px;
+                            right: 0;
+                        }
+                        div[data-role='column']:last-child {
+                            > div[data-role='resizer'] {
+                                width: 5px;
+                                right: 0;
+                            }
+                        }
+                    }
+                }
+
+                &:has(div[data-column-type='fill'].grow) {
+                    > div[data-role] {
+                        &:last-child {
+                            > div[data-role='resizer'] {
+                                width: 7px;
+                                right: -3px;
+                            }
+                            div[data-role='column']:last-child {
+                                > div[data-role='resizer'] {
+                                    width: 7px;
+                                    right: -3px;
+                                }
+                            }
                         }
                     }
                 }
@@ -70,6 +127,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         height: fit-content;
                         background: var(--header-border-color);
                         row-gap: 1px;
+                        position: relative;
 
                         > div[data-role='text'] {
                             font-size: var(--small-font-size);
@@ -106,6 +164,10 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             justify-content: flex-start;
                             background: var(--header-border-color);
                             column-gap: 1px;
+
+                            > div[data-role]:last-child {
+                                position: static !important;
+                            }
                         }
                     }
                 }
@@ -115,6 +177,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     background: var(--header-column-background);
                     display: flex;
                     flex-direction: row;
+                    position: relative;
 
                     &.top {
                         align-items: flex-start;
@@ -160,7 +223,30 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         border-left: 1px solid red;
                     }
 
-                    &:hover {
+                    > div[data-role='resizer'] {
+                        cursor: col-resize !important;
+                    }
+                }
+
+                &.resizing {
+                    padding-right: 1000px;
+
+                    > div[data-column-type='fill'] {
+                        &::before {
+                            content: ' ';
+                            position: absolute;
+                            width: 1000px;
+                            height: 100%;
+                            z-index: -1;
+                            top: 0;
+                            left: 100%;
+                            background: var(--header-column-background);
+                        }
+                    }
+                }
+
+                &:not(.locked) {
+                    div[data-role='column']:hover {
                         background: var(--header-column-background-over);
                         > button {
                             display: block;
@@ -194,6 +280,32 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                     &:last-child {
                         border-bottom: 1px solid var(--body-row-border-color);
+                    }
+
+                    > div[data-column-type='fill'] {
+                        flex-basis: 0px;
+                        flex-shrink: 0;
+                        width: 0;
+                        background: var(--body-row-border-color);
+                        position: relative;
+                        order: 10000;
+
+                        &.grow {
+                            flex-grow: 1;
+                        }
+                        /*
+                        &::before {
+                            content: ' ';
+                            position: absolute;
+                            width: 100%;
+                            height: 100%;
+                            z-index: -1;
+                            top: 0;
+                            left: 100%;
+                            border-left: 1px solid var(--header-border-color);
+                            background: var(--header-column-background);
+                        }
+                        */
                     }
 
                     > div[data-role='column'] {
