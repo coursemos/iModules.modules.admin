@@ -752,7 +752,7 @@ var Admin;
                     $label.addClass(this.headerAlign);
                     $label.text(this.text);
                     $header.append($label);
-                    const $button = Html.create('button');
+                    const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
                     $header.append($button);
                 }
                 if (this.isHidden() == true) {

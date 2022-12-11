@@ -863,7 +863,7 @@ namespace Admin {
                     $label.text(this.text);
                     $header.append($label);
 
-                    const $button = Html.create('button');
+                    const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
                     $header.append($button);
                 }
 
