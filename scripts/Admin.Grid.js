@@ -753,7 +753,6 @@ var Admin;
                     $label.text(this.text);
                     $header.append($label);
                     const $button = Html.create('button');
-                    $button.text('d');
                     $header.append($button);
                 }
                 if (this.isHidden() == true) {

@@ -864,7 +864,6 @@ namespace Admin {
                     $header.append($label);
 
                     const $button = Html.create('button');
-                    $button.text('d');
                     $header.append($button);
                 }
 

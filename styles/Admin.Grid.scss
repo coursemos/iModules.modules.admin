@@ -22,6 +22,8 @@ div[data-component][data-type='panel'][data-role='grid'] {
     --body-column-background-focus: #ffedb5;
     --body-column-border-focus: var(--theme-color);
 
+    --icon-color: #666;
+
     > div[data-role='container'] {
         position: relative;
 
@@ -215,12 +217,21 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     }
 
                     > button {
-                        flex-basis: 28px;
+                        flex-basis: 24px;
                         flex-shrink: 0;
                         height: 100%;
                         display: none;
                         border: 0;
-                        border-left: 1px solid red;
+                        background: transparent;
+                        border-left: 1px solid var(--header-border-color);
+                        cursor: pointer;
+
+                        &::before {
+                            font-family: moimz;
+                            content: '\e906';
+                            color: var(--icon-color);
+                            font-size: var(--medium-font-size);
+                        }
                     }
 
                     > div[data-role='resizer'] {
