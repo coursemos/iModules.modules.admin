@@ -15,6 +15,10 @@ var Admin;
         type = 'component';
         role = null;
         $component;
+        $container;
+        $top;
+        $content;
+        $bottom;
         items;
         layout;
         padding;
@@ -43,7 +47,9 @@ var Admin;
             for (let name in this.properties.listeners ?? {}) {
                 this.addEvent(name, this.properties.listeners[name]);
             }
-            this.$component = Html.create('div');
+            this.$component = Html.create('div', { 'data-component': this.id });
+            this.$container = Html.create('div', { 'data-role': 'container' });
+            this.$scrollable = this.$component;
             this.initItems();
         }
         /**
@@ -73,6 +79,73 @@ var Admin;
             return this.$component;
         }
         /**
+         * 컴포넌트의 컨테이너 DOM 을 가져온다.
+         *
+         * @return {Dom} $container
+         */
+        $getContainer() {
+            return this.$container;
+        }
+        /**
+         * 컴포넌트의 상단 DOM 을 가져온다.
+         *
+         * @param {boolean} is_create - DOM 을 생성할지 여부
+         * @return {Dom} $top
+         */
+        $getTop(is_create = false) {
+            if (this.$top === undefined || this.$top === null) {
+                if (is_create == true) {
+                    this.$top = Html.create('div', { 'data-role': 'top' });
+                }
+                else {
+                    this.$top = null;
+                }
+            }
+            return this.$top;
+        }
+        /**
+         * 컴포넌트의 컨텐츠 DOM 을 가져온다.
+         *
+         * @return {Dom} $content
+         */
+        $getContent() {
+            this.$content ??= Html.create('div', { 'data-role': 'content' });
+            return this.$content;
+        }
+        /**
+         * 컴포넌트의 하단 DOM 을 가져온다.
+         *
+         * @param {boolean} is_create - DOM 을 생성할지 여부
+         * @return {Dom} $bottom
+         */
+        $getBottom(is_create = false) {
+            if (this.$bottom === undefined) {
+                if (is_create == true) {
+                    this.$bottom = Html.create('div', { 'data-role': 'bottom' });
+                }
+                else {
+                    this.$bottom = null;
+                }
+            }
+            return this.$bottom;
+        }
+        /**
+         * 스크롤바를 가져온다.
+         *
+         * @return {Admin.Scrollbar} scrollbar - 스크롤바 (스크롤 되지 않는 컴포넌트인 경우 NULL)
+         */
+        getScrollbar() {
+            if (this.scrollbar == undefined) {
+                if (this.scrollable === false) {
+                    this.scrollbar = null;
+                }
+                else {
+                    this.scrollbar = new Admin.Scrollbar(this.$scrollable, this.scrollable);
+                }
+            }
+            return this.scrollbar;
+        }
+        /**
          * 부모객체를 지정한다.
          *
          * @param {Admin.Component} parent - 부모객체
@@ -89,6 +162,20 @@ var Admin;
          */
         getParent() {
             return this.parent;
+        }
+        /**
+         * 컴포넌트에 해당하는 하위 요소만 가져온다.
+         *
+         * @return {Admin.Component[]} items - 하위요소
+         */
+        getItems() {
+            const items = [];
+            for (const item of this.items) {
+                if (item instanceof Admin.Component) {
+                    items.push(item);
+                }
+            }
+            return items;
         }
         /**
          * 컴포넌트를 숨긴다.
@@ -151,26 +238,53 @@ var Admin;
             this.$component.setData('rendered', true, false);
         }
         /**
+         * 컴포넌트 상단 컨텐츠를 랜더링한다.
+         */
+        renderTop() {
+            console.log('Admin.Component.renderTop()');
+        }
+        /**
+         * 컴포넌트 컨텐츠를 랜더링한다.
+         */
+        renderContent() {
+            this.renderItems();
+        }
+        /**
+         * 컴포넌트 하단 컨텐츠를 랜더링한다.
+         */
+        renderBottom() { }
+        /**
+         * 컴포넌트에 속한 아이템을 랜더링한다.
+         */
+        renderItems() {
+            for (let item of this.getItems()) {
+                this.$getContent().append(item.$getComponent());
+                if (item.isRenderable() == true) {
+                    item.render();
+                }
+            }
+        }
+        /**
          * 레이아웃을 렌더링한다.
          */
         render() {
-            this.$component
-                .setData('component', this.getId())
-                .setData('type', this.type)
-                .setData('role', this.role)
-                .addClass(this.layout);
-            if (this.scrollbar === undefined) {
-                this.scrollbar = new Admin.Scrollbar(this.$component, this.scrollable);
-            }
+            this.$component.setData('type', this.type).setData('role', this.role).addClass(this.layout);
             if (this.isRenderable() == true) {
-                for (let item of this.getItems()) {
-                    this.$component.append(item.$getComponent());
-                    if (item.isRenderable() == true) {
-                        item.render();
-                    }
+                this.renderTop();
+                this.renderContent();
+                this.renderBottom();
+                if (this.$getTop() != null) {
+                    this.$container.append(this.$getTop());
                 }
-                this.scrollbar.render();
+                this.$container.append(this.$getContent());
+                if (this.$getBottom() != null) {
+                    this.$container.append(this.$getBottom());
+                }
+                this.$component.append(this.$container);
                 this.rendered();
+            }
+            else {
+                console.log('not', this.type, this.role);
             }
             if (this.isRendered() == true) {
                 this.onRender();
@@ -183,20 +297,6 @@ var Admin;
             let $section = Html.get('section[data-role=admin]');
             $section.append(this.$component);
             this.render();
-        }
-        /**
-         * 컴포넌트에 해당하는 하위 요소만 가져온다.
-         *
-         * @return {Admin.Component[]} items - 하위요소
-         */
-        getItems() {
-            const items = [];
-            for (const item of this.items) {
-                if (item instanceof Admin.Component) {
-                    items.push(item);
-                }
-            }
-            return items;
         }
         /**
          * 현재 컴포넌트가 화면상에 출력되었을 때 이벤트를 처리한다.
