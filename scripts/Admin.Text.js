@@ -28,7 +28,7 @@ var Admin;
             }
             super(properties);
             this.text = this.properties.text ?? '';
-            this.$text ??= Html.create('spqn');
+            this.$text ??= Html.create('span');
             if (this.border == true) {
                 this.$component.addClass('border');
             }
