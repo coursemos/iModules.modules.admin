@@ -34,42 +34,37 @@ namespace Admin {
             this.pressed = false;
             this.handler = this.properties.handler ?? null;
 
-            this.$button ??= Html.create('button').setAttr('type', 'button');
+            this.$button = Html.create('button').setAttr('type', 'button');
         }
 
         /**
          * 레이아웃을 렌더링한다.
          */
-        render(): void {
-            if (this.isRenderable() == true) {
-                if (this.iconClass !== null) {
-                    let $icon = Html.create('i').addClass('icon');
-                    $icon.addClass(...this.iconClass.split(' '));
-                    this.$button.append($icon);
-                }
-
-                if (this.text !== null) {
-                    let $text = Html.create('span').text(this.text);
-                    this.$button.append($text);
-                }
-
-                if (this.handler !== null || this.toggle === true) {
-                    this.$button.on('click', () => {
-                        if (this.toggle == true) {
-                            this.setPressed(!this.pressed);
-                        }
-
-                        if (this.handler !== null) {
-                            this.handler(this);
-                        }
-                    });
-                }
-
-                this.$component.append(this.$button);
-                this.rendered();
+        renderContent(): void {
+            if (this.iconClass !== null) {
+                let $icon = Html.create('i').addClass('icon');
+                $icon.addClass(...this.iconClass.split(' '));
+                this.$button.append($icon);
             }
 
-            super.render();
+            if (this.text !== null) {
+                let $text = Html.create('span').text(this.text);
+                this.$button.append($text);
+            }
+
+            if (this.handler !== null || this.toggle === true) {
+                this.$button.on('click', () => {
+                    if (this.toggle == true) {
+                        this.setPressed(!this.pressed);
+                    }
+
+                    if (this.handler !== null) {
+                        this.handler(this);
+                    }
+                });
+            }
+
+            this.$getContent().append(this.$button);
         }
 
         /**

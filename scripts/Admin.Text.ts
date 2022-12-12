@@ -14,6 +14,7 @@ namespace Admin {
         role: string = 'text';
         border: boolean;
         text: string;
+
         $text: Dom;
 
         /**
@@ -29,23 +30,20 @@ namespace Admin {
             super(properties);
 
             this.text = this.properties.text ?? '';
-            this.$text ??= Html.create('span');
+            this.$text = Html.create('div');
+        }
 
-            if (this.border == true) {
-                this.$component.addClass('border');
-            }
+        setText(text: string): void {
+            this.text = text;
+            this.$text.text(text);
         }
 
         /**
-         * 레이아웃을 렌더링한다.
+         * 텍스트 내용을 랜더링한다.
          */
-        render() {
-            if (this.isRenderable() == true) {
-                this.$text.text(this.text);
-                this.$component.append(this.$text);
-                this.rendered();
-            }
-            super.render();
+        renderContent(): void {
+            this.$text.text(this.text);
+            this.$getContent().append(this.$text);
         }
     }
 }

@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Toolbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 12.
  */
 namespace Admin {
     export class Toolbar extends Admin.Component {
@@ -14,7 +14,6 @@ namespace Admin {
         role: string = 'toolbar';
         position: string;
         border: boolean;
-        scrollable: string | boolean;
 
         /**
          * 툴바를 생성한다.
@@ -52,13 +51,23 @@ namespace Admin {
         }
 
         /**
+         * @todo 툴바 좌측 스크롤 버튼을 랜더링한다.
+         */
+        renderTop(): void {}
+
+        /**
+         * @todo 툴바 우축 스크롤 버튼을 랜더링한다.
+         */
+        renderBottom(): void {}
+
+        /**
          * 레이아웃을 렌더링한다.
          */
         render(): void {
-            this.$component.setData('position', this.position);
+            this.$getContainer().setData('position', this.position);
 
             if (this.border == true) {
-                this.$component.addClass('border');
+                this.$getContainer().addClass('border');
             }
 
             super.render();
@@ -102,22 +111,15 @@ namespace Admin {
                 } else if (this.text == '-') {
                     this.role = 'separator';
                 }
-
-                this.$text = Html.create('span');
             }
 
             /**
-             * 레이아웃을 렌더링한다.
+             * 툴바아이템을 랜더링한다.
              */
-            render() {
-                if (this.isRenderable() == true) {
-                    if (this.role == 'text') {
-                        this.$text.text(this.text);
-                        this.$component.append(this.$text);
-                    }
-                    this.rendered();
+            renderContent(): void {
+                if (this.role == 'text') {
+                    this.$getContent().text(this.text);
                 }
-                super.render();
             }
         }
     }

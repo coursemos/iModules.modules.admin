@@ -173,17 +173,13 @@ namespace Admin {
              * 패널의 본문 레이아웃을 랜더링한다.
              */
             renderContent(): void {
-                if (this.$content.getData('rendered') == true) return;
-
-                this.$content.append(this.$header);
-                this.$content.append(this.$body);
-                this.$content.append(this.$footer);
+                this.$getContent().append(this.$header);
+                this.$getContent().append(this.$body);
+                this.$getContent().append(this.$footer);
 
                 this.renderHeader();
                 this.renderBody();
                 this.renderFooter();
-
-                this.$content.setData('rendered', true);
             }
 
             /**

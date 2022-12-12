@@ -16,9 +16,6 @@ namespace Admin {
         iconClass: string;
         tools: Admin.Title.Tool[] = [];
 
-        $title: Dom;
-        $tools: Dom;
-
         /**
          * 텍스트 객체를 생성한다.
          *
@@ -33,8 +30,6 @@ namespace Admin {
 
             this.title = this.properties.title ?? '';
             this.iconClass = this.properties.iconClass ?? '';
-            this.$title = Html.create('span');
-            this.$tools = Html.create('div', { 'data-role': 'tools' });
         }
 
         /**
@@ -57,35 +52,38 @@ namespace Admin {
             const tool = new Admin.Title.Tool({ text: text, iconClass: iconClass, handler: handler });
             this.tools.push(tool);
 
-            if (this.$tools.getData('rendered') == true) {
-                this.$tools.append(tool.$getComponent());
-                tool.render();
-            }
-        }
-
-        renderTools(): void {
-            if (this.$tools.getData('rendered') == true) return;
-
-            this.tools.forEach((tool: Admin.Title.Tool) => {
-                this.$tools.append(tool.$getComponent());
-                tool.render();
-            });
-
-            this.$tools.setData('rendered', true, false);
+            this.renderBottom();
         }
 
         /**
-         * 레이아웃을 렌더링한다.
+         * 제목 아이콘을 랜더링한다.
          */
-        render() {
-            if (this.isRenderable() == true) {
-                this.$title.text(this.title);
-                this.$component.append(this.$title);
-                this.$component.append(this.$tools);
-                this.renderTools();
-                this.rendered();
-            }
-            super.render();
+        renderTop(): void {
+            if (this.iconClass == '') return;
+
+            const $top = this.$getTop(true);
+            const $i = Html.create('i').addClass(...this.iconClass.split(' '));
+            $top.append($i);
+        }
+
+        /**
+         * 제목을 랜더링한다.
+         */
+        renderContent(): void {
+            this.$getContent().text(this.title);
+        }
+
+        /**
+         * 툴버튼을 랜더링한다.
+         */
+        renderBottom(): void {
+            if (this.tools.length == 0) return;
+
+            this.$getBottom(true).empty();
+            this.tools.forEach((tool: Admin.Title.Tool) => {
+                this.$getBottom().append(tool.$getComponent());
+                tool.render();
+            });
         }
     }
 
@@ -111,22 +109,17 @@ namespace Admin {
             }
 
             /**
-             * 레이아웃을 렌더링한다.
+             * 버튼을 랜더링한다.
              */
-            render() {
-                if (this.isRenderable() == true) {
-                    const $button = Html.create('button', { 'type': 'button' });
-                    if (this.iconClass != null) {
-                        $button.addClass(...this.iconClass.split(' '));
-                    }
-                    this.$component.append($button);
-                    $button.on('click', () => {
-                        this.handler(this);
-                    });
-                    this.rendered();
+            renderContent(): void {
+                const $button = Html.create('button', { 'type': 'button' });
+                if (this.iconClass != null) {
+                    $button.addClass(...this.iconClass.split(' '));
                 }
-
-                super.render();
+                this.$component.append($button);
+                $button.on('click', () => {
+                    this.handler(this);
+                });
             }
         }
     }

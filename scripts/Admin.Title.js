@@ -16,8 +16,6 @@ var Admin;
         title;
         iconClass;
         tools = [];
-        $title;
-        $tools;
         /**
          * 텍스트 객체를 생성한다.
          *
@@ -31,8 +29,6 @@ var Admin;
             super(properties);
             this.title = this.properties.title ?? '';
             this.iconClass = this.properties.iconClass ?? '';
-            this.$title = Html.create('span');
-            this.$tools = Html.create('div', { 'data-role': 'tools' });
         }
         /**
          * 제목 아이콘을 설정한다.
@@ -52,32 +48,35 @@ var Admin;
         addTool(text, iconClass, handler) {
             const tool = new Admin.Title.Tool({ text: text, iconClass: iconClass, handler: handler });
             this.tools.push(tool);
-            if (this.$tools.getData('rendered') == true) {
-                this.$tools.append(tool.$getComponent());
-                tool.render();
-            }
-        }
-        renderTools() {
-            if (this.$tools.getData('rendered') == true)
-                return;
-            this.tools.forEach((tool) => {
-                this.$tools.append(tool.$getComponent());
-                tool.render();
-            });
-            this.$tools.setData('rendered', true, false);
+            this.renderBottom();
         }
         /**
-         * 레이아웃을 렌더링한다.
+         * 제목 아이콘을 랜더링한다.
          */
-        render() {
-            if (this.isRenderable() == true) {
-                this.$title.text(this.title);
-                this.$component.append(this.$title);
-                this.$component.append(this.$tools);
-                this.renderTools();
-                this.rendered();
-            }
-            super.render();
+        renderTop() {
+            if (this.iconClass == '')
+                return;
+            const $top = this.$getTop(true);
+            const $i = Html.create('i').addClass(...this.iconClass.split(' '));
+            $top.append($i);
+        }
+        /**
+         * 제목을 랜더링한다.
+         */
+        renderContent() {
+            this.$getContent().text(this.title);
+        }
+        /**
+         * 툴버튼을 랜더링한다.
+         */
+        renderBottom() {
+            if (this.tools.length == 0)
+                return;
+            this.$getBottom(true).empty();
+            this.tools.forEach((tool) => {
+                this.$getBottom().append(tool.$getComponent());
+                tool.render();
+            });
         }
     }
     Admin.Title = Title;
@@ -100,21 +99,17 @@ var Admin;
                 this.handler = this.properties.handler ?? null;
             }
             /**
-             * 레이아웃을 렌더링한다.
+             * 버튼을 랜더링한다.
              */
-            render() {
-                if (this.isRenderable() == true) {
-                    const $button = Html.create('button', { 'type': 'button' });
-                    if (this.iconClass != null) {
-                        $button.addClass(...this.iconClass.split(' '));
-                    }
-                    this.$component.append($button);
-                    $button.on('click', () => {
-                        this.handler(this);
-                    });
-                    this.rendered();
+            renderContent() {
+                const $button = Html.create('button', { 'type': 'button' });
+                if (this.iconClass != null) {
+                    $button.addClass(...this.iconClass.split(' '));
                 }
-                super.render();
+                this.$component.append($button);
+                $button.on('click', () => {
+                    this.handler(this);
+                });
             }
         }
         Title.Tool = Tool;

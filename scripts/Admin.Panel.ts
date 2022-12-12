@@ -14,16 +14,10 @@ namespace Admin {
         role: string = 'panel';
         border: boolean;
         margin: string | number;
-        scrollable: string | boolean;
 
         title: Admin.Title;
         topbar: Admin.Toolbar;
         bottombar: Admin.Toolbar;
-
-        $container: Dom;
-        $top: Dom;
-        $bottom: Dom;
-        $content: Dom;
 
         /**
          * 패널을 생성한다.
@@ -36,7 +30,7 @@ namespace Admin {
             this.layout = this.properties.layout ?? 'auto';
             this.border = this.properties.border ?? true;
             this.margin = this.properties.margin ?? null;
-            this.scrollable = this.properties.scrollable ?? false;
+            this.scrollable = this.properties.scrollable ?? (this.layout == 'fit' ? true : false);
 
             if (this.properties.title || this.properties.iconClass) {
                 if (this.properties.title instanceof Admin.Title) {
@@ -76,10 +70,7 @@ namespace Admin {
             }
             this.bottombar?.setPosition('bottom');
 
-            this.$container = Html.create('div').setData('role', 'container');
-            this.$top = Html.create('div').setData('role', 'top');
-            this.$bottom = Html.create('div').setData('role', 'bottom');
-            this.$content = Html.create('div').setData('role', 'content');
+            this.$scrollable = this.$content;
         }
 
         /**
@@ -101,42 +92,6 @@ namespace Admin {
                     }
                 }
             }
-        }
-
-        /**
-         * 패널의 컨테이너 DOM 을 가져온다.
-         *
-         * @return {Dom} $container
-         */
-        $getContainer(): Dom {
-            return this.$container;
-        }
-
-        /**
-         * 패널의 상단 DOM 을 가져온다.
-         *
-         * @return {Dom} $top
-         */
-        $getTop(): Dom {
-            return this.$top;
-        }
-
-        /**
-         * 패널의 하단 DOM 을 가져온다.
-         *
-         * @return {Dom} $bottom
-         */
-        $getBottom(): Dom {
-            return this.$bottom;
-        }
-
-        /**
-         * 패널의 본문 DOM 을 가져온다.
-         *
-         * @return {Dom} $content
-         */
-        $getContent(): Dom {
-            return this.$content;
         }
 
         /**
@@ -185,7 +140,7 @@ namespace Admin {
                     'autoscroll.interval',
                     setInterval(() => {
                         const speed = this.$content.getData('autoscroll.speed');
-                        this.$content.setScroll(null, this.$content.getScroll().left + speed, true);
+                        this.$content.setScroll(null, this.$content.getScroll().left + speed, false);
                         if (
                             this.$content.getScroll().left >=
                             this.$content.getScrollWidth() - this.$content.getOuterWidth()
@@ -240,53 +195,37 @@ namespace Admin {
          * 패널의 상단을 랜더링한다.
          */
         renderTop(): void {
-            if (this.$top.getData('rendered') == true) return;
+            console.log('Admin.Panel.renderTop()');
+            if (this.title !== null || this.topbar !== null) {
+                const $top = this.$getTop(true);
 
-            if (this.title !== null) {
-                this.$top.append(this.title.$getComponent());
-                this.title.render();
+                if (this.title !== null) {
+                    $top.append(this.title.$getComponent());
+                    this.title.render();
+                }
+
+                if (this.topbar !== null) {
+                    $top.append(this.topbar.$getComponent());
+                    this.topbar.render();
+                }
             }
-
-            if (this.topbar !== null) {
-                this.$top.append(this.topbar.$getComponent());
-                this.topbar.render();
-            }
-
-            this.$top.setData('rendered', true);
         }
 
         /**
          * 패널의 하단 레이아웃을 랜더링한다.
          */
         renderBottom(): void {
-            if (this.$bottom.getData('rendered') == true) return;
-
             if (this.bottombar !== null) {
-                this.$bottom.append(this.bottombar.$getComponent());
+                const $bottom = this.$getBottom(true);
+                $bottom.append(this.bottombar.$getComponent());
                 this.bottombar.render();
             }
-
-            this.$bottom.setData('rendered', true);
         }
 
         /**
-         * 패널의 본문 레이아웃을 랜더링한다.
-         */
-        renderContent(): void {
-            if (this.$content.getData('rendered') == true) return;
-
-            for (const item of this.getItems()) {
-                this.$content.append(item.$getComponent());
-                item.render();
-            }
-
-            this.$content.setData('rendered', true);
-        }
-
-        /**
-         * 레이아웃을 렌더링한다.
-         */
-        render(): void {
+         * 컴포넌트 콘텐츠를 랜더링한다.
+         *
+        renderContainer(): void {
             if (this.isRenderable() == true) {
                 if (this.border == true) {
                     this.$container.addClass('border');
@@ -299,28 +238,14 @@ namespace Admin {
                     this.$component.setStyle('padding', this.margin);
                 }
 
-                if (this.scrollable == true) {
-                    this.$content.addClass('scrollableX');
-                    this.$content.addClass('scrollableY');
-                } else if (this.scrollable == 'X') {
-                    this.$content.addClass('scrollableX');
-                } else if (this.scrollable == 'Y') {
-                    this.$content.addClass('scrollableY');
-                }
-
                 this.$container.append(this.$top);
                 this.$container.append(this.$content);
                 this.$container.append(this.$bottom);
-                this.$component.append(this.$container);
 
                 this.renderTop();
                 this.renderBottom();
                 this.renderContent();
-
-                this.rendered();
             }
-
-            super.render();
-        }
+        }*/
     }
 }

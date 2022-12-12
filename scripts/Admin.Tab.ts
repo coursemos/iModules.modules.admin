@@ -66,24 +66,6 @@ namespace Admin {
             }
 
             /**
-             * 레이아웃을 렌더링한다.
-             */
-            render(): void {
-                if (this.isRenderable() == true) {
-                    if (this.tabPosition == 'top') {
-                        this.renderTop();
-                        this.$top.append(this.bar.$getComponent());
-                    } else {
-                        this.renderBottom();
-                        this.$bottom.append(this.bar.$getComponent());
-                    }
-                    this.bar.render();
-                }
-
-                super.render();
-            }
-
-            /**
              * 특정탭을 가져온다.
              *
              * @param {string|number} id - 가져올 탭 고유값 또는 탭 인덱스
@@ -121,6 +103,51 @@ namespace Admin {
                     this.bar.active(tab.getId());
                 }
             }
+
+            /**
+             * 탭바를 랜더링한다.
+             */
+            renderTop(): void {
+                console.log('Admin.Tab.Panel.renderTop()');
+                super.renderTop();
+
+                if (this.tabPosition == 'top') {
+                    const $top = this.$getTop(true);
+                    $top.append(this.bar.$getComponent());
+                    this.bar.render();
+                }
+            }
+
+            /**
+             * 탭바를 랜더링한다.
+             */
+            renderBottom(): void {
+                super.renderBottom();
+
+                if (this.tabPosition == 'bottom') {
+                    const $bottom = this.$getBottom(true);
+                    $bottom.append(this.bar.$getComponent());
+                    this.bar.render();
+                }
+            }
+
+            /**
+             * 레이아웃을 렌더링한다.
+             *
+            renderContainer(): void {
+                if (this.isRenderable() == true) {
+                    if (this.tabPosition == 'top') {
+                        this.renderTop();
+                        this.$top.append(this.bar.$getComponent());
+                    } else {
+                        this.renderBottom();
+                        this.$bottom.append(this.bar.$getComponent());
+                    }
+                    this.bar.render();
+                }
+
+                super.renderContainer();
+            }*/
 
             /**
              * 탭패널이 화면상에 출력되었을 때 이벤트를 처리한다.
