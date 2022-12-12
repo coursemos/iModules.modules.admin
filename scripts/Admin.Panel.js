@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 12.
  */
 var Admin;
 (function (Admin) {
@@ -85,7 +85,7 @@ var Admin;
             if (this.items === null) {
                 this.items = [];
                 if (this.properties.html) {
-                    this.items.push(new Admin.Text(this.properties.html));
+                    this.items.push(new Admin.Text({ layout: this.layout, text: this.properties.html, scrollable: this.scrollable }));
                 }
                 for (let item of this.properties.items ?? []) {
                     if (item instanceof Admin.Component) {
