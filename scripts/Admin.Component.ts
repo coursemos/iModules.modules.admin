@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.js
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 12.
  */
 namespace Admin {
     export class Component extends Admin.Base {
@@ -32,11 +32,11 @@ namespace Admin {
             this.role = null;
             this.items = null;
 
-            this.role ??= null;
-            this.layout ??= this.properties.layout ?? 'auto';
-            this.padding ??= this.properties.padding ?? null;
-            this.style ??= this.properties.style ?? null;
-            this.hidden ??= this.properties.hidden ?? false;
+            this.layout = this.properties.layout ?? 'auto';
+            this.padding = this.properties.padding ?? null;
+            this.style = this.properties.style ?? null;
+            this.hidden = this.properties.hidden ?? false;
+            this.scrollable = this.properties.scrollable ?? false;
 
             /**
              * 이벤트리스너를 등록한다.

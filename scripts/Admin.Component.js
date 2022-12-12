@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.js
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 12.
  */
 var Admin;
 (function (Admin) {
@@ -20,6 +20,8 @@ var Admin;
         padding;
         style;
         hidden;
+        scrollable;
+        scrollbar;
         /**
          * 컴포넌트를 생성한다.
          *
@@ -30,11 +32,11 @@ var Admin;
             this.parent = null;
             this.role = null;
             this.items = null;
-            this.role ??= null;
-            this.layout ??= this.properties.layout ?? 'auto';
-            this.padding ??= this.properties.padding ?? null;
-            this.style ??= this.properties.style ?? null;
-            this.hidden ??= this.properties.hidden ?? false;
+            this.layout = this.properties.layout ?? 'auto';
+            this.padding = this.properties.padding ?? null;
+            this.style = this.properties.style ?? null;
+            this.hidden = this.properties.hidden ?? false;
+            this.scrollable = this.properties.scrollable ?? false;
             /**
              * 이벤트리스너를 등록한다.
              */
@@ -157,6 +159,9 @@ var Admin;
                 .setData('type', this.type)
                 .setData('role', this.role)
                 .addClass(this.layout);
+            if (this.scrollbar === undefined) {
+                this.scrollbar = new Admin.Scrollbar(this.$component, this.scrollable);
+            }
             if (this.isRenderable() == true) {
                 for (let item of this.getItems()) {
                     this.$component.append(item.$getComponent());
@@ -164,6 +169,7 @@ var Admin;
                         item.render();
                     }
                 }
+                this.scrollbar.render();
                 this.rendered();
             }
             if (this.isRendered() == true) {
