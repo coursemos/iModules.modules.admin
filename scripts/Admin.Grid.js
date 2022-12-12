@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 12.
  */
 var Admin;
 (function (Admin) {
@@ -184,16 +184,15 @@ var Admin;
                     return;
                 const headerHeight = this.$header.getOuterHeight();
                 const contentHeight = this.$content.getHeight();
-                const rowHeight = $row.getOuterHeight();
-                const offset = $row.getOffset();
+                const offset = $row.getPosition();
                 const scroll = this.$content.getScroll();
-                const top = offset.top - scroll.top;
+                const top = offset.top;
                 const bottom = top + $row.getOuterHeight();
-                if (top < headerHeight) {
-                    this.$content.setScroll(offset.top - headerHeight - 1, null, false);
+                if (top - 1 < headerHeight) {
+                    this.$content.setScroll(top + scroll.top - headerHeight - 1, null, false);
                 }
-                else if (bottom > contentHeight) {
-                    this.$content.setScroll(offset.top + rowHeight - contentHeight + 1, null, false);
+                else if (bottom + 1 > contentHeight) {
+                    this.$content.setScroll(bottom + scroll.top - contentHeight + 1, null, false);
                 }
             }
             /**
@@ -214,16 +213,15 @@ var Admin;
                 this.focusedCell.rowIndex = rowIndex;
                 this.focusedCell.columnIndex = columnIndex;
                 const contentWidth = this.$content.getWidth();
-                const columnWidth = $column.getOuterWidth();
-                const offset = $column.getOffset();
+                const offset = $column.getPosition();
                 const scroll = this.$content.getScroll();
-                const left = offset.left - scroll.left;
+                const left = offset.left;
                 const right = left + $column.getOuterWidth();
                 if (left < this.freezeWidth) {
-                    this.$content.setScroll(null, offset.left - this.freezeWidth - 2, false);
+                    this.$content.setScroll(null, left + scroll.left - this.freezeWidth - 2, false);
                 }
                 else if (right > contentWidth) {
-                    this.$content.setScroll(null, offset.left + columnWidth - contentWidth + 1, false);
+                    this.$content.setScroll(null, right + scroll.left - contentWidth + 1, false);
                 }
             }
             /**
