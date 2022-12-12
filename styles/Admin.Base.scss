@@ -8,7 +8,8 @@
  * @license MIT License
  * @modified 2022. 12. 7.
  */
-section[data-role='admin'] {
+section[data-role='admin'],
+section[data-role='windows'] {
     background: black;
 
     --default-size: 1rem;
@@ -26,4 +27,12 @@ section[data-role='admin'] {
     * {
         box-sizing: border-box;
     }
+}
+
+section[data-role='admin'] {
+    z-index: 0;
+}
+
+section[data-role='windows'] {
+    z-index: 1000;
 }
