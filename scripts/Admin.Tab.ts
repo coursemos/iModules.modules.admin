@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Tab.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 12.
  */
 namespace Admin {
     export namespace Tab {
@@ -33,6 +33,7 @@ namespace Admin {
                 this.activeTab = this.properties.activeTab ?? 0;
                 this.activeTabId = null;
                 this.tabPosition = this.properties.tabPosition ?? 'bottom';
+                this.scrollable = false;
 
                 this.bar = new Admin.Tab.Bar(this.properties);
                 this.bar.setParent(this);
@@ -48,7 +49,7 @@ namespace Admin {
                     for (let item of this.properties.items ?? []) {
                         if (item instanceof Admin.Panel) {
                             item.hide();
-                            item.getTitle().setHidden(true);
+                            item.getTitle()?.setHidden(true);
                             this.items.push(item);
                         }
                     }
