@@ -110,15 +110,9 @@ namespace Admin {
 
         /**
          * 컴포넌트의 상단 DOM 사용여부를 설정한다.
-         *
-         * @param {boolean} is_used - 사용여부
          */
-        $setTop(is_used: boolean): void {
-            if (is_used == true) {
-                this.$top ??= Html.create('div', { 'data-role': 'top' });
-            } else {
-                this.$top = null;
-            }
+        $setTop(): void {
+            this.$top ??= Html.create('div', { 'data-role': 'top' });
         }
 
         /**
@@ -142,15 +136,9 @@ namespace Admin {
 
         /**
          * 컴포넌트의 상단 DOM 사용여부를 설정한다.
-         *
-         * @param {boolean} is_used - 사용여부
          */
-        $setBottom(is_used: boolean): void {
-            if (is_used == true) {
-                this.$bottom ??= Html.create('div', { 'data-role': 'bottom' });
-            } else {
-                this.$bottom = null;
-            }
+        $setBottom(): void {
+            this.$bottom ??= Html.create('div', { 'data-role': 'bottom' });
         }
 
         /**

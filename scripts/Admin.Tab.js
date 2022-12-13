@@ -35,6 +35,12 @@ var Admin;
                 this.scrollable = false;
                 this.bar = new Admin.Tab.Bar(this.properties);
                 this.bar.setParent(this);
+                if (this.tabPosition == 'top') {
+                    this.$setTop();
+                }
+                if (this.tabPosition == 'bottom') {
+                    this.$setBottom();
+                }
             }
             /**
              * 탭패널의 하위 컴포넌트를 정의한다.
@@ -102,10 +108,9 @@ var Admin;
              * 탭바를 랜더링한다.
              */
             renderTop() {
-                console.log('Admin.Tab.Panel.renderTop()');
                 super.renderTop();
                 if (this.tabPosition == 'top') {
-                    const $top = this.$getTop(true);
+                    const $top = this.$getTop();
                     $top.append(this.bar.$getComponent());
                     this.bar.render();
                 }
@@ -116,7 +121,7 @@ var Admin;
             renderBottom() {
                 super.renderBottom();
                 if (this.tabPosition == 'bottom') {
-                    const $bottom = this.$getBottom(true);
+                    const $bottom = this.$getBottom();
                     $bottom.append(this.bar.$getComponent());
                     this.bar.render();
                 }

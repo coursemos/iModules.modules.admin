@@ -60,9 +60,7 @@ namespace Admin {
             this.topbar?.setPosition('top');
 
             if (this.title != null || this.topbar != null) {
-                this.$setTop(true);
-            } else {
-                this.$setTop(false);
+                this.$setTop();
             }
 
             if (this.properties.bottombar) {
@@ -77,9 +75,7 @@ namespace Admin {
             this.bottombar?.setPosition('bottom');
 
             if (this.title != null || this.bottombar != null) {
-                this.$setBottom(true);
-            } else {
-                this.$setBottom(false);
+                this.$setBottom();
             }
 
             this.$scrollable = this.$getContent();

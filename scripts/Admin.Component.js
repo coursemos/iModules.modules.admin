@@ -97,16 +97,9 @@ var Admin;
         }
         /**
          * 컴포넌트의 상단 DOM 사용여부를 설정한다.
-         *
-         * @param {boolean} is_used - 사용여부
          */
-        $setTop(is_used) {
-            if (is_used == true) {
-                this.$top ??= Html.create('div', { 'data-role': 'top' });
-            }
-            else {
-                this.$top = null;
-            }
+        $setTop() {
+            this.$top ??= Html.create('div', { 'data-role': 'top' });
         }
         /**
          * 컴포넌트의 컨텐츠 DOM 을 가져온다.
@@ -127,16 +120,9 @@ var Admin;
         }
         /**
          * 컴포넌트의 상단 DOM 사용여부를 설정한다.
-         *
-         * @param {boolean} is_used - 사용여부
          */
-        $setBottom(is_used) {
-            if (is_used == true) {
-                this.$bottom ??= Html.create('div', { 'data-role': 'bottom' });
-            }
-            else {
-                this.$bottom = null;
-            }
+        $setBottom() {
+            this.$bottom ??= Html.create('div', { 'data-role': 'bottom' });
         }
         /**
          * 스크롤바를 가져온다.
