@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.js
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 12.
+ * @modified 2022. 12. 13.
  */
 namespace Admin {
     export class Component extends Admin.Base {
@@ -26,6 +26,8 @@ namespace Admin {
         style: string;
         hidden: boolean;
         scrollable: string | boolean;
+        $scrollable: Dom;
+        scrollbar: Admin.Scrollbar;
 
         /**
          * 컴포넌트를 생성한다.
@@ -54,7 +56,7 @@ namespace Admin {
 
             this.$component = Html.create('div', { 'data-component': this.id });
             this.$container = Html.create('div', { 'data-role': 'container' });
-            this.$scrollable = this.$component;
+            this.$scrollable = this.$container;
 
             this.initItems();
         }
@@ -100,19 +102,23 @@ namespace Admin {
         /**
          * 컴포넌트의 상단 DOM 을 가져온다.
          *
-         * @param {boolean} is_create - DOM 을 생성할지 여부
          * @return {Dom} $top
          */
-        $getTop(is_create: boolean = false): Dom {
-            if (this.$top === undefined || this.$top === null) {
-                if (is_create == true) {
-                    this.$top = Html.create('div', { 'data-role': 'top' });
-                } else {
-                    this.$top = null;
-                }
-            }
+        $getTop(): Dom {
+            return this.$top ?? null;
+        }
 
-            return this.$top;
+        /**
+         * 컴포넌트의 상단 DOM 사용여부를 설정한다.
+         *
+         * @param {boolean} is_used - 사용여부
+         */
+        $setTop(is_used: boolean): void {
+            if (is_used == true) {
+                this.$top ??= Html.create('div', { 'data-role': 'top' });
+            } else {
+                this.$top = null;
+            }
         }
 
         /**
@@ -128,19 +134,23 @@ namespace Admin {
         /**
          * 컴포넌트의 하단 DOM 을 가져온다.
          *
-         * @param {boolean} is_create - DOM 을 생성할지 여부
          * @return {Dom} $bottom
          */
-        $getBottom(is_create: boolean = false): Dom {
-            if (this.$bottom === undefined) {
-                if (is_create == true) {
-                    this.$bottom = Html.create('div', { 'data-role': 'bottom' });
-                } else {
-                    this.$bottom = null;
-                }
-            }
+        $getBottom(): Dom {
+            return this.$bottom ?? null;
+        }
 
-            return this.$bottom;
+        /**
+         * 컴포넌트의 상단 DOM 사용여부를 설정한다.
+         *
+         * @param {boolean} is_used - 사용여부
+         */
+        $setBottom(is_used: boolean): void {
+            if (is_used == true) {
+                this.$bottom ??= Html.create('div', { 'data-role': 'bottom' });
+            } else {
+                this.$bottom = null;
+            }
         }
 
         /**
@@ -267,9 +277,7 @@ namespace Admin {
         /**
          * 컴포넌트 상단 컨텐츠를 랜더링한다.
          */
-        renderTop(): void {
-            console.log('Admin.Component.renderTop()');
-        }
+        renderTop(): void {}
 
         /**
          * 컴포넌트 컨텐츠를 랜더링한다.
@@ -302,28 +310,27 @@ namespace Admin {
             this.$component.setData('type', this.type).setData('role', this.role).addClass(this.layout);
 
             if (this.isRenderable() == true) {
-                this.renderTop();
-                this.renderContent();
-                this.renderBottom();
+                this.$component.append(this.$container);
 
                 if (this.$getTop() != null) {
                     this.$container.append(this.$getTop());
+                    this.renderTop();
                 }
 
                 this.$container.append(this.$getContent());
+                this.renderContent();
 
                 if (this.$getBottom() != null) {
                     this.$container.append(this.$getBottom());
+                    this.renderBottom();
                 }
 
-                this.$component.append(this.$container);
                 this.rendered();
-            } else {
-                console.log('not', this.type, this.role);
             }
 
             if (this.isRendered() == true) {
                 this.onRender();
+                this.getScrollbar()?.render();
             }
         }
 
