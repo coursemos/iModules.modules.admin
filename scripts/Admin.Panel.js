@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 12.
+ * @modified 2022. 12. 13.
  */
 var Admin;
 (function (Admin) {
@@ -56,6 +56,12 @@ var Admin;
                 this.topbar = null;
             }
             this.topbar?.setPosition('top');
+            if (this.title != null || this.topbar != null) {
+                this.$setTop(true);
+            }
+            else {
+                this.$setTop(false);
+            }
             if (this.properties.bottombar) {
                 if (this.properties.topbar instanceof Admin.Toolbar) {
                     this.bottombar = new Admin.Toolbar(this.properties.bottombar);
@@ -68,7 +74,13 @@ var Admin;
                 this.bottombar = null;
             }
             this.bottombar?.setPosition('bottom');
-            this.$scrollable = this.$content;
+            if (this.title != null || this.bottombar != null) {
+                this.$setBottom(true);
+            }
+            else {
+                this.$setBottom(false);
+            }
+            this.$scrollable = this.$getContent();
         }
         /**
          * 탭패널의 하위 컴포넌트를 정의한다.
@@ -175,9 +187,8 @@ var Admin;
          * 패널의 상단을 랜더링한다.
          */
         renderTop() {
-            console.log('Admin.Panel.renderTop()');
             if (this.title !== null || this.topbar !== null) {
-                const $top = this.$getTop(true);
+                const $top = this.$getTop();
                 if (this.title !== null) {
                     $top.append(this.title.$getComponent());
                     this.title.render();
@@ -193,10 +204,25 @@ var Admin;
          */
         renderBottom() {
             if (this.bottombar !== null) {
-                const $bottom = this.$getBottom(true);
+                const $bottom = this.$getBottom();
                 $bottom.append(this.bottombar.$getComponent());
                 this.bottombar.render();
             }
+        }
+        /**
+         * 컴포넌트 콘텐츠를 랜더링한다.
+         */
+        render() {
+            if (this.border == true) {
+                this.$container.addClass('border');
+            }
+            if (this.margin !== null) {
+                if (typeof this.margin == 'number') {
+                    this.margin = this.margin + 'px';
+                }
+                this.$component.setStyle('padding', this.margin);
+            }
+            super.render();
         }
     }
     Admin.Panel = Panel;
