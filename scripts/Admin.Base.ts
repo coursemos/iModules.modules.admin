@@ -9,7 +9,7 @@
  * @modified 2022. 12. 1.
  */
 namespace Admin {
-    export let components: { [key: string]: Admin.Base } = {};
+    export let components: Map<string, Admin.Base> = new Map();
     export let index: number = 0;
     export let currentComponent: Admin.Component = null;
 
@@ -19,7 +19,7 @@ namespace Admin {
      * @param {Admin.Base} component - 컴포넌트 객체
      */
     export function set(component: Admin.Base): void {
-        this.components[component.id] = component;
+        Admin.components.set(component.id, component);
     }
 
     /**
@@ -29,7 +29,7 @@ namespace Admin {
      * @return {Admin.Base} component - 컴포넌트
      */
     export function get(id: string): Admin.Base {
-        return this.components[id];
+        return Admin.components.has(id) == true ? Admin.components.get(id) : null;
     }
 
     /**
@@ -38,7 +38,7 @@ namespace Admin {
      * @return {number} index - 일련번호
      */
     export function getIndex(): number {
-        return ++this.index;
+        return ++Admin.index;
     }
 
     /**

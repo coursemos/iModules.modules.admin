@@ -10,7 +10,7 @@
  */
 var Admin;
 (function (Admin) {
-    Admin.components = {};
+    Admin.components = new Map();
     Admin.index = 0;
     Admin.currentComponent = null;
     /**
@@ -19,7 +19,7 @@ var Admin;
      * @param {Admin.Base} component - 컴포넌트 객체
      */
     function set(component) {
-        this.components[component.id] = component;
+        Admin.components.set(component.id, component);
     }
     Admin.set = set;
     /**
@@ -29,7 +29,7 @@ var Admin;
      * @return {Admin.Base} component - 컴포넌트
      */
     function get(id) {
-        return this.components[id];
+        return Admin.components.has(id) == true ? Admin.components.get(id) : null;
     }
     Admin.get = get;
     /**
@@ -38,7 +38,7 @@ var Admin;
      * @return {number} index - 일련번호
      */
     function getIndex() {
-        return ++this.index;
+        return ++Admin.index;
     }
     Admin.getIndex = getIndex;
     /**
