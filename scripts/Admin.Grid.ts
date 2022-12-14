@@ -225,9 +225,9 @@ namespace Admin {
                 const bottom = top + $row.getOuterHeight();
 
                 if (top - 1 < headerHeight) {
-                    this.getScrollbar().setPosition(null, top + scroll.y - headerHeight - 1);
+                    this.getScrollbar().setPosition(null, top + scroll.y - headerHeight - 1, true);
                 } else if (bottom + 1 > contentHeight) {
-                    this.getScrollbar().setPosition(null, bottom + scroll.y - contentHeight + 1);
+                    this.getScrollbar().setPosition(null, bottom + scroll.y - contentHeight + 1, true);
                 }
             }
 
@@ -259,9 +259,9 @@ namespace Admin {
                 const right = left + $column.getOuterWidth();
 
                 if (left < this.freezeWidth) {
-                    this.getScrollbar().setPosition(left + scroll.x - this.freezeWidth - 2, null);
+                    this.getScrollbar().setPosition(left + scroll.x - this.freezeWidth - 2, null, true);
                 } else if (right > contentWidth) {
-                    this.getScrollbar().setPosition(right + scroll.x - contentWidth + 1, null);
+                    this.getScrollbar().setPosition(right + scroll.x - contentWidth + 1, null, true);
                 }
             }
 
@@ -874,12 +874,13 @@ namespace Admin {
                 if (this.isResizable() == true) {
                     this.resizer = new Admin.Resizer($header, this.grid.$content, [false, true, false, false]);
                     this.resizer.setMinWidth(50);
+                    this.resizer.setMaxWidth(900);
                     this.resizer.hover(
                         () => {
                             this.grid.$getHeader().addClass('locked');
                         },
                         () => {
-                            if (Admin.Resizer.current == null) {
+                            if (Admin.Drag.current == null) {
                                 this.grid.$getHeader().removeClass('locked');
                             }
                         }
@@ -899,30 +900,34 @@ namespace Admin {
                              */
                             const offset = this.grid.$content.getOffset();
                             const width = this.grid.$content.getOuterWidth();
-                            if (position.x > offset.left + width - 15) {
-                                const speed = Math.min(Math.ceil((position.x - (offset.left + width - 15)) / 5), 30);
-                                this.grid.getScrollbar().setMomentum(speed, 0);
-                            } else if (
-                                this.isFreezeColumn() == false &&
-                                position.x < offset.left + this.grid.freezeWidth + 15
-                            ) {
-                                const speed = Math.min(
-                                    Math.max(
-                                        Math.floor((position.x - (offset.left + this.grid.freezeWidth - 15)) / 5),
-                                        -30
-                                    ),
-                                    -1
-                                );
-                                this.grid.getScrollbar().setMomentum(speed, 0);
+                            const scroll = this.grid.getScrollbar().getPosition();
+                            const x = Math.max(0, position.x);
+                            if (x > offset.left + width - 15) {
+                                if (rect.right < offset.left + width + scroll.x - 50) {
+                                    this.grid.getScrollbar().setAutoScroll(0, 0);
+                                } else {
+                                    const speed = Math.min(Math.ceil((x - (offset.left + width - 15)) / 30), 10);
+                                    this.grid.getScrollbar().setAutoScroll(speed, 0);
+                                }
+                            } else if (this.isFreezeColumn() == false && x < offset.left + this.grid.freezeWidth + 15) {
+                                if (rect.left > offset.left + this.grid.freezeWidth + scroll.x + 50) {
+                                    this.grid.getScrollbar().setAutoScroll(0, 0);
+                                } else {
+                                    const speed = Math.max(
+                                        Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30),
+                                        -10
+                                    );
+                                    this.grid.getScrollbar().setAutoScroll(speed, 0);
+                                }
                             } else {
-                                this.grid.getScrollbar().setMomentum(0, 0);
+                                this.grid.getScrollbar().setAutoScroll(0, 0);
                             }
                         }
                     );
 
                     this.resizer.addEvent('end', ($target: Dom, rect: DOMRect) => {
                         this.setWidth(rect.width);
-                        this.grid.getScrollbar().setMomentum(0, 0);
+                        this.grid.getScrollbar().setAutoScroll(0, 0);
                         this.grid.getScrollbar().setScrollable(this.grid.scrollable);
                         this.grid.$getHeader().removeClass('locked');
                         this.grid.$getHeader().removeClass('resizing');
