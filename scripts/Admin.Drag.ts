@@ -13,6 +13,7 @@ namespace Admin {
         static current: Admin.Drag = null;
 
         start: { x: number; y: number } = { x: null, y: null };
+        position: { x: number; y: number } = { x: null, y: null };
         listener: Admin.Base;
         $target: Dom;
 
@@ -43,10 +44,11 @@ namespace Admin {
          * @param {MouseEvent} e - 마우스이벤트
          */
         onDragStart(e: MouseEvent): void {
-            this.start.x = e.clientX;
-            this.start.y = e.clientY;
-
             Admin.Drag.current = this;
+
+            this.start = { x: e.clientX, y: e.clientY };
+            this.position = this.start;
+
             if (typeof this.listener['onDragStart'] == 'function') {
                 this.listener['onDragStart'](this.$target, this.start);
             }
@@ -58,9 +60,10 @@ namespace Admin {
          * @param {MouseEvent} e - 마우스이벤트
          */
         onDrag(e: MouseEvent): void {
-            const current = { x: e.clientX, y: e.clientY };
+            this.position = { x: e.clientX, y: e.clientY };
+
             if (typeof this.listener['onDrag'] == 'function') {
-                this.listener['onDrag'](this.$target, this.start, current);
+                this.listener['onDrag'](this.$target, this.start, this.position);
             }
         }
 
@@ -70,10 +73,11 @@ namespace Admin {
          * @param {MouseEvent} e - 마우스이벤트
          */
         onDragEnd(e: MouseEvent): void {
-            const current = { x: e.clientX, y: e.clientY };
             Admin.Drag.current = null;
+
+            this.position = { x: e.clientX, y: e.clientY };
             if (typeof this.listener['onDragEnd'] == 'function') {
-                this.listener['onDragEnd'](this.$target, this.start, current);
+                this.listener['onDragEnd'](this.$target, this.start, this.position);
             }
         }
     }

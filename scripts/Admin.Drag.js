@@ -13,6 +13,7 @@ var Admin;
     class Drag {
         static current = null;
         start = { x: null, y: null };
+        position = { x: null, y: null };
         listener;
         $target;
         /**
@@ -39,9 +40,9 @@ var Admin;
          * @param {MouseEvent} e - 마우스이벤트
          */
         onDragStart(e) {
-            this.start.x = e.clientX;
-            this.start.y = e.clientY;
             Admin.Drag.current = this;
+            this.start = { x: e.clientX, y: e.clientY };
+            this.position = this.start;
             if (typeof this.listener['onDragStart'] == 'function') {
                 this.listener['onDragStart'](this.$target, this.start);
             }
@@ -52,9 +53,9 @@ var Admin;
          * @param {MouseEvent} e - 마우스이벤트
          */
         onDrag(e) {
-            const current = { x: e.clientX, y: e.clientY };
+            this.position = { x: e.clientX, y: e.clientY };
             if (typeof this.listener['onDrag'] == 'function') {
-                this.listener['onDrag'](this.$target, this.start, current);
+                this.listener['onDrag'](this.$target, this.start, this.position);
             }
         }
         /**
@@ -63,10 +64,10 @@ var Admin;
          * @param {MouseEvent} e - 마우스이벤트
          */
         onDragEnd(e) {
-            const current = { x: e.clientX, y: e.clientY };
             Admin.Drag.current = null;
+            this.position = { x: e.clientX, y: e.clientY };
             if (typeof this.listener['onDragEnd'] == 'function') {
-                this.listener['onDragEnd'](this.$target, this.start, current);
+                this.listener['onDragEnd'](this.$target, this.start, this.position);
             }
         }
     }
