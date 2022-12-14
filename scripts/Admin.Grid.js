@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 12.
+ * @modified 2022. 12. 15.
  */
 var Admin;
 (function (Admin) {
@@ -103,6 +103,8 @@ var Admin;
                 });
                 this.freezeWidth = leftPosition;
                 this.$header.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+                this.getScrollbar().setTrackPosition('x', leftPosition);
+                this.getScrollbar().setTrackPosition('y', this.$header.getHeight());
                 this.updateColumnFill();
             }
             /**
@@ -182,14 +184,14 @@ var Admin;
                 const headerHeight = this.$header.getOuterHeight();
                 const contentHeight = this.$content.getHeight();
                 const offset = $row.getPosition();
-                const scroll = this.$content.getScroll();
+                const scroll = this.getScrollbar().getPosition();
                 const top = offset.top;
                 const bottom = top + $row.getOuterHeight();
                 if (top - 1 < headerHeight) {
-                    this.$content.setScroll(top + scroll.top - headerHeight - 1, null, false);
+                    this.getScrollbar().setPosition(null, top + scroll.y - headerHeight - 1);
                 }
                 else if (bottom + 1 > contentHeight) {
-                    this.$content.setScroll(bottom + scroll.top - contentHeight + 1, null, false);
+                    this.getScrollbar().setPosition(null, bottom + scroll.y - contentHeight + 1);
                 }
             }
             /**
@@ -211,14 +213,14 @@ var Admin;
                 this.focusedCell.columnIndex = columnIndex;
                 const contentWidth = this.$content.getWidth();
                 const offset = $column.getPosition();
-                const scroll = this.$content.getScroll();
+                const scroll = this.getScrollbar().getPosition();
                 const left = offset.left;
                 const right = left + $column.getOuterWidth();
                 if (left < this.freezeWidth) {
-                    this.$content.setScroll(null, left + scroll.left - this.freezeWidth - 2, false);
+                    this.getScrollbar().setPosition(left + scroll.x - this.freezeWidth - 2, null);
                 }
                 else if (right > contentWidth) {
-                    this.$content.setScroll(null, right + scroll.left - contentWidth + 1, false);
+                    this.getScrollbar().setPosition(right + scroll.x - contentWidth + 1, null);
                 }
             }
             /**
@@ -374,6 +376,10 @@ var Admin;
                             }
                         });
                     });
+                    this.getScrollbar().setTrackPosition('x', leftPosition);
+                }
+                else {
+                    this.getScrollbar().setTrackPosition('x', 0);
                 }
             }
             /**
@@ -765,7 +771,6 @@ var Admin;
                     });
                     this.resizer.addEvent('start', () => {
                         this.grid.$getHeader().addClass('resizing');
-                        this.grid.$getContent().removeClass('scrollableX', 'scrollableY');
                     });
                     this.resizer.addEvent('resize', ($target, rect, position) => {
                         this.grid.$getHeader().addClass('locked');
@@ -775,22 +780,21 @@ var Admin;
                         const offset = this.grid.$content.getOffset();
                         const width = this.grid.$content.getOuterWidth();
                         if (position.x > offset.left + width - 15) {
-                            const speed = Math.min(Math.ceil((position.x - (offset.left + width - 15)) / 5), 10);
-                            this.grid.startAutoScroll('left', speed);
+                            const speed = Math.min(Math.ceil((position.x - (offset.left + width - 15)) / 5), 30);
+                            this.grid.getScrollbar().setMomentum(speed, 0);
                         }
                         else if (this.isFreezeColumn() == false &&
                             position.x < offset.left + this.grid.freezeWidth + 15) {
-                            const speed = Math.min(Math.max(Math.floor((position.x - (offset.left + this.grid.freezeWidth - 15)) / 5), -10), -1);
-                            this.grid.startAutoScroll('left', speed);
+                            const speed = Math.min(Math.max(Math.floor((position.x - (offset.left + this.grid.freezeWidth - 15)) / 5), -30), -1);
+                            this.grid.getScrollbar().setMomentum(speed, 0);
                         }
-                        else if (this.grid.isAutoScrolling() == true) {
-                            this.grid.stopAutoScroll();
+                        else {
+                            this.grid.getScrollbar().setMomentum(0, 0);
                         }
                     });
                     this.resizer.addEvent('end', ($target, rect) => {
                         this.setWidth(rect.width);
-                        this.grid.$getContent().addClass('scrollableX', 'scrollableY');
-                        this.grid.stopAutoScroll();
+                        this.grid.getScrollbar().setMomentum(0, 0);
                         this.grid.$getHeader().removeClass('locked');
                         this.grid.$getHeader().removeClass('resizing');
                     });
