@@ -75,6 +75,21 @@ namespace Admin {
         }
 
         /**
+         * 스크롤 가능여부를 설정한다.
+         *
+         * @param {(boolean|string)} scrollable - 스크롤 가능여부
+         */
+        setScrollable(scrollable: boolean | string): void {
+            if (scrollable === false) {
+                this.scrollable.x = false;
+                this.scrollable.y = false;
+            } else {
+                this.scrollable.x = scrollable == true || scrollable.toLowerCase() == 'x';
+                this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
+            }
+        }
+
+        /**
          * 스크롤바 DOM 을 가져온다.
          *
          * @param {('x'|'y')} direction - 가져올 스크롤축
@@ -325,7 +340,7 @@ namespace Admin {
             const y = Math.round(e.deltaY * mode);
 
             if (this.isMovable(x, y) == true) {
-                this.addMomentum(x, y);
+                this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
             }
 
             e.stopImmediatePropagation();
