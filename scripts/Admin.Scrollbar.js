@@ -18,6 +18,7 @@ var Admin;
         $scrollbar = { x: null, y: null };
         rendered;
         momentum = { x: 0, y: 0 };
+        autoScroll = { x: 0, y: 0 };
         drag = { x: null, y: null };
         /**
          * 스크롤바 클래스를 생성한다.
@@ -82,6 +83,17 @@ var Admin;
                 this.scrollable.x = scrollable == true || scrollable.toLowerCase() == 'x';
                 this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
             }
+        }
+        /**
+         * 실제 스크롤과 함께 자동으로 계속 스크롤 될 가속도를 설정한다.
+         *
+         * @param {number} x - 자동으로 스크롤될 X축 가속도
+         * @param {number} y - 자동으로 스크롤될 Y축 가속도
+         */
+        setAutoScroll(x, y) {
+            this.autoScroll.x = x;
+            this.autoScroll.y = y;
+            this.setMomentum(x, y);
         }
         /**
          * 스크롤바 DOM 을 가져온다.
@@ -363,9 +375,9 @@ var Admin;
          */
         getNextTick(direction) {
             const current = this.getPosition()[direction];
-            const remain = this.momentum[direction];
+            const remain = this.momentum[direction] + this.autoScroll[direction];
             if (Math.abs(remain) <= 1) {
-                return { momentum: 0, position: current + remain };
+                return { momentum: 0, position: current };
             }
             const nextMomentum = (remain * 0.8) | 0;
             return { momentum: nextMomentum, position: current + remain - nextMomentum };

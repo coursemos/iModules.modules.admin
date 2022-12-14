@@ -19,6 +19,7 @@ namespace Admin {
         $scrollbar: { x: Dom; y: Dom } = { x: null, y: null };
         rendered: boolean;
         momentum: { x: number; y: number } = { x: 0, y: 0 };
+        autoScroll: { x: number; y: number } = { x: 0, y: 0 };
 
         drag: { x: Admin.Drag; y: Admin.Drag } = { x: null, y: null };
 
@@ -87,6 +88,18 @@ namespace Admin {
                 this.scrollable.x = scrollable == true || scrollable.toLowerCase() == 'x';
                 this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
             }
+        }
+
+        /**
+         * 실제 스크롤과 함께 자동으로 계속 스크롤 될 가속도를 설정한다.
+         *
+         * @param {number} x - 자동으로 스크롤될 X축 가속도
+         * @param {number} y - 자동으로 스크롤될 Y축 가속도
+         */
+        setAutoScroll(x: number, y: number): void {
+            this.autoScroll.x = x;
+            this.autoScroll.y = y;
+            this.setMomentum(x, y);
         }
 
         /**
@@ -418,10 +431,10 @@ namespace Admin {
          */
         getNextTick(direction: 'x' | 'y'): { momentum: number; position: number } {
             const current = this.getPosition()[direction];
-            const remain = this.momentum[direction];
+            const remain = this.momentum[direction] + this.autoScroll[direction];
 
             if (Math.abs(remain) <= 1) {
-                return { momentum: 0, position: current + remain };
+                return { momentum: 0, position: current };
             }
 
             const nextMomentum = (remain * 0.8) | 0;
