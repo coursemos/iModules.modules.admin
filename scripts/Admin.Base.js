@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Base.js
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 15.
  */
 var Admin;
 (function (Admin) {
@@ -89,11 +89,12 @@ var Admin;
          * 이벤트를 발생시킨다.
          *
          * @param {string} name - 이벤트명
+         * @param {any[]} params - 이벤트리스너에 전달될 데이터
          */
-        fireEvent(name) {
+        fireEvent(name, params = []) {
             if (this.listeners[name] !== undefined) {
                 for (let listener of this.listeners[name]) {
-                    listener.listener(...listener.params);
+                    listener.listener(...params, ...listener.params);
                 }
             }
         }
