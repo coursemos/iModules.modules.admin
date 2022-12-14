@@ -171,7 +171,22 @@ namespace Admin {
 
             this.$parent.append($guide);
 
+            this.$parent.on('scroll', this.onScroll);
+
             if (this.directions) this.fireEvent('start', [this.$target, rect, start]);
+        }
+
+        /**
+         * 리사이즈 도중 부모객체에 스크롤이 발생될 때 이벤트를 처리한다.
+         */
+        onScroll(): void {
+            if (Admin.Drag.current != null && Admin.Drag.current.listener instanceof Admin.Resizer) {
+                Admin.Drag.current.listener.onDrag(
+                    Admin.Drag.current.$target,
+                    Admin.Drag.current.start,
+                    Admin.Drag.current.position
+                );
+            }
         }
 
         /**
@@ -210,6 +225,8 @@ namespace Admin {
             const rect = this.getResizeRect(direction, current);
 
             Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
+
+            this.$parent.off('scroll', this.onScroll);
 
             this.fireEvent('end', [this.$target, rect, current]);
         }
