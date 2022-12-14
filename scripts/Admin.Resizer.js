@@ -11,9 +11,6 @@
 var Admin;
 (function (Admin) {
     class Resizer extends Admin.Base {
-        static current = null;
-        static $current = null;
-        static mouseEvent;
         $target;
         $parent;
         $resizers;
@@ -56,9 +53,7 @@ var Admin;
                 }
             }
             this.$resizers.forEach(($resizer) => {
-                $resizer.on('mousedown', (e) => {
-                    this.onStart(e, Html.el(e.currentTarget));
-                });
+                new Admin.Drag(this, $resizer);
             });
             $target.append(this.$resizers);
         }
@@ -115,7 +110,7 @@ var Admin;
                 case 'right':
                 case 'topRight':
                 case 'bottomRight':
-                    rect.x = rect.x + this.$parent.getScroll().left;
+                    rect.y = rect.y + this.$parent.getScroll().top;
                     if (position.x != null) {
                         rect.width = Math.max(this.minWidth, position.x - rect.x + this.$parent.getScroll().left);
                     }
@@ -126,15 +121,11 @@ var Admin;
         /**
          * 리사이즈가 시작될 때 이벤트를 처리한다.
          *
-         * @param {MouseEvent} e - 마우스이벤트
          * @param {Dom} $resizer - 리사이저객체
+         * @param {Object} start - 시작위치
          */
-        onStart(e, $resizer) {
-            Admin.Resizer.current = this;
-            Admin.Resizer.$current = $resizer;
-            Admin.Resizer.mouseEvent = e;
+        onDragStart($resizer, start) {
             const direction = $resizer.getData('direction');
-            const position = { x: e.clientX, y: e.clientY };
             const rect = this.getResizeRect(direction, { x: null, y: null });
             Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
             const $guide = Html.create('div', { 'data-role': 'resize-guide' });
@@ -146,21 +137,19 @@ var Admin;
                 $guide.setStyle('height', rect.width + 'px');
             }
             this.$parent.append($guide);
-            this.$parent.on('scroll', this.onScroll);
             if (this.directions)
-                this.fireEvent('start', [this.$target, rect, position]);
+                this.fireEvent('start', [this.$target, rect, start]);
         }
         /**
          * 리사이즈중일 때 이벤트를 처리한다.
          *
-         * @param {MouseEvent} e - 마우스이벤트
          * @param {Dom} $resizer - 리사이저객체
+         * @param {Object} start - 드래그 시작위치
+         * @param {Object} current - 드래그 현재위치
          */
-        onResize(e, $resizer) {
-            Admin.Resizer.mouseEvent = e;
+        onDrag($resizer, start, current) {
             const direction = $resizer.getData('direction');
-            const position = { x: e.clientX, y: e.clientY };
-            const rect = this.getResizeRect(direction, position);
+            const rect = this.getResizeRect(direction, current);
             const $guide = Html.get('> div[data-role="resize-guide"]', this.$parent);
             if (this.directions.left == true || this.directions.right == true) {
                 $guide.setStyle('width', rect.width + 'px');
@@ -169,41 +158,20 @@ var Admin;
             if (this.directions.top == true || this.directions.bottom == true) {
                 $guide.setStyle('height', rect.width + 'px');
             }
-            this.fireEvent('resize', [this.$target, rect, position]);
-        }
-        /**
-         * 리사이즈 도중 부모객체에 스크롤이 발생될 때 이벤트를 처리한다.
-         */
-        onScroll() {
-            if (Admin.Resizer.current != null && Admin.Resizer.$current != null) {
-                Admin.Resizer.current.onResize(Admin.Resizer.mouseEvent, Admin.Resizer.$current);
-            }
+            this.fireEvent('resize', [this.$target, rect, current]);
         }
         /**
          * 리사이즈가 완료되었을 때 이벤트를 처리한다.
          *
-         * @param {MouseEvent} e - 마우스이벤트
          * @param {Dom} $resizer - 리사이저객체
+         * @param {Object} start - 드래그 시작위치
+         * @param {Object} current - 드래그 현재위치
          */
-        onEnd(e, $resizer) {
-            Admin.Resizer.current = null;
-            Admin.Resizer.$current = null;
+        onDragEnd($resizer, start, current) {
             const direction = $resizer.getData('direction');
-            const position = { x: e.clientX, y: e.clientY };
-            const rect = this.getResizeRect(direction, position);
+            const rect = this.getResizeRect(direction, current);
             Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
-            this.$parent.off('scroll', this.onScroll);
-            this.fireEvent('end', [this.$target, rect, position]);
-        }
-        /**
-         * 리사이즈가 취소되었을 때 이벤트를 처리한다.
-         */
-        onCancel() {
-            Admin.Resizer.current = null;
-            Admin.Resizer.$current = null;
-            Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
-            this.$parent.off('scroll', this.onScroll);
-            this.fireEvent('cancel', [this.$target]);
+            this.fireEvent('end', [this.$target, rect, current]);
         }
         /**
          * 리사이저 HTML 엘리먼트에 이벤트를 추가한다.
@@ -234,13 +202,3 @@ var Admin;
     }
     Admin.Resizer = Resizer;
 })(Admin || (Admin = {}));
-Html.on('mousemove', (e) => {
-    if (Admin.Resizer.current != null && Admin.Resizer.$current != null) {
-        Admin.Resizer.current.onResize(e, Admin.Resizer.$current);
-    }
-});
-Html.on('mouseup', (e) => {
-    if (Admin.Resizer.current != null && Admin.Resizer.$current != null) {
-        Admin.Resizer.current.onEnd(e, Admin.Resizer.$current);
-    }
-});
