@@ -886,6 +886,7 @@ namespace Admin {
                     );
                     this.resizer.addEvent('start', () => {
                         this.grid.$getHeader().addClass('resizing');
+                        this.grid.getScrollbar().setScrollable(false);
                     });
 
                     this.resizer.addEvent(
@@ -922,6 +923,7 @@ namespace Admin {
                     this.resizer.addEvent('end', ($target: Dom, rect: DOMRect) => {
                         this.setWidth(rect.width);
                         this.grid.getScrollbar().setMomentum(0, 0);
+                        this.grid.getScrollbar().setScrollable(this.grid.scrollable);
                         this.grid.$getHeader().removeClass('locked');
                         this.grid.$getHeader().removeClass('resizing');
                     });
