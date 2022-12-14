@@ -10,7 +10,7 @@
  */
 var Admin;
 (function (Admin) {
-    class Resizer {
+    class Resizer extends Admin.Base {
         static current = null;
         static $current = null;
         static mouseEvent;
@@ -23,7 +23,6 @@ var Admin;
         maxWidth = 0;
         minHeight = 0;
         maxHeight = 0;
-        listeners = {};
         /**
          * 크기조절 클래스를 생성한다.
          *
@@ -32,6 +31,7 @@ var Admin;
          * @param {Array} directions - 크기조절 방향 [top, right, bottom, left]
          */
         constructor($target, $parent, directions) {
+            super();
             this.$target = $target;
             this.$parent = $parent;
             this.parentOffset = $parent.getOffset();
@@ -230,32 +230,6 @@ var Admin;
                 $resizer.hover(mouseenter, mouseleave);
             });
             return this;
-        }
-        /**
-         * 이벤트리스너를 등록한다.
-         *
-         * @param {string} name - 이벤트명
-         * @param {Function} listener - 이벤트리스너
-         * @param {any[]} params - 이벤트리스너에 전달될 데이터
-         */
-        addEvent(name, listener, params = []) {
-            if (this.listeners[name] == undefined) {
-                this.listeners[name] = [];
-            }
-            this.listeners[name].push({ listener: listener, params: params });
-        }
-        /**
-         * 이벤트를 발생시킨다.
-         *
-         * @param {string} name - 이벤트명
-         * @param {any[]} params - 이벤트리스너에 전달될 데이터
-         */
-        fireEvent(name, params = []) {
-            if (this.listeners[name] !== undefined) {
-                for (let listener of this.listeners[name]) {
-                    listener.listener(...params, ...listener.params);
-                }
-            }
         }
     }
     Admin.Resizer = Resizer;

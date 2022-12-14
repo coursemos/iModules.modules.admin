@@ -9,7 +9,7 @@
  * @modified 2022. 12. 7.
  */
 namespace Admin {
-    export class Resizer {
+    export class Resizer extends Admin.Base {
         static current: Admin.Resizer = null;
         static $current: Dom = null;
         static mouseEvent: MouseEvent;
@@ -35,8 +35,6 @@ namespace Admin {
         minHeight: number = 0;
         maxHeight: number = 0;
 
-        listeners: { [key: string]: { listener: Function; params: any[] }[] } = {};
-
         /**
          * 크기조절 클래스를 생성한다.
          *
@@ -45,6 +43,8 @@ namespace Admin {
          * @param {Array} directions - 크기조절 방향 [top, right, bottom, left]
          */
         constructor($target: Dom, $parent: Dom, directions: [boolean, boolean, boolean, boolean]) {
+            super();
+
             this.$target = $target;
             this.$parent = $parent;
             this.parentOffset = $parent.getOffset();
@@ -280,35 +280,6 @@ namespace Admin {
                 $resizer.hover(mouseenter, mouseleave);
             });
             return this;
-        }
-
-        /**
-         * 이벤트리스너를 등록한다.
-         *
-         * @param {string} name - 이벤트명
-         * @param {Function} listener - 이벤트리스너
-         * @param {any[]} params - 이벤트리스너에 전달될 데이터
-         */
-        addEvent(name: string, listener: Function, params: any[] = []): void {
-            if (this.listeners[name] == undefined) {
-                this.listeners[name] = [];
-            }
-
-            this.listeners[name].push({ listener: listener, params: params });
-        }
-
-        /**
-         * 이벤트를 발생시킨다.
-         *
-         * @param {string} name - 이벤트명
-         * @param {any[]} params - 이벤트리스너에 전달될 데이터
-         */
-        fireEvent(name: string, params: any[] = []): void {
-            if (this.listeners[name] !== undefined) {
-                for (let listener of this.listeners[name]) {
-                    listener.listener(...params, ...listener.params);
-                }
-            }
         }
     }
 }
