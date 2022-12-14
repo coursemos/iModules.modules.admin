@@ -136,7 +136,10 @@ namespace Admin {
                 case 'bottomRight':
                     rect.x = rect.x + this.$parent.getScroll().left;
                     if (position.x != null) {
-                        rect.width = Math.max(this.minWidth, position.x - rect.x + this.$parent.getScroll().left);
+                        rect.width = Math.min(
+                            this.maxWidth,
+                            Math.max(this.minWidth, position.x - rect.x + this.$parent.getScroll().left)
+                        );
                     }
                     break;
             }
