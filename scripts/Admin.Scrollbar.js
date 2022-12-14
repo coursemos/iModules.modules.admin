@@ -160,13 +160,22 @@ var Admin;
          *
          * @param {number} x - X축 위치
          * @param {number} y - Y축 위치
+         * @param {boolean} is_active - 스크롤바를 활성화할지 여부
          */
-        setPosition(x, y) {
+        setPosition(x, y, is_active = false) {
             const position = this.getPosition();
             x ??= position.x;
             y ??= position.y;
             if (x == position.x && y == position.y) {
                 return null;
+            }
+            if (is_active == true) {
+                if (x != position.x) {
+                    this.active('x', 1);
+                }
+                if (y != position.y) {
+                    this.active('y', 1);
+                }
             }
             this.$target.getEl().scroll({ left: x, top: y });
         }
