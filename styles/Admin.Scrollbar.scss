@@ -8,6 +8,10 @@
  * @license MIT License
  * @modified 2022. 12. 15.
  */
+*.touchscroll {
+    overflow: auto;
+}
+
 div[data-role='scrollbar'] {
     --scrollbar-background: #ddd;
     --scrollbar-border: #ccc;
