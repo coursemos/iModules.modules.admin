@@ -130,8 +130,8 @@ namespace Admin {
                 });
                 this.freezeWidth = leftPosition;
                 this.$header.prepend(Html.create('div', { 'data-column-type': 'fill' }));
-                this.getScrollbar().setTrackPosition('x', leftPosition);
-                this.getScrollbar().setTrackPosition('y', this.$header.getHeight());
+                this.getScrollbar().setTrackPosition('x', leftPosition ? leftPosition + 1 : 0);
+                this.getScrollbar().setTrackPosition('y', this.$header.getHeight() + 1);
 
                 this.updateColumnFill();
             }
@@ -444,7 +444,7 @@ namespace Admin {
                         });
                     });
 
-                    this.getScrollbar().setTrackPosition('x', leftPosition);
+                    this.getScrollbar().setTrackPosition('x', leftPosition ? leftPosition + 1 : 0);
                 } else {
                     this.getScrollbar().setTrackPosition('x', 0);
                 }
