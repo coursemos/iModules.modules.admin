@@ -19,7 +19,7 @@ var Admin;
         rendered;
         momentum = { x: 0, y: 0 };
         autoScroll = { x: 0, y: 0 };
-        drag = { x: null, y: null };
+        touchRecord = new Admin.Scrollbar.TouchRecord();
         /**
          * 스크롤바 클래스를 생성한다.
          *
@@ -180,6 +180,30 @@ var Admin;
             this.$target.getEl().scroll({ left: x, top: y });
         }
         /**
+         * 현재 스크롤 위치에서 이동한다.
+         *
+         * @param {number} x - 이동할 X축 거리
+         * @param {number} y - 이동할 Y축 거리
+         * @param {boolean} is_active - 스크롤바를 활성화할지 여부
+         */
+        movePosition(x, y, is_active = false) {
+            const position = this.getPosition();
+            x = position.x + x;
+            y = position.y + y;
+            if (x == position.x && y == position.y) {
+                return null;
+            }
+            if (is_active == true) {
+                if (x != position.x) {
+                    this.active('x', 1);
+                }
+                if (y != position.y) {
+                    this.active('y', 1);
+                }
+            }
+            this.$target.getEl().scroll({ left: x, top: y });
+        }
+        /**
          * 스크롤위치에 따른 트랙의 위치를 가져온다.
          *
          * @param {'x'|'y'} direction - 위치를 가져올 스크롤축
@@ -251,58 +275,15 @@ var Admin;
          */
         setEvent() {
             this.$target.on('wheel', this.setWheelEvent.bind(this));
-            // @todo 터치 이벤트 추가
-            this.$getScrollbar('x').on('mouseover', this.active.bind(this, 'x', 0));
-            this.$getScrollbar('x').on('mouseout', this.deactive.bind(this, 'x', 1));
-            this.$getScrollbar('y').on('mouseover', this.active.bind(this, 'y', 0));
-            this.$getScrollbar('y').on('mouseout', this.deactive.bind(this, 'y', 1));
-            this.drag.x = new Admin.Drag(this, Html.get('div[data-role=bar]', this.$getScrollbar('x')));
-            this.drag.y = new Admin.Drag(this, Html.get('div[data-role=bar]', this.$getScrollbar('y')));
-        }
-        /**
-         * 스크롤바 드래그가 시작되었을 때 이벤트를 처리한다.
-         *
-         * @param {Dom} $bar - 이벤트 대상 스크롤바 DOM 객체
-         */
-        onDragStart($bar) {
-            const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
-            const direction = $scrollbar.getData('direction');
-            if (direction == 'x') {
-                $bar.setData('start', parseInt($bar.getStyle('left').replace('/px$/', ''), 10), false);
+            this.$target.on('touchstart', this.setTouchEvent.bind(this, 'start'));
+            this.$target.on('touchmove', this.setTouchEvent.bind(this, 'move'));
+            this.$target.on('touchend', this.setTouchEvent.bind(this, 'end'));
+            this.$target.on('touchcancel', this.setTouchEvent.bind(this, 'end'));
+            if (window.ontouchstart !== undefined) {
+                this.$target.addClass('touchscroll');
             }
-            else {
-                $bar.setData('start', parseInt($bar.getStyle('top').replace('/px$/', ''), 10), false);
-            }
-            $scrollbar.addClass('drag');
-        }
-        /**
-         * 스크롤바 드래그시 이벤트를 처리한다.
-         *
-         * @param {Dom} $bar - 이벤트 대상 스크롤바 DOM 객체
-         */
-        onDrag($bar, start, current) {
-            const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
-            const $track = Html.get('div[data-role=track]', $scrollbar);
-            const direction = $scrollbar.getData('direction');
-            if (direction == 'x') {
-                const left = Math.min($track.getWidth() - $bar.getWidth(), Math.max(0, $bar.getData('start') + current.x - start.x));
-                this.setPosition(this.getTrackToScrollPosition(direction, left), null);
-            }
-            else {
-                const top = Math.min($track.getHeight() - $bar.getHeight(), Math.max(0, $bar.getData('start') + current.y - start.y));
-                this.setPosition(null, this.getTrackToScrollPosition(direction, top));
-            }
-        }
-        /**
-         * 스크롤바 드래그가 종료되었을 때 이벤트를 처리한다.
-         *
-         * @param {Dom} $bar - 이벤트 대상 스크롤바 DOM 객체
-         */
-        onDragEnd($bar) {
-            const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
-            const direction = $scrollbar.getData('direction');
-            $scrollbar.removeClass('drag');
-            this.deactive(direction, 1);
+            this.setTrackEvent('x');
+            this.setTrackEvent('y');
         }
         /**
          * 휠 이벤트를 처리한다.
@@ -318,6 +299,73 @@ var Admin;
                 this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
             }
             e.stopImmediatePropagation();
+            e.preventDefault();
+        }
+        /**
+         * 터치 이벤트를 처리한다.
+         *
+         * @param {string} mode - 터치이벤트 모드 (start, move, end)
+         * @param {TouchEvent} e - 터치이벤트
+         */
+        setTouchEvent(mode, e) {
+            if (mode == 'start') {
+                this.touchRecord.track(e);
+                this.setMomentum(0, 0);
+            }
+            if (mode == 'move') {
+                this.touchRecord.update(e);
+                const { x, y } = this.touchRecord.getDelta();
+                if (this.isMovable(x, y) == true) {
+                    this.movePosition(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0, true);
+                }
+            }
+            if (mode == 'end') {
+                const { x, y } = this.touchRecord.getVelocity();
+                this.addMomentum(x, y);
+                this.touchRecord.release(e);
+            }
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+        /**
+         * 스크롤바 이벤트를 처리한다.
+         *
+         * @param {('x'|'y')} direction - 이벤트를 처리할 스크롤축
+         */
+        setTrackEvent(direction) {
+            this.$getScrollbar(direction).on('mouseover', this.active.bind(this, direction, 0));
+            this.$getScrollbar(direction).on('mouseout', this.deactive.bind(this, direction, 1));
+            const drag = new Admin.Drag(this, Html.get('div[data-role=bar]', this.$getScrollbar(direction)));
+            drag.addEvent('start', ($bar) => {
+                const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
+                const direction = $scrollbar.getData('direction');
+                if (direction == 'x') {
+                    $bar.setData('start', parseInt($bar.getStyle('left').replace('/px$/', ''), 10), false);
+                }
+                else {
+                    $bar.setData('start', parseInt($bar.getStyle('top').replace('/px$/', ''), 10), false);
+                }
+                $scrollbar.addClass('drag');
+            });
+            drag.addEvent('drag', ($bar, start, current) => {
+                const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
+                const $track = Html.get('div[data-role=track]', $scrollbar);
+                const direction = $scrollbar.getData('direction');
+                if (direction == 'x') {
+                    const left = Math.min($track.getWidth() - $bar.getWidth(), Math.max(0, $bar.getData('start') + current.x - start.x));
+                    this.setPosition(this.getTrackToScrollPosition(direction, left), null);
+                }
+                else {
+                    const top = Math.min($track.getHeight() - $bar.getHeight(), Math.max(0, $bar.getData('start') + current.y - start.y));
+                    this.setPosition(null, this.getTrackToScrollPosition(direction, top));
+                }
+            });
+            drag.addEvent('end', ($bar) => {
+                const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
+                const direction = $scrollbar.getData('direction');
+                $scrollbar.removeClass('drag');
+                this.deactive(direction, 1);
+            });
         }
         /**
          * 스크롤이 가능한지 확인한다.
@@ -388,7 +436,7 @@ var Admin;
             if (Math.abs(remain) <= 1) {
                 return { momentum: 0, position: current };
             }
-            const nextMomentum = (remain * 0.8) | 0;
+            const nextMomentum = (remain * 0.95) | 0;
             return { momentum: nextMomentum, position: current + remain - nextMomentum };
         }
         /**
@@ -465,4 +513,80 @@ var Admin;
         }
     }
     Admin.Scrollbar = Scrollbar;
+    (function (Scrollbar) {
+        class TouchTracker {
+            velocityMultiplier = window.devicePixelRatio * 5;
+            updateTime = Date.now();
+            delta = { x: 0, y: 0 };
+            velocity = { x: 0, y: 0 };
+            lastPosition = { x: 0, y: 0 };
+            constructor(touch) {
+                this.lastPosition = { x: touch.clientX, y: touch.clientY };
+            }
+            update(touch) {
+                const { velocity, updateTime, lastPosition } = this;
+                const now = Date.now();
+                const position = { x: touch.clientX, y: touch.clientY };
+                const delta = {
+                    x: -(position.x - lastPosition.x),
+                    y: -(position.y - lastPosition.y),
+                };
+                const duration = now - updateTime || 16.7;
+                const vx = (delta.x / duration) * 16.7;
+                const vy = (delta.y / duration) * 16.7;
+                velocity.x = vx * this.velocityMultiplier;
+                velocity.y = vy * this.velocityMultiplier;
+                this.delta = delta;
+                this.updateTime = now;
+                this.lastPosition = position;
+            }
+        }
+        Scrollbar.TouchTracker = TouchTracker;
+        class TouchRecord {
+            activeId;
+            touchList = {};
+            getDelta() {
+                const tracker = this.touchList[this.activeId];
+                if (!tracker) {
+                    return { x: 0, y: 0 };
+                }
+                return { ...tracker.delta };
+            }
+            getVelocity() {
+                const tracker = this.touchList[this.activeId];
+                if (!tracker) {
+                    return { x: 0, y: 0 };
+                }
+                return { ...tracker.velocity };
+            }
+            track(e) {
+                Array.from(e.targetTouches).forEach((touch) => {
+                    if (this.touchList.hasOwnProperty(touch.identifier) == true) {
+                        delete this.touchList[touch.identifier];
+                    }
+                    const tracker = new Admin.Scrollbar.TouchTracker(touch);
+                    this.touchList[touch.identifier] = tracker;
+                });
+                return this.touchList;
+            }
+            update(e) {
+                Array.from(e.touches).forEach((touch) => {
+                    if (this.touchList.hasOwnProperty(touch.identifier) == false) {
+                        return;
+                    }
+                    const tracker = this.touchList[touch.identifier];
+                    tracker.update(touch);
+                });
+                this.activeId = e.changedTouches[e.changedTouches.length - 1].identifier;
+                return this.touchList;
+            }
+            release(e) {
+                delete this.activeId;
+                Array.from(e.changedTouches).forEach((touch) => {
+                    delete this.touchList[touch.identifier];
+                });
+            }
+        }
+        Scrollbar.TouchRecord = TouchRecord;
+    })(Scrollbar = Admin.Scrollbar || (Admin.Scrollbar = {}));
 })(Admin || (Admin = {}));
