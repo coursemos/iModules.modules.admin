@@ -53,7 +53,44 @@ var Admin;
                 }
             }
             this.$resizers.forEach(($resizer) => {
-                new Admin.Drag(this, $resizer);
+                const drag = new Admin.Drag(this, $resizer);
+                drag.addEvent('start', ($resizer, start) => {
+                    const direction = $resizer.getData('direction');
+                    const rect = this.getResizeRect(direction, { x: null, y: null });
+                    Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
+                    const $guide = Html.create('div', { 'data-role': 'resize-guide' });
+                    if (this.directions.left == true || this.directions.right == true) {
+                        $guide.setStyle('width', rect.width + 'px');
+                        $guide.setStyle('left', rect.x - this.parentOffset.left + 'px');
+                    }
+                    if (this.directions.top == true || this.directions.bottom == true) {
+                        $guide.setStyle('height', rect.width + 'px');
+                    }
+                    this.$parent.append($guide);
+                    this.$parent.on('scroll', this.onScroll);
+                    if (this.directions)
+                        this.fireEvent('start', [this.$target, rect, start]);
+                });
+                drag.addEvent('drag', ($resizer, start, current) => {
+                    const direction = $resizer.getData('direction');
+                    const rect = this.getResizeRect(direction, current);
+                    const $guide = Html.get('> div[data-role="resize-guide"]', this.$parent);
+                    if (this.directions.left == true || this.directions.right == true) {
+                        $guide.setStyle('width', rect.width + 'px');
+                        $guide.setStyle('left', rect.x - this.parentOffset.left + 'px');
+                    }
+                    if (this.directions.top == true || this.directions.bottom == true) {
+                        $guide.setStyle('height', rect.width + 'px');
+                    }
+                    this.fireEvent('resize', [this.$target, rect, current]);
+                });
+                drag.addEvent('end', ($resizer, start, current) => {
+                    const direction = $resizer.getData('direction');
+                    const rect = this.getResizeRect(direction, current);
+                    Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
+                    this.$parent.off('scroll', this.onScroll);
+                    this.fireEvent('end', [this.$target, rect, current]);
+                });
             });
             $target.append(this.$resizers);
         }
@@ -119,69 +156,16 @@ var Admin;
             return rect;
         }
         /**
-         * 리사이즈가 시작될 때 이벤트를 처리한다.
-         *
-         * @param {Dom} $resizer - 리사이저객체
-         * @param {Object} start - 시작위치
-         */
-        onDragStart($resizer, start) {
-            const direction = $resizer.getData('direction');
-            const rect = this.getResizeRect(direction, { x: null, y: null });
-            Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
-            const $guide = Html.create('div', { 'data-role': 'resize-guide' });
-            if (this.directions.left == true || this.directions.right == true) {
-                $guide.setStyle('width', rect.width + 'px');
-                $guide.setStyle('left', rect.x - this.parentOffset.left + 'px');
-            }
-            if (this.directions.top == true || this.directions.bottom == true) {
-                $guide.setStyle('height', rect.width + 'px');
-            }
-            this.$parent.append($guide);
-            this.$parent.on('scroll', this.onScroll);
-            if (this.directions)
-                this.fireEvent('start', [this.$target, rect, start]);
-        }
-        /**
          * 리사이즈 도중 부모객체에 스크롤이 발생될 때 이벤트를 처리한다.
          */
         onScroll() {
             if (Admin.Drag.current != null && Admin.Drag.current.listener instanceof Admin.Resizer) {
-                Admin.Drag.current.listener.onDrag(Admin.Drag.current.$target, Admin.Drag.current.start, Admin.Drag.current.position);
+                Admin.Drag.current.fireEvent('drag', [
+                    Admin.Drag.current.$target,
+                    Admin.Drag.current.start,
+                    Admin.Drag.current.position,
+                ]);
             }
-        }
-        /**
-         * 리사이즈중일 때 이벤트를 처리한다.
-         *
-         * @param {Dom} $resizer - 리사이저객체
-         * @param {Object} start - 드래그 시작위치
-         * @param {Object} current - 드래그 현재위치
-         */
-        onDrag($resizer, start, current) {
-            const direction = $resizer.getData('direction');
-            const rect = this.getResizeRect(direction, current);
-            const $guide = Html.get('> div[data-role="resize-guide"]', this.$parent);
-            if (this.directions.left == true || this.directions.right == true) {
-                $guide.setStyle('width', rect.width + 'px');
-                $guide.setStyle('left', rect.x - this.parentOffset.left + 'px');
-            }
-            if (this.directions.top == true || this.directions.bottom == true) {
-                $guide.setStyle('height', rect.width + 'px');
-            }
-            this.fireEvent('resize', [this.$target, rect, current]);
-        }
-        /**
-         * 리사이즈가 완료되었을 때 이벤트를 처리한다.
-         *
-         * @param {Dom} $resizer - 리사이저객체
-         * @param {Object} start - 드래그 시작위치
-         * @param {Object} current - 드래그 현재위치
-         */
-        onDragEnd($resizer, start, current) {
-            const direction = $resizer.getData('direction');
-            const rect = this.getResizeRect(direction, current);
-            Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
-            this.$parent.off('scroll', this.onScroll);
-            this.fireEvent('end', [this.$target, rect, current]);
         }
         /**
          * 리사이저 HTML 엘리먼트에 이벤트를 추가한다.
