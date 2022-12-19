@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Base.js
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 16.
+ * @modified 2022. 12. 20.
  */
 namespace Admin {
     export let items: Map<string, Admin.Base> = new Map();
@@ -62,7 +62,7 @@ namespace Admin {
     export class Base {
         id: string;
         properties: { [key: string]: any };
-        listeners: { [key: string]: { listener: Function; params: any[] }[] } = {};
+        listeners: { [key: string]: Function[] } = {};
 
         /**
          * 객체를 생성한다.
@@ -72,6 +72,12 @@ namespace Admin {
         constructor(properties: { [key: string]: any } = null) {
             this.properties = properties ?? {};
             this.id = properties?.id ?? 'Admin-' + Admin.getIndex();
+
+            if (this.properties.listeners !== undefined) {
+                for (const name in this.properties.listeners) {
+                    this.addEvent(name, this.properties.listeners[name]);
+                }
+            }
             Admin.set(this);
         }
 
@@ -96,14 +102,13 @@ namespace Admin {
          *
          * @param {string} name - 이벤트명
          * @param {Function} listener - 이벤트리스너
-         * @param {any[]} params - 이벤트리스너에 전달될 데이터
          */
-        addEvent(name: string, listener: Function, params: any[] = []): void {
+        addEvent(name: string, listener: Function): void {
             if (this.listeners[name] == undefined) {
                 this.listeners[name] = [];
             }
 
-            this.listeners[name].push({ listener: listener, params: params });
+            this.listeners[name].push(listener);
         }
 
         /**
@@ -114,8 +119,8 @@ namespace Admin {
          */
         fireEvent(name: string, params: any[] = []): void {
             if (this.listeners[name] !== undefined) {
-                for (let listener of this.listeners[name]) {
-                    listener.listener(...params, ...listener.params);
+                for (const listener of this.listeners[name]) {
+                    listener(...params);
                 }
             }
         }

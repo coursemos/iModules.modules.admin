@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Base.js
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 16.
+ * @modified 2022. 12. 20.
  */
 var Admin;
 (function (Admin) {
@@ -71,6 +71,11 @@ var Admin;
         constructor(properties = null) {
             this.properties = properties ?? {};
             this.id = properties?.id ?? 'Admin-' + Admin.getIndex();
+            if (this.properties.listeners !== undefined) {
+                for (const name in this.properties.listeners) {
+                    this.addEvent(name, this.properties.listeners[name]);
+                }
+            }
             Admin.set(this);
         }
         /**
@@ -92,13 +97,12 @@ var Admin;
          *
          * @param {string} name - 이벤트명
          * @param {Function} listener - 이벤트리스너
-         * @param {any[]} params - 이벤트리스너에 전달될 데이터
          */
-        addEvent(name, listener, params = []) {
+        addEvent(name, listener) {
             if (this.listeners[name] == undefined) {
                 this.listeners[name] = [];
             }
-            this.listeners[name].push({ listener: listener, params: params });
+            this.listeners[name].push(listener);
         }
         /**
          * 이벤트를 발생시킨다.
@@ -108,8 +112,8 @@ var Admin;
          */
         fireEvent(name, params = []) {
             if (this.listeners[name] !== undefined) {
-                for (let listener of this.listeners[name]) {
-                    listener.listener(...params, ...listener.params);
+                for (const listener of this.listeners[name]) {
+                    listener(...params);
                 }
             }
         }
