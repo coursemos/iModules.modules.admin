@@ -6,32 +6,41 @@
  * @file /modules/admin/scripts/Admin.Base.js
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2022. 12. 16.
  */
 var Admin;
 (function (Admin) {
-    Admin.components = new Map();
+    Admin.items = new Map();
     Admin.index = 0;
     Admin.currentComponent = null;
     /**
-     * 컴포넌트를 등록한다.
+     * 객체를 등록한다.
      *
-     * @param {Admin.Base} component - 컴포넌트 객체
+     * @param {Admin.Base} item - 객체
      */
-    function set(component) {
-        Admin.components.set(component.id, component);
+    function set(item) {
+        Admin.items.set(item.id, item);
     }
     Admin.set = set;
     /**
-     * 컴포넌트를 가져온다.
+     * 객체를 가져온다.
      *
-     * @param {string} id - 가져올 컴포넌트 고유값
-     * @return {Admin.Base} component - 컴포넌트
+     * @param {string} id - 가져올 객체 고유값
+     * @return {Admin.Base} item - 객체클래스
      */
     function get(id) {
-        return Admin.components.has(id) == true ? Admin.components.get(id) : null;
+        return Admin.items.has(id) == true ? Admin.items.get(id) : null;
     }
     Admin.get = get;
+    /**
+     * 객체를 제거한다.
+     *
+     * @param {string} id - 제거할 객체 고유값
+     */
+    function remove(id) {
+        Admin.items.delete(id);
+    }
+    Admin.remove = remove;
     /**
      * 컴포넌트 일련번호를 가져온다.
      *
@@ -71,6 +80,12 @@ var Admin;
          */
         getId() {
             return this.id;
+        }
+        /**
+         * 객체를 제거한다.
+         */
+        remove() {
+            Admin.remove(this.id);
         }
         /**
          * 이벤트리스너를 등록한다.
