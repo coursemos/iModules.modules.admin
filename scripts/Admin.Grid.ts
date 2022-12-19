@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2022. 12. 20.
  */
 namespace Admin {
     export namespace Grid {
@@ -40,21 +40,13 @@ namespace Admin {
                 this.scrollable = this.properties.scrollable ?? true;
 
                 this.store = this.properties.store ?? new Admin.Store();
-                this.store.addEvent(
-                    'load',
-                    (grid: Admin.Grid.Panel) => {
-                        grid.onLoad();
-                    },
-                    [this]
-                );
-
-                this.store.addEvent(
-                    'beforeLoad',
-                    (grid: Admin.Grid.Panel) => {
-                        grid.onBeforeLoad();
-                    },
-                    [this]
-                );
+                this.store.addEvent('beforeLoad', () => {
+                    console.log('beforeLoad', this);
+                    this.onBeforeLoad();
+                });
+                this.store.addEvent('load', () => {
+                    this.onLoad();
+                });
 
                 this.initColumns();
 

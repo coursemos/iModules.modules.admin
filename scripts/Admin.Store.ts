@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 20.
  */
 namespace Admin {
     export class Store extends Admin.Base {
@@ -100,22 +100,14 @@ namespace Admin {
          * 데이터가 로딩되기 전 이벤트를 처리한다.
          */
         onBeforeLoad(): void {
-            if (!this.listeners.beforeLoad) return;
-
-            for (var listener of this.listeners.beforeLoad) {
-                listener.listener(...listener.params);
-            }
+            this.fireEvent('beforeLoad', [this]);
         }
 
         /**
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
         onLoad(): void {
-            if (!this.listeners.load) return;
-
-            for (var listener of this.listeners.load) {
-                listener.listener(...listener.params);
-            }
+            this.fireEvent('load', [this, this.data]);
         }
     }
 

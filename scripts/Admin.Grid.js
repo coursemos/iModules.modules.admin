@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2022. 12. 20.
  */
 var Admin;
 (function (Admin) {
@@ -35,12 +35,13 @@ var Admin;
                 this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.store = this.properties.store ?? new Admin.Store();
-                this.store.addEvent('load', (grid) => {
-                    grid.onLoad();
-                }, [this]);
-                this.store.addEvent('beforeLoad', (grid) => {
-                    grid.onBeforeLoad();
-                }, [this]);
+                this.store.addEvent('beforeLoad', () => {
+                    console.log('beforeLoad', this);
+                    this.onBeforeLoad();
+                });
+                this.store.addEvent('load', () => {
+                    this.onLoad();
+                });
                 this.initColumns();
                 this.$header = Html.create('div').setData('role', 'header');
                 this.$body = Html.create('div').setData('role', 'body');
