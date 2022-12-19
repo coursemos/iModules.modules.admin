@@ -784,20 +784,20 @@ var Admin;
                         const scroll = this.grid.getScrollbar().getPosition();
                         const x = Math.max(0, position.x);
                         if (x > offset.left + width - 15) {
-                            if (rect.right < offset.left + width + scroll.x - 50) {
+                            if (rect.right < width + scroll.x - 50) {
                                 this.grid.getScrollbar().setAutoScroll(0, 0);
                             }
                             else {
-                                const speed = Math.min(Math.ceil((x - (offset.left + width - 15)) / 30), 10);
+                                const speed = Math.min(Math.ceil((x - (offset.left + width - 15)) / 30), 15);
                                 this.grid.getScrollbar().setAutoScroll(speed, 0);
                             }
                         }
                         else if (this.isFreezeColumn() == false && x < offset.left + this.grid.freezeWidth + 15) {
-                            if (rect.left > offset.left + this.grid.freezeWidth + scroll.x + 50) {
+                            if (rect.left > this.grid.freezeWidth + scroll.x + 50) {
                                 this.grid.getScrollbar().setAutoScroll(0, 0);
                             }
                             else {
-                                const speed = Math.max(Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30), -10);
+                                const speed = Math.max(Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30), -15);
                                 this.grid.getScrollbar().setAutoScroll(speed, 0);
                             }
                         }
