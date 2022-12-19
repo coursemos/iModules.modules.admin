@@ -323,6 +323,14 @@ namespace Admin {
         }
 
         /**
+         * 컴포넌트를 제거한다.
+         */
+        remove(): void {
+            this.$component.remove();
+            super.remove();
+        }
+
+        /**
          * 현재 컴포넌트의 레이아웃을 관리자영역에 출력한다.
          */
         doLayout(): void {
