@@ -6,100 +6,196 @@
  * @file /modules/admin/scripts/Admin.Drag.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2022. 12. 20.
  */
 var Admin;
 (function (Admin) {
     class Drag extends Admin.Base {
-        static current = null;
-        start = { x: null, y: null };
-        position = { x: null, y: null };
-        listener;
+        static activeId = null;
+        static pointers = new Map();
         $target;
+        pointerType;
         /**
          * 드래그 클래스를 생성한다.
          *
-         * @param {Admin.Base} listener - 드래그 이벤트를 수신할 객체
-         * @param {Dom} $target - 감시할 객체
+         * @param {Dom} $target - 대상객체
+         * @param {Object} properties - 객체설정
          */
-        constructor(listener, $target) {
-            super();
-            this.listener = listener;
+        constructor($target, properties = null) {
+            super(properties);
             this.$target = $target;
-            this.$target.on('mousedown', (e) => {
-                if (e.button == 0) {
-                    if (Admin.Drag.current != null) {
-                        Admin.Drag.current.onDragEnd(e);
-                    }
-                    this.onDragStart(e);
+            this.pointerType = this.properties.pointerType ?? ['mouse'];
+            this.$target.on('pointerdown', (e) => {
+                if (e.button != 0)
+                    return;
+                if (this.pointerType.indexOf(e.pointerType) >= 0) {
+                    const tracker = new Admin.Drag.Tracker(this, e);
+                    Admin.Drag.pointers.set(e.pointerId, tracker);
+                    this.onStart(tracker);
                 }
             });
         }
         /**
-         * 마우스 드래그가 시작되었을 때 이벤트를 처리한다.
+         * 현재 활성화되어 드래그중인 포인터가 있다면 가져온다.
          *
-         * @param {MouseEvent} e - 마우스이벤트
+         * @return {Admin.Drag.Tracker} tracker - 포인터 트래커
          */
-        onDragStart(e) {
-            Admin.Drag.current = this;
-            this.start = { x: e.clientX, y: e.clientY };
-            this.position = this.start;
-            this.fireEvent('start', [this.$target, this.start]);
+        static getActivePointer() {
+            if (Admin.Drag.activeId != null && Admin.Drag.pointers.has(Admin.Drag.activeId) == true) {
+                return Admin.Drag.pointers.get(Admin.Drag.activeId);
+            }
+            return null;
         }
         /**
-         * 마우스 드래그시 이벤트를 처리한다.
+         * 드래그 시작시 이벤트를 처리한다.
          *
-         * @param {MouseEvent} e - 마우스이벤트
+         * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
          */
-        onDrag(e) {
-            this.position = { x: e.clientX, y: e.clientY };
-            this.fireEvent('drag', [this.$target, this.start, this.position]);
+        onStart(tracker) {
+            this.fireEvent('start', [tracker.parent.$target, tracker]);
         }
         /**
-         * 마우스 드래그가 종료되었을 때 이벤트를 처리한다.
+         * 드래그 중 이벤트를 처리한다.
          *
-         * @param {MouseEvent} e - 마우스이벤트
+         * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
          */
-        onDragEnd(e) {
-            Admin.Drag.current = null;
-            this.position = { x: e.clientX, y: e.clientY };
-            this.fireEvent('end', [this.$target, this.start, this.position]);
+        onDrag(tracker) {
+            this.fireEvent('drag', [tracker.parent.$target, tracker]);
         }
         /**
-         * 드래그가 되는 HTML 엘리먼트에 이벤트를 추가한다.
+         * 드래그 종료시 이벤트를 처리한다.
          *
-         * @param {string} name - 추가할 이벤트명
-         * @param {EventListener} listener - 이벤트리스너
-         * @return {Admin.Resizer} this
+         * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
          */
-        on(name, listener) {
-            this.$target.on(name, listener);
-            return this;
-        }
-        /**
-         * 드래그가 되는 HTML 엘리먼트에 마우스 HOVER 이벤트를 추가한다.
-         *
-         * @param {EventListener} mouseenter - 마우스 OVER 시 이벤트리스너
-         * @param {EventListener} mouseleave - 마우스 LEAVE 시 이벤트리스너
-         * @return {Admin.Resizer} this
-         */
-        hover(mouseenter, mouseleave) {
-            this.$target.hover(mouseenter, mouseleave);
-            return this;
+        onEnd(tracker) {
+            Admin.Drag.pointers.delete(tracker.id);
+            this.fireEvent('end', [tracker.parent.$target, tracker]);
         }
     }
     Admin.Drag = Drag;
+    (function (Drag) {
+        class Tracker {
+            velocityMultiplier = window.devicePixelRatio * 5;
+            id;
+            parent;
+            updateTime = Date.now();
+            delta = { x: 0, y: 0 };
+            velocity = { x: 0, y: 0 };
+            firstPosition = { x: 0, y: 0 };
+            lastPosition = { x: 0, y: 0 };
+            /**
+             * 포인터의 이동내역을 기록할 트래커 객체를 생성한다.
+             *
+             * @param {Admin.Drag} parent - 부모 드래그 객체
+             * @param {PointerEvent} e - 포인터 이벤트
+             */
+            constructor(parent, e) {
+                this.parent = parent;
+                this.id = e.pointerId;
+                this.firstPosition = { x: e.clientX, y: e.clientY };
+                this.lastPosition = this.firstPosition;
+            }
+            /**
+             * 포인터 상태를 업데이트한다.
+             *
+             * @param {PointerEvent} e - 포인터 이벤트
+             */
+            update(e) {
+                const now = Date.now();
+                const position = { x: e.clientX, y: e.clientY };
+                const delta = {
+                    x: position.x - this.lastPosition.x,
+                    y: position.y - this.lastPosition.y,
+                };
+                const duration = now - this.updateTime || 16.7;
+                const vx = (delta.x / duration) * 16.7;
+                const vy = (delta.y / duration) * 16.7;
+                this.velocity.x = vx * this.velocityMultiplier;
+                this.velocity.y = vy * this.velocityMultiplier;
+                this.delta = delta;
+                this.updateTime = now;
+                this.lastPosition = position;
+                this.parent.onDrag(this);
+            }
+            /**
+             * 포인터 트래커를 종료한다.
+             */
+            release() {
+                this.parent.onEnd(this);
+            }
+            /**
+             * 부모 드래그 객체를 가져온다.
+             *
+             * @return {Admin.Drag} drag
+             */
+            getParent() {
+                return this.parent;
+            }
+            /**
+             * 포인터가 드래그 하고 있는 DOM 객체를 가져온다.
+             *
+             * @return {Dom} $target
+             */
+            getTarget() {
+                return this.parent.$target;
+            }
+            /**
+             * 드래그가 처음 시작된 좌표를 가져온다.
+             *
+             * @return {Object} firstPosition
+             */
+            getFirstPosition() {
+                return this.firstPosition;
+            }
+            /**
+             * 포인터의 현재(마지막) 좌표를 가져온다.
+             *
+             * @return {Object} lastPosition
+             */
+            getLastPosition() {
+                return this.lastPosition;
+            }
+            /**
+             * 드래그가 처음 시작된 위치로 부터 현재(마지막)까지의 거리를 가져온다.
+             *
+             * @return {Object} length
+             */
+            getLength() {
+                return {
+                    x: this.lastPosition.x - this.firstPosition.x,
+                    y: this.lastPosition.y - this.firstPosition.y,
+                };
+            }
+            /**
+             * 직전 포인터 위치로 부터 현재(마지막)까지의 거리를 가져온다.
+             *
+             * @return {Object} delta
+             */
+            getDelta() {
+                return this.delta;
+            }
+            /**
+             * 드래그가 종료되기 직전 포인터의 이동속도와 이동거리를 고려한 가속도를 가져온다.
+             *
+             * @return {Object} velocity
+             */
+            getVelocity() {
+                return this.velocity;
+            }
+        }
+        Drag.Tracker = Tracker;
+    })(Drag = Admin.Drag || (Admin.Drag = {}));
 })(Admin || (Admin = {}));
 /**
- * HTML 문서 전역의 마우스 이벤트를 처리한다.
+ * HTML 문서 전역의 포인트 이벤트를 처리한다.
  */
-Html.on('mousemove', (e) => {
-    if (Admin.Drag.current != null) {
-        Admin.Drag.current.onDrag(e);
-    }
+Html.on('pointermove', (e) => {
+    Admin.Drag.activeId = e.pointerId;
+    Admin.Drag.pointers.get(e.pointerId)?.update(e);
 });
-Html.on('mouseup', (e) => {
-    if (Admin.Drag.current != null) {
-        Admin.Drag.current.onDragEnd(e);
+Html.on('pointerup', (e) => {
+    if (Admin.Drag.activeId == e.pointerId) {
+        Admin.Drag.activeId = null;
     }
+    Admin.Drag.pointers.get(e.pointerId)?.release();
 });
