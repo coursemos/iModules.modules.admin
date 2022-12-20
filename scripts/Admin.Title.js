@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Title.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 20.
  */
 var Admin;
 (function (Admin) {
@@ -15,7 +15,9 @@ var Admin;
         role = 'title';
         title;
         iconClass;
-        tools = [];
+        movable;
+        drag;
+        tools;
         /**
          * 텍스트 객체를 생성한다.
          *
@@ -29,6 +31,20 @@ var Admin;
             super(properties);
             this.title = this.properties.title ?? '';
             this.iconClass = this.properties.iconClass ?? '';
+            this.tools = this.properties.tools ?? [];
+            this.$setTop();
+            this.$setBottom();
+        }
+        /**
+         * 부모객체를 지정한다.
+         *
+         * @param {Admin.Component} parent - 부모객체
+         * @return {Admin.Component} this
+         */
+        setParent(parent) {
+            super.setParent(parent);
+            this.setMovable(this.properties.movable ?? false);
+            return this;
         }
         /**
          * 제목 아이콘을 설정한다.
@@ -37,6 +53,40 @@ var Admin;
          */
         setIconClass(iconClass) {
             this.iconClass = iconClass;
+        }
+        /**
+         * 제목을 포함한 상위 컴포넌트의 이동가능여부를 설정한다.
+         *
+         * @param {boolean} movable
+         */
+        setMovable(movable) {
+            if (this.movable == movable)
+                return;
+            this.movable = movable;
+            if (this.getParent() != null && this.movable == true) {
+                if (typeof this.getParent()['moveTo'] === 'function') {
+                    this.$component.addClass('movable');
+                    if (this.drag == undefined) {
+                        new Admin.Drag(this.$component, {
+                            pointerType: ['mouse', 'touch', 'pen'],
+                            listeners: {
+                                start: () => {
+                                    this.getParent().$getComponent().addClass('moving');
+                                },
+                                drag: (_$target, tracker) => {
+                                    if (typeof this.getParent()['moveTo'] === 'function') {
+                                        const { x, y } = tracker.getDelta();
+                                        this.getParent().moveTo(x, y);
+                                    }
+                                },
+                                end: () => {
+                                    this.getParent().$getComponent().removeClass('moving');
+                                },
+                            },
+                        });
+                    }
+                }
+            }
         }
         /**
          * 툴버튼을 추가한다.
@@ -56,7 +106,7 @@ var Admin;
         renderTop() {
             if (this.iconClass == '')
                 return;
-            const $top = this.$getTop(true);
+            const $top = this.$getTop();
             const $i = Html.create('i').addClass(...this.iconClass.split(' '));
             $top.append($i);
         }
@@ -72,7 +122,7 @@ var Admin;
         renderBottom() {
             if (this.tools.length == 0)
                 return;
-            this.$getBottom(true).empty();
+            this.$getBottom().empty();
             this.tools.forEach((tool) => {
                 this.$getBottom().append(tool.$getComponent());
                 tool.render();
@@ -106,7 +156,7 @@ var Admin;
                 if (this.iconClass != null) {
                     $button.addClass(...this.iconClass.split(' '));
                 }
-                this.$component.append($button);
+                this.$content.append($button);
                 $button.on('click', () => {
                     this.handler(this);
                 });

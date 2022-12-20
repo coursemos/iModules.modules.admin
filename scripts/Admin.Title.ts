@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Title.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2022. 12. 20.
  */
 namespace Admin {
     export class Title extends Admin.Component {
@@ -14,7 +14,9 @@ namespace Admin {
         role: string = 'title';
         title: string;
         iconClass: string;
-        tools: Admin.Title.Tool[] = [];
+        movable: boolean;
+        drag: Admin.Drag;
+        tools: Admin.Title.Tool[];
 
         /**
          * 텍스트 객체를 생성한다.
@@ -30,6 +32,23 @@ namespace Admin {
 
             this.title = this.properties.title ?? '';
             this.iconClass = this.properties.iconClass ?? '';
+
+            this.tools = this.properties.tools ?? [];
+
+            this.$setTop();
+            this.$setBottom();
+        }
+
+        /**
+         * 부모객체를 지정한다.
+         *
+         * @param {Admin.Component} parent - 부모객체
+         * @return {Admin.Component} this
+         */
+        setParent(parent: Admin.Component): this {
+            super.setParent(parent);
+            this.setMovable(this.properties.movable ?? false);
+            return this;
         }
 
         /**
@@ -39,6 +58,41 @@ namespace Admin {
          */
         setIconClass(iconClass: string): void {
             this.iconClass = iconClass;
+        }
+
+        /**
+         * 제목을 포함한 상위 컴포넌트의 이동가능여부를 설정한다.
+         *
+         * @param {boolean} movable
+         */
+        setMovable(movable: boolean): void {
+            if (this.movable == movable) return;
+
+            this.movable = movable;
+            if (this.getParent() != null && this.movable == true) {
+                if (typeof (this.getParent() as any)['moveTo'] === 'function') {
+                    this.$component.addClass('movable');
+                    if (this.drag == undefined) {
+                        new Admin.Drag(this.$component, {
+                            pointerType: ['mouse', 'touch', 'pen'],
+                            listeners: {
+                                start: () => {
+                                    this.getParent().$getComponent().addClass('moving');
+                                },
+                                drag: (_$target: Dom, tracker: Admin.Drag.Tracker) => {
+                                    if (typeof (this.getParent() as any)['moveTo'] === 'function') {
+                                        const { x, y } = tracker.getDelta();
+                                        (this.getParent() as any).moveTo(x, y);
+                                    }
+                                },
+                                end: () => {
+                                    this.getParent().$getComponent().removeClass('moving');
+                                },
+                            },
+                        });
+                    }
+                }
+            }
         }
 
         /**
@@ -61,7 +115,7 @@ namespace Admin {
         renderTop(): void {
             if (this.iconClass == '') return;
 
-            const $top = this.$getTop(true);
+            const $top = this.$getTop();
             const $i = Html.create('i').addClass(...this.iconClass.split(' '));
             $top.append($i);
         }
@@ -79,7 +133,7 @@ namespace Admin {
         renderBottom(): void {
             if (this.tools.length == 0) return;
 
-            this.$getBottom(true).empty();
+            this.$getBottom().empty();
             this.tools.forEach((tool: Admin.Title.Tool) => {
                 this.$getBottom().append(tool.$getComponent());
                 tool.render();
@@ -116,7 +170,7 @@ namespace Admin {
                 if (this.iconClass != null) {
                     $button.addClass(...this.iconClass.split(' '));
                 }
-                this.$component.append($button);
+                this.$content.append($button);
                 $button.on('click', () => {
                     this.handler(this);
                 });
