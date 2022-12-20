@@ -36,7 +36,6 @@ var Admin;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.store = this.properties.store ?? new Admin.Store();
                 this.store.addEvent('beforeLoad', () => {
-                    console.log('beforeLoad', this);
                     this.onBeforeLoad();
                 });
                 this.store.addEvent('load', () => {
