@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Scrollbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2022. 12. 20.
  */
 var Admin;
 (function (Admin) {
@@ -19,7 +19,6 @@ var Admin;
         rendered;
         momentum = { x: 0, y: 0 };
         autoScroll = { x: 0, y: 0 };
-        touchRecord = new Admin.Scrollbar.TouchRecord();
         /**
          * 스크롤바 클래스를 생성한다.
          *
@@ -274,58 +273,40 @@ var Admin;
          * 스크롤바를 위한 이벤트를 등록한다.
          */
         setEvent() {
-            this.$target.on('wheel', this.setWheelEvent.bind(this));
-            this.$target.on('touchstart', this.setTouchEvent.bind(this, 'start'));
-            this.$target.on('touchmove', this.setTouchEvent.bind(this, 'move'));
-            this.$target.on('touchend', this.setTouchEvent.bind(this, 'end'));
-            this.$target.on('touchcancel', this.setTouchEvent.bind(this, 'end'));
+            this.$target.on('wheel', (e) => {
+                const DELTA_MODE = [1.0, 28.0, 500.0];
+                const mode = DELTA_MODE[e.deltaMode] ?? DELTA_MODE[0];
+                const x = Math.round(e.deltaX * mode);
+                const y = Math.round(e.deltaY * mode);
+                if (this.isMovable(x, y) == true) {
+                    this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
+                }
+                e.stopImmediatePropagation();
+                e.preventDefault();
+            });
             if (window.ontouchstart !== undefined) {
                 this.$target.addClass('touchscroll');
+                new Admin.Drag(this.$target, {
+                    pointerType: ['touch', 'pen'],
+                    listeners: {
+                        start: () => {
+                            this.setMomentum(0, 0);
+                        },
+                        drag: (_$target, tracker) => {
+                            const { x, y } = tracker.getDelta();
+                            if (this.isMovable(-x, -y) == true) {
+                                this.movePosition(this.scrollable.x == true ? -x : 0, this.scrollable.y == true ? -y : 0, true);
+                            }
+                        },
+                        end: (_$target, tracker) => {
+                            const { x, y } = tracker.getVelocity();
+                            this.addMomentum(-x, -y);
+                        },
+                    },
+                });
             }
             this.setTrackEvent('x');
             this.setTrackEvent('y');
-        }
-        /**
-         * 휠 이벤트를 처리한다.
-         *
-         * @param {WheelEvent} e - 휠이벤트
-         */
-        setWheelEvent(e) {
-            const DELTA_MODE = [1.0, 28.0, 500.0];
-            const mode = DELTA_MODE[e.deltaMode] ?? DELTA_MODE[0];
-            const x = Math.round(e.deltaX * mode);
-            const y = Math.round(e.deltaY * mode);
-            if (this.isMovable(x, y) == true) {
-                this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
-            }
-            e.stopImmediatePropagation();
-            e.preventDefault();
-        }
-        /**
-         * 터치 이벤트를 처리한다.
-         *
-         * @param {string} mode - 터치이벤트 모드 (start, move, end)
-         * @param {TouchEvent} e - 터치이벤트
-         */
-        setTouchEvent(mode, e) {
-            if (mode == 'start') {
-                this.touchRecord.track(e);
-                this.setMomentum(0, 0);
-            }
-            if (mode == 'move') {
-                this.touchRecord.update(e);
-                const { x, y } = this.touchRecord.getDelta();
-                if (this.isMovable(x, y) == true) {
-                    this.movePosition(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0, true);
-                }
-            }
-            if (mode == 'end') {
-                const { x, y } = this.touchRecord.getVelocity();
-                this.addMomentum(x, y);
-                this.touchRecord.release(e);
-            }
-            e.preventDefault();
-            e.stopImmediatePropagation();
         }
         /**
          * 스크롤바 이벤트를 처리한다.
@@ -335,36 +316,41 @@ var Admin;
         setTrackEvent(direction) {
             this.$getScrollbar(direction).on('mouseover', this.active.bind(this, direction, 0));
             this.$getScrollbar(direction).on('mouseout', this.deactive.bind(this, direction, 1));
-            const drag = new Admin.Drag(this, Html.get('div[data-role=bar]', this.$getScrollbar(direction)));
-            drag.addEvent('start', ($bar) => {
-                const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
-                const direction = $scrollbar.getData('direction');
-                if (direction == 'x') {
-                    $bar.setData('start', parseInt($bar.getStyle('left').replace('/px$/', ''), 10), false);
-                }
-                else {
-                    $bar.setData('start', parseInt($bar.getStyle('top').replace('/px$/', ''), 10), false);
-                }
-                $scrollbar.addClass('drag');
-            });
-            drag.addEvent('drag', ($bar, start, current) => {
-                const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
-                const $track = Html.get('div[data-role=track]', $scrollbar);
-                const direction = $scrollbar.getData('direction');
-                if (direction == 'x') {
-                    const left = Math.min($track.getWidth() - $bar.getWidth(), Math.max(0, $bar.getData('start') + current.x - start.x));
-                    this.setPosition(this.getTrackToScrollPosition(direction, left), null);
-                }
-                else {
-                    const top = Math.min($track.getHeight() - $bar.getHeight(), Math.max(0, $bar.getData('start') + current.y - start.y));
-                    this.setPosition(null, this.getTrackToScrollPosition(direction, top));
-                }
-            });
-            drag.addEvent('end', ($bar) => {
-                const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
-                const direction = $scrollbar.getData('direction');
-                $scrollbar.removeClass('drag');
-                this.deactive(direction, 1);
+            const $bar = Html.get('div[data-role=bar]', this.$getScrollbar(direction));
+            new Admin.Drag($bar, {
+                pointerType: ['mouse', 'touch', 'pen'],
+                listeners: {
+                    start: ($bar) => {
+                        const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
+                        const direction = $scrollbar.getData('direction');
+                        if (direction == 'x') {
+                            $bar.setData('start', parseInt($bar.getStyle('left').replace('/px$/', ''), 10), false);
+                        }
+                        else {
+                            $bar.setData('start', parseInt($bar.getStyle('top').replace('/px$/', ''), 10), false);
+                        }
+                        $scrollbar.addClass('drag');
+                    },
+                    drag: ($bar, tracker) => {
+                        const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
+                        const $track = Html.get('div[data-role=track]', $scrollbar);
+                        const direction = $scrollbar.getData('direction');
+                        if (direction == 'x') {
+                            const left = Math.min($track.getWidth() - $bar.getWidth(), Math.max(0, $bar.getData('start') + tracker.getLength().x));
+                            this.setPosition(this.getTrackToScrollPosition(direction, left), null);
+                        }
+                        else {
+                            const top = Math.min($track.getHeight() - $bar.getHeight(), Math.max(0, $bar.getData('start') + tracker.getLength().y));
+                            this.setPosition(null, this.getTrackToScrollPosition(direction, top));
+                        }
+                    },
+                    end: ($bar) => {
+                        const $scrollbar = $bar.getParents('div[data-role=scrollbar]');
+                        const direction = $scrollbar.getData('direction');
+                        $scrollbar.removeClass('drag');
+                        this.deactive(direction, 1);
+                    },
+                },
             });
         }
         /**
@@ -513,80 +499,4 @@ var Admin;
         }
     }
     Admin.Scrollbar = Scrollbar;
-    (function (Scrollbar) {
-        class TouchTracker {
-            velocityMultiplier = window.devicePixelRatio * 5;
-            updateTime = Date.now();
-            delta = { x: 0, y: 0 };
-            velocity = { x: 0, y: 0 };
-            lastPosition = { x: 0, y: 0 };
-            constructor(touch) {
-                this.lastPosition = { x: touch.clientX, y: touch.clientY };
-            }
-            update(touch) {
-                const { velocity, updateTime, lastPosition } = this;
-                const now = Date.now();
-                const position = { x: touch.clientX, y: touch.clientY };
-                const delta = {
-                    x: -(position.x - lastPosition.x),
-                    y: -(position.y - lastPosition.y),
-                };
-                const duration = now - updateTime || 16.7;
-                const vx = (delta.x / duration) * 16.7;
-                const vy = (delta.y / duration) * 16.7;
-                velocity.x = vx * this.velocityMultiplier;
-                velocity.y = vy * this.velocityMultiplier;
-                this.delta = delta;
-                this.updateTime = now;
-                this.lastPosition = position;
-            }
-        }
-        Scrollbar.TouchTracker = TouchTracker;
-        class TouchRecord {
-            activeId;
-            touchList = {};
-            getDelta() {
-                const tracker = this.touchList[this.activeId];
-                if (!tracker) {
-                    return { x: 0, y: 0 };
-                }
-                return { ...tracker.delta };
-            }
-            getVelocity() {
-                const tracker = this.touchList[this.activeId];
-                if (!tracker) {
-                    return { x: 0, y: 0 };
-                }
-                return { ...tracker.velocity };
-            }
-            track(e) {
-                Array.from(e.targetTouches).forEach((touch) => {
-                    if (this.touchList.hasOwnProperty(touch.identifier) == true) {
-                        delete this.touchList[touch.identifier];
-                    }
-                    const tracker = new Admin.Scrollbar.TouchTracker(touch);
-                    this.touchList[touch.identifier] = tracker;
-                });
-                return this.touchList;
-            }
-            update(e) {
-                Array.from(e.touches).forEach((touch) => {
-                    if (this.touchList.hasOwnProperty(touch.identifier) == false) {
-                        return;
-                    }
-                    const tracker = this.touchList[touch.identifier];
-                    tracker.update(touch);
-                });
-                this.activeId = e.changedTouches[e.changedTouches.length - 1].identifier;
-                return this.touchList;
-            }
-            release(e) {
-                delete this.activeId;
-                Array.from(e.changedTouches).forEach((touch) => {
-                    delete this.touchList[touch.identifier];
-                });
-            }
-        }
-        Scrollbar.TouchRecord = TouchRecord;
-    })(Scrollbar = Admin.Scrollbar || (Admin.Scrollbar = {}));
 })(Admin || (Admin = {}));
