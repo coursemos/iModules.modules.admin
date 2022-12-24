@@ -93,7 +93,6 @@ var Admin;
                     if (headerIndex < this.freeze) {
                         $header.addClass('sticky');
                         $header.setStyle('left', leftPosition + 'px');
-                        $header.setStyle('z-index', this.freeze - headerIndex + 1);
                         leftPosition += header.getMinWidth() + 1;
                         if (headerIndex == this.freeze - 1) {
                             $header.addClass('end');
@@ -105,6 +104,7 @@ var Admin;
                 this.$header.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                 this.getScrollbar().setTrackPosition('x', leftPosition ? leftPosition + 1 : 0);
                 this.getScrollbar().setTrackPosition('y', this.$header.getHeight() + 1);
+                this.updateColumnIndex();
                 this.updateColumnFill();
             }
             /**
@@ -224,6 +224,16 @@ var Admin;
                 }
             }
             /**
+             * 컬럼 순서를 업데이트한다.
+             */
+            updateColumnIndex() {
+                console.log('updateColumnIndex');
+                this.headers.forEach((header, headerIndex) => {
+                    const $header = Html.get('div[data-component=' + header.id + ']', this.$header);
+                    $header.setStyle('z-index', this.headers.length - headerIndex + 1);
+                });
+            }
+            /**
              * 컬럼의 숨김여부를 업데이트한다.
              *
              * @param {Admin.Grid.Column} column - 업데이트할 컬럼
@@ -321,7 +331,7 @@ var Admin;
                 headerUpdated.forEach((id) => {
                     const header = Admin.get(id);
                     if (header instanceof Admin.Grid.Column) {
-                        const $header = Html.get('div[data-id=' + id + ']', this.$header);
+                        const $header = Html.get('div[data-component=' + id + ']', this.$header);
                         $header.setStyle('width', header.getChildrenFlexBasis() + 'px');
                         $header.setStyle('flexGrow', header.getChildrenFlexGrow());
                         $header.setStyle('flexBasis', header.getChildrenFlexBasis() + 'px');
@@ -715,7 +725,7 @@ var Admin;
              * @return {Dom} $layout
              */
             $getHeader() {
-                const $header = Html.create('div').setData('id', this.id);
+                const $header = Html.create('div').setData('component', this.id);
                 if (this.hasChild() == true) {
                     $header.setData('role', 'merge');
                     if (this.getChildrenFlexGrow() > 0) {
@@ -760,57 +770,61 @@ var Admin;
                     $header.setStyle('display', 'none');
                 }
                 if (this.isResizable() == true) {
-                    this.resizer = new Admin.Resizer($header, this.grid.$content, [false, true, false, false]);
-                    this.resizer.setMinWidth(50);
-                    this.resizer.setMaxWidth(900);
-                    this.resizer.hover(() => {
-                        this.grid.$getHeader().addClass('locked');
-                    }, () => {
-                        if (Admin.Drag.current == null) {
-                            this.grid.$getHeader().removeClass('locked');
-                        }
-                    });
-                    this.resizer.addEvent('start', () => {
-                        this.grid.$getHeader().addClass('resizing');
-                        this.grid.getScrollbar().setScrollable(false);
-                    });
-                    this.resizer.addEvent('resize', ($target, rect, position) => {
-                        this.grid.$getHeader().addClass('locked');
-                        /**
-                         * 그리드 패널 우측으로 벗어났을 경우, 그리드패널을 우측으로 스크롤한다.
-                         */
-                        const offset = this.grid.$content.getOffset();
-                        const width = this.grid.$content.getOuterWidth();
-                        const scroll = this.grid.getScrollbar().getPosition();
-                        const x = Math.max(0, position.x);
-                        if (x > offset.left + width - 15) {
-                            if (rect.right < width + scroll.x - 50) {
+                    this.resizer = new Admin.Resizer($header, this.grid.$content, {
+                        directions: [false, true, false, false],
+                        minWidth: 50,
+                        maxWidth: 900,
+                        listeners: {
+                            mouseenter: () => {
+                                this.grid.$getHeader().addClass('locked');
+                            },
+                            mouseleave: () => {
+                                this.grid.$getHeader().removeClass('locked');
+                            },
+                            start: () => {
+                                this.grid.$getHeader().addClass('resizing');
+                                this.grid.getScrollbar().setScrollable(false);
+                            },
+                            resize: (_$target, rect, position) => {
+                                this.grid.$getHeader().addClass('locked');
+                                /**
+                                 * 그리드 패널 우측으로 벗어났을 경우, 그리드패널을 우측으로 스크롤한다.
+                                 */
+                                const offset = this.grid.$content.getOffset();
+                                const width = this.grid.$content.getOuterWidth();
+                                const scroll = this.grid.getScrollbar().getPosition();
+                                const x = Math.max(0, position.x);
+                                if (x > offset.left + width - 15) {
+                                    if (rect.right < width + scroll.x - 50) {
+                                        this.grid.getScrollbar().setAutoScroll(0, 0);
+                                    }
+                                    else {
+                                        const speed = Math.min(Math.ceil((x - (offset.left + width - 15)) / 30), 15);
+                                        this.grid.getScrollbar().setAutoScroll(speed, 0);
+                                    }
+                                }
+                                else if (this.isFreezeColumn() == false &&
+                                    x < offset.left + this.grid.freezeWidth + 15) {
+                                    if (rect.left > this.grid.freezeWidth + scroll.x + 50) {
+                                        this.grid.getScrollbar().setAutoScroll(0, 0);
+                                    }
+                                    else {
+                                        const speed = Math.max(Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30), -15);
+                                        this.grid.getScrollbar().setAutoScroll(speed, 0);
+                                    }
+                                }
+                                else {
+                                    this.grid.getScrollbar().setAutoScroll(0, 0);
+                                }
+                            },
+                            end: (_$target, rect) => {
+                                this.setWidth(rect.width);
                                 this.grid.getScrollbar().setAutoScroll(0, 0);
-                            }
-                            else {
-                                const speed = Math.min(Math.ceil((x - (offset.left + width - 15)) / 30), 15);
-                                this.grid.getScrollbar().setAutoScroll(speed, 0);
-                            }
-                        }
-                        else if (this.isFreezeColumn() == false && x < offset.left + this.grid.freezeWidth + 15) {
-                            if (rect.left > this.grid.freezeWidth + scroll.x + 50) {
-                                this.grid.getScrollbar().setAutoScroll(0, 0);
-                            }
-                            else {
-                                const speed = Math.max(Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30), -15);
-                                this.grid.getScrollbar().setAutoScroll(speed, 0);
-                            }
-                        }
-                        else {
-                            this.grid.getScrollbar().setAutoScroll(0, 0);
-                        }
-                    });
-                    this.resizer.addEvent('end', ($target, rect) => {
-                        this.setWidth(rect.width);
-                        this.grid.getScrollbar().setAutoScroll(0, 0);
-                        this.grid.getScrollbar().setScrollable(this.grid.scrollable);
-                        this.grid.$getHeader().removeClass('locked');
-                        this.grid.$getHeader().removeClass('resizing');
+                                this.grid.getScrollbar().setScrollable(this.grid.scrollable);
+                                this.grid.$getHeader().removeClass('locked');
+                                this.grid.$getHeader().removeClass('resizing');
+                            },
+                        },
                     });
                 }
                 return $header;
