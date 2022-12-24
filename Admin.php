@@ -58,6 +58,7 @@ class Admin extends \Module
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Toolbar.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Tab.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Grid.js');
+        Cache::script('admin', $this->getBase() . '/scripts/Admin.Window.js');
         Html::script(Cache::script('admin'), 10);
 
         Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
@@ -71,6 +72,7 @@ class Admin extends \Module
         Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Window.scss');
         Html::style(Cache::style('admin'), 10);
 
         /**
