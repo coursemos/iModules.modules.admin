@@ -71,9 +71,9 @@ namespace Admin {
             this.movable = movable;
             if (this.getParent() != null && this.movable == true) {
                 if (typeof (this.getParent() as any)['moveTo'] === 'function') {
-                    this.$component.addClass('movable');
+                    this.$getContent().addClass('movable');
                     if (this.drag == undefined) {
-                        new Admin.Drag(this.$component, {
+                        new Admin.Drag(this.$getContent(), {
                             pointerType: ['mouse', 'touch', 'pen'],
                             listeners: {
                                 start: () => {
