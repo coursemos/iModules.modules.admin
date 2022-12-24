@@ -13,7 +13,6 @@ namespace Admin {
         $target: Dom;
         $parent: Dom;
         $resizers: Dom[];
-        parentOffset: { top: number; left: number };
 
         directions: {
             top: boolean;
@@ -36,144 +35,93 @@ namespace Admin {
          *
          * @param {Dom} $target - 크기를 조절할 DOM 객체
          * @param {Dom} $parent - 크기조절 대상의 부모
-         * @param {Array} directions - 크기조절 방향 [top, right, bottom, left]
+         * @param {Object} properties - 객체설정
          */
-        constructor($target: Dom, $parent: Dom, directions: [boolean, boolean, boolean, boolean]) {
-            super();
+        constructor($target: Dom, $parent: Dom, properties: { [key: string]: any } = null) {
+            super(properties);
 
             this.$target = $target;
             this.$parent = $parent;
-            this.parentOffset = $parent.getOffset();
+            if (!(this.properties.directions instanceof Array) || this.properties.directions.length != 4) {
+                this.properties.directions = [true, true, true, true];
+            }
+            this.minWidth = this.properties.minWidth ?? 0;
+            this.maxWidth = this.properties.maxWidth ?? 0;
+            this.minHeight = this.properties.minHeight ?? 0;
+            this.maxHeight = this.properties.maxHeight ?? 0;
+
             this.$resizers = [];
             Html.get('div[data-role=resizer]', $target).remove();
 
             this.directions = {
-                top: directions[0],
-                right: directions[1],
-                bottom: directions[2],
-                left: directions[3],
-                topRight: directions[0] == true && directions[1],
-                topLeft: directions[0] == true && directions[3],
-                bottomRight: directions[2] == true && directions[1],
-                bottomLeft: directions[2] == true && directions[3],
+                top: this.properties.directions[0],
+                right: this.properties.directions[1],
+                bottom: this.properties.directions[2],
+                left: this.properties.directions[3],
+                topRight: this.properties.directions[0] && this.properties.directions[1],
+                topLeft: this.properties.directions[0] && this.properties.directions[3],
+                bottomRight: this.properties.directions[2] && this.properties.directions[1],
+                bottomLeft: this.properties.directions[2] && this.properties.directions[3],
             };
 
             for (const direction in this.directions) {
                 if (this.directions[direction] == true) {
-                    this.$resizers.push(
-                        Html.create('div', {
-                            'data-role': 'resizer',
-                            'data-direction': direction,
-                        })
-                    );
+                    const $resizer = Html.create('div', {
+                        'data-role': 'resizer',
+                        'data-direction': direction,
+                    });
+                    $resizer.on('mouseenter', (e: MouseEvent) => {
+                        this.fireEvent('mouseenter', [Html.el(e.currentTarget)]);
+                    });
+                    $resizer.on('mouseleave', (e: MouseEvent) => {
+                        if (this.isActive() == false) {
+                            this.fireEvent('mouseleave', [Html.el(e.currentTarget)]);
+                        }
+                    });
+                    this.$resizers.push($resizer);
                 }
             }
 
             this.$resizers.forEach(($resizer: Dom) => {
-                const drag = new Admin.Drag(this, $resizer);
-                drag.addEvent('start', ($resizer: Dom, start: { x: number; y: number }) => {
-                    const direction = $resizer.getData('direction');
-                    const rect = this.getResizeRect(direction, { x: null, y: null });
+                new Admin.Drag($resizer, {
+                    pointerType: ['mouse'],
+                    listeners: {
+                        start: ($resizer: Dom, tracker: Admin.Drag.Tracker) => {
+                            const direction = $resizer.getData('direction');
+                            const rect = this.getResizeRect(direction, { x: null, y: null });
 
-                    Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
-                    const $guide = Html.create('div', { 'data-role': 'resize-guide' });
+                            this.resetGuideline();
+                            const $guide = this.setGuideline(rect);
+                            console.log('guide', $guide);
+                            this.$parent.append($guide);
 
-                    if (this.directions.left == true || this.directions.right == true) {
-                        $guide.setStyle('width', rect.width + 'px');
-                        $guide.setStyle('left', rect.x - this.parentOffset.left + 'px');
-                    }
+                            this.$parent.on('scroll', this.onScroll);
+                            this.fireEvent('mouseenter', [$resizer]);
+                            this.fireEvent('start', [this.$target, rect, tracker.getFirstPosition()]);
+                        },
+                        drag: ($resizer: Dom, tracker: Admin.Drag.Tracker) => {
+                            const direction = $resizer.getData('direction');
+                            const rect = this.getResizeRect(direction, tracker.getLastPosition());
 
-                    if (this.directions.top == true || this.directions.bottom == true) {
-                        $guide.setStyle('height', rect.width + 'px');
-                    }
+                            this.setGuideline(rect);
 
-                    this.$parent.append($guide);
+                            this.fireEvent('resize', [this.$target, rect, tracker.getLastPosition()]);
+                        },
+                        end: ($resizer: Dom, tracker: Admin.Drag.Tracker) => {
+                            const direction = $resizer.getData('direction');
+                            const rect = this.getResizeRect(direction, tracker.getLastPosition());
 
-                    this.$parent.on('scroll', this.onScroll);
+                            Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
 
-                    if (this.directions) this.fireEvent('start', [this.$target, rect, start]);
+                            this.$parent.off('scroll', this.onScroll);
+                            this.fireEvent('mouseleave', [$resizer]);
+                            this.fireEvent('end', [this.$target, rect, tracker.getLastPosition()]);
+                        },
+                    },
                 });
-
-                drag.addEvent(
-                    'drag',
-                    ($resizer: Dom, start: { x: number; y: number }, current: { x: number; y: number }) => {
-                        const direction = $resizer.getData('direction');
-                        const rect = this.getResizeRect(direction, current);
-
-                        const $guide = Html.get('> div[data-role="resize-guide"]', this.$parent);
-                        if (this.directions.left == true || this.directions.right == true) {
-                            $guide.setStyle('width', rect.width + 'px');
-                            $guide.setStyle('left', rect.x - this.parentOffset.left + 'px');
-                        }
-
-                        if (this.directions.top == true || this.directions.bottom == true) {
-                            $guide.setStyle('height', rect.width + 'px');
-                        }
-
-                        this.fireEvent('resize', [this.$target, rect, current]);
-                    }
-                );
-
-                drag.addEvent(
-                    'end',
-                    ($resizer: Dom, start: { x: number; y: number }, current: { x: number; y: number }) => {
-                        const direction = $resizer.getData('direction');
-                        const rect = this.getResizeRect(direction, current);
-
-                        Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
-
-                        this.$parent.off('scroll', this.onScroll);
-
-                        this.fireEvent('end', [this.$target, rect, current]);
-                    }
-                );
             });
 
             $target.append(this.$resizers);
-        }
-
-        /**
-         * 최소너비를 지정한다.
-         *
-         * @param {number} width - 최소너비
-         * @return {Admin.Resizer} this
-         */
-        setMinWidth(width: number): this {
-            this.minWidth = width;
-            return this;
-        }
-
-        /**
-         * 최대너비를 지정한다.
-         *
-         * @param {number} width - 최대너비
-         * @return {Admin.Resizer} this
-         */
-        setMaxWidth(width: number): this {
-            this.maxWidth = width;
-            return this;
-        }
-
-        /**
-         * 최소높이를 지정한다.
-         *
-         * @param {number} height - 최소높이
-         * @return {Admin.Resizer} this
-         */
-        setMinHeight(height: number): this {
-            this.minHeight = height;
-            return this;
-        }
-
-        /**
-         * 최대높이를 지정한다.
-         *
-         * @param {number} height - 최대높이
-         * @return {Admin.Resizer} this
-         */
-        setMaxHeight(height: number): this {
-            this.maxHeight = height;
-            return this;
         }
 
         /**
@@ -185,63 +133,112 @@ namespace Admin {
          */
         getResizeRect(direction: string, position: { x: number; y: number }): DOMRect {
             const rect = this.$target.getEl().getBoundingClientRect();
+            const guide = new DOMRect(rect.x, rect.y, rect.width, rect.height);
+
+            let parentOffset = { left: 0, top: 0 };
+            let parentScroll = { left: 0, top: 0 };
+
+            if (this.$target.getStyle('position') == 'static') {
+                parentOffset = this.$parent.getOffset();
+                parentScroll = this.$parent.getScroll();
+                guide.x = rect.x - parentOffset.left + parentScroll.left;
+                guide.y = rect.y - parentOffset.top + parentScroll.top;
+            }
+
+            if (direction.indexOf('top') === 0) {
+                if (position.y !== null) {
+                    guide.height = Math.max(this.minHeight, rect.height + (rect.y - position.y));
+                    if (this.maxHeight > 0 && guide.height > this.maxHeight) {
+                        guide.height = this.maxHeight;
+                    }
+                    guide.y = rect.y + (rect.height - guide.height);
+                }
+            } else if (direction.indexOf('bottom') === 0) {
+                if (position.y !== null) {
+                    guide.height = Math.max(this.minHeight, position.y - rect.y);
+                    if (this.maxHeight > 0 && guide.height > this.maxHeight) {
+                        guide.height = this.maxHeight;
+                    }
+                }
+            }
 
             switch (direction) {
+                case 'left':
+                case 'topLeft':
+                case 'bottomLeft':
+                    if (position.x !== null) {
+                        guide.width = Math.max(this.minWidth, rect.width + (rect.x - position.x));
+                        if (this.maxWidth > 0 && guide.width > this.maxWidth) {
+                            guide.width = this.maxWidth;
+                        }
+                        guide.x = rect.x + (rect.width - guide.width);
+                    }
+                    break;
+
                 case 'right':
                 case 'topRight':
                 case 'bottomRight':
-                    rect.x = rect.x + this.$parent.getScroll().left;
-                    if (position.x != null) {
-                        rect.width = Math.min(
-                            this.maxWidth,
-                            Math.max(this.minWidth, position.x - rect.x + this.$parent.getScroll().left)
-                        );
+                    if (position.x !== null) {
+                        guide.width = Math.max(this.minWidth, position.x - rect.x);
+                        if (this.maxWidth > 0 && guide.width > this.maxWidth) {
+                            guide.width = this.maxWidth;
+                        }
                     }
                     break;
             }
 
-            return rect;
+            return guide;
+        }
+
+        /**
+         * 모든 가이드라인을 그린다.
+         *
+         * @param {DOMRect} rect - 가이드라인 기준 Rect
+         */
+        setGuideline(rect: DOMRect): Dom {
+            const $guide =
+                Html.get('> div[data-role="resize-guide"]', this.$parent).getEl() != null
+                    ? Html.get('> div[data-role="resize-guide"]', this.$parent)
+                    : Html.create('div', { 'data-role': 'resize-guide' });
+
+            $guide.setStyle('top', rect.y + 'px');
+            $guide.setStyle('left', rect.x + 'px');
+
+            if (this.directions.left == true || this.directions.right == true) {
+                $guide.setStyle('width', rect.width + 'px');
+            }
+
+            if (this.directions.top == true || this.directions.bottom == true) {
+                $guide.setStyle('height', rect.height + 'px');
+            }
+
+            return $guide;
+        }
+
+        /**
+         * 모든 가이드라인을 초기화한다.
+         */
+        resetGuideline(): void {
+            Html.get('div[data-role="resize-guide"]').remove();
         }
 
         /**
          * 리사이즈 도중 부모객체에 스크롤이 발생될 때 이벤트를 처리한다.
          */
         onScroll(): void {
-            if (Admin.Drag.current != null && Admin.Drag.current.listener instanceof Admin.Resizer) {
-                Admin.Drag.current.fireEvent('drag', [
-                    Admin.Drag.current.$target,
-                    Admin.Drag.current.start,
-                    Admin.Drag.current.position,
-                ]);
+            if (this.isActive() == true) {
+                const tracker = Admin.Drag.getActivePointer();
+                tracker.getParent().onDrag(tracker);
             }
         }
 
         /**
-         * 리사이저 HTML 엘리먼트에 이벤트를 추가한다.
+         * 리사이즈가 활성화된 상태인지 가져온다.
          *
-         * @param {string} name - 추가할 이벤트명
-         * @param {EventListener} listener - 이벤트리스너
-         * @return {Admin.Resizer} this
+         * @return {boolean} is_active
          */
-        on(name: string, listener: EventListener): this {
-            this.$resizers.forEach(($resizer: Dom) => {
-                $resizer.on(name, listener);
-            });
-            return this;
-        }
-
-        /**
-         * 리사이저 HTML 엘리먼트에 마우스 HOVER 이벤트를 추가한다.
-         *
-         * @param {EventListener} mouseenter - 마우스 OVER 시 이벤트리스너
-         * @param {EventListener} mouseleave - 마우스 LEAVE 시 이벤트리스너
-         * @return {Admin.Resizer} this
-         */
-        hover(mouseenter: EventListener, mouseleave: EventListener): this {
-            this.$resizers.forEach(($resizer: Dom) => {
-                $resizer.hover(mouseenter, mouseleave);
-            });
-            return this;
+        isActive(): boolean {
+            return Admin.Drag.getActivePointer()?.getTarget()?.is('div[data-role=resizer]') == true;
         }
     }
 }
