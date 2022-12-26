@@ -13,6 +13,7 @@ var Admin;
     class Window extends Admin.Component {
         static $windows;
         static windows = new Map();
+        static zIndex = 0;
         type = 'window';
         role = 'window';
         modal;
@@ -55,7 +56,6 @@ var Admin;
             this.maxWidth = this.properties.maxWidth ?? null;
             this.minHeight = this.properties.minHeight ?? null;
             this.maxHeight = this.properties.maxHeight ?? null;
-            this.buttons = this.properties.buttons ?? [];
             if (this.properties.title instanceof Admin.Title) {
                 this.title = this.properties.title;
             }
@@ -69,6 +69,17 @@ var Admin;
                 this.title.addTool('CLOSE', 'mi mi-close', () => {
                     this.close();
                 });
+            }
+            this.buttons = [];
+            for (let button of this.properties.buttons ?? []) {
+                if (button instanceof Admin.Component) {
+                    this.buttons.push(button);
+                }
+                else {
+                    button = new Admin.Button(button);
+                    this.buttons.push(button);
+                }
+                button.setParent(this);
             }
             this.$setTop();
             if (this.buttons.length > 0) {
@@ -146,6 +157,48 @@ var Admin;
             }
         }
         /**
+         * 윈도우의 Z-INDEX 를 가져온다.
+         *
+         * @return {number} z-index
+         */
+        getIndex() {
+            return parseInt(this.$component.getStyle('z-index'), 10);
+        }
+        /**
+         * 윈도우를 최상단에 배치한다.
+         */
+        setFront() {
+            if (this.getIndex() != Admin.Window.zIndex) {
+                this.$component.setStyle('z-index', Admin.Window.zIndex + 2);
+                this.updateWindows();
+            }
+        }
+        /**
+         * 윈도우를 최하단에 배치한다.
+         */
+        setBack() {
+            this.$component.setStyle('z-index', 0);
+        }
+        /**
+         * 전체 윈도우를 대상으로 윈도우 상태값을 업데이트한다.
+         */
+        updateWindows() {
+            let zIndex = 0;
+            let isModal = false;
+            for (const window of Admin.Window.windows.values()) {
+                zIndex = Math.max(zIndex, window.getIndex());
+                isModal = isModal || window.modal == true;
+            }
+            Admin.Window.zIndex = zIndex;
+            this.$getWindows().setStyleProperty('--active-z-index', zIndex);
+            if (isModal == true) {
+                this.$getWindows().addClass('modal');
+            }
+            else {
+                this.$getWindows().removeClass('modal');
+            }
+        }
+        /**
          * 윈도우 위치를 가져온다.
          *
          * @return {Object} position - 위치
@@ -195,18 +248,43 @@ var Admin;
          * 윈도우를 출력한다.
          */
         show() {
+            const isShow = this.fireEvent('beforeshow', [this]);
+            if (isShow === false)
+                return;
             this.render();
             this.$getWindows().append(this.$component);
             this.setWidth(this.width);
             this.setHeight(this.height);
             this.setPosition(this.top, this.left);
+            this.setFront();
+            this.fireEvent('show', [this]);
         }
         /**
          * 윈도우를 닫는다.
          */
         close() {
+            const isClose = this.fireEvent('beforeclose', [this]);
+            if (isClose === false)
+                return;
             Admin.Window.windows.delete(this.id);
             this.remove();
+            this.updateWindows();
+            this.fireEvent('close', [this]);
+        }
+        /**
+         * 하단 버튼을 추가한다.
+         *
+         * @param {Admin.Component} button - 추가할 버튼
+         * @param {number} position - 추가할 위치 (NULL 인 경우 마지막에 위치)
+         */
+        addButton(button, position = null) {
+            if (position === null) {
+                this.buttons.push(button);
+            }
+            else {
+                this.buttons.splice(position, 0, button);
+            }
+            this.$addComponent(this.$setBottom(), button, position);
         }
         /**
          * 윈도우 제목 레이아웃을 랜더링한다.
@@ -221,7 +299,13 @@ var Admin;
         /**
          * 윈도우 하단 레이아웃을 랜더링한다.
          */
-        renderBottom() { }
+        renderBottom() {
+            const $bottom = this.$getBottom();
+            for (const button of this.buttons) {
+                $bottom.append(button.$getComponent());
+                button.render();
+            }
+        }
         /**
          * 윈도우 레이아웃을 랜더링한다.
          */
