@@ -6,7 +6,7 @@
  * @file /styles/Admin.Panel.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 7.
+ * @modified 2022. 12. 26.
  */
 div[data-component][data-type='panel'] {
     background: var(--default-background);
@@ -34,14 +34,6 @@ div[data-component][data-type='panel'] {
         > div[data-role='content'] {
             flex-grow: 1;
             overflow: hidden;
-
-            &.scrollableX {
-                overflow-x: auto;
-            }
-
-            &.scrollableY {
-                overflow-y: auto;
-            }
         }
     }
 }
