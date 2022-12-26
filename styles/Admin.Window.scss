@@ -10,7 +10,7 @@
  */
 div[data-component][data-type='window'] {
     position: absolute;
-    z-index: 0;
+    z-index: -1;
 
     > div[data-role='container'] {
         width: 100%;
@@ -19,6 +19,38 @@ div[data-component][data-type='window'] {
         border: 2px solid var(--theme-color);
         background: var(--default-background);
         box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+
+        > div[data-role='content'] {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        > div[data-role='bottom'] {
+            background: #ececec;
+            padding-top: calc(var(--small-font-size) * 0.5);
+            padding-bottom: calc(var(--small-font-size) * 0.5);
+            padding-left: var(--small-font-size);
+            padding-right: var(--small-font-size);
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: flex-end;
+            column-gap: calc(var(--small-font-size) * 0.5);
+
+            div[data-component][data-type='button'] {
+                --default-border-color: rgba(0, 0, 0, 0.1);
+                --default-background: #5fa2dd;
+                --default-font-color: #fff;
+                --over-border-color: rgba(0, 0, 0, 0.1);
+                --over-background: #5795cb;
+                --over-font-color: #fff;
+                --focus-border-color: #fff;
+            }
+        }
     }
 
     &.middle {
@@ -33,5 +65,23 @@ div[data-component][data-type='window'] {
 
     &.middle.center {
         transform: translateX(-50%) translateY(-50%);
+    }
+}
+
+section[data-role='windows'] {
+    --active-z-index: 1;
+
+    &.modal {
+        &::before {
+            display: block;
+            content: ' ';
+            background: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: calc(var(--active-z-index) - 1);
+        }
     }
 }
