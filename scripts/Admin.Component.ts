@@ -110,9 +110,12 @@ namespace Admin {
 
         /**
          * 컴포넌트의 상단 DOM 사용여부를 설정한다.
+         *
+         * @return {Dom} $top
          */
-        $setTop(): void {
+        $setTop(): Dom {
             this.$top ??= Html.create('div', { 'data-role': 'top' });
+            return this.$top;
         }
 
         /**
@@ -136,9 +139,26 @@ namespace Admin {
 
         /**
          * 컴포넌트의 상단 DOM 사용여부를 설정한다.
+         *
+         * @return {Dom} $bottom
          */
-        $setBottom(): void {
+        $setBottom(): Dom {
             this.$bottom ??= Html.create('div', { 'data-role': 'bottom' });
+            return this.$bottom;
+        }
+
+        /**
+         * 특정 영역에 컴포넌트 DOM을 추가한다.
+         *
+         * @param {Dom} $target - 추가할 DOM
+         * @param {Admin.Component} component - 추가할 컴포넌트
+         * @param {number} position - 추가할 위치 (NULL 인 경우 마지막에 위치)
+         */
+        $addComponent($target: Dom, component: Admin.Component, position: number = null): void {
+            if (this.isRendered() == true) {
+                $target.append(component.$getComponent(), position);
+                component.render();
+            }
         }
 
         /**
