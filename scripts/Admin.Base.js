@@ -19,6 +19,10 @@ var Admin;
      * @param {Admin.Base} item - 객체
      */
     function set(item) {
+        if (Admin.items.has(item.id) == true) {
+            console.error('[DUPLICATED ID]', item.id, item);
+            return;
+        }
         Admin.items.set(item.id, item);
     }
     Admin.set = set;
@@ -109,13 +113,17 @@ var Admin;
          *
          * @param {string} name - 이벤트명
          * @param {any[]} params - 이벤트리스너에 전달될 데이터
+         * @return {boolean} result
          */
         fireEvent(name, params = []) {
             if (this.listeners[name] !== undefined) {
                 for (const listener of this.listeners[name]) {
-                    listener(...params);
+                    if (listener(...params) === false) {
+                        return false;
+                    }
                 }
             }
+            return true;
         }
     }
     Admin.Base = Base;
