@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Scrollbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2022. 12. 27.
  */
 var Admin;
 (function (Admin) {
@@ -422,7 +422,7 @@ var Admin;
             if (Math.abs(remain) <= 1) {
                 return { momentum: 0, position: current };
             }
-            const nextMomentum = (remain * 0.95) | 0;
+            const nextMomentum = (remain * 0.65) | 0;
             return { momentum: nextMomentum, position: current + remain - nextMomentum };
         }
         /**
