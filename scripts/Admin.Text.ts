@@ -14,6 +14,7 @@ namespace Admin {
         role: string = 'text';
         border: boolean;
         text: string;
+        html: string;
 
         $text: Dom;
 
@@ -30,6 +31,8 @@ namespace Admin {
             super(properties);
 
             this.text = this.properties.text ?? '';
+            this.html = this.properties.html ?? '';
+            this.scrollable = false;
             this.$text = Html.create('div');
         }
 
@@ -42,7 +45,11 @@ namespace Admin {
          * 텍스트 내용을 랜더링한다.
          */
         renderContent(): void {
-            this.$text.text(this.text);
+            if (this.html) {
+                this.$text.html(this.html);
+            } else {
+                this.$text.text(this.text);
+            }
             this.$getContent().append(this.$text);
         }
     }

@@ -15,6 +15,7 @@ var Admin;
         role = 'text';
         border;
         text;
+        html;
         $text;
         /**
          * 텍스트 객체를 생성한다.
@@ -28,6 +29,8 @@ var Admin;
             }
             super(properties);
             this.text = this.properties.text ?? '';
+            this.html = this.properties.html ?? '';
+            this.scrollable = false;
             this.$text = Html.create('div');
         }
         setText(text) {
@@ -38,7 +41,12 @@ var Admin;
          * 텍스트 내용을 랜더링한다.
          */
         renderContent() {
-            this.$text.text(this.text);
+            if (this.html) {
+                this.$text.html(this.html);
+            }
+            else {
+                this.$text.text(this.text);
+            }
             this.$getContent().append(this.$text);
         }
     }
