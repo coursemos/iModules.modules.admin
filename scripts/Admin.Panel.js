@@ -14,7 +14,6 @@ var Admin;
         type = 'panel';
         role = 'panel';
         border;
-        margin;
         title;
         topbar;
         bottombar;
@@ -27,7 +26,6 @@ var Admin;
             super(properties);
             this.layout = this.properties.layout ?? 'auto';
             this.border = this.properties.border ?? true;
-            this.margin = this.properties.margin ?? null;
             this.scrollable = this.properties.scrollable ?? (this.layout == 'fit' ? true : false);
             if (this.properties.title || this.properties.iconClass) {
                 if (this.properties.title instanceof Admin.Title) {
@@ -83,13 +81,14 @@ var Admin;
             if (this.items === null) {
                 this.items = [];
                 if (this.properties.html) {
-                    this.items.push(new Admin.Text({ layout: this.layout, text: this.properties.html, scrollable: this.scrollable }));
+                    this.items.push(new Admin.Text({ layout: this.layout, html: this.properties.html }));
                 }
                 for (let item of this.properties.items ?? []) {
                     if (item instanceof Admin.Component) {
                         this.items.push(item);
                     }
                 }
+                super.initItems();
             }
         }
         /**
@@ -146,12 +145,6 @@ var Admin;
         render() {
             if (this.border == true) {
                 this.$container.addClass('border');
-            }
-            if (this.margin !== null) {
-                if (typeof this.margin == 'number') {
-                    this.margin = this.margin + 'px';
-                }
-                this.$component.setStyle('padding', this.margin);
             }
             super.render();
         }

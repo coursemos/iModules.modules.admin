@@ -13,7 +13,6 @@ namespace Admin {
         type: string = 'panel';
         role: string = 'panel';
         border: boolean;
-        margin: string | number;
 
         title: Admin.Title;
         topbar: Admin.Toolbar;
@@ -29,7 +28,6 @@ namespace Admin {
 
             this.layout = this.properties.layout ?? 'auto';
             this.border = this.properties.border ?? true;
-            this.margin = this.properties.margin ?? null;
             this.scrollable = this.properties.scrollable ?? (this.layout == 'fit' ? true : false);
 
             if (this.properties.title || this.properties.iconClass) {
@@ -89,9 +87,7 @@ namespace Admin {
                 this.items = [];
 
                 if (this.properties.html) {
-                    this.items.push(
-                        new Admin.Text({ layout: this.layout, text: this.properties.html, scrollable: this.scrollable })
-                    );
+                    this.items.push(new Admin.Text({ layout: this.layout, html: this.properties.html }));
                 }
 
                 for (let item of this.properties.items ?? []) {
@@ -99,6 +95,8 @@ namespace Admin {
                         this.items.push(item);
                     }
                 }
+
+                super.initItems();
             }
         }
 
@@ -161,13 +159,6 @@ namespace Admin {
         render(): void {
             if (this.border == true) {
                 this.$container.addClass('border');
-            }
-
-            if (this.margin !== null) {
-                if (typeof this.margin == 'number') {
-                    this.margin = this.margin + 'px';
-                }
-                this.$component.setStyle('padding', this.margin);
             }
 
             super.render();
