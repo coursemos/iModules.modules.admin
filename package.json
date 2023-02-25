@@ -23,9 +23,53 @@
             "type": "theme",
             "default": "/modules/admin/default"
         },
-        "templet": {
-            "type": "templet",
+        "template": {
+            "type": "template",
             "default": "default"
+        }
+    },
+    "databases": {
+        "members": {
+            "columns": {
+                "member_id": {
+                    "type": "int",
+                    "comment": "회원고유값"
+                },
+                "language": {
+                    "type": "char",
+                    "length": 2,
+                    "comment": "언어코드"
+                },
+                "contexts": {
+                    "type": "json",
+                    "comment": "컨텍스트설정"
+                }
+            },
+            "indexes": {
+                "member_id": "primary_key"
+            },
+            "comment": "아이모듈 관리자 개인화 설정"
+        },
+        "permissions": {
+            "columns": {
+                "member_id": {
+                    "type": "int",
+                    "comment": "회원고유값"
+                },
+                "path": {
+                    "type": "varchar",
+                    "length": 50,
+                    "comment": "경로"
+                },
+                "permission": {
+                    "type": "text",
+                    "comment": "권한"
+                }
+            },
+            "indexes": {
+                "member_id,path": "primary_key"
+            },
+            "comment": "아이모듈 관리자 접근권한 관리"
         }
     }
 }
