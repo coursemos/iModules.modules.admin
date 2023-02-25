@@ -3,7 +3,7 @@
  *
  * 관리자모듈에서 사용되는 컴포넌트의 공통 클래스를 정의한다.
  *
- * @file /modules/admin/scripts/Admin.Component.js
+ * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2022. 12. 13.
@@ -23,8 +23,10 @@ namespace Admin {
         items: Admin.Base[];
         layout: string;
         padding: string | number;
+        margin: string | number;
         style: string;
         hidden: boolean;
+        disabled: boolean;
         scrollable: string | boolean;
         $scrollable: Dom;
         scrollbar: Admin.Scrollbar;
@@ -43,22 +45,15 @@ namespace Admin {
 
             this.layout = this.properties.layout ?? 'auto';
             this.padding = this.properties.padding ?? null;
+            this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
             this.hidden = this.properties.hidden ?? false;
+            this.disabled = this.properties.disabled ?? false;
             this.scrollable = this.properties.scrollable ?? false;
-
-            /**
-             * 이벤트리스너를 등록한다.
-             */
-            for (let name in this.properties.listeners ?? {}) {
-                this.addEvent(name, this.properties.listeners[name]);
-            }
 
             this.$component = Html.create('div', { 'data-component': this.id });
             this.$container = Html.create('div', { 'data-role': 'container' });
             this.$scrollable = this.$container;
-
-            this.initItems();
         }
 
         /**
@@ -257,6 +252,42 @@ namespace Admin {
         }
 
         /**
+         * 컴포넌트를 비활성화한다.
+         */
+        disable(): void {
+            this.setDisabled(true);
+        }
+
+        /**
+         * 컴포넌트를 활성화한다.
+         */
+        enable(): void {
+            this.setDisabled(false);
+        }
+
+        /**
+         * 컴포넌트의 비활성화여부를 설정한다.
+         * 하위 컴포넌트 클래스에서 처리한다.
+         *
+         * @param {boolean} disabled - 비활성여부
+         * @return {Admin.Component} this
+         */
+        setDisabled(disabled: boolean): this {
+            this.disabled = disabled;
+            return this;
+        }
+
+        /**
+         * 컴포넌트의 비활성여부를 가져온다.
+         * 하위 컴포넌트 클래스에서 처리한다.
+         *
+         * @return {boolean} is_hidden
+         */
+        isDisabled(): boolean {
+            return this.disabled;
+        }
+
+        /**
          * 컴포넌트가 렌더링이 가능한지 여부를 가져온다.
          *
          * @return {boolean} is_renderable
@@ -315,7 +346,22 @@ namespace Admin {
          * 레이아웃을 렌더링한다.
          */
         render(): void {
+            this.initItems();
             this.$component.setData('type', this.type).setData('role', this.role).addClass(this.layout);
+
+            if (this.padding !== null) {
+                if (typeof this.padding == 'number') {
+                    this.padding = this.padding + 'px';
+                }
+                this.$container.setStyle('padding', this.padding);
+            }
+
+            if (this.margin !== null) {
+                if (typeof this.margin == 'number') {
+                    this.margin = this.margin + 'px';
+                }
+                this.$component.setStyle('padding', this.margin);
+            }
 
             if (this.isRenderable() == true) {
                 this.$component.append(this.$container);
@@ -339,6 +385,10 @@ namespace Admin {
             if (this.isRendered() == true) {
                 this.onRender();
                 this.getScrollbar()?.render();
+
+                if (this.disabled == true) {
+                    this.disable();
+                }
             }
         }
 
@@ -352,10 +402,12 @@ namespace Admin {
 
         /**
          * 현재 컴포넌트의 레이아웃을 관리자영역에 출력한다.
+         *
+         * @param {Dom} dom 랜더링할 DOM 위치
          */
-        doLayout(): void {
-            let $section = Html.get('section[data-role=admin]');
-            $section.append(this.$component);
+        doLayout(dom: Dom): void {
+            dom.setData('role', 'admin');
+            dom.append(this.$component);
             this.render();
         }
 
@@ -363,7 +415,7 @@ namespace Admin {
          * 현재 컴포넌트가 화면상에 출력되었을 때 이벤트를 처리한다.
          */
         onRender(): void {
-            this.fireEvent('render');
+            this.fireEvent('render', [this]);
         }
     }
 }

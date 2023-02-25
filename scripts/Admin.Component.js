@@ -3,7 +3,7 @@
  *
  * 관리자모듈에서 사용되는 컴포넌트의 공통 클래스를 정의한다.
  *
- * @file /modules/admin/scripts/Admin.Component.js
+ * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2022. 12. 13.
@@ -22,8 +22,10 @@ var Admin;
         items;
         layout;
         padding;
+        margin;
         style;
         hidden;
+        disabled;
         scrollable;
         $scrollable;
         scrollbar;
@@ -39,19 +41,14 @@ var Admin;
             this.items = null;
             this.layout = this.properties.layout ?? 'auto';
             this.padding = this.properties.padding ?? null;
+            this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
             this.hidden = this.properties.hidden ?? false;
+            this.disabled = this.properties.disabled ?? false;
             this.scrollable = this.properties.scrollable ?? false;
-            /**
-             * 이벤트리스너를 등록한다.
-             */
-            for (let name in this.properties.listeners ?? {}) {
-                this.addEvent(name, this.properties.listeners[name]);
-            }
             this.$component = Html.create('div', { 'data-component': this.id });
             this.$container = Html.create('div', { 'data-role': 'container' });
             this.$scrollable = this.$container;
-            this.initItems();
         }
         /**
          * 컴포넌트의 하위 컴포넌트를 정의한다.
@@ -229,6 +226,38 @@ var Admin;
             return this.hidden;
         }
         /**
+         * 컴포넌트를 비활성화한다.
+         */
+        disable() {
+            this.setDisabled(true);
+        }
+        /**
+         * 컴포넌트를 활성화한다.
+         */
+        enable() {
+            this.setDisabled(false);
+        }
+        /**
+         * 컴포넌트의 비활성화여부를 설정한다.
+         * 하위 컴포넌트 클래스에서 처리한다.
+         *
+         * @param {boolean} disabled - 비활성여부
+         * @return {Admin.Component} this
+         */
+        setDisabled(disabled) {
+            this.disabled = disabled;
+            return this;
+        }
+        /**
+         * 컴포넌트의 비활성여부를 가져온다.
+         * 하위 컴포넌트 클래스에서 처리한다.
+         *
+         * @return {boolean} is_hidden
+         */
+        isDisabled() {
+            return this.disabled;
+        }
+        /**
          * 컴포넌트가 렌더링이 가능한지 여부를 가져온다.
          *
          * @return {boolean} is_renderable
@@ -280,7 +309,20 @@ var Admin;
          * 레이아웃을 렌더링한다.
          */
         render() {
+            this.initItems();
             this.$component.setData('type', this.type).setData('role', this.role).addClass(this.layout);
+            if (this.padding !== null) {
+                if (typeof this.padding == 'number') {
+                    this.padding = this.padding + 'px';
+                }
+                this.$container.setStyle('padding', this.padding);
+            }
+            if (this.margin !== null) {
+                if (typeof this.margin == 'number') {
+                    this.margin = this.margin + 'px';
+                }
+                this.$component.setStyle('padding', this.margin);
+            }
             if (this.isRenderable() == true) {
                 this.$component.append(this.$container);
                 if (this.$getTop() != null) {
@@ -298,6 +340,9 @@ var Admin;
             if (this.isRendered() == true) {
                 this.onRender();
                 this.getScrollbar()?.render();
+                if (this.disabled == true) {
+                    this.disable();
+                }
             }
         }
         /**
@@ -309,17 +354,19 @@ var Admin;
         }
         /**
          * 현재 컴포넌트의 레이아웃을 관리자영역에 출력한다.
+         *
+         * @param {Dom} dom 랜더링할 DOM 위치
          */
-        doLayout() {
-            let $section = Html.get('section[data-role=admin]');
-            $section.append(this.$component);
+        doLayout(dom) {
+            dom.setData('role', 'admin');
+            dom.append(this.$component);
             this.render();
         }
         /**
          * 현재 컴포넌트가 화면상에 출력되었을 때 이벤트를 처리한다.
          */
         onRender() {
-            this.fireEvent('render');
+            this.fireEvent('render', [this]);
         }
     }
     Admin.Component = Component;
