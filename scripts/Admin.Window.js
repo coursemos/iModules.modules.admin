@@ -103,6 +103,7 @@ var Admin;
                         this.items.push(item);
                     }
                 }
+                super.initItems();
             }
         }
         /**
@@ -136,6 +137,7 @@ var Admin;
          * @param {number} width - 너비
          */
         setWidth(width) {
+            this.width = width;
             if (width == null) {
                 this.$component.setStyle('width', 'auto');
             }
@@ -144,17 +146,47 @@ var Admin;
             }
         }
         /**
+         * 윈도우 최대너비를 설정한다.
+         *
+         * @param {number} maxWidth - 최대너비
+         */
+        setMaxWidth(maxWidth) {
+            this.maxWidth = maxWidth;
+            if (maxWidth == null) {
+                this.$component.setStyle('maxWidth', 'auto');
+            }
+            else {
+                this.$component.setStyle('maxWidth', maxWidth + 'px');
+            }
+            this.resizer?.setMaxWidth(maxWidth);
+        }
+        /**
          * 윈도우 높이를 설정한다.
          *
-         * @param {number} height - 너비
+         * @param {number} height - 높이
          */
         setHeight(height) {
+            this.height = height;
             if (height == null) {
                 this.$component.setStyle('height', 'auto');
             }
             else {
                 this.$component.setStyle('height', height + 'px');
             }
+        }
+        /**
+         * 윈도우 최대높이를 설정한다.
+         *
+         * @param {number} maxHeight - 최대높이
+         */
+        setMaxHeight(maxHeight) {
+            if (maxHeight == null) {
+                this.$component.setStyle('maxHeight', 'auto');
+            }
+            else {
+                this.$component.setStyle('maxHeight', maxHeight + 'px');
+            }
+            this.resizer?.setMaxHeight(maxHeight);
         }
         /**
          * 윈도우의 Z-INDEX 를 가져온다.
@@ -254,7 +286,9 @@ var Admin;
             this.render();
             this.$getWindows().append(this.$component);
             this.setWidth(this.width);
+            this.setMaxWidth(this.maxWidth);
             this.setHeight(this.height);
+            this.setMaxHeight(this.maxHeight);
             this.setPosition(this.top, this.left);
             this.setFront();
             this.fireEvent('show', [this]);
