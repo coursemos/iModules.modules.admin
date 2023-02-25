@@ -44,8 +44,8 @@ var Admin;
                         this.items.push(new Admin.Toolbar.Item(item));
                     }
                 }
+                super.initItems();
             }
-            super.initItems();
         }
         /**
          * @todo 툴바 좌측 스크롤 버튼을 랜더링한다.

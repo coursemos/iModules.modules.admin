@@ -45,9 +45,9 @@ namespace Admin {
                         this.items.push(new Admin.Toolbar.Item(item));
                     }
                 }
-            }
 
-            super.initItems();
+                super.initItems();
+            }
         }
 
         /**
