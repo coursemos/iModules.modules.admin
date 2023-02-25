@@ -1,0 +1,58 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 메시지창 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.Message.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2023. 2. 23.
+ */
+div[data-component][data-type='window'] {
+    > div[data-role='container'] > div[data-role='content'] > div[data-role='messagebox'] {
+        width: auto;
+        padding: 14px;
+        display: flex;
+        flex-direction: row;
+        box-sizing: border-box;
+        align-items: flex-start;
+
+        > div {
+            &[data-role='icon'] {
+                width: 70px;
+                height: 10px;
+                flex-shrink: 0;
+                flex-grow: 0;
+
+                > i {
+                    width: 50px;
+                    height: 50px;
+                    background: #808080;
+                    border-radius: 50%;
+                    display: block;
+                    font-style: normal;
+                    line-height: 50px;
+                    text-align: center;
+
+                    &.error {
+                        font-family: moimz;
+                        font-size: 28px;
+                        line-height: 46px;
+                        color: #fff;
+
+                        &::before {
+                            content: '\ea10';
+                        }
+                    }
+                }
+            }
+
+            &[data-role='message'] {
+                flex-grow: 0;
+                color: var(--default-font-color);
+                font-size: var(--medium-font-size);
+                line-height: 1.6;
+            }
+        }
+    }
+}
