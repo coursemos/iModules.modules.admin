@@ -75,7 +75,6 @@ var Admin;
                             const rect = this.getResizeRect(direction, { x: null, y: null });
                             this.resetGuideline();
                             const $guide = this.setGuideline(rect);
-                            console.log('guide', $guide);
                             this.$parent.append($guide);
                             this.$parent.on('scroll', this.onScroll);
                             this.fireEvent('mouseenter', [$resizer]);
@@ -101,6 +100,22 @@ var Admin;
             $target.append(this.$resizers);
         }
         /**
+         * 최대너비를 설정한다.
+         *
+         * @param {number} maxWidth - 최대너비
+         */
+        setMaxWidth(maxWidth) {
+            this.maxWidth = maxWidth ?? 0;
+        }
+        /**
+         * 최대높이를 설정한다.
+         *
+         * @param {number} maxHeight - 최대높이
+         */
+        setMaxHeight(maxHeight) {
+            this.maxHeight = maxHeight ?? 0;
+        }
+        /**
          * 리사이즈되는 DOM 의 Rect 를 가져온다.
          *
          * @param {string} direction - 리사이즈 방향
@@ -112,7 +127,7 @@ var Admin;
             const guide = new DOMRect(rect.x, rect.y, rect.width, rect.height);
             let parentOffset = { left: 0, top: 0 };
             let parentScroll = { left: 0, top: 0 };
-            if (this.$target.getStyle('position') == 'static') {
+            if (this.$target.getStyle('position') !== 'fixed' && this.$target.getStyle('position') !== 'absolute') {
                 parentOffset = this.$parent.getOffset();
                 parentScroll = this.$parent.getScroll();
                 guide.x = rect.x - parentOffset.left + parentScroll.left;
