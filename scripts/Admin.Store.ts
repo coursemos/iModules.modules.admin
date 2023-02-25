@@ -133,23 +133,6 @@ namespace Admin {
             }
 
             /**
-             * JSON 데이터를 서버로부터 가져온다.
-             *
-             * @return {Promise<Object>} promise
-             */
-            async getJson(): Promise<Object> {
-                const jsonFetch = await fetch(this.url, {
-                    method: this.method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    cache: 'no-store',
-                    redirect: 'follow',
-                });
-                return jsonFetch.json();
-            }
-
-            /**
              * 데이터를 가져온다.
              */
             load(): void {
@@ -160,7 +143,7 @@ namespace Admin {
 
                 this.onBeforeLoad();
 
-                this.getJson()
+                Admin.Ajax.get(this.url)
                     .then((results: { success: boolean; message?: string; records: object[]; total: number }) => {
                         if (results.success == true) {
                             this.loaded = true;
@@ -178,7 +161,7 @@ namespace Admin {
                         this.loading = false;
                     })
                     .catch((e) => {
-                        console.log('error', e);
+                        console.error(e);
                         this.loading = false;
                         this.loaded = false;
                     });

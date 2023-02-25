@@ -120,22 +120,6 @@ var Admin;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
             }
             /**
-             * JSON 데이터를 서버로부터 가져온다.
-             *
-             * @return {Promise<Object>} promise
-             */
-            async getJson() {
-                const jsonFetch = await fetch(this.url, {
-                    method: this.method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    cache: 'no-store',
-                    redirect: 'follow',
-                });
-                return jsonFetch.json();
-            }
-            /**
              * 데이터를 가져온다.
              */
             load() {
@@ -144,7 +128,7 @@ var Admin;
                 }
                 this.loading = true;
                 this.onBeforeLoad();
-                this.getJson()
+                Admin.Ajax.get(this.url)
                     .then((results) => {
                     if (results.success == true) {
                         this.loaded = true;
@@ -161,7 +145,7 @@ var Admin;
                     this.loading = false;
                 })
                     .catch((e) => {
-                    console.log('error', e);
+                    console.error(e);
                     this.loading = false;
                     this.loaded = false;
                 });
