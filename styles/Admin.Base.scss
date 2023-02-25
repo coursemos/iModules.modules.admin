@@ -8,13 +8,12 @@
  * @license MIT License
  * @modified 2022. 12. 7.
  */
-section[data-role='admin'],
-section[data-role='windows'] {
-    background: black;
-
+*[data-role='admin'],
+*[data-role='windows'] {
     --default-size: 1rem;
     --small-font-size: 0.75rem;
     --medium-font-size: 0.875rem;
+    --large-font-size: 1.143rem;
     --default-background: #fff;
     --inner-background: #f4f4f4;
     --default-font-color: #404040;
@@ -27,12 +26,30 @@ section[data-role='windows'] {
     * {
         box-sizing: border-box;
     }
+
+    input,
+    textarea,
+    button,
+    select {
+        outline: none;
+        border-radius: 0;
+        user-select: auto;
+        -webkit-user-select: auto;
+        -ms-user-select: auto;
+    }
+    input[type='search'] {
+        -webkit-appearance: none;
+        background: #fff;
+    }
+    input[type='search']::-webkit-search-decoration {
+        -webkit-appearance: none;
+    }
 }
 
-section[data-role='admin'] {
+*[data-role='admin'] {
     z-index: 0;
 }
 
-section[data-role='windows'] {
+*[data-role='windows'] {
     z-index: 1000;
 }
