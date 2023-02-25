@@ -17,6 +17,9 @@ div[data-component][data-type='toolbar'] {
         display: flex;
         flex-direction: row;
         align-items: flex-start;
+        flex-shrink: 0;
+        width: 100%;
+        overflow: hidden;
         color: var(--default-font-color);
 
         &[data-position='top'] {
@@ -36,6 +39,7 @@ div[data-component][data-type='toolbar'] {
             display: flex;
             flex-direction: row;
             align-items: flex-start;
+            flex-shrink: 0;
             padding-top: calc(var(--small-font-size) * 0.5);
             padding-bottom: calc(var(--small-font-size) * 0.5);
             padding-left: var(--small-font-size);
