@@ -74,7 +74,7 @@ div[data-role='resizer'] {
         left: -3px;
         z-index: 1005;
         background: transparent;
-        cursor: nwse-resize;
+        cursor: nesw-resize;
     }
 
     &[data-direction='bottomRight'] {
@@ -84,7 +84,7 @@ div[data-role='resizer'] {
         right: -3px;
         z-index: 1005;
         background: transparent;
-        cursor: nesw-resize;
+        cursor: nwse-resize;
     }
 }
 
