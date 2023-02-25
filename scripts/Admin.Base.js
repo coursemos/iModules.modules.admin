@@ -3,7 +3,7 @@
  *
  * 관리자모듈에서 사용되는 컴포넌트의 공통 클래스를 정의한다.
  *
- * @file /modules/admin/scripts/Admin.Base.js
+ * @file /modules/admin/scripts/Admin.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2022. 12. 20.
@@ -37,6 +37,18 @@ var Admin;
     }
     Admin.get = get;
     /**
+     * 컴포넌트를 가져온다.
+     *
+     * @param {string} id - 가져올 컴포넌트 고유값
+     * @return {Admin.Component} item - 컴포넌트클래스
+     */
+    function getComponent(id) {
+        return Admin.items.has(id) == true && Admin.items.get(id) instanceof Admin.Component
+            ? Admin.items.get(id)
+            : null;
+    }
+    Admin.getComponent = getComponent;
+    /**
      * 객체를 제거한다.
      *
      * @param {string} id - 제거할 객체 고유값
@@ -54,6 +66,59 @@ var Admin;
         return ++Admin.index;
     }
     Admin.getIndex = getIndex;
+    /**
+     * 언어팩을 불러온다.
+     *
+     * @param string $text 언어팩코드
+     * @param ?array $placeHolder 치환자
+     * @return array|string|null $message 치환된 메시지
+     */
+    async function getText(text, placeHolder = null) {
+        return Language.getText(text, placeHolder, ['/modules/admin', '/']);
+    }
+    Admin.getText = getText;
+    /**
+     * 언어팩 문자열이 위치할 DOM 을 반환하고, 언어팩이 비동기적으로 로딩되면 언어팩 내용으로 변환한다.
+     *
+     * @param string $text 언어팩코드
+     * @param ?array $placeHolder 치환자
+     * @return array|string|null $message 치환된 메시지
+     */
+    function printText(text, placeHolder = null) {
+        return Language.printText(text, placeHolder, ['/modules/admin', '/']);
+    }
+    Admin.printText = printText;
+    /**
+     * 아이모듈 기본 URL 경로를 가져온다.
+     *
+     * @return {string} baseUrl
+     */
+    function getBase() {
+        return Html.get('body').getAttr('data-base');
+    }
+    Admin.getBase = getBase;
+    /**
+     * 관리자 기본 URL 경로를 가져온다.
+     *
+     * @return {string} baseUrl
+     */
+    function getUrl() {
+        const is_rewrite = Html.get('body').getAttr('data-rewrite') === 'true';
+        const route = '/admin';
+        return Admin.getBase() + (is_rewrite === true ? route : '/?route=' + route);
+    }
+    Admin.getUrl = getUrl;
+    /**
+     * 프로세스 URL 경로를 가져온다.
+     *
+     * @return {string} baseUrl
+     */
+    function getProcessUrl(type, name, path) {
+        const is_rewrite = Html.get('body').getAttr('data-rewrite') === 'true';
+        const route = '/' + type + '/' + name + '/process/' + path;
+        return Admin.getBase() + (is_rewrite === true ? route : '/?route=' + route);
+    }
+    Admin.getProcessUrl = getProcessUrl;
     /**
      * 관리자 UI 처리가 준비되었을 때 이벤트리스너를 등록한다.
      *
