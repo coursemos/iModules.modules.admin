@@ -61,6 +61,8 @@ namespace Admin {
                             this.items.push(item);
                         }
                     }
+
+                    super.initItems();
                 }
             }
 
