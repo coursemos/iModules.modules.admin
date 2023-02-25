@@ -114,7 +114,7 @@ var Admin;
          * 제목을 랜더링한다.
          */
         renderContent() {
-            this.$getContent().text(this.title);
+            this.$getContent().html(this.title);
         }
         /**
          * 툴버튼을 랜더링한다.

@@ -124,7 +124,7 @@ namespace Admin {
          * 제목을 랜더링한다.
          */
         renderContent(): void {
-            this.$getContent().text(this.title);
+            this.$getContent().html(this.title);
         }
 
         /**
