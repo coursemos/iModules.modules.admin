@@ -260,7 +260,6 @@ namespace Admin {
              * 컬럼 순서를 업데이트한다.
              */
             updateColumnIndex(): void {
-                console.log('updateColumnIndex');
                 this.headers.forEach((header: Admin.Grid.Column, headerIndex: number) => {
                     const $header = Html.get('div[data-component=' + header.id + ']', this.$header);
                     $header.setStyle('z-index', this.headers.length - headerIndex + 1);
