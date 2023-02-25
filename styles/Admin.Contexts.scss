@@ -1,0 +1,279 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 패널 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.Panel.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2023. 2. 13.
+ */
+div[data-component][data-type='contexts'] {
+    --background: #323237;
+    --font-color: #9e9ea6;
+    --active-font-color: #fff;
+    --toolbar-background: #1a1a1f;
+    --icon-width: 54px;
+}
+
+div[data-component][data-type='contexts'][data-role='panel'] {
+    background: var(--background);
+    color: var(--font-color);
+
+    > div[data-role='container'] {
+        width: 100%;
+        height: 100%;
+        border-width: 0;
+        border-style: solid;
+        border-color: var(--default-border-color);
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+
+        &.border {
+            border-width: 1px;
+        }
+
+        > div[data-role] {
+            width: 100%;
+        }
+
+        > div[data-role='top'] {
+            --default-border-color: #3f3f3f;
+            * {
+                --default-border-color: #3f3f3f;
+            }
+
+            background: #191c21;
+            height: 45px;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: flex-start;
+            border-bottom: 1px solid var(--default-border-color);
+
+            > div[data-type='form'][data-role='field'] {
+                padding: 0;
+                flex-grow: 1;
+
+                > div[data-role='container'] {
+                    height: 100%;
+
+                    > div[data-role='content'] {
+                        background: transparent;
+
+                        > input {
+                            padding: 10px;
+                            height: 100%;
+                            border: 0;
+                            line-height: 24px;
+                            color: var(--font-color);
+                        }
+
+                        > div[data-role='empty'] {
+                            height: 100%;
+                            line-height: 28px;
+                        }
+                    }
+                }
+            }
+
+            > div[data-type='button'] {
+                flex-shrink: 0;
+
+                > div[data-role='container'] {
+                    > div[data-role='content'] {
+                        > button {
+                            width: 45px;
+                            height: 45px;
+                            background: transparent;
+                            border: 0;
+                            border-left: 1px solid var(--default-border-color);
+                            transition: ease-in 0.2s background;
+
+                            > i {
+                                color: var(--font-color);
+                                font-size: var(--large-font-size);
+                            }
+
+                            &.pressed {
+                                background: #0075f8;
+
+                                > i {
+                                    color: #fff;
+                                }
+                            }
+
+                            &[disabled] {
+                                background: #0075f8;
+
+                                > i {
+                                    color: #fff;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        > div[data-role='content'] {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+    }
+}
+
+div[data-component][data-type='contexts'][data-role='context'] {
+    margin: 4px 0px;
+
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            > a {
+                display: block;
+                width: 100%;
+                height: 40px;
+                font-size: 0;
+                text-decoration: none;
+                color: var(--font-color);
+                white-space: nowrap;
+                overflow: hidden;
+
+                > i {
+                    display: inline-block;
+                    vertical-align: top;
+                    width: var(--icon-width);
+                    line-height: 40px;
+                    height: 40px;
+                    text-align: center;
+                    font-size: var(--large-font-size);
+                    text-decoration: none;
+                }
+
+                > span {
+                    display: inline-block;
+                    vertical-align: top;
+                    width: calc(100% - var(--icon-width));
+                    height: 40px;
+                    line-height: 40px;
+                    font-size: var(--medium-font-size);
+                    padding-right: 14px;
+                    transition: ease-in 0.2s width;
+                }
+
+                > button {
+                    display: none;
+                    width: 45px;
+                    height: 40px;
+                    font-family: moimz;
+                    text-align: center;
+                    line-height: 40px;
+                    border: 0;
+                    background: transparent;
+                    font-size: var(--large-font-size);
+                    color: var(--font-color);
+                    cursor: move;
+
+                    &::before {
+                        content: '\eb13';
+                    }
+                }
+
+                &:hover {
+                    color: var(--active-font-color);
+                }
+
+                &[disabled] {
+                    cursor: default;
+
+                    > span {
+                        width: calc(100% - var(--icon-width) - 45px);
+                    }
+
+                    > button {
+                        display: inline-block;
+                    }
+                }
+            }
+        }
+    }
+
+    &[data-context='FOLDER'] {
+        > div[data-role='container'] {
+            > div[data-role='content'] {
+                padding: 0px;
+
+                > a {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: var(--active-font-color);
+
+                    &:hover {
+                        color: var(--active-font-color);
+                    }
+                }
+            }
+
+            > div[data-role='bottom'] {
+                position: relative;
+                padding: 4px 0px 4px 30px;
+
+                &::before {
+                    position: absolute;
+                    width: 1px;
+                    height: calc(100% - 6px - 21px);
+                    background: rgba(255, 255, 255, 0.1);
+                    top: 0;
+                    left: 26px;
+                    content: ' ';
+                }
+
+                > div[data-component][data-type='contexts'][data-role='context'] {
+                    position: relative;
+
+                    &::before {
+                        position: absolute;
+                        width: 10px;
+                        height: 1px;
+                        background: rgba(255, 255, 255, 0.1);
+                        top: 21px;
+                        left: -4px;
+                        content: ' ';
+                    }
+                }
+            }
+        }
+    }
+
+    &[data-drag='drag'] {
+        background: var(--background);
+        position: fixed;
+        z-index: 10000000;
+        left: 300px;
+        opacity: 0.6;
+
+        > div[data-role='container'] {
+            > div[data-role='bottom'] {
+                display: none;
+            }
+        }
+    }
+
+    &[data-drag='origin'] {
+        opacity: 0.4;
+    }
+
+    &[data-drag='drop'],
+    &[data-drag='origin'].drop {
+        opacity: 1;
+        box-shadow: inset 0px 0px 0px 2px var(--theme-color);
+    }
+
+    &[data-drag='drop'] {
+        > div[data-role='container'] {
+            > div[data-role='bottom'] {
+                display: none;
+            }
+        }
+    }
+}
