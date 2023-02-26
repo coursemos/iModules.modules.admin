@@ -10,14 +10,15 @@
  */
 namespace Admin {
     export class Store extends Admin.Base {
+        fieldTypes: { [key: string]: string };
         autoLoad: boolean = true;
         remoteSort: boolean = false;
+        sorters: { field: string; direction: string }[];
         loading: boolean = false;
         loaded: boolean = false;
         data: Admin.Data;
         count: number = 0;
         total: number = 0;
-        fieldTypes: { [key: string]: string };
 
         /**
          * 데이터스토어를 생성한다.
@@ -27,9 +28,13 @@ namespace Admin {
         constructor(properties: { [key: string]: any } = null) {
             super(properties);
 
+            this.fieldTypes = this.properties.fieldTypes ?? {};
             this.autoLoad = this.properties.autoLoad !== false;
             this.remoteSort = this.properties.remoteSort !== true;
-            this.fieldTypes = this.properties.fieldTypes ?? {};
+            this.sorters = this.properties.sorters ?? [];
+            if (this.properties.sorter) {
+                this.sorters.push({ field: this.properties.sorter[0], direction: this.properties.sorter[1] });
+            }
         }
 
         /**
@@ -74,15 +79,34 @@ namespace Admin {
         load(): void {}
 
         /**
+         * 데이터의 특정 필드의 특정값을 찾는다.
+         *
+         * @param {string} field
+         * @param {any} value
+         * @return {Admin.Data.Record} record
+         */
+        find(field: string, value: any): Admin.Data.Record {
+            for (const record of this.getRecords()) {
+                if (record.get(field) == value) {
+                    return record;
+                }
+            }
+
+            return null;
+        }
+
+        /**
          * 데이터를 정렬한다.
          *
          * @param {string} field - 정렬할 필드명
          * @param {string} direction - 정렬방향 (asc, desc)
          */
         sort(field: string, direction: string): void {
-            this.onBeforeLoad();
-            this.data?.sort([{ field: field, direction: direction }]);
-            this.onLoad();
+            this.sorters = [{ field: field, direction: direction }];
+            if (this.remoteSort == true) {
+            } else {
+                this.onLoad();
+            }
         }
 
         /**
@@ -91,9 +115,11 @@ namespace Admin {
          * @param {Object} sorters - 정렬기준 [{field:string, direction:(ASC|DESC)}, ...]
          */
         multiSort(sorters: { field: string; direction: string }[]): void {
-            this.onBeforeLoad();
-            this.data?.sort(sorters);
-            this.onLoad();
+            this.sorters = sorters;
+            if (this.remoteSort == true) {
+            } else {
+                this.onLoad();
+            }
         }
 
         /**
@@ -107,11 +133,58 @@ namespace Admin {
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
         onLoad(): void {
+            if (this.remoteSort === false && this.sorters.length > 0) {
+                this.data?.sort(this.sorters);
+            }
             this.fireEvent('load', [this, this.data]);
         }
     }
 
     export namespace Store {
+        export class Array extends Admin.Store {
+            fields: string[];
+            datas: any[][];
+
+            /**
+             * Array 스토어를 생성한다.
+             *
+             * @param {Object} properties - 객체설정
+             */
+            constructor(properties: { [key: string]: any } = null) {
+                super(properties);
+
+                this.fields = this.properties.fields ?? [];
+                this.datas = this.properties.datas ?? [];
+                this.remoteSort = false;
+
+                this.load();
+            }
+
+            /**
+             * 데이터를 가져온다.
+             */
+            load(): void {
+                if (this.loaded == true) {
+                    return;
+                }
+
+                const records = [];
+                this.datas.forEach((data) => {
+                    const record: { [key: string]: any } = {};
+                    this.fields.forEach((name, index) => {
+                        record[name] = data[index];
+                    });
+                    records.push(record);
+                });
+                this.loaded = true;
+                this.data = new Admin.Data(records, this.fieldTypes);
+                this.count = records.length;
+                this.total = this.count;
+
+                this.onLoad();
+            }
+        }
+
         export class Ajax extends Admin.Store {
             method: string;
             url: string;
@@ -119,7 +192,7 @@ namespace Admin {
             page: number;
 
             /**
-             * 데이터스토어를 생성한다.
+             * Ajax 스토어를 생성한다.
              *
              * @param {Object} properties - 객체설정
              */
@@ -130,13 +203,17 @@ namespace Admin {
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
+
+                if (this.autoLoad == true) {
+                    this.load();
+                }
             }
 
             /**
              * 데이터를 가져온다.
              */
             load(): void {
-                if (this.loading == true) {
+                if (this.loaded == true || this.loading == true) {
                     return;
                 }
                 this.loading = true;
@@ -152,10 +229,6 @@ namespace Admin {
                             this.total = results.total;
 
                             this.onLoad();
-                        } else {
-                            this.loaded = true;
-                            if (results.message) {
-                            }
                         }
 
                         this.loading = false;
