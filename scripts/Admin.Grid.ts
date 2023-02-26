@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 2. 26.
  */
 namespace Admin {
     export namespace Grid {
@@ -455,11 +455,8 @@ namespace Admin {
              * 그리드패널이 화면상에 출력되었을 때 이벤트를 처리한다.
              */
             onRender(): void {
-                if (this.getStore().autoLoad === true) {
-                    this.getStore().load();
-                }
-
                 super.onRender();
+                this.onLoad();
             }
 
             /**
