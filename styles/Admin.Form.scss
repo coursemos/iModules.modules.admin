@@ -1,0 +1,307 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 폼 관련 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.Form.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2022. 12. 7.
+ */
+div[data-component][data-type='form'][data-role='field'] {
+    --input-border-color: #d0d0d0;
+    --input-background: #fff;
+    --input-focus-border-color: var(--theme-color);
+    --help-font-color: #666;
+    --empty-font-color: #999;
+
+    color: var(--default-font-color);
+
+    & + div[data-component][data-type='form'][data-role='field'] {
+        margin-top: 5px;
+    }
+
+    > div[data-role='container'] {
+        font-size: 0;
+        width: 100%;
+
+        > div[data-role='top'] {
+            display: inline-block;
+            vertical-align: top;
+            height: calc(var(--medium-font-size) * 2 + 4px);
+            padding-top: calc(var(--medium-font-size) * 0.5);
+            padding-bottom: calc(var(--medium-font-size) * 0.5);
+            padding-left: calc(var(--medium-font-size) * 0.5);
+            padding-right: calc(var(--medium-font-size) * 0.5);
+            line-height: calc(var(--medium-font-size) + 2px);
+            font-size: var(--medium-font-size);
+
+            > label {
+                display: inline-block;
+                width: 100%;
+                height: 100%;
+
+                &.right {
+                    text-align: right;
+                }
+            }
+        }
+
+        > div[data-role='content'] {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        > div[data-role='bottom'] {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding-top: calc(var(--medium-font-size) * 0.5);
+            font-size: var(--small-font-size);
+            color: var(--help-font-color);
+        }
+
+        &.left {
+            > div[data-role='top'] {
+                padding-left: 0;
+            }
+        }
+
+        &.top {
+            > div[data-role='top'] {
+                display: block;
+                width: 100%;
+                padding-left: 0;
+
+                > label {
+                    &.right {
+                        text-align: left;
+                    }
+                }
+            }
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='container'] {
+        > div[data-role='fields'] {
+            width: 100%;
+            display: flex;
+
+            > div[data-component] {
+                flex-shrink: 0;
+
+                &.flex {
+                    width: min-content;
+                }
+            }
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='text'] {
+        position: relative;
+        background: var(--input-background);
+        z-index: 0;
+
+        > input {
+            width: 100%;
+            height: calc(var(--medium-font-size) * 2 + 4px);
+            box-sizing: border-box;
+            background: transparent;
+            border: 1px solid var(--input-border-color);
+            padding-top: calc(var(--medium-font-size) * 0.5);
+            padding-bottom: calc(var(--medium-font-size) * 0.5);
+            padding-left: calc(var(--medium-font-size) * 0.5);
+            padding-right: calc(var(--medium-font-size) * 0.5);
+            line-height: calc(var(--medium-font-size) + 2px);
+            font-size: var(--medium-font-size);
+            font-family: inherit;
+
+            &:focus {
+                border-color: var(--theme-color);
+            }
+        }
+
+        > div[data-role='empty'] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: calc(var(--medium-font-size) * 2 + 4px);
+            box-sizing: border-box;
+            padding-top: calc(var(--medium-font-size) * 0.5);
+            padding-bottom: calc(var(--medium-font-size) * 0.5);
+            padding-left: calc(var(--medium-font-size) * 0.5);
+            padding-right: calc(var(--medium-font-size) * 0.5);
+            line-height: calc(var(--medium-font-size) + 2px);
+            font-size: var(--medium-font-size);
+            font-family: inherit;
+            color: var(--empty-font-color);
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='select'] {
+        position: relative;
+        background: var(--input-background);
+        z-index: 0;
+
+        > button {
+            font-family: inherit;
+            font-size: var(--medium-font-size);
+            display: block;
+            width: 100%;
+            height: calc(var(--medium-font-size) * 2 + 4px);
+            border: 0;
+            border: 1px solid var(--input-border-color);
+            background: transparent;
+            cursor: pointer;
+            padding-right: 30px;
+            position: relative;
+
+            > div[data-role='display'] {
+                color: var(--default-font-color);
+                box-sizing: border-box;
+                text-align: left;
+                padding-left: calc(var(--medium-font-size) * 0.5);
+                height: calc(var(--medium-font-size) * 2 + 4px);
+                line-height: calc(var(--medium-font-size) * 2 + 4px);
+            }
+
+            &::before {
+                font-family: moimz;
+                display: block;
+                width: 30px;
+                height: calc(var(--medium-font-size) * 2 + 4px);
+                line-height: calc(var(--medium-font-size) * 2 + 4px);
+                text-align: center;
+                font-size: 18px;
+                content: '\e906';
+                background: transparent;
+                position: absolute;
+                top: -1px;
+                right: -1px;
+                color: var(--empty-font-color);
+            }
+
+            &:focus {
+                border-color: var(--theme-color);
+            }
+        }
+
+        &:has(input[type='search']:focus) {
+            > button {
+                border-color: var(--theme-color);
+            }
+        }
+
+        > input[type='search'] {
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            width: calc(100% - 30px);
+            height: calc(var(--medium-font-size) * 2 + 4px);
+            box-sizing: border-box;
+            border: 0;
+            padding-top: calc(var(--medium-font-size) * 0.5);
+            padding-bottom: calc(var(--medium-font-size) * 0.5);
+            padding-left: calc(var(--medium-font-size) * 0.5);
+            padding-right: calc(var(--medium-font-size) * 0.5);
+            line-height: calc(var(--medium-font-size) + 2px);
+            font-size: var(--medium-font-size);
+            font-family: inherit;
+            background: transparent;
+        }
+
+        > ul[data-role='list'] {
+            display: none;
+            position: absolute;
+            top: calc(100% - 1px);
+            left: 0;
+            background: #fff;
+            z-index: 10;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--theme-color);
+
+            > li {
+                width: 100%;
+                font-size: var(--medium-font-size);
+                padding-top: calc(var(--medium-font-size) * 0.5);
+                padding-bottom: calc(var(--medium-font-size) * 0.5);
+                padding-left: calc(var(--medium-font-size) * 0.5);
+                padding-right: calc(var(--medium-font-size) * 0.5);
+                min-height: calc(var(--medium-font-size) * 2 + 4px);
+                box-sizing: border-box;
+                cursor: pointer;
+                color: var(--default-font-color);
+
+                &:hover {
+                    background: #7fb5e4;
+                    color: #fff;
+                }
+
+                &:focus {
+                    background: #60a2dd;
+                    color: #fff;
+                }
+            }
+        }
+
+        > div[data-role='empty'] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: calc(var(--medium-font-size) * 2 + 4px);
+            box-sizing: border-box;
+            padding-top: calc(var(--medium-font-size) * 0.5);
+            padding-bottom: calc(var(--medium-font-size) * 0.5);
+            padding-left: calc(var(--medium-font-size) * 0.5);
+            padding-right: calc(var(--medium-font-size) * 0.5);
+            line-height: calc(var(--medium-font-size) + 4px);
+            font-size: var(--medium-font-size);
+            font-family: inherit;
+            color: var(--empty-font-color);
+        }
+
+        &.expand {
+            z-index: 1;
+
+            > button {
+                border-color: var(--theme-color);
+
+                &::before {
+                    content: '\e905';
+                }
+            }
+
+            > ul[data-role='list'] {
+                display: block;
+            }
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='textarea'] {
+        > textarea {
+            width: 100%;
+            min-height: calc(var(--medium-font-size) * 2 + 4px);
+            box-sizing: border-box;
+            border: 1px solid var(--input-border-color);
+            background: var(--input-background);
+            padding-top: calc(var(--medium-font-size) * 0.5);
+            padding-bottom: calc(var(--medium-font-size) * 0.5);
+            padding-left: calc(var(--medium-font-size) * 0.5);
+            padding-right: calc(var(--medium-font-size) * 0.5);
+            line-height: calc(var(--medium-font-size) + 2px);
+            font-size: var(--medium-font-size);
+            font-family: inherit;
+            resize: none;
+        }
+
+        > textarea:focus {
+            border-color: var(--theme-color);
+        }
+    }
+}
