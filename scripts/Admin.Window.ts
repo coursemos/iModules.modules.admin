@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 11.
+ * @modified 2023. 2. 26.
  */
 namespace Admin {
     export class Window extends Admin.Component {
@@ -211,7 +211,8 @@ namespace Admin {
          * @return {number} z-index
          */
         getIndex(): number {
-            return parseInt(this.$component.getStyle('z-index'), 10);
+            const zIndex = this.$component.getStyle('z-index');
+            return zIndex.length > 0 ? parseInt(zIndex, 10) : 0;
         }
 
         /**

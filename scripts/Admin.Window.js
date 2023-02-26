@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 11.
+ * @modified 2023. 2. 26.
  */
 var Admin;
 (function (Admin) {
@@ -194,7 +194,8 @@ var Admin;
          * @return {number} z-index
          */
         getIndex() {
-            return parseInt(this.$component.getStyle('z-index'), 10);
+            const zIndex = this.$component.getStyle('z-index');
+            return zIndex.length > 0 ? parseInt(zIndex, 10) : 0;
         }
         /**
          * 윈도우를 최상단에 배치한다.
