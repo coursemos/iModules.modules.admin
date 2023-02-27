@@ -37,6 +37,16 @@ namespace Admin {
     }
 
     /**
+     * 객체가 존재하는지 확인한다..
+     *
+     * @param {string} id - 확인할 객체 고유값
+     * @return {boolean} has
+     */
+    export function has(id: string): boolean {
+        return Admin.items.has(id);
+    }
+
+    /**
      * 컴포넌트를 가져온다.
      *
      * @param {string} id - 가져올 컴포넌트 고유값
