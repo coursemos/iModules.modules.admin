@@ -396,6 +396,9 @@ namespace Admin {
          * 컴포넌트를 제거한다.
          */
         remove(): void {
+            this.items.forEach((item: Admin.Component) => {
+                item.remove();
+            });
             this.scrollbar?.remove();
             this.$component.remove();
             super.remove();
