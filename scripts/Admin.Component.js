@@ -349,6 +349,7 @@ var Admin;
          * 컴포넌트를 제거한다.
          */
         remove() {
+            this.scrollbar?.remove();
             this.$component.remove();
             super.remove();
         }

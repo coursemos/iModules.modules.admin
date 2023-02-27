@@ -12,6 +12,8 @@ namespace Admin {
     export class Scrollbar extends Admin.Base {
         static scrollbars: Map<HTMLElement, Admin.Scrollbar> = new Map();
 
+        animationFrame: number;
+
         $component: Dom;
         $target: Dom;
         scrollable: { x: boolean; y: boolean } = { x: false, y: false };
@@ -549,6 +551,11 @@ namespace Admin {
          * 스크롤바를 랜더링하여 실제로 객체를 스크롤 한다.
          */
         scrollbarRender() {
+            if (Admin.has(this.getId()) == false) {
+                cancelAnimationFrame(this.animationFrame);
+                return;
+            }
+
             if (this.momentum.x != 0 || this.momentum.y != 0) {
                 const nextX = this.getNextTick('x');
                 const nextY = this.getNextTick('y');
@@ -567,7 +574,7 @@ namespace Admin {
             this.updateTrack('x');
             this.updateTrack('y');
 
-            requestAnimationFrame(this.scrollbarRender.bind(this));
+            this.animationFrame = requestAnimationFrame(this.scrollbarRender.bind(this));
         }
 
         /**
