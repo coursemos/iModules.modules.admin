@@ -359,6 +359,7 @@ var Admin;
          */
         doLayout(dom) {
             dom.setData('role', 'admin');
+            dom.setData('type', 'main');
             dom.append(this.$component);
             this.render();
         }

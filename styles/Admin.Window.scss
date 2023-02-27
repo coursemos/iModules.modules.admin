@@ -68,7 +68,8 @@ div[data-component][data-type='window'] {
     }
 }
 
-section[data-role='windows'] {
+section[data-role='admin'][data-type='windows'] {
+    z-index: 1000;
     --active-z-index: 1;
 
     &.modal {

@@ -407,6 +407,7 @@ namespace Admin {
          */
         doLayout(dom: Dom): void {
             dom.setData('role', 'admin');
+            dom.setData('type', 'main');
             dom.append(this.$component);
             this.render();
         }
