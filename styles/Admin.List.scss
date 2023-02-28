@@ -1,0 +1,51 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 목록 컴포넌트 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.List.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2023. 2. 28.
+ */
+div[data-component][data-type='list'][data-role='panel'] {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            > ul[data-role='list'] {
+                list-style: none;
+                display: block;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: #fff;
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid var(--theme-color);
+                font-size: var(--medium-font-size);
+
+                > li {
+                    width: 100%;
+                    font-size: var(--medium-font-size);
+                    padding-top: calc(var(--medium-font-size) * 0.5);
+                    padding-bottom: calc(var(--medium-font-size) * 0.5);
+                    padding-left: calc(var(--medium-font-size) * 0.5);
+                    padding-right: calc(var(--medium-font-size) * 0.5);
+                    min-height: calc(var(--medium-font-size) * 2 + 4px);
+                    box-sizing: border-box;
+                    cursor: pointer;
+                    color: var(--default-font-color);
+
+                    &.focus {
+                        background: #7fb5e4;
+                        color: #fff;
+                    }
+
+                    &.selected {
+                        background: #60a2dd;
+                        color: #fff;
+                    }
+                }
+            }
+        }
+    }
+}
