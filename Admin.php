@@ -325,11 +325,13 @@ class Admin extends \Module
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Resizer.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Component.js');
+        Cache::script('admin', $this->getBase() . '/scripts/Admin.Absolute.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Store.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Title.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Text.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Button.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Panel.js');
+        Cache::script('admin', $this->getBase() . '/scripts/Admin.List.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Contexts.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Toolbar.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Tab.js');
@@ -342,11 +344,13 @@ class Admin extends \Module
         Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Component.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Absolute.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Resizer.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Title.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Text.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Button.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Panel.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.List.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Contexts.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.scss');
