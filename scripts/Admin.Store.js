@@ -151,6 +151,7 @@ var Admin;
              */
             load() {
                 if (this.loaded == true) {
+                    this.onLoad();
                     return;
                 }
                 const records = [];
@@ -194,6 +195,7 @@ var Admin;
              */
             load() {
                 if (this.loaded == true || this.loading == true) {
+                    this.onLoad();
                     return;
                 }
                 this.loading = true;

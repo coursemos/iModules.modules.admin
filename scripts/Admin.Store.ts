@@ -165,6 +165,7 @@ namespace Admin {
              */
             load(): void {
                 if (this.loaded == true) {
+                    this.onLoad();
                     return;
                 }
 
@@ -214,6 +215,7 @@ namespace Admin {
              */
             load(): void {
                 if (this.loaded == true || this.loading == true) {
+                    this.onLoad();
                     return;
                 }
                 this.loading = true;
