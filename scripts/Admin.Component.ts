@@ -51,7 +51,7 @@ namespace Admin {
             this.disabled = this.properties.disabled ?? false;
             this.scrollable = this.properties.scrollable ?? false;
 
-            this.$component = Html.create('div', { 'data-component': this.id });
+            this.$component = Html.create('div', { 'data-component': this.id, 'tabindex': '-1' });
             this.$container = Html.create('div', { 'data-role': 'container' });
             this.$scrollable = this.$container;
         }
@@ -215,6 +215,8 @@ namespace Admin {
          */
         hide(): void {
             this.setHidden(true);
+
+            this.fireEvent('hide', [this]);
         }
 
         /**
@@ -222,6 +224,16 @@ namespace Admin {
          */
         show(): void {
             this.setHidden(false);
+
+            this.fireEvent('show', [this]);
+        }
+
+        /**
+         * 컴포넌트에 포커스를 설정한다.
+         * 키보드 이벤트를 수신하도록 한다.
+         */
+        focus(): void {
+            this.$getComponent().getEl().focus();
         }
 
         /**
@@ -396,9 +408,11 @@ namespace Admin {
          * 컴포넌트를 제거한다.
          */
         remove(): void {
-            this.items.forEach((item: Admin.Component) => {
-                item.remove();
-            });
+            if (Array.isArray(this.items) == true) {
+                this.items.forEach((item: Admin.Component) => {
+                    item.remove();
+                });
+            }
             this.scrollbar?.remove();
             this.$component.remove();
             super.remove();
