@@ -109,17 +109,18 @@ var Admin;
         /**
          * 전체 윈도우 랜더링 영역을 가져온다.
          *
-         * @return {Dom}  - description
+         * @return {Dom} $windows
          */
         $getWindows() {
-            if (Admin.Window.$windows)
+            if (Admin.Window.$windows !== undefined) {
                 return Admin.Window.$windows;
-            if (Html.get('section[data-role=windows]', Html.get('body')).getEl() == null) {
-                Admin.Window.$windows = Html.create('section', { 'data-role': 'windows' });
+            }
+            if (Html.get('section[data-role=admin][data-type=windows]', Html.get('body')).getEl() == null) {
+                Admin.Window.$windows = Html.create('section', { 'data-role': 'admin', 'data-type': 'windows' });
                 Html.get('body').append(Admin.Window.$windows);
             }
             else {
-                Admin.Window.$windows = Html.get('section[data-role=windows]', Html.get('body'));
+                Admin.Window.$windows = Html.get('section[data-role=admin][data-type=windows]', Html.get('body'));
             }
             return Admin.Window.$windows;
         }
@@ -281,7 +282,7 @@ var Admin;
          * 윈도우를 출력한다.
          */
         show() {
-            const isShow = this.fireEvent('beforeshow', [this]);
+            const isShow = this.fireEvent('beforeShow', [this]);
             if (isShow === false)
                 return;
             this.render();
@@ -292,19 +293,38 @@ var Admin;
             this.setMaxHeight(this.maxHeight);
             this.setPosition(this.top, this.left);
             this.setFront();
-            this.fireEvent('show', [this]);
+            super.show();
+        }
+        /**
+         * 윈도우를 숨긴다.
+         */
+        hide() {
+            const isHide = this.fireEvent('beforeHide', [this]);
+            if (isHide === false)
+                return;
+            super.hide();
         }
         /**
          * 윈도우를 닫는다.
          */
         close() {
-            const isClose = this.fireEvent('beforeclose', [this]);
+            const isClose = this.fireEvent('beforeClose', [this]);
             if (isClose === false)
                 return;
             Admin.Window.windows.delete(this.id);
             this.remove();
             this.updateWindows();
             this.fireEvent('close', [this]);
+        }
+        /**
+         * 컴포넌트를 제거한다.
+         */
+        remove() {
+            this.title?.remove();
+            this.buttons.forEach((component) => {
+                component.remove();
+            });
+            super.remove();
         }
         /**
          * 하단 버튼을 추가한다.
