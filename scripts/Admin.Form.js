@@ -384,9 +384,11 @@ var Admin;
                 valueField;
                 listField;
                 rawValue;
-                displayRenderer;
-                $display;
+                renderer;
                 listRenderer;
+                $display;
+                absolute;
+                list;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
@@ -394,18 +396,6 @@ var Admin;
                  */
                 constructor(properties = null) {
                     super(properties);
-                    this.store =
-                        this.properties.store ??
-                            new Admin.Store.Array({
-                                fields: ['display', 'value'],
-                                datas: [
-                                    ['보여라 #1', '1'],
-                                    ['보여라 #2', '2'],
-                                ],
-                            });
-                    this.store.addEvent('load', () => {
-                        this.onLoad();
-                    });
                     this.search = this.properties.search === true;
                     this.multiple = this.properties.multiple === true;
                     this.emptyText = this.properties.emptyText ?? '';
@@ -415,7 +405,7 @@ var Admin;
                     this.listField = this.properties.listField ?? 'display';
                     this.rawValue = this.properties.value ?? null;
                     this.value = null;
-                    this.displayRenderer =
+                    this.renderer =
                         this.properties.displayRenderer ??
                             ((_field, display, _record) => {
                                 if (Array.isArray(display) == true) {
@@ -427,9 +417,66 @@ var Admin;
                             });
                     this.listRenderer =
                         this.properties.listRenderer ??
-                            ((_field, display, _record) => {
+                            ((_list, display, _record) => {
                                 return display;
                             });
+                }
+                /**
+                 * 절대위치 목록 컴포넌트를 가져온다.
+                 *
+                 * @return {Admin.Absolute} absolute
+                 */
+                getAbsolute() {
+                    if (this.absolute === undefined) {
+                        this.absolute = new Admin.Absolute({
+                            $target: this.$getContent(),
+                            items: [this.getList()],
+                            width: '100%',
+                            listeners: {
+                                show: (absolute) => {
+                                    // @todo 위치에 따라 위로 보일지 아래로 보일지 설정한다.
+                                    absolute.setPosition('100%', null, null, 0);
+                                    this.$getContent().addClass('expand');
+                                },
+                                hide: () => {
+                                    this.$getContent().removeClass('expand');
+                                },
+                            },
+                        });
+                    }
+                    return this.absolute;
+                }
+                /**
+                 * 목록 컴포넌트를 가져온다.
+                 *
+                 * @return {Admin.List.Panel} list
+                 */
+                getList() {
+                    if (this.list === undefined) {
+                        this.list = new Admin.List.Panel({
+                            store: this.properties.store,
+                            renderer: this.listRenderer,
+                            displayField: this.displayField,
+                            valueField: this.valueField,
+                            multiple: this.multiple,
+                            listeners: {
+                                load: () => {
+                                    this.onLoad();
+                                },
+                                selectionChange: (_list, selection) => {
+                                    if (selection instanceof Admin.Data.Record) {
+                                        this.setValue(selection.get(this.valueField));
+                                    }
+                                    else if (Array.isArray(selection) == true) {
+                                    }
+                                },
+                                selectionComplete: () => {
+                                    this.collapse();
+                                },
+                            },
+                        });
+                    }
+                    return this.list;
                 }
                 /**
                  * 데이터스토어를 가져온다.
@@ -437,7 +484,7 @@ var Admin;
                  * @return {Admin.Store} store
                  */
                 getStore() {
-                    return this.store;
+                    return this.getList().getStore();
                 }
                 /**
                  * placeHolder DOM 객체를 가져온다.
@@ -503,91 +550,53 @@ var Admin;
                             this.value = record.get(this.valueField);
                             this.$getEmptyText().hide();
                         }
-                        this.$setDisplay(this.displayRenderer(this, record.get(this.displayField), record));
+                        this.$setDisplay(this.renderer(this, record.get(this.displayField), record));
                     }
                 }
                 /**
-                 * 필드의 DOM 객체에 키보드 이벤트를 추가한다.
+                 * 필드의 DOM 객체의 일부 키보드 이벤트를 목록 컴포넌트로 전달한다.
                  *
                  * @param {Dom} $target - DOM 객체
                  */
                 setKeyboardEvent($target) {
                     $target.on('keydown', (e) => {
-                        const $target = Html.el(e.currentTarget);
-                        if (e.key == 'ArrowDown' || e.key == 'ArrowUp') {
-                            this.moveSelected(e.key == 'ArrowDown' ? 'down' : 'up');
-                            e.preventDefault();
-                        }
-                        if (e.key == 'Enter') {
-                            if ($target.is('button') == true) {
+                        if (e.key == 'ArrowDown' || e.key == 'ArrowUp' || e.key == 'Enter') {
+                            if (this.isExpand() == false) {
                                 this.expand();
                             }
-                            if ($target.is('li') == true) {
-                                this.setValue($target.getData('record')?.get(this.valueField) ?? null);
-                                this.collapse();
-                                this.focus();
-                            }
-                            e.preventDefault();
+                            this.getList()
+                                .$getComponent()
+                                .getEl()
+                                .dispatchEvent(new KeyboardEvent('keydown', { key: e.key }));
                         }
                         if (e.key == 'Escape') {
                             this.collapse();
                         }
+                        if (e.key == 'Enter') {
+                            e.preventDefault();
+                        }
                     });
-                }
-                /**
-                 * 선택항목를 위/아래 방향으로 이동한다.
-                 *
-                 * @param {string} direction - 방향
-                 */
-                moveSelected(direction) {
-                    const $list = Html.get('> ul[data-role=list]', this.$getContent());
-                    const $items = Html.all('> li', $list);
-                    if ($items.getList().length == 0)
-                        return;
-                    this.expand();
-                    const $focus = Html.get('> li:focus', $list);
-                    let index = $focus.getIndex();
-                    if (direction == 'up' && index > 0)
-                        index--;
-                    if (direction == 'down' && index < $items.getList().length - 1)
-                        index++;
-                    if (!~index)
-                        index = 0;
-                    $items.get(index).getEl().focus();
                 }
                 /**
                  * 선택목록을 확장한다.
                  */
                 expand() {
-                    Html.all('> ul[data-role=list] > li', this.$getContent()).setAttr('tabindex', '1');
-                    this.$getContent().addClass('expand');
+                    this.getAbsolute().show();
+                    if (this.value !== null) {
+                        this.getStore()
+                            .getRecords()
+                            .forEach((record, index) => {
+                            if (record.get(this.valueField) == this.value) {
+                                this.getList().select(index);
+                            }
+                        });
+                    }
                 }
                 /**
                  * 선택목록을 최소화한다.
-                 *
-                 * @param {boolean} check - 최소화가능 여부 확인
                  */
-                collapse(check = false) {
-                    if (check == true) {
-                        setTimeout(() => {
-                            const $list = Html.get('> ul[data-role=list]', this.$getContent());
-                            const $focused = Html.all('> li[tabindex]:focus', $list);
-                            if ($focused.getList().length == 0) {
-                                this.collapse();
-                            }
-                        }, 100);
-                    }
-                    else {
-                        Html.all('> ul[data-role=list] > li', this.$getContent()).removeAttr('tabindex');
-                        if (this.search == true) {
-                            const $search = Html.get('> input[type=search]', this.$getContent());
-                            if ($search.getValue().length > 0) {
-                                $search.setValue('');
-                                this.match('');
-                            }
-                        }
-                        this.$getContent().removeClass('expand');
-                    }
+                collapse() {
+                    this.getAbsolute().hide();
                 }
                 /**
                  * 선택목록이 확장되어 있는지 확인한다.
@@ -595,7 +604,7 @@ var Admin;
                  * @return {boolean} isExpand
                  */
                 isExpand() {
-                    return this.$getContent().hasClass('expand');
+                    return this.getAbsolute().isShow() == true;
                 }
                 /**
                  * 상황에 따라 필드에 포커스를 적용한다.
@@ -645,13 +654,15 @@ var Admin;
                     else {
                         $button.setAttr('tabindex', '0');
                     }
-                    $button.on('click', () => {
+                    $button.on('click', (e) => {
+                        const $button = Html.el(e.currentTarget);
                         if (this.isExpand() == true) {
                             this.collapse();
                         }
                         else {
                             this.expand();
                         }
+                        $button.getEl().focus();
                     });
                     this.setKeyboardEvent($button);
                     const $display = this.$getDisplay();
@@ -663,37 +674,9 @@ var Admin;
                             const $search = Html.el(e.currentTarget);
                             this.match($search.getValue());
                         });
-                        $search.on('blur', () => {
-                            this.collapse(true);
-                        });
                         this.setKeyboardEvent($search);
                         this.$getContent().append($search);
                     }
-                    const $list = Html.create('ul', { 'data-role': 'list' });
-                    this.$getContent().append($list);
-                }
-                /**
-                 * 선택 목록을 랜더링한다.
-                 */
-                renderList() {
-                    const $list = Html.get('> ul[data-role=list]', this.$getContent());
-                    $list.empty();
-                    this.getStore()
-                        .getRecords()
-                        .forEach((record) => {
-                        const $item = Html.create('li').setData('record', record);
-                        $item.on('click', (e) => {
-                            const $item = Html.el(e.currentTarget);
-                            this.setValue($item.getData('record').get(this.valueField));
-                            this.collapse();
-                        });
-                        $item.on('blur', () => {
-                            this.collapse(true);
-                        });
-                        this.setKeyboardEvent($item);
-                        $item.html(this.listRenderer(this, record.data.display, record));
-                        $list.append($item);
-                    });
                 }
                 /**
                  * 필드 레이아웃을 업데이트한다.
@@ -715,22 +698,28 @@ var Admin;
                 onRender() {
                     super.onRender();
                     if (this.rawValue !== null) {
-                        if (this.getStore().autoLoad === false) {
+                        if (this.getStore().isLoaded() === true) {
+                            this.setValue(this.rawValue);
+                        }
+                        else {
                             this.getStore().load();
                         }
                     }
-                    this.onLoad();
                 }
                 /**
-                 * 데이터스토어의 데이터를 불러왔을 때 이벤트를 처리한다.
+                 * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad() {
-                    if (this.getStore().isLoaded() === false)
-                        return;
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
-                    this.renderList();
+                }
+                /**
+                 * 컴포넌트를 제거한다.
+                 */
+                remove() {
+                    this.getAbsolute().remove();
+                    super.remove();
                 }
             }
             Field.Select = Select;
