@@ -51,11 +51,11 @@ namespace Admin {
                     iconClass: 'xi xi-folder-plus',
                     hidden: true,
                     handler: async () => {
-                        const textFolder = (await Admin.getText('admin/contexts/folder')) as { [key: string]: string };
                         new Admin.Window({
                             id: this.id + '-folder-add-window',
-                            title: textFolder.add,
+                            title: Admin.printText('admin/contexts/folder/add'),
                             width: 400,
+                            resizable: false,
                             items: [
                                 new Admin.Form.Panel({
                                     layout: 'fit',
@@ -65,15 +65,77 @@ namespace Admin {
                                         new Admin.Form.Field.Container({
                                             direction: 'row',
                                             items: [
-                                                new Admin.Form.Field.Text({
-                                                    width: 80,
+                                                new Admin.Form.Field.Select({
+                                                    name: 'icon',
+                                                    store: new Admin.Store.Array({
+                                                        fields: ['value'],
+                                                        datas: [
+                                                            ['xi xi-folder'],
+                                                            ['xi xi-home'],
+                                                            ['xi xi-archive'],
+                                                            ['xi xi-cloud'],
+                                                            ['xi xi-sitemap'],
+                                                            ['xi xi-pen'],
+                                                            ['xi xi-eraser'],
+                                                            ['xi xi-magnifier'],
+                                                            ['xi xi-slip-tongs'],
+                                                            ['xi xi-cube'],
+                                                            ['xi xi-cog'],
+                                                            ['xi xi-paper'],
+                                                            ['xi xi-layout-top-left'],
+                                                            ['xi xi-user'],
+                                                            ['xi xi-envelope-open'],
+                                                            ['xi xi-heart'],
+                                                            ['xi xi-book-spread'],
+                                                            ['xi xi-crown'],
+                                                            ['xi xi-trophy'],
+                                                            ['xi xi-form'],
+                                                            ['xi xi-notice'],
+                                                            ['xi xi-slash-circle'],
+                                                            ['xi xi-new'],
+                                                            ['xi xi-image'],
+                                                        ],
+                                                    }),
+                                                    displayField: 'value',
+                                                    valueField: 'value',
+                                                    value: 'xi xi-folder',
+                                                    displayRenderer: (display: string) => {
+                                                        return '<i class="' + display + '"></i>';
+                                                    },
+                                                    listRenderer: (display: string) => {
+                                                        return '<i class="' + display + '"></i>';
+                                                    },
+                                                    width: 60,
                                                 }),
                                                 new Admin.Form.Field.Text({
-                                                    name: 'name',
+                                                    name: 'title',
                                                     flex: true,
-                                                    emptyText: Admin.printText('admin/contexts/folder/name'),
+                                                    allowBlank: false,
+                                                    emptyText: Admin.printText('admin/contexts/folder/title'),
                                                 }),
                                             ],
+                                        }),
+                                        new Admin.Form.Field.Select({
+                                            name: 'smart',
+                                            store: new Admin.Store.Array({
+                                                fields: ['display', 'value'],
+                                                datas: [],
+                                                listeners: {
+                                                    load: async (store: Admin.Store.Array) => {
+                                                        const records: { [key: string]: string }[] = [];
+                                                        const smarts = (await Admin.getText(
+                                                            'admin/contexts/smart'
+                                                        )) as { [key: string]: string };
+                                                        for (const value in smarts) {
+                                                            const record = { display: smarts[value], value: value };
+                                                            records.push(record);
+                                                        }
+
+                                                        store.add(records);
+                                                    },
+                                                },
+                                            }),
+                                            value: 'none',
                                         }),
                                     ],
                                 }),
@@ -81,11 +143,34 @@ namespace Admin {
                             buttons: [
                                 new Admin.Button({
                                     text: '확인',
+                                    handler: async (button: Admin.Button) => {
+                                        const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
+                                        const isValid = await form.isValid();
+                                        if (isValid == true) {
+                                            const values = form.getValues();
+                                            const folder = new Admin.Contexts.Context({
+                                                icon: values.icon,
+                                                title: values.title,
+                                                type: 'FOLDER',
+                                                target: '_self',
+                                                smart: values.smart,
+                                            });
+                                            folder.setParent(this);
+                                            this.contexts.push(folder);
+                                            this.$getContent().append(folder.$getComponent());
+                                            folder.render();
+
+                                            Html.get('a', folder.$getContent()).setAttr('disabled', 'disabled');
+                                            this.sorter.setEvent();
+
+                                            (button.getParent() as Admin.Window).close();
+                                        }
+                                    },
                                 }),
                                 new Admin.Button({
                                     text: '취소',
-                                    handler: function (button) {
-                                        button.getParent().close();
+                                    handler: function (button: Admin.Button) {
+                                        (button.getParent() as Admin.Window).close();
                                     },
                                 }),
                             ],
@@ -308,90 +393,94 @@ namespace Admin {
              */
             setEvent(): void {
                 Html.all('button[data-action=sort]', this.panel.$getContent()).forEach(($button: Dom) => {
-                    new Admin.Drag($button, {
-                        pointerType: ['mouse', 'touch', 'pen'],
-                        listeners: {
-                            start: ($dom: Dom) => {
-                                /**
-                                 * 드래그를 하는동안 마우스를 따라 다닐 객체를 생성한다.
-                                 */
-                                this.$setDrag($dom.getParents('div[data-component][data-type=contexts]'));
-
-                                /**
-                                 * 드래그 시작시 컨텍스트 목록의 좌표를 갱신한다.
-                                 */
-                                this.updatePositions();
-                            },
-                            drag: ($dom: Dom, tracker: Admin.Drag.Tracker) => {
-                                if (this.$drag == null) {
+                    if ($button.getData('drag') == null) {
+                        const drag = new Admin.Drag($button, {
+                            pointerType: ['mouse', 'touch', 'pen'],
+                            listeners: {
+                                start: ($dom: Dom) => {
+                                    /**
+                                     * 드래그를 하는동안 마우스를 따라 다닐 객체를 생성한다.
+                                     */
                                     this.$setDrag($dom.getParents('div[data-component][data-type=contexts]'));
-                                }
 
-                                const { x, y } = tracker.getDelta();
-                                const { top, left } = this.$drag.getPosition();
-                                this.$drag.setStyle('top', top + y + 'px');
-                                this.$drag.setStyle('left', left + x + 'px');
+                                    /**
+                                     * 드래그 시작시 컨텍스트 목록의 좌표를 갱신한다.
+                                     */
+                                    this.updatePositions();
+                                },
+                                drag: ($dom: Dom, tracker: Admin.Drag.Tracker) => {
+                                    if (this.$drag == null) {
+                                        this.$setDrag($dom.getParents('div[data-component][data-type=contexts]'));
+                                    }
 
-                                /**
-                                 * 현재 마우스좌표를 구한다.
-                                 */
-                                let position = top + y;
+                                    const { x, y } = tracker.getDelta();
+                                    const { top, left } = this.$drag.getPosition();
+                                    this.$drag.setStyle('top', top + y + 'px');
+                                    this.$drag.setStyle('left', left + x + 'px');
 
-                                /**
-                                 * 컨텍스트 목록의 DOM 의 위치를 마우스의 Y 좌표에 반영한다.
-                                 */
-                                position -= this.panel.$getContent().getOffset().top;
+                                    /**
+                                     * 현재 마우스좌표를 구한다.
+                                     */
+                                    let position = top + y;
 
-                                /**
-                                 * 컨텍스트 목록의 스크롤 위치를 마우스의 Y 좌표에 반영한다.
-                                 */
-                                position += this.panel.getScrollbar().getPosition().y;
+                                    /**
+                                     * 컨텍스트 목록의 DOM 의 위치를 마우스의 Y 좌표에 반영한다.
+                                     */
+                                    position -= this.panel.$getContent().getOffset().top;
 
-                                this.setDropPosition(position);
+                                    /**
+                                     * 컨텍스트 목록의 스크롤 위치를 마우스의 Y 좌표에 반영한다.
+                                     */
+                                    position += this.panel.getScrollbar().getPosition().y;
+
+                                    this.setDropPosition(position);
+                                },
+                                end: () => {
+                                    if (this.$drag == null) {
+                                        return;
+                                    }
+
+                                    if (this.$drop === null) {
+                                        const { top, left } = this.$context.getOffset();
+
+                                        this.$drag.animate(
+                                            { top: top + 'px', left: left + 'px' },
+                                            { duration: 300, easing: 'ease-in-out' },
+                                            () => {
+                                                this.$drag.remove();
+                                                this.$context.removeAttr('data-drag');
+
+                                                this.$drag = null;
+                                                this.$drop = null;
+                                                this.context = null;
+                                                this.$context = null;
+                                            }
+                                        );
+                                    } else {
+                                        this.$context.remove();
+                                        const { top, left } = this.$drop.getOffset();
+
+                                        this.$drag.animate(
+                                            { top: top + 'px', left: left + 'px' },
+                                            { duration: 300, easing: 'ease-in-out' },
+                                            () => {
+                                                this.$drag.remove();
+                                                this.context.$getComponent().removeAttr('data-drag');
+                                                this.$drop.replaceWith(this.context.$getComponent());
+
+                                                this.$drag = null;
+                                                this.$drop = null;
+                                                this.context = null;
+                                                this.$context = null;
+                                            }
+                                        );
+                                    }
+                                },
                             },
-                            end: () => {
-                                if (this.$drag == null) {
-                                    return;
-                                }
+                        });
 
-                                if (this.$drop === null) {
-                                    const { top, left } = this.$context.getOffset();
-
-                                    this.$drag.animate(
-                                        { top: top + 'px', left: left + 'px' },
-                                        { duration: 300, easing: 'ease-in-out' },
-                                        () => {
-                                            this.$drag.remove();
-                                            this.$context.removeAttr('data-drag');
-
-                                            this.$drag = null;
-                                            this.$drop = null;
-                                            this.context = null;
-                                            this.$context = null;
-                                        }
-                                    );
-                                } else {
-                                    this.$context.remove();
-                                    const { top, left } = this.$drop.getOffset();
-
-                                    this.$drag.animate(
-                                        { top: top + 'px', left: left + 'px' },
-                                        { duration: 300, easing: 'ease-in-out' },
-                                        () => {
-                                            this.$drag.remove();
-                                            this.context.$getComponent().removeAttr('data-drag');
-                                            this.$drop.replaceWith(this.context.$getComponent());
-
-                                            this.$drag = null;
-                                            this.$drop = null;
-                                            this.context = null;
-                                            this.$context = null;
-                                        }
-                                    );
-                                }
-                            },
-                        },
-                    });
+                        $button.setData('drag', drag, false);
+                    }
                 });
             }
 
@@ -493,6 +582,13 @@ namespace Admin {
                             tops.push(top);
                             bottoms.push(bottom);
                         });
+
+                        if (tops.length == 0) {
+                            let top = $context.getOffset().top - this.panel.$getContent().getOffset().top;
+                            top += this.panel.getScrollbar().getPosition().y + 5;
+                            tops.push(top);
+                            bottoms.push(top + 10);
+                        }
 
                         $context.setData('tops', tops, false);
                         $context.setData('bottoms', bottoms, false);
