@@ -61,9 +61,9 @@ namespace Admin {
                             this.items.push(item);
                         }
                     }
-
-                    super.initItems();
                 }
+
+                super.initItems();
             }
 
             /**
@@ -184,7 +184,6 @@ namespace Admin {
 
                 this.border = this.properties.border ?? true;
                 this.position = this.properties.tabPosition ?? 'bottom';
-                this.scrollable = this.properties.scrollable ?? 'X';
             }
 
             /**

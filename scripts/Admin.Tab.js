@@ -55,8 +55,8 @@ var Admin;
                             this.items.push(item);
                         }
                     }
-                    super.initItems();
                 }
+                super.initItems();
             }
             /**
              * 탭바를 가져온다.
@@ -168,7 +168,6 @@ var Admin;
                 super(properties);
                 this.border = this.properties.border ?? true;
                 this.position = this.properties.tabPosition ?? 'bottom';
-                this.scrollable = this.properties.scrollable ?? 'X';
             }
             /**
              * 탭바의 하위 컴포넌트를 초기화한다.
