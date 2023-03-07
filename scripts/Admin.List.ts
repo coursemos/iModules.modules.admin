@@ -21,7 +21,9 @@ namespace Admin {
 
             displayField: string;
             valueField: string;
-            renderer: Admin.List.renderer;
+            renderer: (display: string, record: Admin.Data.Record, $dom: Dom, list: Admin.List.Panel) => string;
+
+            maxHeight: number;
 
             /**
              * 패널을 생성한다.
@@ -35,6 +37,9 @@ namespace Admin {
                 this.store.addEvent('load', () => {
                     this.onLoad();
                 });
+                this.store.addEvent('update', () => {
+                    this.onUpdate();
+                });
 
                 this.multiple = this.properties.multiple === true;
 
@@ -42,9 +47,26 @@ namespace Admin {
                 this.valueField = this.properties.valueField ?? 'value';
                 this.renderer =
                     this.properties.renderer ??
-                    ((_list, display, _record): string => {
+                    ((display): string => {
                         return display;
                     });
+
+                this.maxHeight = this.properties.maxHeight ?? null;
+                this.scrollable = 'Y';
+            }
+
+            /**
+             * 목록의 최대높이를 설정한다.
+             *
+             * @param {number} maxHeight - 최대높이
+             */
+            setMaxHeight(maxHeight: number): void {
+                this.maxHeight = maxHeight;
+
+                this.$getContent().setStyle(
+                    'max-height',
+                    this.maxHeight === null ? this.maxHeight : this.maxHeight + 'px'
+                );
             }
 
             /**
@@ -124,8 +146,8 @@ namespace Admin {
              */
             getSelections(): Admin.Data.Record[] {
                 const selection = [];
-                Html.all('li.selected', this.$getContent()).forEach((dom: Dom) => {
-                    selection.push(dom.getData('record'));
+                Html.all('li.selected', this.$getContent()).forEach(($dom: Dom) => {
+                    selection.push($dom.getData('record'));
                 });
 
                 return selection;
@@ -223,7 +245,7 @@ namespace Admin {
                         $item.on('mouseover', () => {
                             this.focusRow(index);
                         });
-                        $item.html(this.renderer(this, record.get(this.displayField), record));
+                        $item.html(this.renderer(record.get(this.displayField), record, $item, this));
                         $list.append($item);
                     });
 
@@ -235,6 +257,7 @@ namespace Admin {
              */
             onRender(): void {
                 super.onRender();
+                this.setMaxHeight(this.maxHeight);
 
                 if (this.getStore().isLoaded() === false) {
                     this.getStore().load();
@@ -271,9 +294,15 @@ namespace Admin {
             onLoad(): void {
                 if (this.getStore().isLoaded() === false) return;
 
-                this.renderContent();
-
                 this.fireEvent('load', [this, this.getStore()]);
+            }
+
+            /**
+             * 데이터스토어의 데이터가 변경되었 때 이벤트를 처리한다.
+             */
+            onUpdate(): void {
+                this.renderContent();
+                this.fireEvent('update', [this, this.getStore()]);
             }
 
             /**
@@ -319,10 +348,6 @@ namespace Admin {
                 this.getStore().remove();
                 super.remove();
             }
-        }
-
-        export interface renderer {
-            (list: Admin.List.Panel, display: string, record: Admin.Data.Record): string;
         }
     }
 }

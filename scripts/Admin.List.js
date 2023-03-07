@@ -22,6 +22,7 @@ var Admin;
             displayField;
             valueField;
             renderer;
+            maxHeight;
             /**
              * 패널을 생성한다.
              *
@@ -33,14 +34,28 @@ var Admin;
                 this.store.addEvent('load', () => {
                     this.onLoad();
                 });
+                this.store.addEvent('update', () => {
+                    this.onUpdate();
+                });
                 this.multiple = this.properties.multiple === true;
                 this.displayField = this.properties.displayField ?? 'display';
                 this.valueField = this.properties.valueField ?? 'value';
                 this.renderer =
                     this.properties.renderer ??
-                        ((_list, display, _record) => {
+                        ((display) => {
                             return display;
                         });
+                this.maxHeight = this.properties.maxHeight ?? null;
+                this.scrollable = 'Y';
+            }
+            /**
+             * 목록의 최대높이를 설정한다.
+             *
+             * @param {number} maxHeight - 최대높이
+             */
+            setMaxHeight(maxHeight) {
+                this.maxHeight = maxHeight;
+                this.$getContent().setStyle('max-height', this.maxHeight === null ? this.maxHeight : this.maxHeight + 'px');
             }
             /**
              * 데이터스토어를 가져온다.
@@ -112,8 +127,8 @@ var Admin;
              */
             getSelections() {
                 const selection = [];
-                Html.all('li.selected', this.$getContent()).forEach((dom) => {
-                    selection.push(dom.getData('record'));
+                Html.all('li.selected', this.$getContent()).forEach(($dom) => {
+                    selection.push($dom.getData('record'));
                 });
                 return selection;
             }
@@ -201,7 +216,7 @@ var Admin;
                     $item.on('mouseover', () => {
                         this.focusRow(index);
                     });
-                    $item.html(this.renderer(this, record.get(this.displayField), record));
+                    $item.html(this.renderer(record.get(this.displayField), record, $item, this));
                     $list.append($item);
                 });
                 $content.append($list);
@@ -211,6 +226,7 @@ var Admin;
              */
             onRender() {
                 super.onRender();
+                this.setMaxHeight(this.maxHeight);
                 if (this.getStore().isLoaded() === false) {
                     this.getStore().load();
                 }
@@ -241,8 +257,14 @@ var Admin;
             onLoad() {
                 if (this.getStore().isLoaded() === false)
                     return;
-                this.renderContent();
                 this.fireEvent('load', [this, this.getStore()]);
+            }
+            /**
+             * 데이터스토어의 데이터가 변경되었 때 이벤트를 처리한다.
+             */
+            onUpdate() {
+                this.renderContent();
+                this.fireEvent('update', [this, this.getStore()]);
             }
             /**
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
