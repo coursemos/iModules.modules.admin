@@ -33,6 +33,7 @@ var Admin;
                     Admin.Drag.pointers.set(e.pointerId, tracker);
                     this.onStart(tracker);
                 }
+                e.stopImmediatePropagation();
             });
         }
         /**
