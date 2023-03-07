@@ -12,7 +12,7 @@ var Admin;
 (function (Admin) {
     class Toolbar extends Admin.Component {
         type = 'toolbar';
-        role = 'toolbar';
+        role = 'bar';
         position;
         border;
         /**
@@ -29,6 +29,8 @@ var Admin;
             this.position = this.properties.position ?? 'top';
             this.border = this.properties.border ?? true;
             this.scrollable = this.properties.scrollable ?? 'X';
+            this.$setTop();
+            this.$setBottom();
         }
         /**
          * 툴바의 하위 컴포넌트를 초기화한다.
@@ -38,14 +40,15 @@ var Admin;
                 this.items = [];
                 for (const item of this.properties.items ?? []) {
                     if (item instanceof Admin.Component) {
+                        item.setLayoutType('column-item');
                         this.items.push(item);
                     }
                     else if (typeof item == 'string') {
                         this.items.push(new Admin.Toolbar.Item(item));
                     }
                 }
-                super.initItems();
             }
+            super.initItems();
         }
         /**
          * @todo 툴바 좌측 스크롤 버튼을 랜더링한다.
@@ -80,7 +83,9 @@ var Admin;
          * 툴바아이템 클래스를 정의한다.툴바아이템 객체를 생성한다.
          */
         class Item extends Admin.Component {
-            type = 'toolbaritem';
+            type = 'toolbar';
+            role = 'item';
+            tool;
             text;
             $text;
             /**
@@ -94,22 +99,29 @@ var Admin;
                     properties = { text: text };
                 }
                 super(properties);
-                this.role = 'text';
+                this.tool = 'text';
                 this.text = this.properties.text ?? '';
                 if (this.text == '->') {
-                    this.role = 'fill';
+                    this.tool = 'fill';
                 }
                 else if (this.text == '-') {
-                    this.role = 'separator';
+                    this.tool = 'separator';
                 }
             }
             /**
              * 툴바아이템을 랜더링한다.
              */
             renderContent() {
-                if (this.role == 'text') {
+                if (this.tool == 'text') {
                     this.$getContent().text(this.text);
                 }
+            }
+            /**
+             * 툴바아이템은 랜더링한다.
+             */
+            render() {
+                super.render();
+                this.$getComponent().setAttr('data-tool', this.tool);
             }
         }
         Toolbar.Item = Item;

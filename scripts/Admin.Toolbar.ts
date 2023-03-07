@@ -11,7 +11,7 @@
 namespace Admin {
     export class Toolbar extends Admin.Component {
         type: string = 'toolbar';
-        role: string = 'toolbar';
+        role: string = 'bar';
         position: string;
         border: boolean;
 
@@ -30,6 +30,9 @@ namespace Admin {
             this.position = this.properties.position ?? 'top';
             this.border = this.properties.border ?? true;
             this.scrollable = this.properties.scrollable ?? 'X';
+
+            this.$setTop();
+            this.$setBottom();
         }
 
         /**
@@ -40,14 +43,15 @@ namespace Admin {
                 this.items = [];
                 for (const item of this.properties.items ?? []) {
                     if (item instanceof Admin.Component) {
+                        item.setLayoutType('column-item');
                         this.items.push(item);
                     } else if (typeof item == 'string') {
                         this.items.push(new Admin.Toolbar.Item(item));
                     }
                 }
-
-                super.initItems();
             }
+
+            super.initItems();
         }
 
         /**
@@ -88,7 +92,9 @@ namespace Admin {
          * 툴바아이템 클래스를 정의한다.툴바아이템 객체를 생성한다.
          */
         export class Item extends Admin.Component {
-            type: string = 'toolbaritem';
+            type: string = 'toolbar';
+            role: string = 'item';
+            tool: string;
             text: string;
             $text: Dom;
 
@@ -104,12 +110,12 @@ namespace Admin {
                 }
                 super(properties);
 
-                this.role = 'text';
+                this.tool = 'text';
                 this.text = this.properties.text ?? '';
                 if (this.text == '->') {
-                    this.role = 'fill';
+                    this.tool = 'fill';
                 } else if (this.text == '-') {
-                    this.role = 'separator';
+                    this.tool = 'separator';
                 }
             }
 
@@ -117,9 +123,18 @@ namespace Admin {
              * 툴바아이템을 랜더링한다.
              */
             renderContent(): void {
-                if (this.role == 'text') {
+                if (this.tool == 'text') {
                     this.$getContent().text(this.text);
                 }
+            }
+
+            /**
+             * 툴바아이템은 랜더링한다.
+             */
+            render(): void {
+                super.render();
+
+                this.$getComponent().setAttr('data-tool', this.tool);
             }
         }
     }
