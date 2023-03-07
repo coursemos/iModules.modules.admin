@@ -13,7 +13,7 @@ namespace Admin {
         static message: Admin.Window = null;
 
         static ERROR = Html.create('i').addClass('error');
-        static OK = [{ button: 'ok', text: '@buttons/ok' }];
+        static OK = [{ button: 'ok', text: '@buttons/ok', buttonClass: 'confirm' }];
 
         /**
          * 메시지창을 연다.
@@ -29,10 +29,11 @@ namespace Admin {
                 (() => {
                     Admin.Message.close();
                 });
-            properties?.buttons?.forEach((button: { button: string; text: string }) => {
+            properties?.buttons?.forEach((button: { button: string; text: string; buttonClass: string }) => {
                 buttons.push(
                     new Admin.Button({
                         text: button.text.indexOf('@') === 0 ? Admin.printText(button.text.substring(1)) : button.text,
+                        buttonClass: button.buttonClass,
                         handler: handler,
                     })
                 );
@@ -41,7 +42,6 @@ namespace Admin {
             Admin.Message.message = new Admin.Window({
                 title: properties?.title ?? '',
                 modal: true,
-                maxWidth: 500,
                 resizable: false,
                 closable: false,
                 buttons: buttons,
@@ -60,7 +60,7 @@ namespace Admin {
             }
 
             const $message = Html.create('div', { 'data-role': 'message' });
-            $message.html(properties.message ?? '');
+            $message.html('<div>' + (properties.message ?? '') + '</div>');
             $messagebox.append($message);
             $content.append($messagebox);
 

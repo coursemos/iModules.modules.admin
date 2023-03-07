@@ -13,7 +13,7 @@ var Admin;
     class Message {
         static message = null;
         static ERROR = Html.create('i').addClass('error');
-        static OK = [{ button: 'ok', text: '@buttons/ok' }];
+        static OK = [{ button: 'ok', text: '@buttons/ok', buttonClass: 'confirm' }];
         /**
          * 메시지창을 연다.
          *
@@ -29,13 +29,13 @@ var Admin;
             properties?.buttons?.forEach((button) => {
                 buttons.push(new Admin.Button({
                     text: button.text.indexOf('@') === 0 ? Admin.printText(button.text.substring(1)) : button.text,
+                    buttonClass: button.buttonClass,
                     handler: handler,
                 }));
             });
             Admin.Message.message = new Admin.Window({
                 title: properties?.title ?? '',
                 modal: true,
-                maxWidth: 500,
                 resizable: false,
                 closable: false,
                 buttons: buttons,
@@ -51,7 +51,7 @@ var Admin;
                 $messagebox.append($icon);
             }
             const $message = Html.create('div', { 'data-role': 'message' });
-            $message.html(properties.message ?? '');
+            $message.html('<div>' + (properties.message ?? '') + '</div>');
             $messagebox.append($message);
             $content.append($messagebox);
             Admin.Message.message.show();
