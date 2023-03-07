@@ -10,6 +10,7 @@
  * @modified 2023. 2. 26.
  */
 namespace modules\admin\admin;
+use \Html;
 class Admin
 {
     /**
@@ -31,7 +32,7 @@ class Admin
     public function init(): void
     {
         if (get_called_class() == 'modules\\admin\\admin\\Admin') {
-            $this->addContext('/', $this->getText('admin/contexts/dashboard'), 'xi xi-presentation', true);
+            $this->addContext('/dashboard', $this->getText('admin/contexts/dashboard'), 'xi xi-presentation', true);
             $this->addContext('/modules', $this->getText('admin/contexts/modules'), 'xi xi-box', true);
             $this->addContext('/plugins', $this->getText('admin/contexts/plugins'), 'xi xi-plug', true);
             $this->addContext('/sites', $this->getText('admin/contexts/sites'), 'xi xi-check-home-o', true);
@@ -117,5 +118,43 @@ class Admin
         }
 
         return null;
+    }
+
+    /**
+     * 관리자 기본 경로를 가져온다.
+     *
+     * @return string $base
+     */
+    public function getBase(): ?string
+    {
+        $base = $this->getComponent()?->getBase() ?? null;
+        if ($base === null) {
+            return null;
+        }
+
+        return $base . '/admin';
+    }
+
+    /**
+     * 각 컨텍스트의 콘텐츠를 가져온다.
+     *
+     * @param string $path 컨텍스트 경로
+     * @param ?string $subPath 컨텍스트 하위경로
+     */
+    public function getContent(string $path, ?string $subPath = null): string
+    {
+        if (get_called_class() == 'modules\\admin\\admin\\Admin') {
+            switch ($path) {
+                case '/dashboard':
+                    Html::script($this->getBase() . '/scripts/dashboard.js');
+                    break;
+
+                case '/sites':
+                    Html::script($this->getBase() . '/scripts/sites.js');
+                    break;
+            }
+        }
+
+        return '';
     }
 }
