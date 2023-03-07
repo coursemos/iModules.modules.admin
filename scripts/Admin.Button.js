@@ -15,6 +15,7 @@ var Admin;
         role = 'button';
         text;
         iconClass;
+        buttonClass;
         toggle;
         pressed;
         handler;
@@ -28,10 +29,14 @@ var Admin;
             super(properties);
             this.text = this.properties.text ?? '';
             this.iconClass = this.properties.iconClass ?? null;
+            this.buttonClass = this.properties.buttonClass ?? null;
             this.toggle = this.properties.toggle ?? false;
             this.pressed = this.properties.pressed === true;
             this.handler = this.properties.handler ?? null;
             this.$button = Html.create('button').setAttr('type', 'button');
+            if (this.buttonClass !== null) {
+                this.$button.addClass(...this.buttonClass.split(' '));
+            }
         }
         /**
          * 버튼의 비활성화여부를 설정한다.
@@ -63,12 +68,7 @@ var Admin;
             }
             if (this.handler !== null || this.toggle === true) {
                 this.$button.on('click', () => {
-                    if (this.toggle == true) {
-                        this.setPressed(!this.pressed);
-                    }
-                    if (this.handler !== null) {
-                        this.handler(this);
-                    }
+                    this.onClick();
                 });
             }
             this.$getContent().append(this.$button);
@@ -103,6 +103,17 @@ var Admin;
                 this.$button.removeClass('pressed');
             }
             this.fireEvent('toggle', [this, this.pressed]);
+        }
+        /**
+         * 버튼 클릭이벤트를 처리한다.
+         */
+        onClick() {
+            if (this.toggle == true) {
+                this.setPressed(!this.pressed);
+            }
+            if (this.handler !== null) {
+                this.handler(this);
+            }
         }
     }
     Admin.Button = Button;

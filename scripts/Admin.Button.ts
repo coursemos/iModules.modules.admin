@@ -14,6 +14,7 @@ namespace Admin {
         role: string = 'button';
         text: string;
         iconClass: string;
+        buttonClass: string;
         toggle: boolean;
         pressed: boolean;
         handler: Function;
@@ -30,11 +31,15 @@ namespace Admin {
 
             this.text = this.properties.text ?? '';
             this.iconClass = this.properties.iconClass ?? null;
+            this.buttonClass = this.properties.buttonClass ?? null;
             this.toggle = this.properties.toggle ?? false;
             this.pressed = this.properties.pressed === true;
             this.handler = this.properties.handler ?? null;
 
             this.$button = Html.create('button').setAttr('type', 'button');
+            if (this.buttonClass !== null) {
+                this.$button.addClass(...this.buttonClass.split(' '));
+            }
         }
 
         /**
@@ -70,13 +75,7 @@ namespace Admin {
 
             if (this.handler !== null || this.toggle === true) {
                 this.$button.on('click', () => {
-                    if (this.toggle == true) {
-                        this.setPressed(!this.pressed);
-                    }
-
-                    if (this.handler !== null) {
-                        this.handler(this);
-                    }
+                    this.onClick();
                 });
             }
 
@@ -116,6 +115,19 @@ namespace Admin {
             }
 
             this.fireEvent('toggle', [this, this.pressed]);
+        }
+
+        /**
+         * 버튼 클릭이벤트를 처리한다.
+         */
+        onClick(): void {
+            if (this.toggle == true) {
+                this.setPressed(!this.pressed);
+            }
+
+            if (this.handler !== null) {
+                this.handler(this);
+            }
         }
     }
 }
