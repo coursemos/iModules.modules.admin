@@ -6,13 +6,11 @@
  * @file /modules/admin/scripts/Admin.Scrollbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 27.
+ * @modified 2023. 3. 6.
  */
 namespace Admin {
     export class Scrollbar extends Admin.Base {
-        static scrollbars: Map<HTMLElement, Admin.Scrollbar> = new Map();
-
-        animationFrame: number;
+        static scrollbars: WeakMap<Dom, Admin.Scrollbar> = new WeakMap();
 
         $component: Dom;
         $target: Dom;
@@ -43,20 +41,21 @@ namespace Admin {
                 this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
             }
 
-            Admin.Scrollbar.scrollbars.set(this.$target.getEl(), this);
+            Admin.Scrollbar.scrollbars.set(this.$target, this);
         }
 
         /**
          * 스크롤바 이벤트 대상의 스크롤바 클래스 객체를 가져온다.
          *
-         * @param {EventTarget|HTMLElement} target - 이벤트 대상
+         * @param {Dom} $target - 스크롤할 대상의 DOM 객체
+         * @param {boolean|string} scrollable - 스크롤 여부
          * @return {Admin.Scrollbar} scrollbar
          */
-        static get(target: EventTarget | HTMLElement): Admin.Scrollbar {
-            if (target instanceof HTMLElement) {
-                return Admin.Scrollbar.scrollbars.has(target) == true ? Admin.Scrollbar.scrollbars.get(target) : null;
+        static get($target: Dom, scrollable: boolean | string = false): Admin.Scrollbar {
+            if (Admin.Scrollbar.scrollbars.has($target) == true) {
+                return Admin.Scrollbar.scrollbars.get($target);
             } else {
-                return null;
+                return new Admin.Scrollbar($target, scrollable);
             }
         }
 
@@ -88,6 +87,8 @@ namespace Admin {
                 this.scrollable.x = scrollable == true || scrollable.toLowerCase() == 'x';
                 this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
             }
+
+            this.scrollbarRender();
         }
 
         /**
@@ -122,6 +123,7 @@ namespace Admin {
                     'data-role': 'scrollbar',
                     'data-direction': direction,
                 });
+
                 const $track = Html.create('div', { 'data-role': 'track' });
                 const $bar = Html.create('div', { 'data-role': 'bar' });
 
@@ -347,6 +349,15 @@ namespace Admin {
                             }
                         },
                         end: (_$target: Dom, tracker: Admin.Drag.Tracker) => {
+                            const delta = tracker.getDelta();
+                            if (this.isMovable(-delta.x, -delta.y) == true) {
+                                this.movePosition(
+                                    this.scrollable.x == true ? -delta.x : 0,
+                                    this.scrollable.y == true ? -delta.y : 0,
+                                    true
+                                );
+                            }
+
                             const { x, y } = tracker.getVelocity();
                             this.addMomentum(-x, -y);
                         },
@@ -491,7 +502,7 @@ namespace Admin {
                 return { momentum: 0, position: current };
             }
 
-            const nextMomentum = (remain * 0.65) | 0;
+            const nextMomentum = (remain * 0.9) | 0;
             return { momentum: nextMomentum, position: current + remain - nextMomentum };
         }
 
@@ -548,33 +559,58 @@ namespace Admin {
         }
 
         /**
+         * 스크롤바 위치를 다시 조절한다.
+         */
+        updatePosition(): void {
+            const componentRect = this.$component.getEl().getBoundingClientRect();
+            const targetRect = this.$target.getEl().getBoundingClientRect();
+            const width = componentRect.width - targetRect.width;
+            const height = componentRect.height - targetRect.height;
+            const left = targetRect.left - componentRect.left;
+            const right = componentRect.right - targetRect.right;
+            const top = targetRect.top - componentRect.top;
+            const bottom = componentRect.bottom - targetRect.bottom;
+
+            this.$getScrollbar('x').setStyle('left', left + 'px');
+            this.$getScrollbar('x').setStyle('bottom', bottom + 'px');
+            this.$getScrollbar('x').setStyle('width', 'calc(100% - ' + width + 'px)');
+            this.$getScrollbar('y').setStyle('right', right + 'px');
+            this.$getScrollbar('y').setStyle('top', top + 'px');
+            this.$getScrollbar('y').setStyle('height', 'calc(100% - ' + height + 'px)');
+        }
+
+        /**
          * 스크롤바를 랜더링하여 실제로 객체를 스크롤 한다.
          */
         scrollbarRender() {
             if (Admin.has(this.getId()) == false) {
-                cancelAnimationFrame(this.animationFrame);
                 return;
             }
 
-            if (this.momentum.x != 0 || this.momentum.y != 0) {
-                const nextX = this.getNextTick('x');
-                const nextY = this.getNextTick('y');
+            if (this.$target.isHidden() === false) {
+                if (this.momentum.x != 0 || this.momentum.y != 0) {
+                    const nextX = this.getNextTick('x');
+                    const nextY = this.getNextTick('y');
 
-                this.setMomentum(nextX.momentum, nextY.momentum);
-                this.setPosition(nextX.position, nextY.position);
-                if (this.momentum.x != 0) {
-                    this.active('x', 1);
+                    this.setMomentum(nextX.momentum, nextY.momentum);
+                    this.setPosition(nextX.position, nextY.position);
+
+                    if (this.momentum.x != 0) {
+                        this.active('x', 1);
+                    }
+
+                    if (this.momentum.y != 0) {
+                        this.active('y', 1);
+                    }
                 }
 
-                if (this.momentum.y != 0) {
-                    this.active('y', 1);
-                }
+                this.updateTrack('x');
+                this.updateTrack('y');
             }
 
-            this.updateTrack('x');
-            this.updateTrack('y');
-
-            this.animationFrame = requestAnimationFrame(this.scrollbarRender.bind(this));
+            if (Admin.has(this.getId()) == true && (this.scrollable.x == true || this.scrollable.y == true)) {
+                requestAnimationFrame(this.scrollbarRender.bind(this));
+            }
         }
 
         /**
@@ -582,6 +618,7 @@ namespace Admin {
          */
         render() {
             if (this.rendered !== true) {
+                this.$target.setStyle('overflow', 'hidden');
                 this.$component.append(this.$getScrollbar('x'));
                 this.$component.append(this.$getScrollbar('y'));
 
