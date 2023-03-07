@@ -74,6 +74,22 @@ namespace Admin {
         }
 
         /**
+         * 데이터를 추가한다.
+         *
+         * @param {Object|Object[]} record
+         */
+        add(record: { [key: string]: any } | { [key: string]: any }[]): void {
+            let records = [];
+            if (Array.isArray(record) == true) {
+                records = record as { [key: string]: any }[];
+            } else {
+                records.push(record);
+            }
+            this.data?.add(records);
+            this.onUpdate();
+        }
+
+        /**
          * 데이터를 가져온다.
          */
         load(): void {}
@@ -105,7 +121,7 @@ namespace Admin {
             this.sorters = [{ field: field, direction: direction }];
             if (this.remoteSort == true) {
             } else {
-                this.onLoad();
+                this.onUpdate();
             }
         }
 
@@ -118,7 +134,7 @@ namespace Admin {
             this.sorters = sorters;
             if (this.remoteSort == true) {
             } else {
-                this.onLoad();
+                this.onUpdate();
             }
         }
 
@@ -137,6 +153,17 @@ namespace Admin {
                 this.data?.sort(this.sorters);
             }
             this.fireEvent('load', [this, this.data]);
+            this.fireEvent('update', [this, this.data]);
+        }
+
+        /**
+         * 데이터가 변경되었을 때 이벤트를 처리한다.
+         */
+        onUpdate(): void {
+            if (this.remoteSort === false && this.sorters.length > 0) {
+                this.data?.sort(this.sorters);
+            }
+            this.fireEvent('update', [this, this.data]);
         }
     }
 
