@@ -65,8 +65,72 @@ var Admin;
             for (let item of this.items) {
                 if (item instanceof Admin.Component) {
                     item.setParent(this);
+                    if (this.getLayoutType() == 'column') {
+                        item.setLayoutType('column-item');
+                    }
                 }
             }
+        }
+        /**
+         * 자식 컴포넌트를 처음 위치에 추가한다.
+         *
+         * @param {Dom} item - 추가할 컴포넌트
+         */
+        prepend(item) {
+            if (this.items === null) {
+                this.items = [];
+            }
+            item.setParent(this);
+            this.items.unshift(item);
+            if (this.isRendered() == true) {
+                this.$getContent().prepend(item.$getComponent());
+                if (item.isRenderable() == true) {
+                    item.render();
+                }
+            }
+        }
+        /**
+         * 자식 컴포넌트를 추가한다.
+         *
+         * @param {Admin.Component} item - 추가할 컴포넌트
+         * @param {number} position - 추가할 위치 (NULL 인 경우 제일 마지막 위치)
+         */
+        append(item, position = null) {
+            if (this.items === null) {
+                this.items = [];
+            }
+            item.setParent(this);
+            if (position === null || position >= (this.items.length ?? 0)) {
+                this.items.push(item);
+            }
+            else if (position < 0 && Math.abs(position) >= (this.items.length ?? 0)) {
+                this.items.unshift(item);
+            }
+            else {
+                this.items.splice(position, 0, item);
+            }
+            if (this.isRendered() == true) {
+                this.$getContent().append(item.$getComponent(), position);
+                if (item.isRenderable() == true) {
+                    item.render();
+                }
+            }
+        }
+        /**
+         * 레이아웃 형태를 가져온다.
+         *
+         * @return {string} layout
+         */
+        getLayoutType() {
+            return this.layout;
+        }
+        /**
+         * 레이아웃 형태를 지정한다.
+         *
+         * @param {string} layout
+         */
+        setLayoutType(layout) {
+            this.layout = layout;
         }
         /**
          * 컴포넌트 객체의 최상위 DOM 을 가져온다.
@@ -93,13 +157,29 @@ var Admin;
             return this.$top ?? null;
         }
         /**
-         * 컴포넌트의 상단 DOM 사용여부를 설정한다.
+         * 컴포넌트의 상단 DOM 을 활성화한다.
          *
          * @return {Dom} $top
          */
         $setTop() {
-            this.$top ??= Html.create('div', { 'data-role': 'top' });
+            if (this.$top == undefined || this.$top == null) {
+                this.$top = Html.create('div', { 'data-role': 'top' });
+                if (this.isRendered() == true) {
+                    this.$getContainer().prepend(this.$top);
+                }
+            }
             return this.$top;
+        }
+        /**
+         * 컴포넌트의 상단 DOM 을 비활성화한다.
+         *
+         * @return {Dom} $bottom
+         */
+        $removeTop() {
+            if (this.isRendered() == true) {
+                this.$top?.remove();
+            }
+            this.$top = null;
         }
         /**
          * 컴포넌트의 컨텐츠 DOM 을 가져온다.
@@ -119,13 +199,29 @@ var Admin;
             return this.$bottom ?? null;
         }
         /**
-         * 컴포넌트의 상단 DOM 사용여부를 설정한다.
+         * 컴포넌트의 하단 DOM 을 활성화한다.
          *
          * @return {Dom} $bottom
          */
         $setBottom() {
-            this.$bottom ??= Html.create('div', { 'data-role': 'bottom' });
+            if (this.$bottom == undefined || this.$bottom == null) {
+                this.$bottom = Html.create('div', { 'data-role': 'bottom' });
+                if (this.isRendered() == true) {
+                    this.$getContainer().append(this.$bottom);
+                }
+            }
             return this.$bottom;
+        }
+        /**
+         * 컴포넌트의 하단 DOM 을 비활성화한다.
+         *
+         * @return {Dom} $bottom
+         */
+        $removeBottom() {
+            if (this.isRendered() == true) {
+                this.$bottom?.remove();
+            }
+            this.$bottom = null;
         }
         /**
          * 특정 영역에 컴포넌트 DOM을 추가한다.
@@ -151,7 +247,7 @@ var Admin;
                     this.scrollbar = null;
                 }
                 else {
-                    this.scrollbar = new Admin.Scrollbar(this.$scrollable, this.scrollable);
+                    this.scrollbar = Admin.Scrollbar.get(this.$scrollable, this.scrollable);
                 }
             }
             return this.scrollbar;
@@ -187,6 +283,14 @@ var Admin;
                 }
             }
             return items;
+        }
+        /**
+         * 특정 인덱스의 하위 컴포넌트를 가져온다.
+         *
+         * @return {Admin.Component} item - 하위요소
+         */
+        getItemAt(index) {
+            return this.getItems().at(index) ?? null;
         }
         /**
          * 컴포넌트를 숨긴다.
@@ -233,6 +337,14 @@ var Admin;
          */
         isHidden() {
             return this.hidden;
+        }
+        /**
+         * 컴포넌트의 보임여부를 가져온다.
+         *
+         * @return {boolean} is_show
+         */
+        isShow() {
+            return this.isRendered() == true && this.isHidden() == false;
         }
         /**
          * 컴포넌트를 비활성화한다.
@@ -319,39 +431,58 @@ var Admin;
          */
         render() {
             this.initItems();
-            this.$component.setData('type', this.type).setData('role', this.role).addClass(this.layout);
+            this.$getComponent().setData('type', this.type).setData('role', this.role).addClass(this.layout);
+            if (this.hidden == true) {
+                this.$getComponent().hide();
+            }
             if (this.padding !== null) {
                 if (typeof this.padding == 'number') {
                     this.padding = this.padding + 'px';
                 }
-                this.$container.setStyle('padding', this.padding);
+                this.$getContent().setStyle('padding', this.padding);
             }
             if (this.margin !== null) {
                 if (typeof this.margin == 'number') {
                     this.margin = this.margin + 'px';
                 }
-                this.$component.setStyle('padding', this.margin);
+                this.$getComponent().setStyle('padding', this.margin);
             }
             if (this.isRenderable() == true) {
-                this.$component.append(this.$container);
+                this.$getComponent().append(this.$container);
                 if (this.$getTop() != null) {
-                    this.$container.append(this.$getTop());
+                    this.$getContainer().append(this.$getTop());
                     this.renderTop();
                 }
-                this.$container.append(this.$getContent());
+                this.$getContainer().append(this.$getContent());
                 this.renderContent();
                 if (this.$getBottom() != null) {
-                    this.$container.append(this.$getBottom());
+                    this.$getContainer().append(this.$getBottom());
                     this.renderBottom();
                 }
-                this.rendered();
+                if (this.isRendered() == false) {
+                    this.rendered();
+                    this.onRender();
+                }
             }
             if (this.isRendered() == true) {
-                this.onRender();
-                this.getScrollbar()?.render();
                 if (this.disabled == true) {
                     this.disable();
                 }
+                if (this.getLayoutType() == 'column') {
+                    if (this.properties.gap !== undefined && this.properties.gap > 0) {
+                        this.$getContent().setStyle('column-gap', this.properties.gap + 'px');
+                    }
+                }
+                if (this.getLayoutType() == 'column-item') {
+                    if (this.properties.flex !== undefined && this.properties.flex > 0) {
+                        this.$getComponent().setStyle('flex', this.properties.flex);
+                        this.$getComponent().setStyle('flex-shrink', 0);
+                    }
+                    if (this.properties.minWidth !== undefined && this.properties.minWidth > 0) {
+                        this.$getComponent().setStyle('flex-basis', this.properties.minWidth + 'px');
+                    }
+                }
+                this.getScrollbar()?.render();
             }
         }
         /**
@@ -366,17 +497,6 @@ var Admin;
             this.scrollbar?.remove();
             this.$component.remove();
             super.remove();
-        }
-        /**
-         * 현재 컴포넌트의 레이아웃을 관리자영역에 출력한다.
-         *
-         * @param {Dom} dom 랜더링할 DOM 위치
-         */
-        doLayout(dom) {
-            dom.setData('role', 'admin');
-            dom.setData('type', 'main');
-            dom.append(this.$component);
-            this.render();
         }
         /**
          * 현재 컴포넌트가 화면상에 출력되었을 때 이벤트를 처리한다.
