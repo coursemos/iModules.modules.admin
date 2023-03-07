@@ -21,6 +21,7 @@ var Admin;
              */
             constructor(properties = null) {
                 super(properties);
+                this.role = 'form';
                 this.fieldDefaults = this.properties.fieldDefaults ?? null;
             }
             /**
@@ -37,8 +38,54 @@ var Admin;
                             this.items.push(item);
                         }
                     }
-                    super.initItems();
                 }
+                super.initItems();
+            }
+            /**
+             * 폼 패널에 속한 필드를 가져온다.
+             *
+             * @param {string} name - 필드명
+             */
+            getField(name) {
+                const $field = Html.get('div[data-component][data-role=field][data-name=' + name + ']', this.$getContent());
+                if ($field.getEl() === null) {
+                    return null;
+                }
+                return Admin.getComponent($field.getData('component'));
+            }
+            /**
+             * 폼 패널에 속한 모든 필드가 유효한지 확인한다.
+             *
+             * @return {boolean} is_valid
+             */
+            async isValid() {
+                const validations = [];
+                for (const item of this.items) {
+                    if (item instanceof Admin.Form.Field.Base) {
+                        validations.push(item.isValid());
+                    }
+                }
+                const validates = await Promise.all(validations);
+                for (const isValid of validates) {
+                    if (isValid == false) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            /**
+             * 폼 패널에 속한 모든 필드의 값을 가져온다.
+             *
+             * @return {Object} values
+             */
+            getValues() {
+                const values = {};
+                for (const item of this.items) {
+                    if (item instanceof Admin.Form.Field.Base) {
+                        Object.assign(values, item.getValues());
+                    }
+                }
+                return values;
             }
         }
         Form.Panel = Panel;
@@ -49,6 +96,7 @@ var Admin;
                 role = 'field';
                 field = 'base';
                 name;
+                allowBlank;
                 label;
                 labelPosition;
                 labelAlign;
@@ -57,6 +105,7 @@ var Admin;
                 helpText;
                 width;
                 value = null;
+                validation = null;
                 fieldDefaults;
                 /**
                  * 기본필드 클래스 생성한다.
@@ -66,6 +115,7 @@ var Admin;
                 constructor(properties = null) {
                     super(properties);
                     this.name = this.properties.name = this.properties.name ?? this.id;
+                    this.allowBlank = this.properties.allowBlank !== false;
                     this.label = this.properties.fieldLabel ?? null;
                     this.labelPosition = this.properties.labelPosition ?? null;
                     this.labelAlign = this.properties.labelAlign ?? null;
@@ -155,7 +205,7 @@ var Admin;
                 /**
                  * 필드값을 지정한다.
                  *
-                 * @param {(string|number)} value - 값
+                 * @param {any} value - 값
                  */
                 setValue(value) {
                     this.value = value;
@@ -163,10 +213,119 @@ var Admin;
                 /**
                  * 필드값을 가져온다.
                  *
-                 * @return {(string|number)} value - 값
+                 * @return {any} value - 값
                  */
                 getValue() {
                     return this.value;
+                }
+                /**
+                 * 모든 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValues() {
+                    const values = {};
+                    if (this.value !== null) {
+                        values[this.name] = this.value;
+                    }
+                    return values;
+                }
+                /**
+                 * 필드값이 비어있는지 확인한다.
+                 *
+                 * @return {boolean} is_blank
+                 */
+                isBlank() {
+                    const value = this.getValue();
+                    if (value === null) {
+                        return true;
+                    }
+                    else if (typeof value == 'object') {
+                        if (value.length == 0) {
+                            return true;
+                        }
+                    }
+                    else if (value.toString().length == 0) {
+                        return true;
+                    }
+                    return false;
+                }
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @return {boolean} is_valid
+                 */
+                async isValid() {
+                    const validate = await this.validate();
+                    if (validate !== true) {
+                        this.setError(true, validate);
+                    }
+                    else {
+                        this.setError(false);
+                    }
+                    return validate === true;
+                }
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @param {boolean} is_error - 에러표시여부
+                 * @return {boolean|string} validate
+                 */
+                async validate(is_error = false) {
+                    if (this.allowBlank === false && this.isBlank() == true) {
+                        if (is_error === true) {
+                            this.setError(true);
+                        }
+                        return (await Admin.getText('error/REQUIRED'));
+                    }
+                    if (is_error === true) {
+                        this.setError(false);
+                    }
+                    return true;
+                }
+                /**
+                 * 도움말을 변경한다.
+                 *
+                 * @param {string} text - 도움말
+                 */
+                setHelpText(text) {
+                    this.helpText = text;
+                    if (text === null) {
+                        this.$removeBottom();
+                        return;
+                    }
+                    const $bottom = this.$getBottom() ?? this.$setBottom();
+                    $bottom.empty();
+                    const $text = Html.create('p');
+                    $text.text(text);
+                    $bottom.append($text);
+                }
+                /**
+                 * 에러메시지를 변경한다.
+                 *
+                 * @param {boolean} is_error - 에러여부
+                 * @param {string} message - 에러메시지 (NULL 인 경우 에러가 없는 것으로 간주한다.)
+                 */
+                setError(is_error, message = null) {
+                    if (is_error === true) {
+                        this.$getContent().addClass('error');
+                    }
+                    else {
+                        this.$getContent().removeClass('error');
+                        message = null;
+                    }
+                    if (message === null) {
+                        this.setHelpText(this.helpText);
+                        this.$getBottom()?.removeClass('error');
+                    }
+                    else {
+                        const $bottom = this.$getBottom() ?? this.$setBottom();
+                        $bottom.empty();
+                        const $text = Html.create('p');
+                        $text.html(message);
+                        $bottom.append($text);
+                        this.$getBottom().addClass('error');
+                    }
                 }
                 /**
                  * 필드 라벨을 랜더링한다.
@@ -195,10 +354,14 @@ var Admin;
                  * 필드를 랜더링한다.
                  */
                 render() {
+                    this.$getComponent().setData('name', this.name);
                     this.$getContainer().addClass(this.getLabelPosition());
+                    if (this.allowBlank === false) {
+                        this.$getContainer().addClass('required');
+                    }
                     this.$getContent().setData('field', this.field);
-                    super.render();
                     this.updateLayout();
+                    super.render();
                 }
                 /**
                  * 필드 레이아웃을 업데이트한다.
@@ -242,6 +405,77 @@ var Admin;
                     super(properties);
                     this.direction = this.properties.direction ?? 'row';
                     this.gap = this.properties.gap ?? 5;
+                }
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    return null;
+                }
+                /**
+                 * 모든 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValues() {
+                    const values = {};
+                    for (const item of this.items) {
+                        if (item instanceof Admin.Form.Field.Base) {
+                            Object.assign(values, item.getValues());
+                        }
+                    }
+                    return values;
+                }
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @param {boolean} is_error - 에러표시여부
+                 * @return {boolean|string} validate
+                 */
+                async validate(_is_error = false) {
+                    const validations = [];
+                    for (const item of this.items) {
+                        if (item instanceof Admin.Form.Field.Base) {
+                            validations.push(item.validate());
+                        }
+                    }
+                    const validates = await Promise.all(validations);
+                    for (const isValid of validates) {
+                        if (isValid !== true) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @return {boolean} is_valid
+                 */
+                async isValid() {
+                    const validations = [];
+                    for (const item of this.items) {
+                        if (item instanceof Admin.Form.Field.Base) {
+                            validations.push(item.validate(true));
+                        }
+                    }
+                    const errors = [];
+                    const validates = await Promise.all(validations);
+                    for (const validate of validates) {
+                        if (validate !== true) {
+                            errors.push(validate);
+                        }
+                    }
+                    if (errors.length > 0) {
+                        this.setError(true, errors.join('<br>'));
+                        return false;
+                    }
+                    else {
+                        this.setError(false);
+                        return true;
+                    }
                 }
                 /**
                  * 필드 컨테이너에 속한 필드를 랜더링한다.
@@ -323,10 +557,10 @@ var Admin;
                 /**
                  * 필드값을 지정한다.
                  *
-                 * @param {(string|number)} value - 값
+                 * @param {any} value - 값
                  */
                 setValue(value) {
-                    value = value.toString();
+                    value = value?.toString() ?? '';
                     if (this.$getInput().getValue() != value) {
                         this.$getInput().setValue(value);
                     }
@@ -344,6 +578,15 @@ var Admin;
                 renderContent() {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
+                }
+                /**
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 */
+                onRender() {
+                    super.onRender();
+                    if (this.value !== undefined || this.value !== null) {
+                        this.setValue(this.value);
+                    }
                 }
                 /**
                  * 필드 레이아웃을 업데이트한다.
@@ -385,7 +628,6 @@ var Admin;
                 listField;
                 rawValue;
                 renderer;
-                listRenderer;
                 $display;
                 absolute;
                 list;
@@ -407,18 +649,13 @@ var Admin;
                     this.value = null;
                     this.renderer =
                         this.properties.displayRenderer ??
-                            ((_field, display, _record) => {
+                            ((display) => {
                                 if (Array.isArray(display) == true) {
                                 }
                                 else if (typeof display == 'string' && display.length > 0) {
                                     return display;
                                 }
                                 return '';
-                            });
-                    this.listRenderer =
-                        this.properties.listRenderer ??
-                            ((_list, display, _record) => {
-                                return display;
                             });
                 }
                 /**
@@ -432,10 +669,19 @@ var Admin;
                             $target: this.$getContent(),
                             items: [this.getList()],
                             width: '100%',
+                            hideOnClick: true,
                             listeners: {
                                 show: (absolute) => {
-                                    // @todo 위치에 따라 위로 보일지 아래로 보일지 설정한다.
-                                    absolute.setPosition('100%', null, null, 0);
+                                    const rect = absolute.getRect();
+                                    const height = Html.get('body').getHeight();
+                                    if (rect.top - 100 > height - rect.bottom) {
+                                        absolute.setPosition(null, null, 'calc(100% - 1px)', 0);
+                                        this.getList().setMaxHeight(rect.top - 10);
+                                    }
+                                    else {
+                                        absolute.setPosition('calc(100% - 1px)', null, null, 0);
+                                        this.getList().setMaxHeight(height - rect.bottom - 10);
+                                    }
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -455,13 +701,16 @@ var Admin;
                     if (this.list === undefined) {
                         this.list = new Admin.List.Panel({
                             store: this.properties.store,
-                            renderer: this.listRenderer,
+                            renderer: this.properties.listRenderer,
                             displayField: this.displayField,
                             valueField: this.valueField,
                             multiple: this.multiple,
                             listeners: {
                                 load: () => {
                                     this.onLoad();
+                                },
+                                update: () => {
+                                    this.onUpdate();
                                 },
                                 selectionChange: (_list, selection) => {
                                     if (selection instanceof Admin.Data.Record) {
@@ -530,7 +779,7 @@ var Admin;
                 /**
                  * 필드값을 지정한다.
                  *
-                 * @param {string|number} value - 값
+                 * @param {any} value - 값
                  */
                 setValue(value) {
                     this.rawValue = value;
@@ -550,7 +799,7 @@ var Admin;
                             this.value = record.get(this.valueField);
                             this.$getEmptyText().hide();
                         }
-                        this.$setDisplay(this.renderer(this, record.get(this.displayField), record));
+                        this.$setDisplay(this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this));
                     }
                 }
                 /**
@@ -564,10 +813,7 @@ var Admin;
                             if (this.isExpand() == false) {
                                 this.expand();
                             }
-                            this.getList()
-                                .$getComponent()
-                                .getEl()
-                                .dispatchEvent(new KeyboardEvent('keydown', { key: e.key }));
+                            this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
                         }
                         if (e.key == 'Escape') {
                             this.collapse();
@@ -604,7 +850,7 @@ var Admin;
                  * @return {boolean} isExpand
                  */
                 isExpand() {
-                    return this.getAbsolute().isShow() == true;
+                    return this.getAbsolute().isShow();
                 }
                 /**
                  * 상황에 따라 필드에 포커스를 적용한다.
@@ -654,7 +900,7 @@ var Admin;
                     else {
                         $button.setAttr('tabindex', '0');
                     }
-                    $button.on('click', (e) => {
+                    $button.on('mousedown', (e) => {
                         const $button = Html.el(e.currentTarget);
                         if (this.isExpand() == true) {
                             this.collapse();
@@ -662,6 +908,8 @@ var Admin;
                         else {
                             this.expand();
                         }
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
                         $button.getEl().focus();
                     });
                     this.setKeyboardEvent($button);
@@ -693,7 +941,7 @@ var Admin;
                     }
                 }
                 /**
-                 * 셀렉트폼이 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
                  */
                 onRender() {
                     super.onRender();
@@ -710,6 +958,14 @@ var Admin;
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad() {
+                    if (this.rawValue !== null) {
+                        this.setValue(this.rawValue);
+                    }
+                }
+                /**
+                 * 셀렉트폼의 목록 데이터가 변경되었을 때 이벤트를 처리한다.
+                 */
+                onUpdate() {
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }

@@ -27,6 +27,7 @@ namespace Admin {
             constructor(properties: { [key: string]: any } = null) {
                 super(properties);
 
+                this.role = 'form';
                 this.fieldDefaults = this.properties.fieldDefaults ?? null;
             }
 
@@ -46,9 +47,66 @@ namespace Admin {
                             this.items.push(item);
                         }
                     }
-
-                    super.initItems();
                 }
+
+                super.initItems();
+            }
+
+            /**
+             * 폼 패널에 속한 필드를 가져온다.
+             *
+             * @param {string} name - 필드명
+             */
+            getField(name: string): Admin.Form.Field.Base {
+                const $field = Html.get(
+                    'div[data-component][data-role=field][data-name=' + name + ']',
+                    this.$getContent()
+                );
+                if ($field.getEl() === null) {
+                    return null;
+                }
+
+                return Admin.getComponent($field.getData('component')) as Admin.Form.Field.Base;
+            }
+
+            /**
+             * 폼 패널에 속한 모든 필드가 유효한지 확인한다.
+             *
+             * @return {boolean} is_valid
+             */
+            async isValid(): Promise<boolean> {
+                const validations: Promise<boolean>[] = [];
+
+                for (const item of this.items) {
+                    if (item instanceof Admin.Form.Field.Base) {
+                        validations.push(item.isValid());
+                    }
+                }
+
+                const validates = await Promise.all(validations);
+                for (const isValid of validates) {
+                    if (isValid == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            /**
+             * 폼 패널에 속한 모든 필드의 값을 가져온다.
+             *
+             * @return {Object} values
+             */
+            getValues(): { [key: string]: any } {
+                const values: { [key: string]: any } = {};
+                for (const item of this.items) {
+                    if (item instanceof Admin.Form.Field.Base) {
+                        Object.assign(values, item.getValues());
+                    }
+                }
+
+                return values;
             }
         }
 
@@ -59,16 +117,17 @@ namespace Admin {
                 field: string = 'base';
 
                 name: string;
+                allowBlank: boolean;
                 label: string;
                 labelPosition: string;
                 labelAlign: string;
                 labelWidth: number;
                 labelSeparator: string;
                 helpText: string;
-
                 width: number;
 
-                value: string | number | string[] | number[] = null;
+                value: any = null;
+                validation: boolean | string = null;
 
                 fieldDefaults: {
                     labelWidth?: number;
@@ -87,6 +146,7 @@ namespace Admin {
                     super(properties);
 
                     this.name = this.properties.name = this.properties.name ?? this.id;
+                    this.allowBlank = this.properties.allowBlank !== false;
                     this.label = this.properties.fieldLabel ?? null;
                     this.labelPosition = this.properties.labelPosition ?? null;
                     this.labelAlign = this.properties.labelAlign ?? null;
@@ -199,19 +259,138 @@ namespace Admin {
                 /**
                  * 필드값을 지정한다.
                  *
-                 * @param {(string|number)} value - 값
+                 * @param {any} value - 값
                  */
-                setValue(value: string | number): void {
+                setValue(value: any): void {
                     this.value = value;
                 }
 
                 /**
                  * 필드값을 가져온다.
                  *
-                 * @return {(string|number)} value - 값
+                 * @return {any} value - 값
                  */
-                getValue(): string | number | string[] | number[] {
+                getValue(): any {
                     return this.value;
+                }
+
+                /**
+                 * 모든 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValues(): { [key: string]: any } {
+                    const values: { [key: string]: any } = {};
+                    if (this.value !== null) {
+                        values[this.name] = this.value;
+                    }
+
+                    return values;
+                }
+
+                /**
+                 * 필드값이 비어있는지 확인한다.
+                 *
+                 * @return {boolean} is_blank
+                 */
+                isBlank(): boolean {
+                    const value = this.getValue();
+                    if (value === null) {
+                        return true;
+                    } else if (typeof value == 'object') {
+                        if (value.length == 0) {
+                            return true;
+                        }
+                    } else if (value.toString().length == 0) {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @return {boolean} is_valid
+                 */
+                async isValid(): Promise<boolean> {
+                    const validate = await this.validate();
+
+                    if (validate !== true) {
+                        this.setError(true, validate as string);
+                    } else {
+                        this.setError(false);
+                    }
+
+                    return validate === true;
+                }
+
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @param {boolean} is_error - 에러표시여부
+                 * @return {boolean|string} validate
+                 */
+                async validate(is_error: boolean = false): Promise<boolean | string> {
+                    if (this.allowBlank === false && this.isBlank() == true) {
+                        if (is_error === true) {
+                            this.setError(true);
+                        }
+                        return (await Admin.getText('error/REQUIRED')) as string;
+                    }
+
+                    if (is_error === true) {
+                        this.setError(false);
+                    }
+
+                    return true;
+                }
+
+                /**
+                 * 도움말을 변경한다.
+                 *
+                 * @param {string} text - 도움말
+                 */
+                setHelpText(text: string): void {
+                    this.helpText = text;
+
+                    if (text === null) {
+                        this.$removeBottom();
+                        return;
+                    }
+
+                    const $bottom = this.$getBottom() ?? this.$setBottom();
+                    $bottom.empty();
+                    const $text = Html.create('p');
+                    $text.text(text);
+                    $bottom.append($text);
+                }
+
+                /**
+                 * 에러메시지를 변경한다.
+                 *
+                 * @param {boolean} is_error - 에러여부
+                 * @param {string} message - 에러메시지 (NULL 인 경우 에러가 없는 것으로 간주한다.)
+                 */
+                setError(is_error: boolean, message: string = null): void {
+                    if (is_error === true) {
+                        this.$getContent().addClass('error');
+                    } else {
+                        this.$getContent().removeClass('error');
+                        message = null;
+                    }
+
+                    if (message === null) {
+                        this.setHelpText(this.helpText);
+                        this.$getBottom()?.removeClass('error');
+                    } else {
+                        const $bottom = this.$getBottom() ?? this.$setBottom();
+                        $bottom.empty();
+                        const $text = Html.create('p');
+                        $text.html(message);
+                        $bottom.append($text);
+                        this.$getBottom().addClass('error');
+                    }
                 }
 
                 /**
@@ -243,11 +422,14 @@ namespace Admin {
                  * 필드를 랜더링한다.
                  */
                 render(): void {
+                    this.$getComponent().setData('name', this.name);
                     this.$getContainer().addClass(this.getLabelPosition());
+                    if (this.allowBlank === false) {
+                        this.$getContainer().addClass('required');
+                    }
                     this.$getContent().setData('field', this.field);
-                    super.render();
-
                     this.updateLayout();
+                    super.render();
                 }
 
                 /**
@@ -300,6 +482,87 @@ namespace Admin {
 
                     this.direction = this.properties.direction ?? 'row';
                     this.gap = this.properties.gap ?? 5;
+                }
+
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue(): any {
+                    return null;
+                }
+
+                /**
+                 * 모든 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValues(): { [key: string]: any } {
+                    const values: { [key: string]: any } = {};
+                    for (const item of this.items) {
+                        if (item instanceof Admin.Form.Field.Base) {
+                            Object.assign(values, item.getValues());
+                        }
+                    }
+
+                    return values;
+                }
+
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @param {boolean} is_error - 에러표시여부
+                 * @return {boolean|string} validate
+                 */
+                async validate(_is_error: boolean = false): Promise<boolean | string> {
+                    const validations: Promise<boolean | string>[] = [];
+
+                    for (const item of this.items) {
+                        if (item instanceof Admin.Form.Field.Base) {
+                            validations.push(item.validate());
+                        }
+                    }
+
+                    const validates = await Promise.all(validations);
+                    for (const isValid of validates) {
+                        if (isValid !== true) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @return {boolean} is_valid
+                 */
+                async isValid(): Promise<boolean> {
+                    const validations: Promise<boolean | string>[] = [];
+
+                    for (const item of this.items) {
+                        if (item instanceof Admin.Form.Field.Base) {
+                            validations.push(item.validate(true));
+                        }
+                    }
+
+                    const errors: string[] = [];
+                    const validates = await Promise.all(validations);
+                    for (const validate of validates) {
+                        if (validate !== true) {
+                            errors.push(validate as string);
+                        }
+                    }
+
+                    if (errors.length > 0) {
+                        this.setError(true, errors.join('<br>'));
+                        return false;
+                    } else {
+                        this.setError(false);
+                        return true;
+                    }
                 }
 
                 /**
@@ -397,10 +660,10 @@ namespace Admin {
                 /**
                  * 필드값을 지정한다.
                  *
-                 * @param {(string|number)} value - 값
+                 * @param {any} value - 값
                  */
-                setValue(value: string | number): void {
-                    value = value.toString();
+                setValue(value: any): void {
+                    value = value?.toString() ?? '';
                     if (this.$getInput().getValue() != value) {
                         this.$getInput().setValue(value);
                     }
@@ -420,6 +683,17 @@ namespace Admin {
                 renderContent(): void {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
+                }
+
+                /**
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 */
+                onRender(): void {
+                    super.onRender();
+
+                    if (this.value !== undefined || this.value !== null) {
+                        this.setValue(this.value);
+                    }
                 }
 
                 /**
@@ -465,8 +739,12 @@ namespace Admin {
 
                 rawValue: any;
 
-                renderer: Admin.Form.Field.Select.renderer;
-                listRenderer: Admin.List.renderer;
+                renderer: (
+                    display: string | string[],
+                    record: Admin.Data.Record | Admin.Data.Record[],
+                    $display: Dom,
+                    field: Admin.Form.Field.Select
+                ) => string;
                 $display: Dom;
 
                 absolute: Admin.Absolute;
@@ -494,19 +772,13 @@ namespace Admin {
 
                     this.renderer =
                         this.properties.displayRenderer ??
-                        ((_field, display, _record): string => {
+                        ((display): string => {
                             if (Array.isArray(display) == true) {
                             } else if (typeof display == 'string' && display.length > 0) {
                                 return display;
                             }
 
                             return '';
-                        });
-
-                    this.listRenderer =
-                        this.properties.listRenderer ??
-                        ((_list, display, _record): string => {
-                            return display;
                         });
                 }
 
@@ -521,10 +793,20 @@ namespace Admin {
                             $target: this.$getContent(),
                             items: [this.getList()],
                             width: '100%',
+                            hideOnClick: true,
                             listeners: {
                                 show: (absolute: Admin.Absolute) => {
-                                    // @todo 위치에 따라 위로 보일지 아래로 보일지 설정한다.
-                                    absolute.setPosition('100%', null, null, 0);
+                                    const rect = absolute.getRect();
+                                    const height = Html.get('body').getHeight();
+
+                                    if (rect.top - 100 > height - rect.bottom) {
+                                        absolute.setPosition(null, null, 'calc(100% - 1px)', 0);
+                                        this.getList().setMaxHeight(rect.top - 10);
+                                    } else {
+                                        absolute.setPosition('calc(100% - 1px)', null, null, 0);
+                                        this.getList().setMaxHeight(height - rect.bottom - 10);
+                                    }
+
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -546,13 +828,16 @@ namespace Admin {
                     if (this.list === undefined) {
                         this.list = new Admin.List.Panel({
                             store: this.properties.store,
-                            renderer: this.listRenderer,
+                            renderer: this.properties.listRenderer,
                             displayField: this.displayField,
                             valueField: this.valueField,
                             multiple: this.multiple,
                             listeners: {
                                 load: () => {
                                     this.onLoad();
+                                },
+                                update: () => {
+                                    this.onUpdate();
                                 },
                                 selectionChange: (
                                     _list: Admin.List.Panel,
@@ -632,9 +917,9 @@ namespace Admin {
                 /**
                  * 필드값을 지정한다.
                  *
-                 * @param {string|number} value - 값
+                 * @param {any} value - 값
                  */
-                setValue(value: string | number | string[] | number[]): void {
+                setValue(value: any): void {
                     this.rawValue = value;
 
                     if (this.getStore().isLoaded() == false) {
@@ -654,7 +939,9 @@ namespace Admin {
                             this.$getEmptyText().hide();
                         }
 
-                        this.$setDisplay(this.renderer(this, record.get(this.displayField), record));
+                        this.$setDisplay(
+                            this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this)
+                        );
                     }
                 }
 
@@ -669,10 +956,7 @@ namespace Admin {
                             if (this.isExpand() == false) {
                                 this.expand();
                             }
-                            this.getList()
-                                .$getComponent()
-                                .getEl()
-                                .dispatchEvent(new KeyboardEvent('keydown', { key: e.key }));
+                            this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
                         }
 
                         if (e.key == 'Escape') {
@@ -715,7 +999,7 @@ namespace Admin {
                  * @return {boolean} isExpand
                  */
                 isExpand(): boolean {
-                    return this.getAbsolute().isShow() == true;
+                    return this.getAbsolute().isShow();
                 }
 
                 /**
@@ -764,7 +1048,7 @@ namespace Admin {
                     } else {
                         $button.setAttr('tabindex', '0');
                     }
-                    $button.on('click', (e: MouseEvent) => {
+                    $button.on('mousedown', (e: MouseEvent) => {
                         const $button = Html.el(e.currentTarget);
                         if (this.isExpand() == true) {
                             this.collapse();
@@ -772,6 +1056,8 @@ namespace Admin {
                             this.expand();
                         }
 
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
                         $button.getEl().focus();
                     });
                     this.setKeyboardEvent($button);
@@ -808,7 +1094,7 @@ namespace Admin {
                 }
 
                 /**
-                 * 셀렉트폼이 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
                  */
                 onRender(): void {
                     super.onRender();
@@ -832,21 +1118,20 @@ namespace Admin {
                 }
 
                 /**
+                 * 셀렉트폼의 목록 데이터가 변경되었을 때 이벤트를 처리한다.
+                 */
+                onUpdate(): void {
+                    if (this.rawValue !== null) {
+                        this.setValue(this.rawValue);
+                    }
+                }
+
+                /**
                  * 컴포넌트를 제거한다.
                  */
                 remove(): void {
                     this.getAbsolute().remove();
                     super.remove();
-                }
-            }
-
-            export namespace Select {
-                export interface renderer {
-                    (
-                        field: Admin.Form.Field.Select,
-                        display: string | string[],
-                        record: Admin.Data.Record | Admin.Data.Record[]
-                    ): string;
                 }
             }
 
