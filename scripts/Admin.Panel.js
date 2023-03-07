@@ -88,8 +88,8 @@ var Admin;
                         this.items.push(item);
                     }
                 }
-                super.initItems();
             }
+            super.initItems();
         }
         /**
          * 패널의 제목 객체를 가져온다.
