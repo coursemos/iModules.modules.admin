@@ -46,6 +46,9 @@ namespace Admin {
                 this.store.addEvent('load', () => {
                     this.onLoad();
                 });
+                this.store.addEvent('update', () => {
+                    this.onUpdate();
+                });
 
                 this.initColumns();
 
@@ -93,6 +96,24 @@ namespace Admin {
              */
             $getHeader(): Dom {
                 return this.$header;
+            }
+
+            /**
+             * 그리드패널의 바디 Dom 을 가져온다.
+             *
+             * @return {Dom} $body
+             */
+            $getBody(): Dom {
+                return this.$body;
+            }
+
+            /**
+             * 그리드패널의 푸터 Dom 을 가져온다.
+             *
+             * @return {Dom} $footer
+             */
+            $getFooter(): Dom {
+                return this.$footer;
             }
 
             /**
@@ -223,6 +244,13 @@ namespace Admin {
             }
 
             /**
+             * 포커스가 지정된 열의 포커스를 해제한다.
+             */
+            blurRow(): void {
+                // @todo 행 선택 해제
+            }
+
+            /**
              * 특정 셀에 포커스를 지정한다.
              *
              * @param {number} rowIndex - 행 인덱스
@@ -254,6 +282,17 @@ namespace Admin {
                 } else if (right > contentWidth) {
                     this.getScrollbar().setPosition(right + scroll.x - contentWidth + 1, null, true);
                 }
+            }
+
+            /**
+             * 포커스된 셀을 포커스를 해제한다.
+             */
+            blurCell(): void {
+                this.blurRow();
+                this.focusedCell.rowIndex = null;
+                this.focusedCell.columnIndex = null;
+
+                Html.all('div[data-role=column].focus', this.$body).removeClass('focus');
             }
 
             /**
@@ -457,6 +496,76 @@ namespace Admin {
             onRender(): void {
                 super.onRender();
                 this.onLoad();
+
+                this.$getComponent().on('keydown', (e: KeyboardEvent) => {
+                    if (e.key.indexOf('Arrow') === 0) {
+                        let rowIndex: number = 0;
+                        let columnIndex: number = 0;
+                        switch (e.key) {
+                            case 'ArrowLeft':
+                                rowIndex = this.focusedCell.rowIndex ?? 0;
+                                columnIndex = Math.max(0, (this.focusedCell.columnIndex ?? 0) - 1);
+                                while (columnIndex > 0 && this.getColumnByIndex(columnIndex).isHidden() == true) {
+                                    columnIndex--;
+                                }
+                                break;
+
+                            case 'ArrowRight':
+                                rowIndex = this.focusedCell.rowIndex ?? 0;
+                                columnIndex = Math.min(
+                                    this.getColumns().length - 1,
+                                    (this.focusedCell.columnIndex ?? 0) + 1
+                                );
+                                while (
+                                    columnIndex < this.getColumns().length - 1 &&
+                                    this.getColumnByIndex(columnIndex).isHidden() == true
+                                ) {
+                                    columnIndex++;
+                                }
+                                break;
+
+                            case 'ArrowUp':
+                                rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? 0) - 1);
+                                columnIndex = this.focusedCell.columnIndex ?? 0;
+                                break;
+
+                            case 'ArrowDown':
+                                rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? 0) + 1);
+                                columnIndex = this.focusedCell.columnIndex ?? 0;
+                                break;
+                        }
+
+                        this.focusCell(rowIndex, columnIndex);
+                        e.preventDefault();
+                    }
+                });
+
+                this.$getComponent().on('blur', () => {
+                    this.blurCell();
+                });
+
+                /**
+                 * @todo 고민필요
+                 *
+                this.$getComponent().on('copy', (e: ClipboardEvent) => {
+                    if (this.focusedCell.rowIndex !== null && this.focusedCell.columnIndex !== null) {
+                        const $column = Html.get(
+                            'div[data-role=column][data-row="' +
+                                this.focusedCell.rowIndex +
+                                '"][data-column="' +
+                                this.focusedCell.columnIndex +
+                                '"]',
+                            this.$body
+                        );
+                        if ($column == null) return;
+
+                        navigator.clipboard.writeText($column.getData('value'));
+                    }
+
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                });
+                */
             }
 
             /**
@@ -467,11 +576,19 @@ namespace Admin {
             }
 
             /**
-             * 데이터가 로드 이벤트를 처리한다.
+             * 데이터가 로딩되었을 때 이벤트를 처리한다.
              */
             onLoad(): void {
                 if (this.getStore().isLoaded() === false) return;
 
+                this.focusedCell = { rowIndex: null, columnIndex: null };
+                this.renderBody();
+            }
+
+            /**
+             * 데이터가 변경되었을 때 이벤트를 처리한다.
+             */
+            onUpdate(): void {
                 this.focusedCell = { rowIndex: null, columnIndex: null };
                 this.renderBody();
             }
