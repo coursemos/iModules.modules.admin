@@ -32,5 +32,7 @@ $this->db()
     ->where('member_id', $member->member_id)
     ->execute();
 
+sleep(1);
+
 $results->success = true;
 $results->contexts = $values->contexts;
