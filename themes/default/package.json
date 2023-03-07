@@ -17,8 +17,5 @@
     },
     "styles": [
         "/styles/style.scss"
-    ],
-    "scripts": [
-        "/scripts/script.js"
     ]
 }

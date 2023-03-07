@@ -9,28 +9,26 @@
  * @license MIT License
  * @modified 2023. 2. 13.
  *
- * @var \modules\admin\dto\Context[] $contexts
+ * @var \modules\member\Member $mMember 회원모듈
+ * @var \modules\member\dto\Member $member 로그인한 유저정보
  */
 if (defined('__IM__') == false) {
     exit();
 }
 Html::font('NanumBarunGothic');
+Html::font('SUIT');
 ?>
 <header>
     <h1>
-        <i></i>
-        <label></label>
+        <i class="mi mi-imodules"></i>
+        <label><b>iModules</b> Administrator</label>
     </h1>
-    <i class="mi mi-plus"></i>
-    <i class="fa fa-plus"></i>
+    
+    <div>
+        <b><?php echo $member->getDisplayName(); ?></b>
+        <i style="background-image:url(<?php echo $member->getPhotoUrl(); ?>);"></i>
+        <button type="button"><?php echo $mMember->getText('buttons/logout'); ?></button>
+    </div>
 </header>
 
-<main>
-    <aside>
-        <nav></nav>
-    </aside>
-    
-    <section>
-        <?php echo $content; ?>
-    </section>
-</main>
+<main data-role="admin"></main>
