@@ -12,6 +12,7 @@ var Admin;
 (function (Admin) {
     class Absolute extends Admin.Component {
         static $absolutes;
+        static $absolute = new Map();
         animationFrame;
         type = 'absolute';
         role = 'absolute';
@@ -22,6 +23,7 @@ var Admin;
         right;
         width;
         height;
+        hideOnClick;
         /**
          * 버튼을 생성한다.
          *
@@ -36,6 +38,7 @@ var Admin;
             this.right = this.properties.right ?? null;
             this.width = this.properties.width ?? null;
             this.height = this.properties.height ?? null;
+            this.hideOnClick = this.properties.hideOnClick === true;
         }
         /**
          * 절대위치를 가지는 DOM 을 랜더링할 기준 DOM 객체를 가져온다.
@@ -124,17 +127,14 @@ var Admin;
             $content.setStyle('height', this.height);
         }
         /**
-         * 절대위치 컴포넌트가 보이고 있는지 확인한다.
-         *
-         * @return {boolean} isShow
-         */
-        isShow() {
-            return this.isRendered() == true && this.isHidden() == false;
-        }
-        /**
          * 절대위치 컴포넌트를 보인다.
+         *
+         * @param {boolean} is_hide_all - 이전 절대위치 컴포넌트를 숨길지 여부
          */
-        show() {
+        show(is_hide_all = true) {
+            if (is_hide_all == true) {
+                Admin.Absolute.hideAll();
+            }
             const isShow = this.fireEvent('beforeShow', [this]);
             if (isShow === false)
                 return;
@@ -143,6 +143,9 @@ var Admin;
             this.setRect();
             this.updatePosition();
             super.show();
+            if (this.hideOnClick === true) {
+                Admin.Absolute.$absolute.set(this.getId(), this.$getComponent());
+            }
         }
         /**
          * 절대위치 컴포넌트를 숨긴다.
@@ -155,6 +158,19 @@ var Admin;
                 cancelAnimationFrame(this.animationFrame);
             }
             super.hide();
+            if (this.hideOnClick === true) {
+                Admin.Absolute.$absolute.delete(this.getId());
+            }
+        }
+        /**
+         * 모든 절대위치 컴포넌트를 숨긴다.
+         */
+        static hideAll() {
+            if (Admin.Absolute.$absolutes !== undefined) {
+                Html.all('div[data-component][data-type=absolute]', Admin.Absolute.$absolutes).forEach(($dom) => {
+                    Admin.getComponent($dom.getData('component')).hide();
+                });
+            }
         }
         /**
          * 절대위치 컴포넌트를 닫는다.
@@ -165,6 +181,9 @@ var Admin;
                 return;
             this.remove();
             this.fireEvent('close', [this]);
+            if (this.hideOnClick === true) {
+                Admin.Absolute.$absolute.delete(this.getId());
+            }
         }
         /**
          * 컴포넌트를 제거한다.
@@ -178,3 +197,14 @@ var Admin;
     }
     Admin.Absolute = Absolute;
 })(Admin || (Admin = {}));
+Html.ready(() => {
+    Html.get('body').on('mousedown', (e) => {
+        const $target = Html.el(e.target);
+        Admin.Absolute.$absolute.forEach(($dom, id) => {
+            if ($target.is($dom) === false && $target.getParents('div[data-component=' + id + ']') === null) {
+                const absolute = Admin.get(id);
+                absolute.hide();
+            }
+        });
+    });
+});

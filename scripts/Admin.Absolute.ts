@@ -11,6 +11,7 @@
 namespace Admin {
     export class Absolute extends Admin.Component {
         static $absolutes: Dom;
+        static $absolute: Map<string, Dom> = new Map();
 
         animationFrame: number;
 
@@ -25,6 +26,8 @@ namespace Admin {
         right: number | string;
         width: number | string;
         height: number | string;
+
+        hideOnClick: boolean;
 
         /**
          * 버튼을 생성한다.
@@ -41,6 +44,7 @@ namespace Admin {
             this.right = this.properties.right ?? null;
             this.width = this.properties.width ?? null;
             this.height = this.properties.height ?? null;
+            this.hideOnClick = this.properties.hideOnClick === true;
         }
 
         /**
@@ -148,18 +152,15 @@ namespace Admin {
         }
 
         /**
-         * 절대위치 컴포넌트가 보이고 있는지 확인한다.
-         *
-         * @return {boolean} isShow
-         */
-        isShow(): boolean {
-            return this.isRendered() == true && this.isHidden() == false;
-        }
-
-        /**
          * 절대위치 컴포넌트를 보인다.
+         *
+         * @param {boolean} is_hide_all - 이전 절대위치 컴포넌트를 숨길지 여부
          */
-        show(): void {
+        show(is_hide_all: boolean = true): void {
+            if (is_hide_all == true) {
+                Admin.Absolute.hideAll();
+            }
+
             const isShow = this.fireEvent('beforeShow', [this]);
             if (isShow === false) return;
 
@@ -170,6 +171,10 @@ namespace Admin {
             this.updatePosition();
 
             super.show();
+
+            if (this.hideOnClick === true) {
+                Admin.Absolute.$absolute.set(this.getId(), this.$getComponent());
+            }
         }
 
         /**
@@ -184,6 +189,21 @@ namespace Admin {
             }
 
             super.hide();
+
+            if (this.hideOnClick === true) {
+                Admin.Absolute.$absolute.delete(this.getId());
+            }
+        }
+
+        /**
+         * 모든 절대위치 컴포넌트를 숨긴다.
+         */
+        static hideAll(): void {
+            if (Admin.Absolute.$absolutes !== undefined) {
+                Html.all('div[data-component][data-type=absolute]', Admin.Absolute.$absolutes).forEach(($dom: Dom) => {
+                    Admin.getComponent($dom.getData('component')).hide();
+                });
+            }
         }
 
         /**
@@ -195,6 +215,10 @@ namespace Admin {
 
             this.remove();
             this.fireEvent('close', [this]);
+
+            if (this.hideOnClick === true) {
+                Admin.Absolute.$absolute.delete(this.getId());
+            }
         }
 
         /**
@@ -208,3 +232,15 @@ namespace Admin {
         }
     }
 }
+
+Html.ready(() => {
+    Html.get('body').on('mousedown', (e: MouseEvent) => {
+        const $target = Html.el(e.target);
+        Admin.Absolute.$absolute.forEach(($dom: Dom, id: string) => {
+            if ($target.is($dom) === false && $target.getParents('div[data-component=' + id + ']') === null) {
+                const absolute = Admin.get(id) as Admin.Absolute;
+                absolute.hide();
+            }
+        });
+    });
+});
