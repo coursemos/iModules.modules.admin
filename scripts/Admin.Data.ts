@@ -11,6 +11,7 @@
 namespace Admin {
     export class Data {
         records: Admin.Data.Record[] = [];
+        types: { [key: string]: string } = {};
 
         /**
          * 데이터셋을 생성한다.
@@ -19,6 +20,8 @@ namespace Admin {
          * @param {Object} types - 데이터유형 [{key:type}]
          */
         constructor(datas: { [key: string]: any }[], types: { [key: string]: string } = {}) {
+            this.types = types;
+
             for (const data of datas) {
                 for (const key in data) {
                     if (types[key] !== undefined) {
@@ -38,6 +41,24 @@ namespace Admin {
          */
         getRecords(): Admin.Data.Record[] {
             return this.records;
+        }
+
+        /**
+         * 데이터를 추가한다.
+         *
+         * @param {Object[]} records
+         */
+        add(datas: { [key: string]: any }[]): void {
+            for (const data of datas) {
+                for (const key in data) {
+                    if (this.types[key] !== undefined) {
+                    }
+
+                    data[key] = data[key];
+                }
+
+                this.records.push(new Admin.Data.Record(data));
+            }
         }
 
         /**

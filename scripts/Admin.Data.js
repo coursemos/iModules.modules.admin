@@ -12,6 +12,7 @@ var Admin;
 (function (Admin) {
     class Data {
         records = [];
+        types = {};
         /**
          * 데이터셋을 생성한다.
          *
@@ -19,6 +20,7 @@ var Admin;
          * @param {Object} types - 데이터유형 [{key:type}]
          */
         constructor(datas, types = {}) {
+            this.types = types;
             for (const data of datas) {
                 for (const key in data) {
                     if (types[key] !== undefined) {
@@ -35,6 +37,21 @@ var Admin;
          */
         getRecords() {
             return this.records;
+        }
+        /**
+         * 데이터를 추가한다.
+         *
+         * @param {Object[]} records
+         */
+        add(datas) {
+            for (const data of datas) {
+                for (const key in data) {
+                    if (this.types[key] !== undefined) {
+                    }
+                    data[key] = data[key];
+                }
+                this.records.push(new Admin.Data.Record(data));
+            }
         }
         /**
          * 데이터를 정렬한다.
