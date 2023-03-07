@@ -32,8 +32,6 @@ var Admin;
             this.title = this.properties.title ?? '';
             this.iconClass = this.properties.iconClass ?? '';
             this.tools = this.properties.tools ?? [];
-            this.$setTop();
-            this.$setBottom();
         }
         /**
          * 부모객체를 지정한다.
@@ -103,18 +101,18 @@ var Admin;
         /**
          * 제목 아이콘을 랜더링한다.
          */
-        renderTop() {
-            if (this.iconClass == '')
-                return;
-            const $top = this.$getTop();
-            const $i = Html.create('i').addClass(...this.iconClass.split(' '));
-            $top.append($i);
-        }
+        renderTop() { }
         /**
          * 제목을 랜더링한다.
          */
         renderContent() {
-            this.$getContent().html(this.title);
+            const $content = this.$getContent();
+            if (this.iconClass) {
+                const $i = Html.create('i').addClass(...this.iconClass.split(' '));
+                $content.append($i);
+            }
+            const $text = Html.create('span').html(this.title);
+            $content.append($text);
         }
         /**
          * 툴버튼을 랜더링한다.
@@ -122,6 +120,7 @@ var Admin;
         renderBottom() {
             if (this.tools.length == 0)
                 return;
+            this.$setBottom();
             this.$getBottom().empty();
             this.tools.forEach((tool) => {
                 this.$getBottom().append(tool.$getComponent());
