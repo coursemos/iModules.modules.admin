@@ -12,6 +12,8 @@ namespace Admin {
     export let items: Map<string, Admin.Base> = new Map();
     export let index: number = 0;
     export let currentComponent: Admin.Component = null;
+    export let viewport: Admin.Viewport.Panel;
+    export let viewportListener: () => Admin.Component;
 
     /**
      * 객체를 등록한다.
@@ -136,9 +138,13 @@ namespace Admin {
      * 관리자 UI 처리가 준비되었을 때 이벤트리스너를 등록한다.
      *
      * @param {EventListener} listener - 이벤트리스너
-     */
+     *
     export function ready(listener: EventListener): void {
         Html.ready(listener);
+    }*/
+
+    export function ready(listener: () => Admin.Component): void {
+        this.viewportListener = listener;
     }
 
     export class Base {
@@ -211,29 +217,17 @@ namespace Admin {
 
             return true;
         }
-    }
-}
 
-Html.on('click', (e: MouseEvent) => {
-    if (e.target instanceof HTMLElement) {
-        const $target = Html.el(e.target);
-        const $component = $target.getParents('div[data-component]');
-        if ($component == null) {
-            Admin.currentComponent = null;
-        } else {
-            Admin.currentComponent = Admin.get($component.getData('component')) as Admin.Component;
+        /**
+         * 이벤트를 실행한다.
+         *
+         * @param {string} name - 이벤트명
+         */
+        triggerEvent(name: string) {
+            const methodName = 'on' + name.replace(/^[a-z]/, (char) => char.toUpperCase());
+            if (typeof this[methodName] == 'function') {
+                this[methodName]();
+            }
         }
     }
-});
-
-Html.on('keydown', (e: KeyboardEvent) => {
-    if (Admin.currentComponent !== null && typeof Admin.currentComponent['onKeydown'] == 'function') {
-        Admin.currentComponent['onKeydown'](e);
-    }
-});
-
-Html.on('copy', (e: ClipboardEvent) => {
-    if (Admin.currentComponent !== null && typeof Admin.currentComponent['onCopy'] == 'function') {
-        Admin.currentComponent['onCopy'](e);
-    }
-});
+}

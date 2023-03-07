@@ -133,9 +133,12 @@ var Admin;
      * 관리자 UI 처리가 준비되었을 때 이벤트리스너를 등록한다.
      *
      * @param {EventListener} listener - 이벤트리스너
-     */
-    function ready(listener) {
+     *
+    export function ready(listener: EventListener): void {
         Html.ready(listener);
+    }*/
+    function ready(listener) {
+        this.viewportListener = listener;
     }
     Admin.ready = ready;
     class Base {
@@ -200,28 +203,17 @@ var Admin;
             }
             return true;
         }
+        /**
+         * 이벤트를 실행한다.
+         *
+         * @param {string} name - 이벤트명
+         */
+        triggerEvent(name) {
+            const methodName = 'on' + name.replace(/^[a-z]/, (char) => char.toUpperCase());
+            if (typeof this[methodName] == 'function') {
+                this[methodName]();
+            }
+        }
     }
     Admin.Base = Base;
 })(Admin || (Admin = {}));
-Html.on('click', (e) => {
-    if (e.target instanceof HTMLElement) {
-        const $target = Html.el(e.target);
-        const $component = $target.getParents('div[data-component]');
-        if ($component == null) {
-            Admin.currentComponent = null;
-        }
-        else {
-            Admin.currentComponent = Admin.get($component.getData('component'));
-        }
-    }
-});
-Html.on('keydown', (e) => {
-    if (Admin.currentComponent !== null && typeof Admin.currentComponent['onKeydown'] == 'function') {
-        Admin.currentComponent['onKeydown'](e);
-    }
-});
-Html.on('copy', (e) => {
-    if (Admin.currentComponent !== null && typeof Admin.currentComponent['onCopy'] == 'function') {
-        Admin.currentComponent['onCopy'](e);
-    }
-});
