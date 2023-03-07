@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2023. 3. 6.
  */
 namespace modules\admin;
 use \Router;
@@ -26,7 +26,12 @@ class Admin extends \Module
     /**
      * @var \modules\admin\dto\Context[] $_contexts 전체 컨텍스트 정보
      */
-    private static array $_contexts = [];
+    private static array $_contexts;
+
+    /**
+     * @var \modules\admin\dto\Context[] $_tree 유저가 설정한 컨텍스트 트리
+     */
+    private static array $_tree;
 
     /**
      * @var \modules\admin\admin\Admin[] $_classes 각 컴포넌트의 관리자 클래스
@@ -55,16 +60,15 @@ class Admin extends \Module
      */
     public function initContexts(): void
     {
-        foreach (\Modules::all() as $module) {
-            if ($module->name == 'member' || $module->name == 'admin') {
-                $class = $this->getAdminClass('module', $module->name);
-                $class->init();
+        if (isset(self::$_contexts) === false) {
+            foreach (\Modules::all() as $module) {
+                $this->getAdminClass('module', $module->name)?->init();
             }
-        }
 
-        uksort(self::$_contexts, function ($left, $right) {
-            return $left <=> $right;
-        });
+            uksort(self::$_contexts, function ($left, $right) {
+                return $left <=> $right;
+            });
+        }
     }
 
     /**
@@ -115,6 +119,7 @@ class Admin extends \Module
                 ])
                 ->execute();
             $member = new stdClass();
+            $member->member_id = $member_id;
             $member->language = Request::languages(true);
             $member->contexts = null;
         } else {
@@ -133,6 +138,10 @@ class Admin extends \Module
      */
     public function getContexts(): array
     {
+        if (isset(self::$_tree) === true) {
+            return self::$_tree;
+        }
+
         $this->initContexts();
         $contexts = $this->getMember()->contexts;
 
@@ -144,21 +153,21 @@ class Admin extends \Module
 
             $modules = new stdClass();
             $modules->title = '@modules';
-            $modules->icon = 'xi xi-folder';
+            $modules->icon = 'xi xi-box';
             $modules->smart = 'modules';
             $modules->children = [];
             $tree[] = $modules;
 
             $plugins = new stdClass();
             $plugins->title = '@plugins';
-            $plugins->icon = 'xi xi-folder';
+            $plugins->icon = 'xi xi-plug';
             $plugins->smart = 'plugins';
             $plugins->children = [];
             $tree[] = $plugins;
 
             $sites = new stdClass();
             $sites->title = '@sites';
-            $sites->icon = 'xi xi-folder';
+            $sites->icon = 'xi xi-home';
             $sites->smart = 'none';
             $sites->children = ['/sites', '/sitemap'];
             $tree[] = $sites;
@@ -225,24 +234,28 @@ class Admin extends \Module
                     }
                 }
 
-                if (count($children) > 0) {
-                    if (strpos($item->title, '@') === 0) {
-                        $item->title = $this->getText('admin/groups/' . substr($item->title, 1));
+                if (strpos($item->title, '@') === 0) {
+                    if (count($children) == 0) {
+                        continue;
                     }
 
-                    $folder = new \modules\admin\dto\Context(
-                        $this->getAdminClass('module', 'admin'),
-                        $item->title,
-                        $item->icon
-                    );
-                    $folder->setFolder($children, $item->smart);
-
-                    $contexts[] = $folder;
+                    $item->title = $this->getText('admin/groups/' . substr($item->title, 1));
                 }
+
+                $folder = new \modules\admin\dto\Context(
+                    $this->getAdminClass('module', 'admin'),
+                    $item->title,
+                    $item->icon
+                );
+                $folder->setFolder($children, $item->smart);
+
+                $contexts[] = $folder;
             }
         }
 
-        return $contexts;
+        self::$_tree = $contexts;
+
+        return self::$_tree;
     }
 
     /**
@@ -253,6 +266,47 @@ class Admin extends \Module
     public function getLanguage(): string
     {
         return $this->getMember()->language;
+    }
+
+    /**
+     * 현재 관리자 경로에 해당하는 컨텍스트를 가져온다.
+     *
+     * @param Route $route 현재 경로
+     * @return ?\modules\admin\dto\Context $context
+     */
+    public function getContext(Route $route): ?\modules\admin\dto\Context
+    {
+        $contexts = $this->getContexts();
+        $paths = array_keys(self::$_contexts);
+
+        $routes = explode('/', $route->getSubPath());
+        if (count($routes) == 1) {
+            foreach ($contexts as $context) {
+                if ($context->getType() == 'FOLDER') {
+                    foreach ($context->getChildren() as $child) {
+                        if ($child->getType() != 'LINK') {
+                            return $child;
+                        }
+                    }
+                } elseif ($context->getType() != 'LINK') {
+                    return $context;
+                }
+            }
+
+            return self::$_contexts['/dashboard'];
+        }
+
+        while (count($routes) > 1) {
+            $path = implode('/', $routes);
+            if (in_array($path, $paths) == true) {
+                return self::$_contexts[$path];
+                break;
+            }
+
+            array_pop($routes);
+        }
+
+        return null;
     }
 
     /**
@@ -297,6 +351,7 @@ class Admin extends \Module
      */
     public function checkPermission(string $path): bool|string
     {
+        $this->initContexts();
         $context = self::$_contexts[$path] ?? null;
         if ($context == null) {
             return false;
@@ -312,7 +367,18 @@ class Admin extends \Module
      */
     public function doRoute(Route $route): string
     {
-        $contexts = $this->getContexts();
+        $context = $this->getContext($route);
+        if ($context === null) {
+            ErrorHandler::print('NOT_FOUND_URL');
+        }
+
+        if (preg_match('/^' . \Format::reg($context->getPath()) . '/', $route->getSubPath()) == false) {
+            \Header::location($route->getUrl() . $context->getPath());
+        }
+
+        if ($this->checkPermission($context->getPath()) === false) {
+            ErrorHandler::print('FORBIDDEN');
+        }
 
         /**
          * 기본 자바스크립트파일을 불러온다.
@@ -367,21 +433,32 @@ class Admin extends \Module
         Html::font('FontAwesome');
 
         /**
+         * 현재 접속한 유저의 정보를 가져온다.
+         * @var \modules\member\Member $mMember
+         */
+        $mMember = Modules::get('member');
+        $member = $mMember->getMember();
+
+        /**
          * 아이모듈 관리자 테마를 설정한다.
          */
         $theme = new Theme($this->getConfigs('theme'));
-        $this->setTemplate($this->getConfigs('template'));
+        $theme->assign('mMember', $mMember);
+        $theme->assign('member', $member);
 
+        /*
+        $this->setTemplate($this->getConfigs('template'));
         $templet = $this->getTemplate();
-        $templet->assign('contexts', $contexts);
+        */
 
         /**
          * todo: 관리자 라우팅 처리
          */
-        $paths = explode('/', $route->getSubPath());
-        $menu = count($paths) > 1 ? $paths[1] : 'dashboard';
-        $content = $this->getTemplate()->getLayout($menu);
-        $theme->assign('content', $content);
+        //$paths = explode('/', $route->getSubPath());
+        //$menu = count($paths) > 1 ? $paths[1] : 'dashboard';
+        //$content = $this->getTemplate()->getLayout($menu);
+        $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
+        $theme->assign('content', $context->getContent($subPath ? $subPath : null));
 
         return $theme->getLayout('index');
     }
