@@ -103,8 +103,8 @@ var Admin;
                         this.items.push(item);
                     }
                 }
-                super.initItems();
             }
+            super.initItems();
         }
         /**
          * 전체 윈도우 랜더링 영역을 가져온다.
