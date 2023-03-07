@@ -223,4 +223,15 @@ class Context
     {
         return $this->_target;
     }
+
+    /**
+     * 컨텍스트의 콘텐츠를 가져온다.
+     *
+     * @return ?string $subPath 하위경로
+     * @return string $content 콘텐츠
+     */
+    public function getContent(string $subPath = null): string
+    {
+        return $this->_admin->getContent($this->_path, $subPath);
+    }
 }
