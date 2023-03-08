@@ -479,7 +479,7 @@ var Admin;
                         this.$getComponent().setStyle('flex-shrink', 0);
                     }
                     if (this.properties.minWidth !== undefined && this.properties.minWidth > 0) {
-                        this.$getComponent().setStyle('flex-basis', this.properties.minWidth + 'px');
+                        this.$getComponent().setStyle('min-width', this.properties.minWidth + 'px');
                     }
                 }
                 this.getScrollbar()?.render();

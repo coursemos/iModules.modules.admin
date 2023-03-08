@@ -545,7 +545,7 @@ namespace Admin {
                     }
 
                     if (this.properties.minWidth !== undefined && this.properties.minWidth > 0) {
-                        this.$getComponent().setStyle('flex-basis', this.properties.minWidth + 'px');
+                        this.$getComponent().setStyle('min-width', this.properties.minWidth + 'px');
                     }
                 }
 
