@@ -94,7 +94,7 @@ namespace Admin {
                             const $guide = this.setGuideline(rect);
                             this.$parent.append($guide);
 
-                            this.$parent.on('scroll', this.onScroll);
+                            this.$parent.on('scroll', this.onScroll.bind(this));
                             this.fireEvent('mouseenter', [$resizer]);
                             this.fireEvent('start', [this.$target, rect, tracker.getFirstPosition()]);
                         },
@@ -112,7 +112,7 @@ namespace Admin {
 
                             Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
 
-                            this.$parent.off('scroll', this.onScroll);
+                            this.$parent.off('scroll', this.onScroll.bind(this));
                             this.fireEvent('mouseleave', [$resizer]);
                             this.fireEvent('end', [this.$target, rect, tracker.getLastPosition()]);
                         },

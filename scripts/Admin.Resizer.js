@@ -76,7 +76,7 @@ var Admin;
                             this.resetGuideline();
                             const $guide = this.setGuideline(rect);
                             this.$parent.append($guide);
-                            this.$parent.on('scroll', this.onScroll);
+                            this.$parent.on('scroll', this.onScroll.bind(this));
                             this.fireEvent('mouseenter', [$resizer]);
                             this.fireEvent('start', [this.$target, rect, tracker.getFirstPosition()]);
                         },
@@ -90,7 +90,7 @@ var Admin;
                             const direction = $resizer.getData('direction');
                             const rect = this.getResizeRect(direction, tracker.getLastPosition());
                             Html.get('> div[data-role="resize-guide"]', this.$parent).remove();
-                            this.$parent.off('scroll', this.onScroll);
+                            this.$parent.off('scroll', this.onScroll.bind(this));
                             this.fireEvent('mouseleave', [$resizer]);
                             this.fireEvent('end', [this.$target, rect, tracker.getLastPosition()]);
                         },
