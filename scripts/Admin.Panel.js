@@ -114,6 +114,21 @@ var Admin;
             }
         }
         /**
+         * 패널의 비활성화여부를 설정한다.
+         *
+         * @param {boolean} disabled - 비활성여부
+         * @return {Admin.Component} this
+         */
+        setDisabled(disabled) {
+            if (disabled == true) {
+                this.$getComponent().addClass('disabled');
+            }
+            else {
+                this.$getComponent().removeClass('disabled');
+            }
+            return super.setDisabled(disabled);
+        }
+        /**
          * 패널의 상단을 랜더링한다.
          */
         renderTop() {
@@ -143,8 +158,16 @@ var Admin;
          * 컴포넌트 콘텐츠를 랜더링한다.
          */
         render() {
-            if (this.border == true) {
+            if (this.border === true) {
                 this.$container.addClass('border');
+            }
+            else if (this.border !== false) {
+                const border = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+                this.border.forEach((is, index) => {
+                    if (is === true) {
+                        this.$container.addClass(border[index]);
+                    }
+                });
             }
             super.render();
         }

@@ -124,6 +124,21 @@ namespace Admin {
         }
 
         /**
+         * 패널의 비활성화여부를 설정한다.
+         *
+         * @param {boolean} disabled - 비활성여부
+         * @return {Admin.Component} this
+         */
+        setDisabled(disabled: boolean): this {
+            if (disabled == true) {
+                this.$getComponent().addClass('disabled');
+            } else {
+                this.$getComponent().removeClass('disabled');
+            }
+            return super.setDisabled(disabled);
+        }
+
+        /**
          * 패널의 상단을 랜더링한다.
          */
         renderTop(): void {
