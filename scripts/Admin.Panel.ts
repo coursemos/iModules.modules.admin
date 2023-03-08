@@ -12,7 +12,7 @@ namespace Admin {
     export class Panel extends Admin.Component {
         type: string = 'panel';
         role: string = 'panel';
-        border: boolean;
+        border: boolean | [boolean, boolean, boolean, boolean];
 
         title: Admin.Title;
         topbar: Admin.Toolbar;
@@ -157,8 +157,15 @@ namespace Admin {
          * 컴포넌트 콘텐츠를 랜더링한다.
          */
         render(): void {
-            if (this.border == true) {
+            if (this.border === true) {
                 this.$container.addClass('border');
+            } else if (this.border !== false) {
+                const border = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+                this.border.forEach((is: boolean, index: number) => {
+                    if (is === true) {
+                        this.$container.addClass(border[index]);
+                    }
+                });
             }
 
             super.render();
