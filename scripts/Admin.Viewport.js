@@ -25,6 +25,9 @@ var Admin;
                 this.layout = 'fit';
                 this.scrollable = false;
                 this.$setTop();
+                if (Admin.session('navigation-collapsed') == true) {
+                    this.$getTop().addClass('collapsed');
+                }
             }
             /**
              * 네비게이션 영역을 축소한다.
@@ -33,6 +36,7 @@ var Admin;
                 this.$getTop().addClass('collapsed');
                 const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle');
                 toggle.setIconClass('xi xi-fast-forward');
+                Admin.session('navigation-collapsed', true);
             }
             /**
              * 네비게이션 영역을 확장한다.
@@ -41,6 +45,7 @@ var Admin;
                 this.$getTop().removeClass('collapsed');
                 const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle');
                 toggle.setIconClass('xi xi-fast-backward');
+                Admin.session('navigation-collapsed', false);
             }
             /**
              * 네비게이션 영역을 토글한다.
@@ -61,6 +66,9 @@ var Admin;
                 const navigation = new Admin.Viewport.Navigation.Panel({ id: this.id + '-Navigation' });
                 $top.append(navigation.$getComponent());
                 navigation.render();
+                if (Admin.session('navigation-collapsed') == true) {
+                    this.collapse();
+                }
             }
             /**
              * 뷰포트가 랜더링이 완료되었을 때 이벤트를 처리한다.
@@ -669,6 +677,23 @@ var Admin;
                     if (dropIndex[1] === null) {
                         const $prev = this.$contexts[dropIndex[0] - 1] ?? null;
                         const $next = this.$contexts[dropIndex[0]] ?? null;
+                        if ($prev?.getAttr('data-drag') == 'origin') {
+                            $prev.addClass('drop');
+                            Html.get('div[data-drag=drop]', this.panel.$getContent()).remove();
+                            this.$drop = null;
+                            return;
+                        }
+                        if ($next?.getAttr('data-drag') == 'origin') {
+                            $next.addClass('drop');
+                            Html.get('div[data-drag=drop]', this.panel.$getContent()).remove();
+                            this.$drop = null;
+                            return;
+                        }
+                    }
+                    else {
+                        const $children = Html.all('div[data-component]', this.$contexts[dropIndex[0]]).getList();
+                        const $prev = $children[dropIndex[1] - 1] ?? null;
+                        const $next = $children[dropIndex[1]] ?? null;
                         if ($prev?.getAttr('data-drag') == 'origin') {
                             $prev.addClass('drop');
                             Html.get('div[data-drag=drop]', this.panel.$getContent()).remove();

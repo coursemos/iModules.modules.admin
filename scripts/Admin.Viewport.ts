@@ -26,6 +26,9 @@ namespace Admin {
                 this.scrollable = false;
 
                 this.$setTop();
+                if (Admin.session('navigation-collapsed') == true) {
+                    this.$getTop().addClass('collapsed');
+                }
             }
 
             /**
@@ -35,6 +38,7 @@ namespace Admin {
                 this.$getTop().addClass('collapsed');
                 const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle') as Admin.Button;
                 toggle.setIconClass('xi xi-fast-forward');
+                Admin.session('navigation-collapsed', true);
             }
 
             /**
@@ -44,6 +48,7 @@ namespace Admin {
                 this.$getTop().removeClass('collapsed');
                 const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle') as Admin.Button;
                 toggle.setIconClass('xi xi-fast-backward');
+                Admin.session('navigation-collapsed', false);
             }
 
             /**
@@ -66,6 +71,10 @@ namespace Admin {
 
                 $top.append(navigation.$getComponent());
                 navigation.render();
+
+                if (Admin.session('navigation-collapsed') == true) {
+                    this.collapse();
+                }
             }
 
             /**
@@ -779,6 +788,24 @@ namespace Admin {
                     if (dropIndex[1] === null) {
                         const $prev = this.$contexts[dropIndex[0] - 1] ?? null;
                         const $next = this.$contexts[dropIndex[0]] ?? null;
+
+                        if ($prev?.getAttr('data-drag') == 'origin') {
+                            $prev.addClass('drop');
+                            Html.get('div[data-drag=drop]', this.panel.$getContent()).remove();
+                            this.$drop = null;
+                            return;
+                        }
+
+                        if ($next?.getAttr('data-drag') == 'origin') {
+                            $next.addClass('drop');
+                            Html.get('div[data-drag=drop]', this.panel.$getContent()).remove();
+                            this.$drop = null;
+                            return;
+                        }
+                    } else {
+                        const $children = Html.all('div[data-component]', this.$contexts[dropIndex[0]]).getList();
+                        const $prev = $children[dropIndex[1] - 1] ?? null;
+                        const $next = $children[dropIndex[1]] ?? null;
 
                         if ($prev?.getAttr('data-drag') == 'origin') {
                             $prev.addClass('drop');
