@@ -6,75 +6,45 @@
  * @file /styles/Admin.Button.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 7.
+ * @modified 2023. 3. 6.
  */
 div[data-component][data-type='button'] {
-    --default-border-color: #eee;
-    --default-background: #fff;
-    --default-font-color: #404040;
-    --over-border-color: var(--default-border-color);
-    --over-background: #f4f4f4;
-    --over-font-color: #222;
-    --focus-border-color: var(--theme-color);
-
     > div[data-role='container'] {
         > div[data-role='content'] {
             > button {
                 outline: none;
-                height: calc(var(--default-size) * 2);
-                border: 1px solid var(--default-border-color);
-                background: var(--default-background);
-                color: var(--default-font-color);
+                height: var(--text-height);
+                border: 1px solid var(--button-border-color-default);
+                background: var(--button-background-default);
+                color: var(--button-color-default);
                 cursor: pointer;
-                font-size: var(--small-font-size);
-                font-family: inherit;
-
-                &:hover {
-                    background: var(--over-background);
-                    border-color: var(--over-border-color);
-                    color: var(--over-font-color);
-                }
-
-                &:focus {
-                    position: relative;
-
-                    &::after {
-                        content: ' ';
-                        border: 1px solid var(--focus-border-color);
-                        position: absolute;
-                        top: 0px;
-                        left: 0px;
-                        width: calc(100% - 2px);
-                        height: calc(100% - 2px);
-                    }
-                }
-
-                &[disabled] {
-                    cursor: not-allowed;
-                    opacity: 0.7;
-                }
+                font-size: var(--font-size-default);
+                font-family: var(--font-family-default);
+                box-sizing: border-box;
+                white-space: nowrap;
 
                 > i {
                     display: inline-block;
                     font-style: normal;
-                    width: calc(var(--medium-font-size) * 2);
-                    height: calc(var(--small-font-size) * 2);
-                    line-height: calc(var(--small-font-size) * 2);
+                    width: calc(var(--text-height) - 2px);
+                    height: calc(var(--text-height) - 2px);
+                    line-height: calc(var(--text-height) - 2px - 1px);
                     vertical-align: middle;
                     text-align: center;
-                    font-size: var(--medium-font-size);
-                    color: var(--default-font-color);
+                    font-size: inherit;
+                    color: inherit;
+                    text-align: center;
                 }
 
                 > span {
                     display: inline-block;
                     vertical-align: middle;
-                    height: calc(var(--small-font-size) * 2);
-                    line-height: calc(var(--small-font-size) * 2);
-                    padding: 0;
-                    padding-left: var(--small-font-size);
-                    padding-right: var(--small-font-size);
+                    height: calc(var(--text-height) - 2px);
+                    line-height: calc(var(--text-height) - 2px);
+                    padding-left: var(--padding-large);
+                    padding-right: var(--padding-large);
                     text-align: left;
+                    font-size: var(--font-size-small);
 
                     &:empty {
                         display: none;
@@ -83,6 +53,41 @@ div[data-component][data-type='button'] {
 
                 > i + span {
                     padding-left: 0;
+                }
+
+                &:hover {
+                    background: var(--button-background-hover);
+                    border-color: var(--button-border-color-hover);
+                    color: var(--button-color-hover);
+                }
+
+                &:focus {
+                    background: var(--button-background-focus);
+                    border-color: var(--button-border-color-focus);
+                    color: var(--button-color-focus);
+                }
+
+                &.pressed {
+                    background: var(--button-background-pressed);
+                    border-color: var(--button-border-color-pressed);
+                    color: var(--button-color-pressed);
+                }
+
+                &[disabled] {
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+
+                &.confirm {
+                    background: var(--button-background-confirm);
+                    border-color: var(--button-border-color-confirm);
+                    color: var(--button-color-confirm);
+                }
+
+                &.danger {
+                    background: var(--button-background-danger);
+                    border-color: var(--button-border-color-danger);
+                    color: var(--button-color-danger);
                 }
             }
         }

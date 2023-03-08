@@ -8,3 +8,12 @@
  * @license MIT License
  * @modified 2022. 12. 7.
  */
+div[data-role='component'][data-type='text'][data-role='text'] {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            height: var(--text-height);
+            font-family: var(--font-family-default);
+            font-size: var(--font-size-default);
+        }
+    }
+}

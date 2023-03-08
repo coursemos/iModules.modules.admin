@@ -6,15 +6,73 @@
  * @file /styles/Admin.Component.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 7.
+ * @modified 2023. 3. 7.
  */
 div[data-component] {
+    z-index: 0;
+    box-sizing: border-box;
+
+    > div[data-role='container'] {
+        box-sizing: border-box;
+
+        > div[data-role='top'] {
+            box-sizing: border-box;
+        }
+
+        > div[data-role='content'] {
+            box-sizing: border-box;
+        }
+
+        > div[data-role='bottom'] {
+            box-sizing: border-box;
+        }
+    }
+
     &.fit {
         width: 100%;
         height: 100%;
     }
 
+    &.column {
+        width: 100%;
+        height: 100%;
+
+        > div[data-role='container'] {
+            > div[data-role='content'] {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+                overflow: scroll;
+
+                > div[data-component] {
+                    flex-shrink: 0;
+                }
+            }
+        }
+    }
+
+    &.column-item {
+        flex-shrink: 0;
+    }
+
+    &.column {
+        > div[data-role='container'] {
+            > div[data-role='content'] {
+                > div[data-component].column-item {
+                    height: 100%;
+                }
+            }
+        }
+    }
+
     user-select: none;
     -webkit-user-select: none;
     position: relative;
+
+    &.selectable {
+        user-select: text;
+        -webkit-user-select: text;
+        -ms-user-select: text;
+    }
 }

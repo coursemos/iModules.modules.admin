@@ -6,47 +6,84 @@
  * @file /styles/Admin.Tab.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 7.
+ * @modified 2023. 3. 6.
  */
 div[data-component][data-type='toolbar'][data-role='tab'] {
     > div[data-role='container'] {
         width: 100%;
-        height: calc(var(--medium-font-size) * 3);
-        background: var(--theme-color);
+        height: var(--tabbar-height);
+        background: var(--tabbar-background);
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
+        align-items: stretch;
+
+        > div[data-role='top'] {
+            flex-shrink: 0;
+            // @todo 좌로이동
+        }
 
         > div[data-role='content'] {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            flex-grow: 1;
             padding: 0;
-            padding-left: var(--small-font-size);
-            padding-right: var(--small-font-size);
+            column-gap: var(--padding-default);
+            padding-left: var(--padding-large);
+            padding-right: var(--padding-large);
 
-            &[data-position='top'] {
-                > div[data-component] > div[data-role='container'] > div[data-role='content'] > button {
-                    margin-top: calc(var(--small-font-size) * 0.5);
+            > div[data-component] {
+                flex-shrink: 0;
+
+                &:last-child::after {
+                    content: ' ';
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    right: calc(var(--padding-large) * -1);
+                    width: var(--padding-large);
+                    height: 1px;
                 }
             }
 
-            &[data-position='bottom'] {
-                > div[data-component] > div[data-role='container'] > div[data-role='content'] > button {
-                    margin-bottom: calc(var(--small-font-size) * 0.5);
-                }
-            }
+            > div[data-component][data-type='button'] > div[data-role='container'] {
+                --button-background-default: var(--tabbar-button-background-default);
+                --button-background-hover: var(--tabbar-button-background-hover);
+                --button-background-pressed: var(--tabbar-button-background-selected);
+                --button-border-color-default: var(--tabbar-button-border-color-default);
+                --button-border-color-hover: var(--tabbar-button-background-hover);
+                --button-border-color-pressed: var(--tabbar-button-background-selected);
+                --button-color-default: var(--tabbar-button-color-default);
+                --button-color-hover: var(--tabbar-button-color-hover);
+                --button-color-pressed: var(--tabbar-button-color-selected);
+                --padding-large: 12px;
 
-            > div[data-component] > div[data-role='container'] {
                 > div[data-role='content'] {
                     > button {
-                        border: 0;
-                        height: calc(var(--medium-font-size) * 3 - var(--small-font-size) * 0.5);
-                        background: transparent;
-                        color: var(--invert-font-color);
-
-                        &.pressed {
-                            background: var(--default-background);
-                            color: var(--theme-color);
-                        }
+                        height: calc(var(--tabbar-height) - 6px);
                     }
+                }
+            }
+        }
+
+        > div[data-role='bottom'] {
+            flex-shrink: 0;
+            // @todo 우로이동
+        }
+
+        &[data-position='top'] {
+            > div[data-role='content'] {
+                > div[data-component] > div[data-role='container'] > div[data-role='content'] > button {
+                    margin-top: 6px;
+                }
+            }
+        }
+
+        &[data-position='bottom'] {
+            > div[data-role='content'] {
+                > div[data-component] > div[data-role='container'] > div[data-role='content'] > button {
+                    margin-bottom: 6px;
                 }
             }
         }

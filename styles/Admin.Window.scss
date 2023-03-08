@@ -11,18 +11,20 @@
 div[data-component][data-type='window'] {
     position: absolute;
     z-index: -1;
+    max-width: 90vw;
 
     > div[data-role='container'] {
         width: 100%;
         height: 100%;
         box-sizing: border-box;
-        border: 2px solid var(--theme-color);
-        background: var(--default-background);
+        border: 2px solid var(--title-background);
+        background: var(--color-background);
         box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.2);
         display: flex;
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
+        box-sizing: border-box;
 
         > div[data-role='content'] {
             flex-grow: 1;
@@ -31,35 +33,27 @@ div[data-component][data-type='window'] {
 
         > div[data-role='bottom'] {
             background: #ececec;
-            padding-top: calc(var(--small-font-size) * 0.5);
-            padding-bottom: calc(var(--small-font-size) * 0.5);
-            padding-left: var(--small-font-size);
-            padding-right: var(--small-font-size);
+            padding: var(--padding-large);
             display: flex;
             flex-direction: row;
             align-items: flex-start;
             justify-content: flex-end;
-            column-gap: calc(var(--small-font-size) * 0.5);
+            column-gap: var(--padding-default);
 
-            div[data-component][data-type='button'] {
-                --default-border-color: rgba(0, 0, 0, 0.1);
-                --default-background: #5fa2dd;
-                --default-font-color: #fff;
-                --over-border-color: rgba(0, 0, 0, 0.1);
-                --over-background: #5795cb;
-                --over-font-color: #fff;
-                --focus-border-color: #fff;
+            > div[data-component][data-type='button'] {
+                --padding-default: var(--padding-large);
+                --padding-large: var(--padding-extra-large);
             }
         }
     }
 
     &.middle {
-        top: 50%;
+        top: 50vh;
         transform: translateY(-50%);
     }
 
     &.center {
-        left: 50%;
+        left: 50vw;
         transform: translateX(-50%);
     }
 
@@ -69,6 +63,9 @@ div[data-component][data-type='window'] {
 }
 
 section[data-role='admin'][data-type='windows'] {
+    position: absolute;
+    top: 0;
+    left: 0;
     z-index: 1000;
     --active-z-index: 1;
 

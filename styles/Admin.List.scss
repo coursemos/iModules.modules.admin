@@ -6,43 +6,59 @@
  * @file /styles/Admin.List.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 28.
+ * @modified 2023. 3. 6.
  */
 div[data-component][data-type='list'][data-role='panel'] {
     > div[data-role='container'] {
         > div[data-role='content'] {
+            overflow: hidden;
+
             > ul[data-role='list'] {
                 list-style: none;
                 display: block;
-                position: absolute;
-                top: 100%;
-                left: 0;
                 background: #fff;
                 width: 100%;
                 box-sizing: border-box;
-                border: 1px solid var(--theme-color);
-                font-size: var(--medium-font-size);
+                border: 1px solid var(--input-border-color-focus);
+                font-size: var(--font-size-default);
+                font-family: var(--font-family-default);
 
                 > li {
+                    position: relative;
                     width: 100%;
-                    font-size: var(--medium-font-size);
-                    padding-top: calc(var(--medium-font-size) * 0.5);
-                    padding-bottom: calc(var(--medium-font-size) * 0.5);
-                    padding-left: calc(var(--medium-font-size) * 0.5);
-                    padding-right: calc(var(--medium-font-size) * 0.5);
-                    min-height: calc(var(--medium-font-size) * 2 + 4px);
+                    padding: var(--padding-default);
+                    padding-left: var(--text-height);
+                    min-height: var(--text-height);
+                    line-height: calc(var(--text-height) - var(--padding-default) * 2);
                     box-sizing: border-box;
                     cursor: pointer;
-                    color: var(--default-font-color);
+                    color: var(--color-default);
 
                     &.focus {
-                        background: #7fb5e4;
-                        color: #fff;
+                        background: var(--input-background-select);
+                        color: var(--input-color-select);
                     }
 
                     &.selected {
-                        background: #60a2dd;
-                        color: #fff;
+                        &::before {
+                            position: absolute;
+                            display: block;
+                            z-index: 1;
+                            top: 0;
+                            left: 0;
+                            width: 8px;
+                            height: 8px;
+                            margin: calc((var(--text-height) - 8px) * 0.5);
+                            background: var(--input-background-select);
+                            border-radius: 50%;
+                            content: ' ';
+                        }
+                    }
+
+                    &.focus.selected {
+                        &::before {
+                            background: var(--input-background-default);
+                        }
                     }
                 }
             }
