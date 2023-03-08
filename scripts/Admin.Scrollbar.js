@@ -283,15 +283,19 @@ var Admin;
                 if (this.isMovable(x, y) == true) {
                     this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
                 }
-                e.stopImmediatePropagation();
-                e.preventDefault();
+                if (this.isScrollable('x') == true || this.isScrollable('y') == true) {
+                    e.stopPropagation();
+                }
             });
             if (window.ontouchstart !== undefined) {
                 this.$target.addClass('touchscroll');
                 new Admin.Drag(this.$target, {
                     pointerType: ['touch', 'pen'],
                     listeners: {
-                        start: () => {
+                        start: (_$target, _tracker, e) => {
+                            if (this.isScrollable('x') == true || this.isScrollable('y') == true) {
+                                e.stopPropagation();
+                            }
                             this.setMomentum(0, 0);
                         },
                         drag: (_$target, tracker) => {
@@ -501,18 +505,12 @@ var Admin;
                     const nextX = this.getNextTick('x');
                     const nextY = this.getNextTick('y');
                     this.setMomentum(nextX.momentum, nextY.momentum);
-                    this.setPosition(nextX.position, nextY.position);
-                    if (this.momentum.x != 0) {
-                        this.active('x', 1);
-                    }
-                    if (this.momentum.y != 0) {
-                        this.active('y', 1);
-                    }
+                    this.setPosition(nextX.position, nextY.position, true);
                 }
                 this.updateTrack('x');
                 this.updateTrack('y');
             }
-            if (Admin.has(this.getId()) == true && (this.scrollable.x == true || this.scrollable.y == true)) {
+            if (Admin.has(this.getId()) == true) {
                 requestAnimationFrame(this.scrollbarRender.bind(this));
             }
         }
