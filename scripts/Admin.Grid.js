@@ -20,6 +20,7 @@ var Admin;
             freeze;
             freezeColumn;
             freezeWidth;
+            columnResizable;
             store;
             $header;
             $body;
@@ -34,6 +35,7 @@ var Admin;
                 super(properties);
                 this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
+                this.columnResizable = this.properties.columnResizable !== false;
                 this.store = this.properties.store ?? new Admin.Store();
                 this.store.addEvent('beforeLoad', () => {
                     this.onBeforeLoad();
@@ -197,20 +199,24 @@ var Admin;
              * @param {number} rowIndex - 행 인덱스
              */
             focusRow(rowIndex) {
-                const $row = Html.all('div[data-role=row]', this.$body).get(rowIndex);
+                const $row = Html.all('div[data-role=row]', this.$getBody()).get(rowIndex);
                 if ($row == null)
                     return;
-                const headerHeight = this.$header.getOuterHeight();
-                const contentHeight = this.$content.getHeight();
+                const headerHeight = this.$getHeader().getOuterHeight();
+                const contentHeight = this.$getContent().getHeight();
                 const offset = $row.getPosition();
                 const scroll = this.getScrollbar().getPosition();
                 const top = offset.top;
                 const bottom = top + $row.getOuterHeight();
                 if (top - 1 < headerHeight) {
-                    this.getScrollbar().setPosition(null, top + scroll.y - headerHeight - 1, true);
+                    const minScroll = 0;
+                    const y = Math.max(top + scroll.y - headerHeight - 1, minScroll);
+                    this.getScrollbar().setPosition(null, y, true);
                 }
                 else if (bottom + 1 > contentHeight) {
-                    this.getScrollbar().setPosition(null, bottom + scroll.y - contentHeight + 1, true);
+                    const maxScroll = this.$getContent().getScrollHeight() - contentHeight;
+                    const y = Math.min(bottom + scroll.y - contentHeight + 1, maxScroll);
+                    this.getScrollbar().setPosition(null, y, true);
                 }
             }
             /**
@@ -236,16 +242,20 @@ var Admin;
                 $column.addClass('focus');
                 this.focusedCell.rowIndex = rowIndex;
                 this.focusedCell.columnIndex = columnIndex;
-                const contentWidth = this.$content.getWidth();
+                const contentWidth = this.$getContent().getWidth();
                 const offset = $column.getPosition();
                 const scroll = this.getScrollbar().getPosition();
                 const left = offset.left;
                 const right = left + $column.getOuterWidth();
                 if (left < this.freezeWidth) {
-                    this.getScrollbar().setPosition(left + scroll.x - this.freezeWidth - 2, null, true);
+                    const minScroll = 0;
+                    const x = Math.max(left + scroll.x - this.freezeWidth - 2, minScroll);
+                    this.getScrollbar().setPosition(x, null, true);
                 }
                 else if (right > contentWidth) {
-                    this.getScrollbar().setPosition(right + scroll.x - contentWidth + 1, null, true);
+                    const maxScroll = this.$getContent().getScrollWidth() - contentWidth;
+                    const x = Math.min(right + scroll.x - contentWidth + 2, maxScroll);
+                    this.getScrollbar().setPosition(x, null, true);
                 }
             }
             /**
@@ -800,6 +810,9 @@ var Admin;
              * @return {boolean} resizable
              */
             isResizable() {
+                if (this.getGrid().columnResizable === false) {
+                    return false;
+                }
                 if (this.hasChild() == true) {
                     return false;
                 }
