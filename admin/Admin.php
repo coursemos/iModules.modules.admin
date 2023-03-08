@@ -121,18 +121,51 @@ class Admin
     }
 
     /**
-     * 관리자 기본 경로를 가져온다.
+     * 관리자 기본경로를 가져온다.
      *
      * @return string $base
      */
-    public function getBase(): ?string
+    public function getBase(): string
     {
-        $base = $this->getComponent()?->getBase() ?? null;
-        if ($base === null) {
-            return null;
+        return $this->getComponent()->getBase() . '/admin';
+    }
+
+    /**
+     * 관리자 상대경로를 가져온다.
+     *
+     * @return string $dir
+     */
+    public function getDir(): string
+    {
+        return $this->getComponent()->getDir() . '/admin';
+    }
+
+    /**
+     * 관리자 절대경로를 가져온다.
+     *
+     * @return string $path
+     */
+    public function getPath(): string
+    {
+        return $this->getComponent()->getPath() . '/admin';
+    }
+
+    /**
+     * 현재 모듈 관리자에서 사용하는 head 리소스를 가져온다.
+     */
+    public function header(): void
+    {
+        if (is_file($this->getPath() . '/scripts/Admin.js') == true) {
+            Html::script($this->getBase() . '/scripts/Admin.js');
         }
 
-        return $base . '/admin';
+        if (is_file($this->getPath() . '/styles/Admin.css') == true) {
+            Html::style($this->getBase() . '/styles/Admin.css');
+        }
+
+        if (is_file($this->getPath() . '/styles/Admin.scss') == true) {
+            Html::style($this->getBase() . '/styles/Admin.scss');
+        }
     }
 
     /**
