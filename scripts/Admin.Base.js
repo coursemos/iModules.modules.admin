@@ -134,13 +134,30 @@ var Admin;
      *
      * @param {EventListener} listener - 이벤트리스너
      *
-    export function ready(listener: EventListener): void {
-        Html.ready(listener);
-    }*/
+     */
     function ready(listener) {
         this.viewportListener = listener;
     }
     Admin.ready = ready;
+    /**
+     * 세션 스토리지의 데이터를 처리한다.
+     *
+     * @param {string} key - 데이터키
+     * @param {any} value - 저장할 데이터 (undefined 인 경우 저장된 데이터를 가져온다.)
+     * @return {any} data - 데이터를 가져올 경우 해당 데이터값
+     */
+    function session(key, value = undefined) {
+        const session = window.sessionStorage?.getItem('iModules-Admin-Session') ?? null;
+        const datas = session !== null ? JSON.parse(session) : {};
+        if (value === undefined) {
+            return datas[key] ?? null;
+        }
+        else {
+            datas[key] = value;
+            window.sessionStorage?.setItem('iModules-Admin-Session', JSON.stringify(datas));
+        }
+    }
+    Admin.session = session;
     class Base {
         id;
         properties;
@@ -216,4 +233,44 @@ var Admin;
         }
     }
     Admin.Base = Base;
+    class Modules {
+        static classes = {};
+        /**
+         * 모듈 관리자 클래스를 가져온다.
+         *
+         * @param {string} name - 모듈명
+         * @return {?Admin.Module} module - 모듈 클래스
+         */
+        static get(name) {
+            if (Modules.classes[name] === undefined) {
+                const namespaces = name.split('/');
+                const namespace = namespaces.shift().replace(/^[a-z]/, (char) => char.toUpperCase());
+                if (window[namespace] === undefined) {
+                    return null;
+                }
+                let classname = window[namespace];
+                for (let namespace of namespaces) {
+                    namespace = namespace.replace(/^[a-z]/, (char) => char.toUpperCase());
+                    if (classname[namespace] === undefined) {
+                        return null;
+                    }
+                    classname = classname[namespace];
+                }
+                if (typeof classname == 'function' && classname.prototype instanceof Admin.Module) {
+                    Admin.Modules[name] = new classname(name);
+                    return Admin.Modules[name];
+                }
+                return null;
+            }
+            return Admin.Modules[name];
+        }
+    }
+    Admin.Modules = Modules;
+    class Module {
+        name;
+        constructor(name) {
+            this.name = name;
+        }
+    }
+    Admin.Module = Module;
 })(Admin || (Admin = {}));
