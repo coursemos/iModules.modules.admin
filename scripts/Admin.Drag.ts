@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Drag.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 3. 7.
  */
 namespace Admin {
     export class Drag extends Admin.Base {
@@ -33,9 +33,8 @@ namespace Admin {
                 if (this.pointerType.indexOf(e.pointerType) >= 0) {
                     const tracker = new Admin.Drag.Tracker(this, e);
                     Admin.Drag.pointers.set(e.pointerId, tracker);
-                    this.onStart(tracker);
+                    this.onStart(tracker, e);
                 }
-                e.stopImmediatePropagation();
             });
         }
 
@@ -56,8 +55,8 @@ namespace Admin {
          *
          * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
          */
-        onStart(tracker: Admin.Drag.Tracker): void {
-            this.fireEvent('start', [tracker.parent.$target, tracker]);
+        onStart(tracker: Admin.Drag.Tracker, e: PointerEvent): void {
+            this.fireEvent('start', [tracker.parent.$target, tracker, e]);
         }
 
         /**
@@ -211,14 +210,33 @@ namespace Admin {
 /**
  * HTML 문서 전역의 포인트 이벤트를 처리한다.
  */
-Html.on('pointermove', (e: PointerEvent) => {
-    Admin.Drag.activeId = e.pointerId;
-    Admin.Drag.pointers.get(e.pointerId)?.update(e);
-});
+Html.on(
+    'pointermove',
+    (e: PointerEvent) => {
+        Admin.Drag.activeId = e.pointerId;
+        Admin.Drag.pointers.get(e.pointerId)?.update(e);
+    },
+    { passive: true }
+);
 
-Html.on('pointerup', (e: PointerEvent) => {
-    if (Admin.Drag.activeId == e.pointerId) {
-        Admin.Drag.activeId = null;
-    }
-    Admin.Drag.pointers.get(e.pointerId)?.release();
-});
+Html.on(
+    'pointerup',
+    (e: PointerEvent) => {
+        if (Admin.Drag.activeId == e.pointerId) {
+            Admin.Drag.activeId = null;
+        }
+        Admin.Drag.pointers.get(e.pointerId)?.release();
+    },
+    { passive: true }
+);
+
+Html.on(
+    'pointercancel',
+    (e: PointerEvent) => {
+        if (Admin.Drag.activeId == e.pointerId) {
+            Admin.Drag.activeId = null;
+        }
+        Admin.Drag.pointers.get(e.pointerId)?.release();
+    },
+    { passive: true }
+);
