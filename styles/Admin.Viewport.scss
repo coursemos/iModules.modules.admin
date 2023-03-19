@@ -35,6 +35,7 @@ div[data-component][data-type='viewport'][data-role='panel'] {
             width: calc(100% - var(--navigation-width));
             flex-grow: 1;
             flex-shrink: 1;
+            overflow: hidden;
 
             > div[data-component] {
                 > div[data-role='container'] {
@@ -314,45 +315,57 @@ div[data-component][data-type='viewport'][data-role='context'] {
 
 div[data-component][data-type='viewport'][data-role='panel'] {
     > div[data-role='container'] > div[data-role='top'].collapsed {
-        div[data-component][data-type='viewport'][data-role='context'][data-context='FOLDER'] {
-            > div[data-role='container'] > div[data-role='bottom'] {
-                &:has(div[data-component]) {
-                    padding-left: 0px;
-                }
-
-                > div[data-component][data-type='viewport'][data-role='context'] {
-                    position: relative;
-
-                    &::before {
-                        left: calc(var(--navigation-collapsed-width) * 0.5 - 0px);
-                        opacity: 0;
+        > div[data-component][data-type='viewport'][data-role='navigation'] {
+            > div[data-role='container'] > div[data-role='top'] {
+                > div[data-component]:first-child {
+                    button > i::before {
+                        content: '\e708';
                     }
+                }
+            }
 
-                    > div[data-role='container'] {
-                        width: var(--navigation-width);
+            > div[data-role='container'] > div[data-role='content'] {
+                div[data-component][data-type='viewport'][data-role='context'][data-context='FOLDER'] {
+                    > div[data-role='container'] > div[data-role='bottom'] {
+                        &:has(div[data-component]) {
+                            padding-left: 0px;
+                        }
 
-                        > div[data-role='content'] {
-                            --navigation-folder-item-width: calc(var(--navigation-item-height) - 6px);
-                            --navigation-folder-item-margin-x: calc(
-                                var(--navigation-collapsed-width) - var(--navigation-folder-item-width)
-                            );
-                            --navigation-folder-item-margin-y: calc(
-                                var(--navigation-collapsed-width) - var(--navigation-item-height)
-                            );
+                        > div[data-component][data-type='viewport'][data-role='context'] {
+                            position: relative;
 
-                            > a {
-                                > i {
-                                    width: var(--navigation-folder-item-width);
-                                    height: var(--navigation-folder-item-width);
-                                    line-height: calc(var(--navigation-folder-item-width) - 2px);
-                                    margin-top: calc(var(--navigation-folder-item-margin-y) * 0.5);
-                                    margin-bottom: calc(var(--navigation-folder-item-margin-y) * 0.5);
-                                    margin-left: calc(var(--navigation-folder-item-margin-x) * 0.5);
-                                    margin-right: calc(var(--navigation-folder-item-margin-x) * 0.5);
-                                    background: var(--navigation-background);
-                                    border: 1px solid var(--navigation-border-color-default);
-                                    border-radius: 50%;
-                                    box-sizing: border-box;
+                            &::before {
+                                left: calc(var(--navigation-collapsed-width) * 0.5 - 0px);
+                                opacity: 0;
+                            }
+
+                            > div[data-role='container'] {
+                                width: var(--navigation-width);
+
+                                > div[data-role='content'] {
+                                    --navigation-folder-item-width: calc(var(--navigation-item-height) - 6px);
+                                    --navigation-folder-item-margin-x: calc(
+                                        var(--navigation-collapsed-width) - var(--navigation-folder-item-width)
+                                    );
+                                    --navigation-folder-item-margin-y: calc(
+                                        var(--navigation-collapsed-width) - var(--navigation-item-height)
+                                    );
+
+                                    > a {
+                                        > i {
+                                            width: var(--navigation-folder-item-width);
+                                            height: var(--navigation-folder-item-width);
+                                            line-height: calc(var(--navigation-folder-item-width) - 2px);
+                                            margin-top: calc(var(--navigation-folder-item-margin-y) * 0.5);
+                                            margin-bottom: calc(var(--navigation-folder-item-margin-y) * 0.5);
+                                            margin-left: calc(var(--navigation-folder-item-margin-x) * 0.5);
+                                            margin-right: calc(var(--navigation-folder-item-margin-x) * 0.5);
+                                            background: var(--navigation-background);
+                                            border: 1px solid var(--navigation-border-color-default);
+                                            border-radius: 50%;
+                                            box-sizing: border-box;
+                                        }
+                                    }
                                 }
                             }
                         }
