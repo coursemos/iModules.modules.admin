@@ -53,6 +53,7 @@ var Admin;
             else {
                 this.topbar = null;
             }
+            this.topbar?.setParent(this);
             this.topbar?.setPosition('top');
             if (this.title != null || this.topbar != null) {
                 this.$setTop();
@@ -68,6 +69,7 @@ var Admin;
             else {
                 this.bottombar = null;
             }
+            this.bottombar?.setParent(this);
             this.bottombar?.setPosition('bottom');
             if (this.title != null || this.bottombar != null) {
                 this.$setBottom();
