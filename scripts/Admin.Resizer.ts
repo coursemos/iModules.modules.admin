@@ -244,7 +244,7 @@ namespace Admin {
         onScroll(): void {
             if (this.isActive() == true) {
                 const tracker = Admin.Drag.getActivePointer();
-                tracker.getParent().onDrag(tracker);
+                tracker.getParent().onDrag(tracker, tracker.e);
             }
         }
 
