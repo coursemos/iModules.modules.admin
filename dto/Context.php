@@ -232,7 +232,6 @@ class Context
      */
     public function getContent(string $subPath = null): string
     {
-        $this->getAdmin()->header();
         return $this->_admin->getContent($this->_path, $subPath);
     }
 }
