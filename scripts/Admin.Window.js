@@ -14,6 +14,8 @@ var Admin;
         static $windows;
         static windows = new Map();
         static zIndex = 0;
+        static observer;
+        static isObserve = false;
         type = 'window';
         role = 'window';
         modal;
@@ -56,6 +58,7 @@ var Admin;
             this.maxWidth = this.properties.maxWidth ?? null;
             this.minHeight = this.properties.minHeight ?? null;
             this.maxHeight = this.properties.maxHeight ?? null;
+            this.scrollable = this.properties.scrollable ?? 'Y';
             if (this.properties.title instanceof Admin.Title) {
                 this.title = this.properties.title;
             }
@@ -85,6 +88,7 @@ var Admin;
             if (this.buttons.length > 0) {
                 this.$setBottom();
             }
+            this.$scrollable = this.$getContent();
             this.title.setParent(this);
             this.title.setMovable(this.movable);
             Admin.Window.windows.set(this.id, this);
@@ -153,6 +157,8 @@ var Admin;
          */
         setMaxWidth(maxWidth) {
             this.maxWidth = maxWidth;
+            const bodyWidth = Html.get('body').getWidth();
+            maxWidth = Math.min(bodyWidth, maxWidth ?? bodyWidth);
             if (maxWidth == null) {
                 this.$component.setStyle('maxWidth', 'auto');
             }
@@ -181,12 +187,11 @@ var Admin;
          * @param {number} maxHeight - 최대높이
          */
         setMaxHeight(maxHeight) {
-            if (maxHeight == null) {
-                this.$component.setStyle('maxHeight', 'auto');
-            }
-            else {
-                this.$component.setStyle('maxHeight', maxHeight + 'px');
-            }
+            this.maxHeight = maxHeight;
+            const bodyHeight = Html.get('body').getHeight();
+            maxHeight = Math.min(bodyHeight, maxHeight ?? bodyHeight);
+            this.$component.setStyle('maxHeight', maxHeight + 'px');
+            this.$container.setStyle('maxHeight', maxHeight + 'px');
             this.resizer?.setMaxHeight(maxHeight);
         }
         /**
@@ -285,8 +290,8 @@ var Admin;
             const isShow = this.fireEvent('beforeShow', [this]);
             if (isShow === false)
                 return;
-            this.render();
             this.$getWindows().append(this.$component);
+            this.render();
             this.setWidth(this.width);
             this.setMaxWidth(this.maxWidth);
             this.setHeight(this.height);
@@ -294,6 +299,8 @@ var Admin;
             this.setPosition(this.top, this.left);
             this.setFront();
             super.show();
+            this.$getComponent().focus();
+            Admin.Window.observe();
         }
         /**
          * 윈도우를 숨긴다.
@@ -302,6 +309,10 @@ var Admin;
             const isHide = this.fireEvent('beforeHide', [this]);
             if (isHide === false)
                 return;
+            this.updateWindows();
+            if (this.hasWindow(true) == false) {
+                Admin.Window.disconnect();
+            }
             super.hide();
         }
         /**
@@ -314,6 +325,9 @@ var Admin;
             Admin.Window.windows.delete(this.id);
             this.remove();
             this.updateWindows();
+            if (this.hasWindow(true) == false) {
+                Admin.Window.disconnect();
+            }
             this.fireEvent('close', [this]);
         }
         /**
@@ -325,6 +339,25 @@ var Admin;
                 component.remove();
             });
             super.remove();
+        }
+        /**
+         * 윈도우가 존재하는지 확인한다.
+         *
+         * @param {boolean} is_visible_only - 현재 보이고 있는 윈도우만 확인할지 여부
+         * @return {boolean} hasWindow
+         */
+        hasWindow(is_visible_only = false) {
+            if (is_visible_only == true) {
+                return Admin.Window.windows.size > 0;
+            }
+            else {
+                for (const window of Admin.Window.windows.values()) {
+                    if (window.isShow() === true) {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
         /**
          * 하단 버튼을 추가한다.
@@ -340,6 +373,42 @@ var Admin;
                 this.buttons.splice(position, 0, button);
             }
             this.$addComponent(this.$setBottom(), button, position);
+        }
+        /**
+         * 브라우저 크기가 변경되었을 경우, 열린 윈도우의 최대너비, 최대높이를 재조절한다.
+         */
+        static windowResize() {
+            Admin.Window.windows.forEach((window) => {
+                if (window.isShow() == true) {
+                    window.setMaxWidth(window.maxWidth);
+                    window.setMaxHeight(window.maxHeight);
+                }
+            });
+        }
+        /**
+         * 브라우저의 크기가 변경되는지 관찰을 시작한다.
+         */
+        static observe() {
+            if (Admin.Window.observer === undefined) {
+                Admin.Window.observer = new ResizeObserver(() => {
+                    if (Admin.Window.isObserve == true) {
+                        Admin.Window.windowResize();
+                    }
+                    Admin.Window.isObserve = true;
+                });
+            }
+            if (Admin.Window.isObserve === false) {
+                Admin.Window.observer.observe(document.body);
+            }
+        }
+        /**
+         * 브라우저의 크기 변경 관찰자를 중단한다.
+         */
+        static disconnect() {
+            if (Admin.Window.isObserve == true) {
+                Admin.Window.observer?.disconnect();
+                Admin.Window.isObserve = false;
+            }
         }
         /**
          * 윈도우 제목 레이아웃을 랜더링한다.
@@ -377,6 +446,18 @@ var Admin;
                         this.setHeight(rect.height);
                     },
                 },
+            });
+        }
+        /**
+         * 그리드패널이 화면상에 출력되었을 때 이벤트를 처리한다.
+         */
+        onRender() {
+            super.onRender();
+            this.$getComponent().on('keydown', (e) => {
+                if (e.key == 'Escape' && this.closable === true) {
+                    this.close();
+                }
+                e.stopPropagation();
             });
         }
     }

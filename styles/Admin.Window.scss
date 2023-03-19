@@ -6,12 +6,11 @@
  * @file /styles/Admin.Window.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 7.
+ * @modified 2023. 3. 12.
  */
 div[data-component][data-type='window'] {
     position: absolute;
     z-index: -1;
-    max-width: 90vw;
 
     > div[data-role='container'] {
         width: 100%;
@@ -28,7 +27,14 @@ div[data-component][data-type='window'] {
 
         > div[data-role='content'] {
             flex-grow: 1;
-            overflow: hidden;
+            flex-shrink: 1;
+            display: flex;
+            align-items: stretch;
+
+            > div[data-component].fit {
+                height: auto;
+                flex-grow: 1;
+            }
         }
 
         > div[data-role='bottom'] {
@@ -49,6 +55,7 @@ div[data-component][data-type='window'] {
 
     &.middle {
         top: 50vh;
+        top: 50svh;
         transform: translateY(-50%);
     }
 
