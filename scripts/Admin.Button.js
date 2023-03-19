@@ -16,6 +16,7 @@ var Admin;
         text;
         iconClass;
         buttonClass;
+        tabIndex;
         toggle;
         pressed;
         handler;
@@ -30,10 +31,13 @@ var Admin;
             this.text = this.properties.text ?? '';
             this.iconClass = this.properties.iconClass ?? null;
             this.buttonClass = this.properties.buttonClass ?? null;
+            this.tabIndex = this.properties.tabIndex ?? null;
             this.toggle = this.properties.toggle ?? false;
             this.pressed = this.properties.pressed === true;
             this.handler = this.properties.handler ?? null;
             this.$button = Html.create('button').setAttr('type', 'button');
+            if (this.tabIndex !== null)
+                this.$button.setAttr('tabindex', this.tabIndex.toString());
             if (this.buttonClass !== null) {
                 this.$button.addClass(...this.buttonClass.split(' '));
             }
