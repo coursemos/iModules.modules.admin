@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 6.
+ * @modified 2023. 3. 19.
  */
 namespace modules\admin;
 use \Router;
@@ -239,7 +239,7 @@ class Admin extends \Module
                         continue;
                     }
 
-                    $item->title = $this->getText('admin/groups/' . substr($item->title, 1));
+                    $item->title = $this->getText('admin/navigation/folder/preset/' . substr($item->title, 1));
                 }
 
                 $folder = new \modules\admin\dto\Context(
@@ -451,12 +451,6 @@ class Admin extends \Module
         $templet = $this->getTemplate();
         */
 
-        /**
-         * todo: 관리자 라우팅 처리
-         */
-        //$paths = explode('/', $route->getSubPath());
-        //$menu = count($paths) > 1 ? $paths[1] : 'dashboard';
-        //$content = $this->getTemplate()->getLayout($menu);
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));
 
