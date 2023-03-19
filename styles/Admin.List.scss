@@ -16,7 +16,7 @@ div[data-component][data-type='list'][data-role='panel'] {
             > ul[data-role='list'] {
                 list-style: none;
                 display: block;
-                background: #fff;
+                background: var(--input-background-default);
                 width: 100%;
                 box-sizing: border-box;
                 border: 1px solid var(--input-border-color-focus);
@@ -34,7 +34,7 @@ div[data-component][data-type='list'][data-role='panel'] {
                     cursor: pointer;
                     color: var(--color-default);
 
-                    &.focus {
+                    &.focused {
                         background: var(--input-background-select);
                         color: var(--input-color-select);
                     }
@@ -55,7 +55,7 @@ div[data-component][data-type='list'][data-role='panel'] {
                         }
                     }
 
-                    &.focus.selected {
+                    &.focused.selected {
                         &::before {
                             background: var(--input-background-default);
                         }
