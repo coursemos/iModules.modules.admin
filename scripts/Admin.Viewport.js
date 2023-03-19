@@ -15,6 +15,7 @@ var Admin;
         class Panel extends Admin.Component {
             type = 'viewport';
             role = 'panel';
+            navigation;
             /**
              * 패널을 생성한다.
              *
@@ -24,33 +25,43 @@ var Admin;
                 super(properties);
                 this.layout = 'fit';
                 this.scrollable = false;
-                this.$setTop();
+                this.navigation = this.properties.navigation ?? null;
+                if (this.navigation !== null) {
+                    this.navigation.setParent(this);
+                    this.$setTop();
+                }
                 if (Admin.session('navigation-collapsed') == true) {
                     this.$getTop().addClass('collapsed');
                 }
+                Admin.viewport = this;
             }
             /**
              * 네비게이션 영역을 축소한다.
              */
             collapse() {
+                if (this.navigation === null) {
+                    return;
+                }
                 this.$getTop().addClass('collapsed');
-                const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle');
-                toggle.setIconClass('xi xi-fast-forward');
                 Admin.session('navigation-collapsed', true);
             }
             /**
              * 네비게이션 영역을 확장한다.
              */
             expand() {
+                if (this.navigation === null) {
+                    return;
+                }
                 this.$getTop().removeClass('collapsed');
-                const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle');
-                toggle.setIconClass('xi xi-fast-backward');
                 Admin.session('navigation-collapsed', false);
             }
             /**
              * 네비게이션 영역을 토글한다.
              */
             toggle() {
+                if (this.navigation === null) {
+                    return;
+                }
                 if (this.$getTop().hasClass('collapsed') == true) {
                     this.expand();
                 }
@@ -62,10 +73,12 @@ var Admin;
              * 네비게이션을 랜더링한다.
              */
             renderTop() {
+                if (this.navigation === null) {
+                    return;
+                }
                 const $top = this.$getTop();
-                const navigation = new Admin.Viewport.Navigation.Panel({ id: this.id + '-Navigation' });
-                $top.append(navigation.$getComponent());
-                navigation.render();
+                $top.append(this.navigation.$getComponent());
+                this.navigation.render();
                 if (Admin.session('navigation-collapsed') == true) {
                     this.collapse();
                 }
@@ -76,7 +89,9 @@ var Admin;
             onRender() {
                 super.onRender();
                 if (typeof Admin.viewportListener == 'function') {
-                    this.append(Admin.viewportListener());
+                    Admin.viewportListener().then((component) => {
+                        this.append(component);
+                    });
                 }
             }
             /**
@@ -93,6 +108,8 @@ var Admin;
             class Panel extends Admin.Panel {
                 type = 'viewport';
                 role = 'navigation';
+                getUrl;
+                saveUrl;
                 contexts = [];
                 sorter;
                 /**
@@ -105,8 +122,18 @@ var Admin;
                     this.layout = 'fit';
                     this.border = false;
                     this.scrollable = 'Y';
+                    this.getUrl = this.properties.getUrl;
+                    this.saveUrl = this.properties.saveUrl;
                     this.$setTop();
                     this.$scrollable = this.$getContent();
+                }
+                /**
+                 * 뷰포트를 가져온다.
+                 *
+                 * @return {Admin.Viewport.Panel} viewport
+                 */
+                getViewport() {
+                    return this.getParent();
                 }
                 /**
                  * 패널의 상단을 랜더링한다.
@@ -117,15 +144,13 @@ var Admin;
                         id: this.id + '-Toggle',
                         iconClass: 'xi xi-fast-backward',
                         handler: () => {
-                            const viewport = Admin.get('Admin-Viewport');
-                            viewport.toggle();
+                            this.getViewport().toggle();
                         },
                     });
                     $top.append(toggle.$getComponent());
                     toggle.render();
                     const keyword = new Admin.Form.Field.Text({
                         id: this.id + '-Keyword',
-                        padding: 0,
                         flex: 1,
                         layout: 'column-item',
                         emptyText: 'Search...',
@@ -147,7 +172,6 @@ var Admin;
                                     new Admin.Form.Panel({
                                         layout: 'fit',
                                         border: false,
-                                        padding: 10,
                                         items: [
                                             new Admin.Form.Field.Container({
                                                 direction: 'row',
@@ -199,7 +223,6 @@ var Admin;
                                                         name: 'title',
                                                         flex: true,
                                                         allowBlank: false,
-                                                        value: '모듈',
                                                         emptyText: Admin.printText('admin/navigation/folder/title'),
                                                     }),
                                                 ],
@@ -228,13 +251,13 @@ var Admin;
                                 ],
                                 buttons: [
                                     new Admin.Button({
-                                        text: '취소',
+                                        text: Admin.printText('buttons/cancel'),
                                         handler: function (button) {
                                             button.getParent().close();
                                         },
                                     }),
                                     new Admin.Button({
-                                        text: '확인',
+                                        text: Admin.printText('buttons/ok'),
                                         buttonClass: 'confirm',
                                         handler: async (button) => {
                                             const form = button.getParent().getItemAt(0);
@@ -321,7 +344,7 @@ var Admin;
                 async getContexts() {
                     const $content = this.$getContent();
                     $content.empty();
-                    const results = await Admin.Ajax.get(Admin.getProcessUrl('module', 'admin', 'contexts'));
+                    const results = await Admin.Ajax.get(this.getUrl);
                     if (results.success == true) {
                         this.contexts = [];
                         for (let context of results.contexts) {
@@ -345,7 +368,7 @@ var Admin;
                  */
                 async saveContexts() {
                     const contexts = this.sorter.getContexts();
-                    const save = await Admin.Ajax.post(Admin.getProcessUrl('module', 'admin', 'contexts'), {
+                    const save = await Admin.Ajax.post(this.saveUrl, {
                         contexts: contexts,
                     });
                     if (save.success == true) {
@@ -723,7 +746,3 @@ var Admin;
         })(Navigation = Viewport.Navigation || (Viewport.Navigation = {}));
     })(Viewport = Admin.Viewport || (Admin.Viewport = {}));
 })(Admin || (Admin = {}));
-window.onload = () => {
-    Admin.viewport = new Admin.Viewport.Panel({ id: 'Admin-Viewport' });
-    Admin.viewport.doLayout();
-};

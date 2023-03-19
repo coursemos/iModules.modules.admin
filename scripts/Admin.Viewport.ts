@@ -14,6 +14,8 @@ namespace Admin {
             type: string = 'viewport';
             role: string = 'panel';
 
+            navigation: Admin.Viewport.Navigation.Panel;
+
             /**
              * 패널을 생성한다.
              *
@@ -25,19 +27,29 @@ namespace Admin {
                 this.layout = 'fit';
                 this.scrollable = false;
 
-                this.$setTop();
+                this.navigation = this.properties.navigation ?? null;
+
+                if (this.navigation !== null) {
+                    this.navigation.setParent(this);
+                    this.$setTop();
+                }
+
                 if (Admin.session('navigation-collapsed') == true) {
                     this.$getTop().addClass('collapsed');
                 }
+
+                Admin.viewport = this;
             }
 
             /**
              * 네비게이션 영역을 축소한다.
              */
             collapse(): void {
+                if (this.navigation === null) {
+                    return;
+                }
+
                 this.$getTop().addClass('collapsed');
-                const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle') as Admin.Button;
-                toggle.setIconClass('xi xi-fast-forward');
                 Admin.session('navigation-collapsed', true);
             }
 
@@ -45,9 +57,11 @@ namespace Admin {
              * 네비게이션 영역을 확장한다.
              */
             expand(): void {
+                if (this.navigation === null) {
+                    return;
+                }
+
                 this.$getTop().removeClass('collapsed');
-                const toggle = Admin.getComponent('Admin-Viewport-Navigation-Toggle') as Admin.Button;
-                toggle.setIconClass('xi xi-fast-backward');
                 Admin.session('navigation-collapsed', false);
             }
 
@@ -55,6 +69,10 @@ namespace Admin {
              * 네비게이션 영역을 토글한다.
              */
             toggle(): void {
+                if (this.navigation === null) {
+                    return;
+                }
+
                 if (this.$getTop().hasClass('collapsed') == true) {
                     this.expand();
                 } else {
@@ -66,11 +84,13 @@ namespace Admin {
              * 네비게이션을 랜더링한다.
              */
             renderTop(): void {
-                const $top = this.$getTop();
-                const navigation = new Admin.Viewport.Navigation.Panel({ id: this.id + '-Navigation' });
+                if (this.navigation === null) {
+                    return;
+                }
 
-                $top.append(navigation.$getComponent());
-                navigation.render();
+                const $top = this.$getTop();
+                $top.append(this.navigation.$getComponent());
+                this.navigation.render();
 
                 if (Admin.session('navigation-collapsed') == true) {
                     this.collapse();
@@ -83,7 +103,9 @@ namespace Admin {
             onRender(): void {
                 super.onRender();
                 if (typeof Admin.viewportListener == 'function') {
-                    this.append(Admin.viewportListener());
+                    Admin.viewportListener().then((component) => {
+                        this.append(component);
+                    });
                 }
             }
 
@@ -101,6 +123,9 @@ namespace Admin {
                 type: string = 'viewport';
                 role: string = 'navigation';
 
+                getUrl: string;
+                saveUrl: string;
+
                 contexts: Admin.Viewport.Navigation.Context[] = [];
                 sorter: Admin.Viewport.Navigation.Sorter;
 
@@ -116,8 +141,20 @@ namespace Admin {
                     this.border = false;
                     this.scrollable = 'Y';
 
+                    this.getUrl = this.properties.getUrl;
+                    this.saveUrl = this.properties.saveUrl;
+
                     this.$setTop();
                     this.$scrollable = this.$getContent();
+                }
+
+                /**
+                 * 뷰포트를 가져온다.
+                 *
+                 * @return {Admin.Viewport.Panel} viewport
+                 */
+                getViewport(): Admin.Viewport.Panel {
+                    return this.getParent() as Admin.Viewport.Panel;
                 }
 
                 /**
@@ -130,8 +167,7 @@ namespace Admin {
                         id: this.id + '-Toggle',
                         iconClass: 'xi xi-fast-backward',
                         handler: () => {
-                            const viewport = Admin.get('Admin-Viewport') as Admin.Viewport.Panel;
-                            viewport.toggle();
+                            this.getViewport().toggle();
                         },
                     });
                     $top.append(toggle.$getComponent());
@@ -139,7 +175,6 @@ namespace Admin {
 
                     const keyword = new Admin.Form.Field.Text({
                         id: this.id + '-Keyword',
-                        padding: 0,
                         flex: 1,
                         layout: 'column-item',
                         emptyText: 'Search...',
@@ -162,7 +197,6 @@ namespace Admin {
                                     new Admin.Form.Panel({
                                         layout: 'fit',
                                         border: false,
-                                        padding: 10,
                                         items: [
                                             new Admin.Form.Field.Container({
                                                 direction: 'row',
@@ -214,7 +248,6 @@ namespace Admin {
                                                         name: 'title',
                                                         flex: true,
                                                         allowBlank: false,
-                                                        value: '모듈',
                                                         emptyText: Admin.printText('admin/navigation/folder/title'),
                                                     }),
                                                 ],
@@ -246,13 +279,13 @@ namespace Admin {
                                 ],
                                 buttons: [
                                     new Admin.Button({
-                                        text: '취소',
+                                        text: Admin.printText('buttons/cancel'),
                                         handler: function (button: Admin.Button) {
                                             (button.getParent() as Admin.Window).close();
                                         },
                                     }),
                                     new Admin.Button({
-                                        text: '확인',
+                                        text: Admin.printText('buttons/ok'),
                                         buttonClass: 'confirm',
                                         handler: async (button: Admin.Button) => {
                                             const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
@@ -352,7 +385,7 @@ namespace Admin {
                     const $content = this.$getContent();
                     $content.empty();
 
-                    const results = await Admin.Ajax.get(Admin.getProcessUrl('module', 'admin', 'contexts'));
+                    const results = await Admin.Ajax.get(this.getUrl);
                     if (results.success == true) {
                         this.contexts = [];
                         for (let context of results.contexts) {
@@ -380,7 +413,7 @@ namespace Admin {
                  */
                 async saveContexts(): Promise<boolean> {
                     const contexts = this.sorter.getContexts();
-                    const save = await Admin.Ajax.post(Admin.getProcessUrl('module', 'admin', 'contexts'), {
+                    const save = await Admin.Ajax.post(this.saveUrl, {
                         contexts: contexts,
                     });
                     if (save.success == true) {
@@ -841,8 +874,3 @@ namespace Admin {
         }
     }
 }
-
-window.onload = () => {
-    Admin.viewport = new Admin.Viewport.Panel({ id: 'Admin-Viewport' });
-    Admin.viewport.doLayout();
-};
