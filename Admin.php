@@ -405,7 +405,21 @@ class Admin extends \Module
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Window.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Message.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Viewport.js');
+        Cache::script('admin', $this->getBase() . '/scripts/Admin.Menu.js');
+        Cache::script('admin', $this->getBase() . '/scripts/script.js');
         Html::script(Cache::script('admin'), 10);
+
+        $hasInterface = false;
+        foreach (\Modules::all() as $module) {
+            $scripts = $this->getAdminClass('module', $module->name)?->scripts() ?? [];
+            $hasInterface = $hasInterface == true || count($scripts) > 0;
+            foreach ($scripts as $script) {
+                Cache::script('admin.interfaces', $script);
+            }
+        }
+        if ($hasInterface == true) {
+            Html::script(Cache::script('admin.interfaces'), 15);
+        }
 
         Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.scss');
@@ -424,6 +438,7 @@ class Admin extends \Module
         Cache::style('admin', $this->getBase() . '/styles/Admin.Window.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Message.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Viewport.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.scss');
         Html::style(Cache::style('admin'), 10);
 
         /**
@@ -453,6 +468,8 @@ class Admin extends \Module
 
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));
+
+        Html::body('data-context-url', $context->getPath());
 
         return $theme->getLayout('index');
     }
