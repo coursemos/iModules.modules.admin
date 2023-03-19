@@ -6,8 +6,17 @@
  * @file /styles/Admin.Scrollbar.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2023. 3. 11.
  */
+*.scrollbar {
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
 *.touchscroll {
     overflow: auto;
 }
