@@ -30,6 +30,7 @@ $sites = Domains::has($host)?->getSites() ?? [];
 $records = [];
 foreach ($sites as $site) {
     $record = new stdClass();
+    $record->host = $site->getHost();
     $record->language = $site->getLanguage();
     $record->title = $site->getTitle();
 
