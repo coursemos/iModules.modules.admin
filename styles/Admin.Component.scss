@@ -11,6 +11,7 @@
 div[data-component] {
     z-index: 0;
     box-sizing: border-box;
+    outline: none;
 
     > div[data-role='container'] {
         box-sizing: border-box;
