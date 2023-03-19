@@ -107,6 +107,15 @@ namespace Admin {
             get(key: string): any {
                 return this.data[key] ?? null;
             }
+
+            /**
+             * 데이터의 모든 키값을 가져온다.
+             *
+             * @return {string[]} keys
+             */
+            getKeys(): string[] {
+                return Object.keys(this.data);
+            }
         }
     }
 }

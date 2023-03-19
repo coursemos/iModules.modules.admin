@@ -96,6 +96,14 @@ var Admin;
             get(key) {
                 return this.data[key] ?? null;
             }
+            /**
+             * 데이터의 모든 키값을 가져온다.
+             *
+             * @return {string[]} keys
+             */
+            getKeys() {
+                return Object.keys(this.data);
+            }
         }
         Data.Record = Record;
     })(Data = Admin.Data || (Admin.Data = {}));
