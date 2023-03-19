@@ -191,6 +191,19 @@ var Admin;
             return this.$content;
         }
         /**
+         * 컴포넌트의 컨텐츠 DOM 을 재정의한다.
+         *
+         * @param {Dom} $dom
+         */
+        $setContent($dom) {
+            if (this.$content !== undefined && this.$content !== null) {
+                this.$content.replaceWith($dom);
+            }
+            this.$content = $dom;
+            this.$content.setData('role', 'content');
+            return this.$content;
+        }
+        /**
          * 컴포넌트의 하단 DOM 을 가져온다.
          *
          * @return {Dom} $bottom
@@ -304,6 +317,7 @@ var Admin;
          */
         show() {
             this.setHidden(false);
+            this.getScrollbar()?.updatePosition();
             this.fireEvent('show', [this]);
         }
         /**
@@ -435,18 +449,6 @@ var Admin;
             if (this.hidden == true) {
                 this.$getComponent().hide();
             }
-            if (this.padding !== null) {
-                if (typeof this.padding == 'number') {
-                    this.padding = this.padding + 'px';
-                }
-                this.$getContent().setStyle('padding', this.padding);
-            }
-            if (this.margin !== null) {
-                if (typeof this.margin == 'number') {
-                    this.margin = this.margin + 'px';
-                }
-                this.$getComponent().setStyle('padding', this.margin);
-            }
             if (this.isRenderable() == true) {
                 this.$getComponent().append(this.$container);
                 if (this.$getTop() != null) {
@@ -483,6 +485,18 @@ var Admin;
                     }
                 }
                 this.getScrollbar()?.render();
+            }
+            if (this.padding !== null) {
+                if (typeof this.padding == 'number') {
+                    this.padding = this.padding + 'px';
+                }
+                this.$getContent().setStyle('padding', this.padding);
+            }
+            if (this.margin !== null) {
+                if (typeof this.margin == 'number') {
+                    this.margin = this.margin + 'px';
+                }
+                this.$getComponent().setStyle('padding', this.margin);
             }
         }
         /**
