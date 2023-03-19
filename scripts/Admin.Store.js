@@ -15,6 +15,8 @@ var Admin;
         autoLoad = true;
         remoteSort = false;
         sorters;
+        params = {};
+        primaryKeys;
         loading = false;
         loaded = false;
         data;
@@ -31,6 +33,8 @@ var Admin;
             this.autoLoad = this.properties.autoLoad !== false;
             this.remoteSort = this.properties.remoteSort !== true;
             this.sorters = this.properties.sorters ?? [];
+            this.params = this.properties.params ?? {};
+            this.primaryKeys = this.properties.primaryKeys ?? [];
             if (this.properties.sorter) {
                 this.sorters.push({ field: this.properties.sorter[0], direction: this.properties.sorter[1] });
             }
@@ -68,6 +72,34 @@ var Admin;
             return this.data?.getRecords() ?? [];
         }
         /**
+         * 고유키값을 가져온다.
+         *
+         * @return {string[]} primary_keys
+         */
+        getPrimaryKeys() {
+            return this.primaryKeys;
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 설정한다.
+         *
+         * @param {Object} params - 매개변수
+         */
+        setParams(params) {
+            for (const key in params) {
+                this.setParam(key, params[key]);
+            }
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 설정한다.
+         *
+         * @param {string} key - 매개변수명
+         * @param {any} value - 매개변수값
+         */
+        setParam(key, value) {
+            this.params ??= {};
+            this.params[key] = value;
+        }
+        /**
          * 데이터를 추가한다.
          *
          * @param {Object|Object[]} record
@@ -88,16 +120,64 @@ var Admin;
          */
         load() { }
         /**
-         * 데이터의 특정 필드의 특정값을 찾는다.
+         * 현재 데이터를 새로고침한다.
+         */
+        reload() { }
+        /**
+         * 특정 필드의 특정값을 가진 레코드를 찾는다.
          *
-         * @param {string} field
-         * @param {any} value
-         * @return {Admin.Data.Record} record
+         * @param {string} field - 검색필드
+         * @param {any} value - 검색값
+         * @return {Admin.Data.Record} record - 검색된 레코드
          */
         find(field, value) {
             for (const record of this.getRecords()) {
                 if (record.get(field) == value) {
                     return record;
+                }
+            }
+            return null;
+        }
+        /**
+         * 특정 필드의 특정값을 가진 레코드 인덱스를 찾는다.
+         *
+         * @param {string} field - 검색필드
+         * @param {any} value - 검색값
+         * @return {number} index - 검색된 레코드의 인덱스
+         */
+        findIndex(field, value) {
+            for (const key in this.getRecords()) {
+                const index = parseInt(key, 10);
+                const record = this.getRecords().at(index);
+                if (record.get(field) == value) {
+                    return index;
+                }
+            }
+            return null;
+        }
+        /**
+         * 데이터와 일치하는 레코드의 인덱스를 찾는다.
+         *
+         * @param {Admin.Data.Record} matcher - 찾을 레코드
+         * @param {string[]} fields - PRIMARY 필드 (NULL 인 경우 matcher 의 전체 필드가 일치하는 레코드를, 설정된 경우 해당 필드만 검색한다.)
+         * @return {number} index - 검색된 데이터의 인덱스
+         */
+        matchIndex(matcher, fields = null) {
+            if (fields === null || fields.length == 0) {
+                fields = matcher.getKeys();
+            }
+            for (const key in this.getRecords()) {
+                const index = parseInt(key, 10);
+                const record = this.getRecords().at(index);
+                let isMatched = true;
+                for (const field of fields) {
+                    if (matcher.get(field) !== record.get(field)) {
+                        isMatched = false;
+                        continue;
+                    }
+                }
+                if (isMatched === true) {
+                    return index;
                 }
             }
             return null;
@@ -176,6 +256,7 @@ var Admin;
              * 데이터를 가져온다.
              */
             load() {
+                this.onBeforeLoad();
                 if (this.loaded == true) {
                     this.onLoad();
                     return;
@@ -193,6 +274,13 @@ var Admin;
                 this.count = records.length;
                 this.total = this.count;
                 this.onLoad();
+            }
+            /**
+             * 현재 데이터를 새로고침한다.
+             */
+            reload() {
+                this.loaded = false;
+                this.load();
             }
         }
         Store.Array = Array;
@@ -220,13 +308,16 @@ var Admin;
              * 데이터를 가져온다.
              */
             load() {
-                if (this.loaded == true || this.loading == true) {
+                if (this.loaded == true) {
                     this.onLoad();
+                    return;
+                }
+                if (this.loading == true) {
                     return;
                 }
                 this.loading = true;
                 this.onBeforeLoad();
-                Admin.Ajax.get(this.url)
+                Admin.Ajax.get(this.url, this.params)
                     .then((results) => {
                     if (results.success == true) {
                         this.loaded = true;
@@ -242,6 +333,13 @@ var Admin;
                     this.loading = false;
                     this.loaded = false;
                 });
+            }
+            /**
+             * 현재 데이터를 새로고침한다.
+             */
+            reload() {
+                this.loaded = false;
+                this.load();
             }
         }
         Store.Ajax = Ajax;
