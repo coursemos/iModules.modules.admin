@@ -163,7 +163,7 @@ var Admin;
          * @param {number} y - Y축 위치
          * @param {boolean} is_active - 스크롤바를 활성화할지 여부
          */
-        setPosition(x, y, is_active = false) {
+        setPosition(x, y, is_active = false, is_animate = false) {
             const position = this.getPosition();
             x ??= position.x;
             y ??= position.y;
@@ -178,7 +178,7 @@ var Admin;
                     this.active('y', 1);
                 }
             }
-            this.$target.getEl().scroll({ left: x, top: y });
+            this.$target.getEl().scroll({ left: x, top: y, behavior: is_animate === true ? 'smooth' : 'auto' });
         }
         /**
          * 현재 스크롤 위치에서 이동한다.
@@ -187,7 +187,7 @@ var Admin;
          * @param {number} y - 이동할 Y축 거리
          * @param {boolean} is_active - 스크롤바를 활성화할지 여부
          */
-        movePosition(x, y, is_active = false) {
+        movePosition(x, y, is_active = false, is_animate = false) {
             const position = this.getPosition();
             x = position.x + x;
             y = position.y + y;
@@ -202,7 +202,7 @@ var Admin;
                     this.active('y', 1);
                 }
             }
-            this.$target.getEl().scroll({ left: x, top: y });
+            this.$target.getEl().scroll({ left: x, top: y, behavior: is_animate === true ? 'smooth' : 'auto' });
         }
         /**
          * 스크롤위치에 따른 트랙의 위치를 가져온다.
@@ -282,9 +282,7 @@ var Admin;
                 const y = Math.round(e.deltaY * mode);
                 if (this.isMovable(x, y) == true) {
                     this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
-                }
-                if (this.isScrollable('x') == true || this.isScrollable('y') == true) {
-                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                 }
             });
             if (window.ontouchstart !== undefined) {
@@ -519,7 +517,8 @@ var Admin;
          */
         render() {
             if (this.rendered !== true) {
-                this.$target.setStyle('overflow', 'hidden');
+                this.rendered = true;
+                this.$target.addClass('scrollbar');
                 this.$component.append(this.$getScrollbar('x'));
                 this.$component.append(this.$getScrollbar('y'));
                 this.updateTrack('x');

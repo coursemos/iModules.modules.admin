@@ -175,7 +175,7 @@ namespace Admin {
          * @param {number} y - Y축 위치
          * @param {boolean} is_active - 스크롤바를 활성화할지 여부
          */
-        setPosition(x: number, y: number, is_active: boolean = false): void {
+        setPosition(x: number, y: number, is_active: boolean = false, is_animate: boolean = false): void {
             const position = this.getPosition();
 
             x ??= position.x;
@@ -195,7 +195,7 @@ namespace Admin {
                 }
             }
 
-            this.$target.getEl().scroll({ left: x, top: y });
+            this.$target.getEl().scroll({ left: x, top: y, behavior: is_animate === true ? 'smooth' : 'auto' });
         }
 
         /**
@@ -205,7 +205,7 @@ namespace Admin {
          * @param {number} y - 이동할 Y축 거리
          * @param {boolean} is_active - 스크롤바를 활성화할지 여부
          */
-        movePosition(x: number, y: number, is_active: boolean = false): void {
+        movePosition(x: number, y: number, is_active: boolean = false, is_animate: boolean = false): void {
             const position = this.getPosition();
 
             x = position.x + x;
@@ -225,7 +225,7 @@ namespace Admin {
                 }
             }
 
-            this.$target.getEl().scroll({ left: x, top: y });
+            this.$target.getEl().scroll({ left: x, top: y, behavior: is_animate === true ? 'smooth' : 'auto' });
         }
 
         /**
@@ -323,15 +323,13 @@ namespace Admin {
 
                 if (this.isMovable(x, y) == true) {
                     this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
-                }
-
-                if (this.isScrollable('x') == true || this.isScrollable('y') == true) {
-                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                 }
             });
 
             if (window.ontouchstart !== undefined) {
                 this.$target.addClass('touchscroll');
+
                 new Admin.Drag(this.$target, {
                     pointerType: ['touch', 'pen'],
                     listeners: {
@@ -343,6 +341,7 @@ namespace Admin {
                         },
                         drag: (_$target: Dom, tracker: Admin.Drag.Tracker) => {
                             const { x, y } = tracker.getDelta();
+
                             if (this.isMovable(-x, -y) == true) {
                                 this.movePosition(
                                     this.scrollable.x == true ? -x : 0,
@@ -613,7 +612,8 @@ namespace Admin {
          */
         render() {
             if (this.rendered !== true) {
-                this.$target.setStyle('overflow', 'hidden');
+                this.rendered = true;
+                this.$target.addClass('scrollbar');
                 this.$component.append(this.$getScrollbar('x'));
                 this.$component.append(this.$getScrollbar('y'));
 
