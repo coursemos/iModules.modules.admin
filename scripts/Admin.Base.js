@@ -99,7 +99,16 @@ var Admin;
     }
     Admin.printText = printText;
     /**
-     * 아이모듈 기본 URL 경로를 가져온다.
+     * REWRITE 를 사용중인지 확인한다.
+     *
+     * @return {boolean} is_rewrite
+     */
+    function isRewrite() {
+        return Html.get('body').getAttr('data-rewrite') === 'true';
+    }
+    Admin.isRewrite = isRewrite;
+    /**
+     * 기본 URL 경로를 가져온다.
      *
      * @return {string} baseUrl
      */
@@ -113,11 +122,69 @@ var Admin;
      * @return {string} baseUrl
      */
     function getUrl() {
-        const is_rewrite = Html.get('body').getAttr('data-rewrite') === 'true';
         const route = '/admin';
-        return Admin.getBase() + (is_rewrite === true ? route : '/?route=' + route);
+        return Admin.getBase() + (Admin.isRewrite() === true ? route : '/?route=' + route);
     }
     Admin.getUrl = getUrl;
+    /**
+     * 관리자 컨텍스트 URL 을 가져온한다.
+     *
+     * @param {string} subUrl - 현재 컨텍스트 URL 에 추가할 경로
+     * @return {string} contextUrl;
+     */
+    function getContextUrl(subUrl = '') {
+        const current = new URLSearchParams(location.search);
+        let contextUrl = Admin.getUrl() + Html.get('body').getAttr('data-context-url') + subUrl;
+        const params = new URLSearchParams();
+        for (const [key, value] of current.entries()) {
+            if (key == 'route') {
+                continue;
+            }
+            params.append(key, value);
+        }
+        const search = params.toString();
+        return contextUrl + (search.length > 0 ? (Admin.isRewrite() === true ? '?' : '&') + search : '');
+    }
+    Admin.getContextUrl = getContextUrl;
+    /**
+     * 관리자 컨텍스트의 추가 URL 을 가져온한다.
+     *
+     * @return {string} contextSubUrl;
+     */
+    function getContextSubUrl() {
+        let contextSubUrl = '';
+        const reg = new RegExp('^\\/admin' + Html.get('body').getAttr('data-context-url').replace('/', '\\/'));
+        if (Admin.isRewrite() === true) {
+            contextSubUrl = location.pathname.replace(reg, '');
+        }
+        else {
+            const params = new URLSearchParams(location.search);
+            contextSubUrl = params.get('route').replace(reg, '');
+        }
+        return contextSubUrl;
+    }
+    Admin.getContextSubUrl = getContextSubUrl;
+    /**
+     * 관리자 컨텍스트의 추가 URL 을 배열형태로 가져온다.
+     *
+     * @return {string[]} path;
+     */
+    function getContextSubTree() {
+        const contextSubTree = Admin.getContextSubUrl().split('/');
+        contextSubTree.shift();
+        return contextSubTree;
+    }
+    Admin.getContextSubTree = getContextSubTree;
+    /**
+     * History API 를 활용하여 현재 컨텍스트 URL 을 변경한다.
+     *
+     * @param {string} url - 변경할 URL
+     * @param {string} title - 변경할 문서 타이틀 (NULL 인 경우 현재 문서 타이틀)
+     */
+    function setContextUrl(url, title = null) {
+        window.history.replaceState({}, title ?? document.title, url);
+    }
+    Admin.setContextUrl = setContextUrl;
     /**
      * 프로세스 URL 경로를 가져온다.
      *
@@ -126,14 +193,13 @@ var Admin;
     function getProcessUrl(type, name, path) {
         const is_rewrite = Html.get('body').getAttr('data-rewrite') === 'true';
         const route = '/' + type + '/' + name + '/process/' + path;
-        return Admin.getBase() + (is_rewrite === true ? route : '/?route=' + route);
+        return Admin.getBase() + (is_rewrite === true ? route + '?debug=true' : '/?route=' + route + '&debug=true');
     }
     Admin.getProcessUrl = getProcessUrl;
     /**
      * 관리자 UI 처리가 준비되었을 때 이벤트리스너를 등록한다.
      *
      * @param {EventListener} listener - 이벤트리스너
-     *
      */
     function ready(listener) {
         this.viewportListener = listener;
@@ -158,6 +224,119 @@ var Admin;
         }
     }
     Admin.session = session;
+    /**
+     * 모듈을 관리하는 클래스를 정의한다.
+     */
+    let Modules;
+    (function (Modules) {
+        Modules.classes = {};
+        /**
+         * 모듈 관리자 클래스를 가져온다.
+         *
+         * @param {string} name - 모듈명
+         * @return {?Admin.Module} module - 모듈 관리자 클래스
+         */
+        function get(name) {
+            if (Admin.Modules.classes[name] === undefined) {
+                const namespaces = name.split('/');
+                if (window['modules'] === undefined) {
+                    return null;
+                }
+                let namespace = window['modules'];
+                for (const name of namespaces) {
+                    if (namespace[name] === undefined) {
+                        return null;
+                    }
+                    namespace = namespace[name];
+                }
+                const classname = namespaces.pop().replace(/^[a-z]/, (char) => char.toUpperCase()) + 'Admin';
+                if (namespace[classname] === undefined) {
+                    return null;
+                }
+                if (typeof namespace[classname] == 'function' &&
+                    namespace[classname].prototype instanceof Admin.Interface) {
+                    Admin.Modules.classes[name] = new namespace[classname]('module', name);
+                    return Admin.Modules.classes[name];
+                }
+                return null;
+            }
+            return Admin.Modules.classes[name];
+        }
+        Modules.get = get;
+    })(Modules = Admin.Modules || (Admin.Modules = {}));
+    /**
+     * 관리자 인터페이스 클래스를 정의한다.
+     */
+    class Interface {
+        type;
+        name;
+        /**
+         * 관리자 인터페이스 클래스를 정의한다.
+         *
+         * @param {string} type - 컴포넌트타입 (module, plugin, widget)
+         * @param {string} name - 컴포넌트명
+         */
+        constructor(type, name) {
+            this.type = type;
+            this.name = name;
+        }
+        /**
+         * 언어팩을 불러온다.
+         *
+         * @param string $text 언어팩코드
+         * @param ?array $placeHolder 치환자
+         * @return array|string|null $message 치환된 메시지
+         */
+        async getText(text, placeHolder = null) {
+            const paths = ['/' + this.type + 's/' + this.name];
+            if (this.type != 'module' || this.name != 'admin') {
+                paths.push('/modules/admin');
+            }
+            paths.push('/');
+            return Language.getText(text, placeHolder, paths);
+        }
+        /**
+         * 언어팩 문자열이 위치할 DOM 을 반환하고, 언어팩이 비동기적으로 로딩되면 언어팩 내용으로 변환한다.
+         *
+         * @param string $text 언어팩코드
+         * @param ?array $placeHolder 치환자
+         * @return array|string|null $message 치환된 메시지
+         */
+        printText(text, placeHolder = null) {
+            const paths = ['/' + this.type + 's/' + this.name];
+            if (this.type != 'module' || this.name != 'admin') {
+                paths.push('/modules/admin');
+            }
+            paths.push('/');
+            return Language.printText(text, placeHolder, paths);
+        }
+        /**
+         * 관리자 인터페이스를 구성하는 요소의 기본 상대경로를 가져온다.
+         *
+         * @return {string} baseUrl
+         */
+        getBase() {
+            return Html.get('body').getAttr('data-base') + '/' + this.type + 's/' + this.name;
+        }
+        /**
+         * 관리자 인터페이스를 구성하는 요소의 관리자 상대경로를 가져온다.
+         *
+         * @return {string} adminUrl
+         */
+        getAdmin() {
+            return this.getBase() + '/admin';
+        }
+        /**
+         * 관리자 인터페이스를 구성하는 요소의 프로세스 URL 경로를 가져온다.
+         *
+         * @param {string} path - 요청주소
+         * @return {string} processUrl
+         */
+        getProcessUrl(path) {
+            return Admin.getProcessUrl(this.type, this.name, path);
+        }
+    }
+    Admin.Interface = Interface;
     class Base {
         id;
         properties;
@@ -233,44 +412,4 @@ var Admin;
         }
     }
     Admin.Base = Base;
-    class Modules {
-        static classes = {};
-        /**
-         * 모듈 관리자 클래스를 가져온다.
-         *
-         * @param {string} name - 모듈명
-         * @return {?Admin.Module} module - 모듈 클래스
-         */
-        static get(name) {
-            if (Modules.classes[name] === undefined) {
-                const namespaces = name.split('/');
-                const namespace = namespaces.shift().replace(/^[a-z]/, (char) => char.toUpperCase());
-                if (window[namespace] === undefined) {
-                    return null;
-                }
-                let classname = window[namespace];
-                for (let namespace of namespaces) {
-                    namespace = namespace.replace(/^[a-z]/, (char) => char.toUpperCase());
-                    if (classname[namespace] === undefined) {
-                        return null;
-                    }
-                    classname = classname[namespace];
-                }
-                if (typeof classname == 'function' && classname.prototype instanceof Admin.Module) {
-                    Admin.Modules[name] = new classname(name);
-                    return Admin.Modules[name];
-                }
-                return null;
-            }
-            return Admin.Modules[name];
-        }
-    }
-    Admin.Modules = Modules;
-    class Module {
-        name;
-        constructor(name) {
-            this.name = name;
-        }
-    }
-    Admin.Module = Module;
 })(Admin || (Admin = {}));

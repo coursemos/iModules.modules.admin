@@ -13,7 +13,7 @@ namespace Admin {
     export let index: number = 0;
     export let currentComponent: Admin.Component = null;
     export let viewport: Admin.Viewport.Panel;
-    export let viewportListener: () => Admin.Component;
+    export let viewportListener: () => Promise<Admin.Component>;
 
     /**
      * 객체를 등록한다.
@@ -104,7 +104,16 @@ namespace Admin {
     }
 
     /**
-     * 아이모듈 기본 URL 경로를 가져온다.
+     * REWRITE 를 사용중인지 확인한다.
+     *
+     * @return {boolean} is_rewrite
+     */
+    export function isRewrite(): boolean {
+        return Html.get('body').getAttr('data-rewrite') === 'true';
+    }
+
+    /**
+     * 기본 URL 경로를 가져온다.
      *
      * @return {string} baseUrl
      */
@@ -118,9 +127,70 @@ namespace Admin {
      * @return {string} baseUrl
      */
     export function getUrl(): string {
-        const is_rewrite = Html.get('body').getAttr('data-rewrite') === 'true';
         const route = '/admin';
-        return Admin.getBase() + (is_rewrite === true ? route : '/?route=' + route);
+        return Admin.getBase() + (Admin.isRewrite() === true ? route : '/?route=' + route);
+    }
+
+    /**
+     * 관리자 컨텍스트 URL 을 가져온한다.
+     *
+     * @param {string} subUrl - 현재 컨텍스트 URL 에 추가할 경로
+     * @return {string} contextUrl;
+     */
+    export function getContextUrl(subUrl: string = ''): string {
+        const current = new URLSearchParams(location.search);
+
+        let contextUrl = Admin.getUrl() + Html.get('body').getAttr('data-context-url') + subUrl;
+        const params = new URLSearchParams();
+        for (const [key, value] of current.entries()) {
+            if (key == 'route') {
+                continue;
+            }
+            params.append(key, value);
+        }
+        const search = params.toString();
+
+        return contextUrl + (search.length > 0 ? (Admin.isRewrite() === true ? '?' : '&') + search : '');
+    }
+
+    /**
+     * 관리자 컨텍스트의 추가 URL 을 가져온한다.
+     *
+     * @return {string} contextSubUrl;
+     */
+    export function getContextSubUrl(): string {
+        let contextSubUrl = '';
+        const reg = new RegExp('^\\/admin' + Html.get('body').getAttr('data-context-url').replace('/', '\\/'));
+        if (Admin.isRewrite() === true) {
+            contextSubUrl = location.pathname.replace(reg, '');
+        } else {
+            const params = new URLSearchParams(location.search);
+            contextSubUrl = params.get('route').replace(reg, '');
+        }
+
+        return contextSubUrl;
+    }
+
+    /**
+     * 관리자 컨텍스트의 추가 URL 을 배열형태로 가져온다.
+     *
+     * @return {string[]} path;
+     */
+    export function getContextSubTree(): string[] {
+        const contextSubTree = Admin.getContextSubUrl().split('/');
+        contextSubTree.shift();
+
+        return contextSubTree;
+    }
+
+    /**
+     * History API 를 활용하여 현재 컨텍스트 URL 을 변경한다.
+     *
+     * @param {string} url - 변경할 URL
+     * @param {string} title - 변경할 문서 타이틀 (NULL 인 경우 현재 문서 타이틀)
+     */
+    export function setContextUrl(url: string, title: string = null): void {
+        window.history.replaceState({}, title ?? document.title, url);
     }
 
     /**
@@ -131,16 +201,15 @@ namespace Admin {
     export function getProcessUrl(type: string, name: string, path: string): string {
         const is_rewrite = Html.get('body').getAttr('data-rewrite') === 'true';
         const route = '/' + type + '/' + name + '/process/' + path;
-        return Admin.getBase() + (is_rewrite === true ? route : '/?route=' + route);
+        return Admin.getBase() + (is_rewrite === true ? route + '?debug=true' : '/?route=' + route + '&debug=true');
     }
 
     /**
      * 관리자 UI 처리가 준비되었을 때 이벤트리스너를 등록한다.
      *
      * @param {EventListener} listener - 이벤트리스너
-     *
      */
-    export function ready(listener: () => Admin.Component): void {
+    export function ready(listener: () => Promise<Admin.Component>): void {
         this.viewportListener = listener;
     }
 
@@ -160,6 +229,135 @@ namespace Admin {
         } else {
             datas[key] = value;
             window.sessionStorage?.setItem('iModules-Admin-Session', JSON.stringify(datas));
+        }
+    }
+
+    export interface Constructor {
+        new (type: string, name: string): Admin.Interface;
+    }
+
+    /**
+     * 모듈을 관리하는 클래스를 정의한다.
+     */
+    export namespace Modules {
+        export const classes: { [key: string]: Admin.Interface } = {};
+
+        /**
+         * 모듈 관리자 클래스를 가져온다.
+         *
+         * @param {string} name - 모듈명
+         * @return {?Admin.Module} module - 모듈 관리자 클래스
+         */
+        export function get(name: string): Admin.Interface | null {
+            if (Admin.Modules.classes[name] === undefined) {
+                const namespaces = name.split('/');
+                if (window['modules'] === undefined) {
+                    return null;
+                }
+
+                let namespace: Object | Admin.Constructor = window['modules'];
+                for (const name of namespaces) {
+                    if (namespace[name] === undefined) {
+                        return null;
+                    }
+                    namespace = namespace[name];
+                }
+                const classname = namespaces.pop().replace(/^[a-z]/, (char: string) => char.toUpperCase()) + 'Admin';
+                if (namespace[classname] === undefined) {
+                    return null;
+                }
+
+                if (
+                    typeof namespace[classname] == 'function' &&
+                    namespace[classname].prototype instanceof Admin.Interface
+                ) {
+                    Admin.Modules.classes[name] = new (namespace[classname] as Admin.Constructor)('module', name);
+                    return Admin.Modules.classes[name];
+                }
+
+                return null;
+            }
+
+            return Admin.Modules.classes[name];
+        }
+    }
+
+    /**
+     * 관리자 인터페이스 클래스를 정의한다.
+     */
+    export class Interface {
+        type: string;
+        name: string;
+
+        /**
+         * 관리자 인터페이스 클래스를 정의한다.
+         *
+         * @param {string} type - 컴포넌트타입 (module, plugin, widget)
+         * @param {string} name - 컴포넌트명
+         */
+        constructor(type: string, name: string) {
+            this.type = type;
+            this.name = name;
+        }
+
+        /**
+         * 언어팩을 불러온다.
+         *
+         * @param string $text 언어팩코드
+         * @param ?array $placeHolder 치환자
+         * @return array|string|null $message 치환된 메시지
+         */
+        async getText(text: string, placeHolder: { [key: string]: string } = null): Promise<string | object> {
+            const paths: string[] = ['/' + this.type + 's/' + this.name];
+            if (this.type != 'module' || this.name != 'admin') {
+                paths.push('/modules/admin');
+            }
+            paths.push('/');
+            return Language.getText(text, placeHolder, paths);
+        }
+
+        /**
+         * 언어팩 문자열이 위치할 DOM 을 반환하고, 언어팩이 비동기적으로 로딩되면 언어팩 내용으로 변환한다.
+         *
+         * @param string $text 언어팩코드
+         * @param ?array $placeHolder 치환자
+         * @return array|string|null $message 치환된 메시지
+         */
+        printText(text: string, placeHolder: { [key: string]: string } = null): string {
+            const paths: string[] = ['/' + this.type + 's/' + this.name];
+            if (this.type != 'module' || this.name != 'admin') {
+                paths.push('/modules/admin');
+            }
+            paths.push('/');
+            return Language.printText(text, placeHolder, paths);
+        }
+
+        /**
+         * 관리자 인터페이스를 구성하는 요소의 기본 상대경로를 가져온다.
+         *
+         * @return {string} baseUrl
+         */
+        getBase(): string {
+            return Html.get('body').getAttr('data-base') + '/' + this.type + 's/' + this.name;
+        }
+
+        /**
+         * 관리자 인터페이스를 구성하는 요소의 관리자 상대경로를 가져온다.
+         *
+         * @return {string} adminUrl
+         */
+        getAdmin(): string {
+            return this.getBase() + '/admin';
+        }
+
+        /**
+         * 관리자 인터페이스를 구성하는 요소의 프로세스 URL 경로를 가져온다.
+         *
+         * @param {string} path - 요청주소
+         * @return {string} processUrl
+         */
+        getProcessUrl(path: string): string {
+            return Admin.getProcessUrl(this.type, this.name, path);
         }
     }
 
@@ -244,56 +442,6 @@ namespace Admin {
             if (typeof this[methodName] == 'function') {
                 this[methodName]();
             }
-        }
-    }
-
-    export interface ModuleAdminConstructor {
-        new (name: string): Admin.Module;
-    }
-
-    export class Modules {
-        static classes: { [key: string]: Admin.Module } = {};
-
-        /**
-         * 모듈 관리자 클래스를 가져온다.
-         *
-         * @param {string} name - 모듈명
-         * @return {?Admin.Module} module - 모듈 클래스
-         */
-        static get(name: string): Admin.Module | null {
-            if (Modules.classes[name] === undefined) {
-                const namespaces = name.split('/');
-                const namespace = namespaces.shift().replace(/^[a-z]/, (char) => char.toUpperCase());
-                if (window[namespace] === undefined) {
-                    return null;
-                }
-
-                let classname: Object | ModuleAdminConstructor = window[namespace];
-                for (let namespace of namespaces) {
-                    namespace = namespace.replace(/^[a-z]/, (char) => char.toUpperCase());
-                    if (classname[namespace] === undefined) {
-                        return null;
-                    }
-                    classname = classname[namespace];
-                }
-
-                if (typeof classname == 'function' && classname.prototype instanceof Admin.Module) {
-                    Admin.Modules[name] = new (classname as ModuleAdminConstructor)(name);
-                    return Admin.Modules[name];
-                }
-
-                return null;
-            }
-
-            return Admin.Modules[name];
-        }
-    }
-
-    export class Module {
-        name: string;
-
-        constructor(name: string) {
-            this.name = name;
         }
     }
 }
