@@ -16,7 +16,7 @@ namespace Admin {
 
             store: Admin.Store;
             multiple: boolean;
-            selection: Admin.Data.Record[] = [];
+            selections: Admin.Data.Record[] = [];
             value: string | number | string[] | number[] = null;
 
             displayField: string;
@@ -92,15 +92,15 @@ namespace Admin {
                     return;
                 }
 
-                $items.get(origin)?.removeClass('focus');
-                $items.get(index)?.addClass('focus');
+                $items.get(origin)?.removeClass('focused');
+                $items.get(index)?.addClass('focused');
             }
 
             /**
              * 포커스가 지정된 라인이 있다면 포커스를 해제한다.
              */
             blurRow(): void {
-                Html.all('ul[data-role=list] > li', this.$getContent()).removeClass('focus');
+                Html.all('ul[data-role=list] > li', this.$getContent()).removeClass('focused');
             }
 
             /**
@@ -135,32 +135,22 @@ namespace Admin {
                     return -1;
                 }
 
-                const $focus = Html.get('> li.focus', $list);
+                const $focus = Html.get('> li.focused', $list);
                 return $focus.getIndex();
             }
 
             /**
              * 선택된 항목을 배열로 가져온다.
              *
-             * @return {Admin.Data.Record[]} selection
+             * @return {Admin.Data.Record[]} selections
              */
             getSelections(): Admin.Data.Record[] {
-                const selection = [];
+                const selections = [];
                 Html.all('li.selected', this.$getContent()).forEach(($dom: Dom) => {
-                    selection.push($dom.getData('record'));
+                    selections.push($dom.getData('record'));
                 });
 
-                return selection;
-            }
-
-            /**
-             * 다중선택이 허용되지 않은 경우 단일 선택항목만 가져온다.
-             *
-             * @return {Admin.Data.Record|Admin.Data.Record[]} selection
-             */
-            getSelection(): Admin.Data.Record | Admin.Data.Record[] {
-                const selection = this.getSelections();
-                return this.multiple == true ? selection : selection.length > 0 ? selection[0] : null;
+                return selections;
             }
 
             /**
@@ -309,9 +299,10 @@ namespace Admin {
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
              */
             onSelectionChange(): void {
-                if (this.isEqual(this.getSelections()) === false) {
-                    this.selection = this.getSelections();
-                    this.fireEvent('selectionChange', [this, this.getSelection()]);
+                const selections = this.getSelections();
+                if (this.isEqual(selections) === false) {
+                    this.selections = selections;
+                    this.fireEvent('selectionChange', [selections, this]);
                 }
             }
 
@@ -320,22 +311,22 @@ namespace Admin {
              */
             onSelectionComplete(): void {
                 this.blurRow();
-                this.fireEvent('selectionComplete', [this, this.getSelection()]);
+                this.fireEvent('selectionComplete', [this.getSelections(), this]);
             }
 
             /**
              * 현재 선택항목과 일치하는지 확인한다.
              *
-             * @param {Admin.Data.Record[]} selection - 확인할 선택항목
+             * @param {Admin.Data.Record[]} selections - 확인할 선택항목
              * @return {boolean} isEqual
              */
-            isEqual(selection: Admin.Data.Record[]): boolean {
-                if (this.selection === selection) return true;
-                if (this.selection == null || selection == null) return false;
-                if (this.selection.length !== selection.length) return false;
+            isEqual(selections: Admin.Data.Record[]): boolean {
+                if (this.selections === selections) return true;
+                if (this.selections == null || selections == null) return false;
+                if (this.selections.length !== selections.length) return false;
 
-                for (var i = 0; i < this.selection.length; ++i) {
-                    if (this.selection[i] !== selection[i]) return false;
+                for (var i = 0; i < this.selections.length; ++i) {
+                    if (this.selections[i] !== selections[i]) return false;
                 }
 
                 return true;
