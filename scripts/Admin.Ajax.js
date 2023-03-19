@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 14.
+ * @modified 2023. 3. 9.
  */
 var Admin;
 (function (Admin) {
@@ -15,11 +15,19 @@ var Admin;
          * GET 방식으로 데이터를 가져온다.
          *
          * @param {string} url - 요청주소
+         * @param {Admin.Ajax.Params} params - 요청할 데이터
          * @param {number} retry - 재시도횟수
-         * @return {Promise<results>} results - 요청결과
+         * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
-        static async get(url, retry = 0) {
+        static async get(url, params = {}, retry = 0) {
             const language = Html.get('html').getAttr('lang');
+            const queryString = new URLSearchParams(params).toString();
+            if (queryString.length > 0) {
+                if (url.indexOf('?') === -1)
+                    url += '?' + queryString;
+                else
+                    url += '&' + queryString;
+            }
             try {
                 const response = (await fetch(url, {
                     method: 'GET',
@@ -32,13 +40,13 @@ var Admin;
                     redirect: 'follow',
                 }).catch((error) => {
                     if (retry < 3) {
-                        return Admin.Ajax.get(url, ++retry);
+                        return Admin.Ajax.get(url, params, ++retry);
                     }
                     else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('error/TITLE'),
-                            message: Admin.printText('error/CONNECT_ERROR'),
+                            title: Admin.printText('errors/TITLE'),
+                            message: Admin.printText('errors/CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
                         console.error(error);
@@ -49,7 +57,7 @@ var Admin;
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('error/TITLE'),
+                        title: Admin.printText('errors/TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -58,13 +66,13 @@ var Admin;
             }
             catch (e) {
                 if (retry < 3) {
-                    return Admin.Ajax.get(url, ++retry);
+                    return Admin.Ajax.get(url, params, ++retry);
                 }
                 else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('error/TITLE'),
-                        message: Admin.printText('error/CONNECT_ERROR'),
+                        title: Admin.printText('errors/TITLE'),
+                        message: Admin.printText('errors/CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
                     console.error(e);
@@ -77,9 +85,9 @@ var Admin;
          * 전송할 데이터는 JSON 방식으로 전송된다.
          *
          * @param {string} url - 요청주소
-         * @param {object} datas - 전송할 데이터
+         * @param {Admin.Ajax.Datas} datas - 전송할 데이터
          * @param {number} retry - 재시도횟수
-         * @return {Promise<results>} results - 요청결과
+         * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
         static async post(url, datas = {}, retry = 0) {
             const language = Html.get('html').getAttr('lang');
@@ -101,8 +109,8 @@ var Admin;
                     else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('error/TITLE'),
-                            message: Admin.printText('error/CONNECT_ERROR'),
+                            title: Admin.printText('errors/TITLE'),
+                            message: Admin.printText('errors/CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
                         console.error(error);
@@ -113,7 +121,7 @@ var Admin;
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('error/TITLE'),
+                        title: Admin.printText('errors/TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -127,8 +135,8 @@ var Admin;
                 else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('error/TITLE'),
-                        message: Admin.printText('error/CONNECT_ERROR'),
+                        title: Admin.printText('errors/TITLE'),
+                        message: Admin.printText('errors/CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
                     console.error(e);
