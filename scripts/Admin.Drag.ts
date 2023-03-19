@@ -54,6 +54,7 @@ namespace Admin {
          * 드래그 시작시 이벤트를 처리한다.
          *
          * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
+         * @param {PointerEvent} e - 포인터 이벤트
          */
         onStart(tracker: Admin.Drag.Tracker, e: PointerEvent): void {
             this.fireEvent('start', [tracker.parent.$target, tracker, e]);
@@ -63,19 +64,21 @@ namespace Admin {
          * 드래그 중 이벤트를 처리한다.
          *
          * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
+         * @param {PointerEvent} e - 포인터 이벤트
          */
-        onDrag(tracker: Admin.Drag.Tracker): void {
-            this.fireEvent('drag', [tracker.parent.$target, tracker]);
+        onDrag(tracker: Admin.Drag.Tracker, e: PointerEvent): void {
+            this.fireEvent('drag', [tracker.parent.$target, tracker, e]);
         }
 
         /**
          * 드래그 종료시 이벤트를 처리한다.
          *
          * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
+         * @param {PointerEvent} e - 포인터 이벤트
          */
-        onEnd(tracker: Admin.Drag.Tracker): void {
+        onEnd(tracker: Admin.Drag.Tracker, e: PointerEvent): void {
             Admin.Drag.pointers.delete(tracker.id);
-            this.fireEvent('end', [tracker.parent.$target, tracker]);
+            this.fireEvent('end', [tracker.parent.$target, tracker, e]);
         }
     }
 
@@ -90,6 +93,7 @@ namespace Admin {
             velocity: { x: number; y: number } = { x: 0, y: 0 };
             firstPosition: { x: number; y: number } = { x: 0, y: 0 };
             lastPosition: { x: number; y: number } = { x: 0, y: 0 };
+            e: PointerEvent;
 
             /**
              * 포인터의 이동내역을 기록할 트래커 객체를 생성한다.
@@ -102,6 +106,7 @@ namespace Admin {
                 this.id = e.pointerId;
                 this.firstPosition = { x: e.clientX, y: e.clientY };
                 this.lastPosition = this.firstPosition;
+                this.e = e;
             }
 
             /**
@@ -128,14 +133,14 @@ namespace Admin {
                 this.updateTime = now;
                 this.lastPosition = position;
 
-                this.parent.onDrag(this);
+                this.parent.onDrag(this, e);
             }
 
             /**
              * 포인터 트래커를 종료한다.
              */
-            release() {
-                this.parent.onEnd(this);
+            release(e: PointerEvent) {
+                this.parent.onEnd(this, e);
             }
 
             /**
@@ -225,7 +230,7 @@ Html.on(
         if (Admin.Drag.activeId == e.pointerId) {
             Admin.Drag.activeId = null;
         }
-        Admin.Drag.pointers.get(e.pointerId)?.release();
+        Admin.Drag.pointers.get(e.pointerId)?.release(e);
     },
     { passive: true }
 );
@@ -236,7 +241,7 @@ Html.on(
         if (Admin.Drag.activeId == e.pointerId) {
             Admin.Drag.activeId = null;
         }
-        Admin.Drag.pointers.get(e.pointerId)?.release();
+        Admin.Drag.pointers.get(e.pointerId)?.release(e);
     },
     { passive: true }
 );

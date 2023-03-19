@@ -50,6 +50,7 @@ var Admin;
          * 드래그 시작시 이벤트를 처리한다.
          *
          * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
+         * @param {PointerEvent} e - 포인터 이벤트
          */
         onStart(tracker, e) {
             this.fireEvent('start', [tracker.parent.$target, tracker, e]);
@@ -58,18 +59,20 @@ var Admin;
          * 드래그 중 이벤트를 처리한다.
          *
          * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
+         * @param {PointerEvent} e - 포인터 이벤트
          */
-        onDrag(tracker) {
-            this.fireEvent('drag', [tracker.parent.$target, tracker]);
+        onDrag(tracker, e) {
+            this.fireEvent('drag', [tracker.parent.$target, tracker, e]);
         }
         /**
          * 드래그 종료시 이벤트를 처리한다.
          *
          * @param {Admin.Drag.Tracker} tracker - 포인터 트래커
+         * @param {PointerEvent} e - 포인터 이벤트
          */
-        onEnd(tracker) {
+        onEnd(tracker, e) {
             Admin.Drag.pointers.delete(tracker.id);
-            this.fireEvent('end', [tracker.parent.$target, tracker]);
+            this.fireEvent('end', [tracker.parent.$target, tracker, e]);
         }
     }
     Admin.Drag = Drag;
@@ -83,6 +86,7 @@ var Admin;
             velocity = { x: 0, y: 0 };
             firstPosition = { x: 0, y: 0 };
             lastPosition = { x: 0, y: 0 };
+            e;
             /**
              * 포인터의 이동내역을 기록할 트래커 객체를 생성한다.
              *
@@ -94,6 +98,7 @@ var Admin;
                 this.id = e.pointerId;
                 this.firstPosition = { x: e.clientX, y: e.clientY };
                 this.lastPosition = this.firstPosition;
+                this.e = e;
             }
             /**
              * 포인터 상태를 업데이트한다.
@@ -115,13 +120,13 @@ var Admin;
                 this.delta = delta;
                 this.updateTime = now;
                 this.lastPosition = position;
-                this.parent.onDrag(this);
+                this.parent.onDrag(this, e);
             }
             /**
              * 포인터 트래커를 종료한다.
              */
-            release() {
-                this.parent.onEnd(this);
+            release(e) {
+                this.parent.onEnd(this, e);
             }
             /**
              * 부모 드래그 객체를 가져온다.
@@ -197,11 +202,11 @@ Html.on('pointerup', (e) => {
     if (Admin.Drag.activeId == e.pointerId) {
         Admin.Drag.activeId = null;
     }
-    Admin.Drag.pointers.get(e.pointerId)?.release();
+    Admin.Drag.pointers.get(e.pointerId)?.release(e);
 }, { passive: true });
 Html.on('pointercancel', (e) => {
     if (Admin.Drag.activeId == e.pointerId) {
         Admin.Drag.activeId = null;
     }
-    Admin.Drag.pointers.get(e.pointerId)?.release();
+    Admin.Drag.pointers.get(e.pointerId)?.release(e);
 }, { passive: true });
