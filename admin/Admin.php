@@ -67,7 +67,7 @@ class Admin
      */
     public function getErrorText(string $code, ?array $placeHolder = null): string
     {
-        return self::getText('error/' . $code, $placeHolder);
+        return self::getText('errors/' . $code, $placeHolder);
     }
 
     /**
@@ -152,20 +152,16 @@ class Admin
 
     /**
      * 현재 모듈 관리자에서 사용하는 head 리소스를 가져온다.
+     *
+     * @return string[] $scripts
      */
-    public function header(): void
+    public function scripts(): array
     {
         if (is_file($this->getPath() . '/scripts/Admin.js') == true) {
-            Html::script($this->getBase() . '/scripts/Admin.js');
+            return [$this->getBase() . '/scripts/Admin.js'];
         }
 
-        if (is_file($this->getPath() . '/styles/Admin.css') == true) {
-            Html::style($this->getBase() . '/styles/Admin.css');
-        }
-
-        if (is_file($this->getPath() . '/styles/Admin.scss') == true) {
-            Html::style($this->getBase() . '/styles/Admin.scss');
-        }
+        return [];
     }
 
     /**
