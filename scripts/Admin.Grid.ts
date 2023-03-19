@@ -20,6 +20,8 @@ namespace Admin {
             freezeColumn: number;
             freezeWidth: number;
             columnResizable: boolean;
+            selections: Admin.Data.Record[] = [];
+            selectionMode: 'NONE' | 'SINGLE' | 'SIMPLE' | 'MULTI' | 'CHECKBOX';
 
             store: Admin.Store;
 
@@ -27,6 +29,7 @@ namespace Admin {
             $body: Dom;
             $footer: Dom;
 
+            focusedRow: number = null;
             focusedCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
 
             /**
@@ -40,6 +43,7 @@ namespace Admin {
                 this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.columnResizable = this.properties.columnResizable !== false;
+                this.selectionMode = this.properties.selectionMode ?? 'NONE';
 
                 this.store = this.properties.store ?? new Admin.Store();
                 this.store.addEvent('beforeLoad', () => {
@@ -119,86 +123,6 @@ namespace Admin {
             }
 
             /**
-             * 그리드패널의 헤더(제목행)를 랜더링한다.
-             */
-            renderHeader(): void {
-                let leftPosition = 0;
-                this.freezeColumn = 0;
-
-                this.headers.forEach((header: Admin.Grid.Column, headerIndex: number) => {
-                    const $header = header.$getHeader();
-                    this.$header.append($header);
-
-                    if (headerIndex < this.freeze) {
-                        $header.addClass('sticky');
-                        $header.setStyle('left', leftPosition + 'px');
-                        leftPosition += header.getMinWidth() + 1;
-
-                        if (headerIndex == this.freeze - 1) {
-                            $header.addClass('end');
-                        }
-
-                        this.freezeColumn += header.getColumns().length;
-                    }
-                });
-                this.freezeWidth = leftPosition;
-                this.$header.prepend(Html.create('div', { 'data-column-type': 'fill' }));
-                this.getScrollbar().setTrackPosition('x', leftPosition ? leftPosition + 1 : 0);
-                this.getScrollbar().setTrackPosition('y', this.$header.getHeight() + 1);
-
-                this.updateColumnIndex();
-                this.updateColumnFill();
-            }
-
-            /**
-             * 그리드패널의 바디(데이터행)를 랜더링한다.
-             */
-            renderBody(): void {
-                this.$body.empty();
-                this.getStore()
-                    .getRecords()
-                    .forEach((record: Admin.Data.Record, rowIndex: number) => {
-                        let leftPosition = 0;
-                        const $row = Html.create('div').setData('role', 'row').setData('row-index', rowIndex);
-                        this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
-                            const value = record.get(column.dataIndex);
-                            const $column = column.$getBody(value, record, rowIndex, columnIndex);
-                            $row.append($column);
-
-                            if (columnIndex < this.freezeColumn) {
-                                $column.addClass('sticky');
-                                $column.setStyle('left', leftPosition + 'px');
-                                leftPosition += column.getMinWidth() + 1;
-
-                                if (columnIndex == this.freezeColumn - 1) {
-                                    $column.addClass('end');
-                                }
-                            }
-                        });
-                        $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
-                        this.$body.append($row);
-                    });
-            }
-
-            /**
-             * 그리드패널의 푸터(합계행)를 핸더링한다.
-             */
-            renderFooter(): void {}
-
-            /**
-             * 패널의 본문 레이아웃을 랜더링한다.
-             */
-            renderContent(): void {
-                this.$getContent().append(this.$header);
-                this.$getContent().append(this.$body);
-                this.$getContent().append(this.$footer);
-
-                this.renderHeader();
-                this.renderBody();
-                this.renderFooter();
-            }
-
-            /**
              * 그리드패널의 전체 컬럼을 가져온다.
              *
              * @return {Admin.Grid.Column[]} columns
@@ -231,6 +155,8 @@ namespace Admin {
                 const $row = Html.all('div[data-role=row]', this.$getBody()).get(rowIndex);
                 if ($row == null) return;
 
+                this.blurRow();
+
                 const headerHeight = this.$getHeader().getOuterHeight();
                 const contentHeight = this.$getContent().getHeight();
                 const offset = $row.getPosition();
@@ -247,13 +173,17 @@ namespace Admin {
                     const y = Math.min(bottom + scroll.y - contentHeight + 1, maxScroll);
                     this.getScrollbar().setPosition(null, y, true);
                 }
+
+                this.focusedRow = rowIndex;
+                $row.addClass('focused');
             }
 
             /**
              * 포커스가 지정된 열의 포커스를 해제한다.
              */
             blurRow(): void {
-                // @todo 행 선택 해제
+                this.focusedRow = null;
+                Html.all('div[data-role=row].focused', this.$body).removeClass('focused');
             }
 
             /**
@@ -271,9 +201,9 @@ namespace Admin {
                 );
                 if ($column.getEl() == null) return;
 
+                this.blurCell();
                 this.focusRow(rowIndex);
-                Html.all('div[data-role=column].focus', this.$body).removeClass('focus');
-                $column.addClass('focus');
+                $column.addClass('focused');
                 this.focusedCell.rowIndex = rowIndex;
                 this.focusedCell.columnIndex = columnIndex;
 
@@ -302,7 +232,173 @@ namespace Admin {
                 this.focusedCell.rowIndex = null;
                 this.focusedCell.columnIndex = null;
 
-                Html.all('div[data-role=column].focus', this.$body).removeClass('focus');
+                Html.all('div[data-role=column].focused', this.$body).removeClass('focused');
+            }
+
+            /**
+             * 선택된 항목을 배열로 가져온다.
+             *
+             * @return {Admin.Data.Record[]} selections
+             */
+            getSelections(): Admin.Data.Record[] {
+                if (this.selectionMode == 'NONE') {
+                    return [];
+                }
+
+                const selections = [];
+                Html.all('div[data-role=row].selected', this.$getBody()).forEach(($dom: Dom) => {
+                    selections.push($dom.getData('record'));
+                });
+                return selections;
+            }
+
+            /**
+             * 그리드 아이템(행)이 선택여부를 확인한다.
+             *
+             * @param {number} index - 선택여부를 확인할 아이탬(행) 인덱스
+             * @return {boolean} selected
+             */
+            isSelected(index: number): boolean {
+                return Html.all('div[data-role=row]', this.$getBody()).get(index).hasClass('selected') == true;
+            }
+
+            /**
+             * 아이템을 오픈한다.
+             *
+             * @param {number} index - 아이탬(행) 인덱스
+             */
+            openItem(index: number): void {
+                if (this.isSelected(index) == false) {
+                    this.select(index);
+                }
+                const $row = Html.all('div[data-role=row]', this.$getBody()).get(index);
+                if ($row.getEl() == null) {
+                    return;
+                }
+
+                const record = $row.getData('record');
+                this.fireEvent('openItem', [record, index, this]);
+            }
+
+            /**
+             * 아이템 메뉴를 오픈한다.
+             *
+             * @param {number} index - 아이탬(행) 인덱스
+             */
+            openMenu(index: number): void {
+                if (this.isSelected(index) == false) {
+                    this.select(index);
+                }
+
+                const $row = Html.all('div[data-role=row]', this.$getBody()).get(index);
+                if ($row.getEl() == null) {
+                    return;
+                }
+
+                const record = $row.getData('record');
+                this.fireEvent('openMenu', [record, index, this]);
+            }
+
+            /**
+             * 그리드 아이템(행) 선택한다.
+             *
+             * @param {number} index - 아이탬(행) 인덱스
+             * @param {boolean} is_keep - 이전 선택항목을 유지할지 여부
+             */
+            select(index: number, is_keep: boolean = false): void {
+                if (this.selectionMode == 'NONE' || index < 0) {
+                    return;
+                }
+
+                if (this.selectionMode == 'SIMPLE') {
+                    if (this.isSelected(index) == true) {
+                        this.deselect(index);
+                        return;
+                    }
+                }
+
+                if (is_keep == false || this.selectionMode == 'SINGLE') {
+                    this.deselectAll(false);
+                }
+
+                Html.all('div[data-role=row]', this.$getBody()).get(index).addClass('selected');
+
+                this.onSelectionChange();
+            }
+
+            /**
+             * 특정 라인을 선택한다.
+             *
+             * @param {number} index - 선택할 라인 인덱스
+             */
+            deselect(index: number) {
+                if (this.isSelected(index) == true) {
+                    Html.all('div[data-role=row]', this.$getBody()).get(index).removeClass('selected');
+                    this.onSelectionChange();
+                }
+            }
+
+            /**
+             * 선택된 모든 라인을 선택해제한다.
+             *
+             * @param {boolean} is_event - 이벤트 발생여부
+             */
+            deselectAll(is_event: boolean = true) {
+                if (this.selections.length > 0) {
+                    Html.all('div[data-role=row]', this.$getBody()).removeClass('selected');
+                    if (is_event == true) {
+                        this.onSelectionChange();
+                    }
+                }
+            }
+
+            /**
+             * 데이터가 변경되거나 다시 로딩되었을 때 이전 선택값이 있다면 복구한다.
+             */
+            restoreSelections(): void {
+                if (this.selections.length > 0) {
+                    for (const selection of this.selections) {
+                        const rowIndex = this.getStore().matchIndex(selection, this.getStore().getPrimaryKeys());
+                        if (rowIndex !== null) {
+                            Html.all('div[data-role=row]', this.$getBody()).get(rowIndex).addClass('selected');
+                        }
+                    }
+                }
+
+                if (this.getSelections().length == 0) {
+                    this.selections = [];
+                } else {
+                    this.onSelectionChange();
+                }
+            }
+
+            /**
+             * 선택항목이 변경되었을 때 이벤트를 처리한다.
+             */
+            onSelectionChange(): void {
+                const selections = this.getSelections();
+                if (this.isEqual(selections) === false) {
+                    this.selections = selections;
+                    this.fireEvent('selectionChange', [selections, this]);
+                }
+            }
+
+            /**
+             * 현재 선택항목과 일치하는지 확인한다.
+             *
+             * @param {Admin.Data.Record[]} selections - 확인할 선택항목
+             * @return {boolean} isEqual
+             */
+            isEqual(selections: Admin.Data.Record[]): boolean {
+                if (this.selections === selections) return true;
+                if (this.selections == null || selections == null) return false;
+                if (this.selections.length !== selections.length) return false;
+
+                for (var i = 0; i < this.selections.length; ++i) {
+                    if (this.selections[i] !== selections[i]) return false;
+                }
+
+                return true;
             }
 
             /**
@@ -466,7 +562,6 @@ namespace Admin {
                         if (headerIndex < this.freeze) {
                             $header.addClass('sticky');
                             $header.setStyle('left', leftPosition + 'px');
-                            $header.setStyle('z-index', this.freeze - headerIndex + 1);
                             leftPosition += header.getMinWidth() + 1;
 
                             if (headerIndex == this.freeze - 1) {
@@ -498,6 +593,114 @@ namespace Admin {
                 } else {
                     this.getScrollbar().setTrackPosition('x', 0);
                 }
+            }
+
+            /**
+             * 그리드패널의 헤더(제목행)를 랜더링한다.
+             */
+            renderHeader(): void {
+                let leftPosition = 0;
+                this.freezeColumn = 0;
+
+                this.headers.forEach((header: Admin.Grid.Column, headerIndex: number) => {
+                    const $header = header.$getHeader();
+                    this.$header.append($header);
+
+                    if (headerIndex < this.freeze) {
+                        $header.addClass('sticky');
+                        $header.setStyle('left', leftPosition + 'px');
+                        leftPosition += header.getMinWidth() + 1;
+
+                        if (headerIndex == this.freeze - 1) {
+                            $header.addClass('end');
+                        }
+
+                        this.freezeColumn += header.getColumns().length;
+                    }
+                });
+                this.freezeWidth = leftPosition;
+                this.$header.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+                this.getScrollbar().setTrackPosition('x', leftPosition ? leftPosition + 1 : 0);
+                this.getScrollbar().setTrackPosition('y', this.$header.getHeight() + 1);
+
+                this.updateColumnIndex();
+                this.updateColumnFill();
+            }
+
+            /**
+             * 그리드패널의 바디(데이터행)를 랜더링한다.
+             */
+            renderBody(): void {
+                this.$body.empty();
+                this.getStore()
+                    .getRecords()
+                    .forEach((record: Admin.Data.Record, rowIndex: number) => {
+                        let leftPosition = 0;
+                        const $row = Html.create('div')
+                            .setData('role', 'row')
+                            .setData('row-index', rowIndex)
+                            .setData('record', record, false);
+                        this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
+                            const value = record.get(column.dataIndex);
+                            const $column = column.$getBody(value, record, rowIndex, columnIndex);
+                            $row.append($column);
+
+                            if (columnIndex < this.freezeColumn) {
+                                $column.addClass('sticky');
+                                $column.setStyle('left', leftPosition + 'px');
+                                leftPosition += column.getMinWidth() + 1;
+
+                                if (columnIndex == this.freezeColumn - 1) {
+                                    $column.addClass('end');
+                                }
+                            }
+                        });
+                        $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+
+                        $row.on('click', (e: PointerEvent) => {
+                            if (this.selectionMode != 'NONE') {
+                                this.select(rowIndex, e.metaKey == true || e.ctrlKey == true);
+                            }
+                        });
+
+                        $row.on('dblclick', (e: MouseEvent) => {
+                            if (e.button === 0) {
+                                this.openItem(rowIndex);
+                            }
+                        });
+
+                        $row.on('contextmenu', (e: PointerEvent) => {
+                            Admin.Menu.pointerEvent = e;
+                            this.openMenu(rowIndex);
+                            e.preventDefault();
+                        });
+
+                        $row.on('longpress', (e: PointerEvent) => {
+                            Admin.Menu.pointerEvent = e;
+                            this.openMenu(rowIndex);
+                            e.preventDefault();
+                        });
+
+                        this.$body.append($row);
+                    });
+            }
+
+            /**
+             * 그리드패널의 푸터(합계행)를 핸더링한다.
+             */
+            renderFooter(): void {}
+
+            /**
+             * 패널의 본문 레이아웃을 랜더링한다.
+             */
+            renderContent(): void {
+                this.$getContent().append(this.$header);
+                this.$getContent().append(this.$body);
+                this.$getContent().append(this.$footer);
+
+                this.renderHeader();
+                this.renderBody();
+                this.renderFooter();
             }
 
             /**
@@ -548,6 +751,12 @@ namespace Admin {
                         this.focusCell(rowIndex, columnIndex);
                         e.preventDefault();
                     }
+
+                    if (e.key == ' ' || e.key == 'Enter') {
+                        if (this.focusedRow !== null) {
+                            this.select(this.focusedRow);
+                        }
+                    }
                 });
 
                 this.$getComponent().on('blur', () => {
@@ -582,7 +791,7 @@ namespace Admin {
              * 데이터가 로드되기 전 이벤트를 처리한다.
              */
             onBeforeLoad(): void {
-                //console.log('onBeforeLoad - grid');
+                this.fireEvent('selectionChange', [[], this]);
             }
 
             /**
@@ -591,8 +800,7 @@ namespace Admin {
             onLoad(): void {
                 if (this.getStore().isLoaded() === false) return;
 
-                this.focusedCell = { rowIndex: null, columnIndex: null };
-                this.renderBody();
+                this.fireEvent('load', [this, this.getStore()]);
             }
 
             /**
@@ -601,54 +809,9 @@ namespace Admin {
             onUpdate(): void {
                 this.focusedCell = { rowIndex: null, columnIndex: null };
                 this.renderBody();
-            }
+                this.restoreSelections();
 
-            /**
-             * keydown 이벤트를 처리한다.
-             *
-             * @param {KeyboardEvent} e - 키보드이벤트
-             */
-            onKeydown(e: KeyboardEvent): void {
-                if (e.key.indexOf('Arrow') === 0) {
-                    let rowIndex: number = 0;
-                    let columnIndex: number = 0;
-                    switch (e.key) {
-                        case 'ArrowLeft':
-                            rowIndex = this.focusedCell.rowIndex ?? 0;
-                            columnIndex = Math.max(0, (this.focusedCell.columnIndex ?? 0) - 1);
-                            while (columnIndex > 0 && this.getColumnByIndex(columnIndex).isHidden() == true) {
-                                columnIndex--;
-                            }
-                            break;
-
-                        case 'ArrowRight':
-                            rowIndex = this.focusedCell.rowIndex ?? 0;
-                            columnIndex = Math.min(
-                                this.getColumns().length - 1,
-                                (this.focusedCell.columnIndex ?? 0) + 1
-                            );
-                            while (
-                                columnIndex < this.getColumns().length - 1 &&
-                                this.getColumnByIndex(columnIndex).isHidden() == true
-                            ) {
-                                columnIndex++;
-                            }
-                            break;
-
-                        case 'ArrowUp':
-                            rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? 0) - 1);
-                            columnIndex = this.focusedCell.columnIndex ?? 0;
-                            break;
-
-                        case 'ArrowDown':
-                            rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? 0) + 1);
-                            columnIndex = this.focusedCell.columnIndex ?? 0;
-                            break;
-                    }
-
-                    this.focusCell(rowIndex, columnIndex);
-                    e.preventDefault();
-                }
+                this.fireEvent('update', [this, this.getStore()]);
             }
 
             /**
@@ -1094,7 +1257,7 @@ namespace Admin {
 
                 $column.addClass(this.textAlign);
 
-                $column.on('click', (e: Event) => {
+                $column.on('pointerdown', (e: PointerEvent) => {
                     const $column = Html.el(e.currentTarget);
                     this.grid.focusCell($column.getData('row'), $column.getData('column'));
                 });
