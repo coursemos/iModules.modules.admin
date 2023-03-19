@@ -20,6 +20,36 @@ div[data-component][data-type='panel'][data-role='form'] {
     }
 }
 
+div[data-component][data-type='form'][data-role='fieldset'] {
+    > div[data-role='container'] {
+        > fieldset[data-role='content'] {
+            > legend {
+                display: inline-block;
+                width: fit-content;
+                margin-top: 0px;
+                margin-bottom: 0px;
+                margin-left: calc(var(--padding-default) * 0.5);
+                margin-right: calc(var(--padding-default) * 0.5);
+                padding: var(--padding-default);
+                height: var(--text-height);
+                font-size: var(--font-size-default);
+                font-family: var(--font-family-default);
+                background: var(--panel-background);
+                line-height: calc(var(--text-height) - var(--padding-default) * 2);
+                box-sizing: border-box;
+            }
+
+            display: flex;
+            flex-direction: column;
+            row-gap: var(--padding-default);
+            align-items: stretch;
+            height: max-content;
+
+            border: 1px solid var(--panel-border-color-default);
+        }
+    }
+}
+
 div[data-component][data-type='form'][data-role='field'] {
     > div[data-role='container'] {
         font-size: 0;
@@ -31,11 +61,27 @@ div[data-component][data-type='form'][data-role='field'] {
 
             > label {
                 display: block;
+                max-width: 100%;
+                width: fit-content;
                 height: var(--text-height);
                 line-height: var(--text-height);
                 font-size: var(--font-size-default);
                 font-family: var(--font-family-default);
                 color: var(--input-color-default);
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                position: relative;
+
+                > i {
+                    font-style: normal;
+                    float: right;
+                    margin: 0px 2px;
+                    display: inline-block;
+                    vertical-align: middle;
+                    height: var(--text-height);
+                    line-height: var(--text-height);
+                }
 
                 &.right {
                     text-align: right;
@@ -175,6 +221,24 @@ div[data-component][data-type='form'][data-role='field'] {
         }
     }
 
+    > div[data-role='container'] > div[data-role='content'][data-field='display'] {
+        position: relative;
+        background: var(--input-background-default);
+        z-index: 0;
+
+        > div {
+            width: 100%;
+            height: var(--text-height);
+            box-sizing: border-box;
+            background: transparent;
+            padding: var(--padding-default);
+            line-height: calc(var(--text-height) - var(--padding-default) * 2);
+            font-size: var(--font-size-default);
+            font-family: var(--font-family-default);
+            color: var(--input-color-default);
+        }
+    }
+
     > div[data-role='container'] > div[data-role='content'][data-field='select'] {
         position: relative;
         background: var(--input-background-default);
@@ -290,27 +354,172 @@ div[data-component][data-type='form'][data-role='field'] {
                 }
             }
         }
+
+        &.error {
+            > button {
+                border-color: var(--input-border-color-error);
+            }
+        }
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='textarea'] {
+        position: relative;
+        background: var(--input-background-default);
+        z-index: 0;
+
+        &:has(input:focus) {
+            background: var(--input-background-focus);
+        }
+
+        &.error {
+            background: var(--input-background-error);
+        }
+
         > textarea {
             width: 100%;
-            min-height: calc(var(--medium-font-size) * 2 + 4px);
             box-sizing: border-box;
-            border: 1px solid var(--input-border-color);
-            background: var(--input-background);
-            padding-top: calc(var(--medium-font-size) * 0.5);
-            padding-bottom: calc(var(--medium-font-size) * 0.5);
-            padding-left: calc(var(--medium-font-size) * 0.5);
-            padding-right: calc(var(--medium-font-size) * 0.5);
-            line-height: calc(var(--medium-font-size) + 2px);
-            font-size: var(--medium-font-size);
-            font-family: inherit;
+            border: 1px solid var(--input-border-color-default);
+            background: transparent;
+            padding: var(--padding-default);
+            line-height: calc(var(--text-height) - var(--padding-default) * 2);
+            font-size: var(--font-size-default);
+            font-family: var(--font-family-default);
             resize: none;
         }
 
         > textarea:focus {
             border-color: var(--theme-color);
+        }
+
+        > div[data-role='empty'] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+            border: 1px solid transparent;
+            box-sizing: border-box;
+            padding: var(--padding-default);
+            line-height: calc(var(--text-height) - var(--padding-default) * 2);
+            font-size: var(--font-size-default);
+            font-family: var(--font-family-default);
+            color: var(--input-color-help);
+            overflow: hidden;
+        }
+
+        &.error {
+            > textarea {
+                border-color: var(--input-border-color-error);
+            }
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='check'],
+    > div[data-role='container'] > div[data-role='content'][data-field='radio'] {
+        > label {
+            display: block;
+            width: 100%;
+            padding-top: var(--padding-default);
+            padding-bottom: var(--padding-default);
+            line-height: calc(var(--text-height) - var(--padding-default) * 2);
+            cursor: pointer;
+            box-sizing: border-box;
+
+            > input {
+                display: inline-block;
+                position: relative;
+                width: calc(var(--text-height) - var(--padding-default) * 2 - 4px);
+                height: calc(var(--text-height) - var(--padding-default) * 2 - 4px);
+                margin: 2px 0px;
+                padding: 0;
+                cursor: pointer;
+                vertical-align: top;
+                appearance: none;
+
+                &::after {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    content: ' ';
+                    box-sizing: border-box;
+                    border: 1px solid var(--input-border-color-default);
+                    background: var(--input-background-default);
+                    z-index: 1;
+                }
+
+                &::before {
+                    position: absolute;
+                    top: 1px;
+                    left: 1px;
+                    width: calc(100% - 2px);
+                    height: calc(100% - 2px);
+                    content: ' ';
+                    box-sizing: border-box;
+                    border: 1px solid transparent;
+                    z-index: 2;
+                }
+
+                &:focus {
+                    &::after {
+                        border-color: var(--input-border-color-focus);
+                    }
+
+                    &::before {
+                        border-color: var(--input-background-default);
+                    }
+                }
+
+                &[type='checkbox'] {
+                    &:checked::after {
+                        border-color: var(--input-border-color-focus);
+                        background: var(--input-background-select);
+                        color: var(--input-color-select);
+                        font-family: moimz;
+                        content: '\eb10';
+                        font-size: 14px;
+                        text-align: center;
+                        line-height: calc(var(--text-height) - var(--padding-default) * 2 - 6px);
+                    }
+                }
+
+                &[type='radio'] {
+                    &::after {
+                        border-radius: 50%;
+                    }
+
+                    &::before {
+                        border-radius: 50%;
+                    }
+
+                    &:checked::after {
+                        border-color: var(--input-border-color-focus);
+                        border-width: calc((var(--text-height) - var(--padding-default) * 2 - 10px) * 0.5);
+                        background: var(--input-background-default);
+                    }
+                }
+            }
+
+            > span {
+                display: inline-block;
+                width: calc(100% - (var(--text-height) - var(--padding-default) * 2));
+                line-height: calc(var(--text-height) - var(--padding-default) * 2);
+                vertical-align: top;
+                box-sizing: border-box;
+                padding-left: calc(var(--padding-default) * 2);
+                font-size: var(--font-size-default);
+                font-family: var(--font-family-default);
+            }
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='checkgroup'],
+    > div[data-role='container'] > div[data-role='content'][data-field='radiogroup'] {
+        > div[data-role='inputs'] {
+            width: 100%;
+            display: grid;
         }
     }
 }
