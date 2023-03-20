@@ -20,7 +20,6 @@ var Admin;
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
         static async get(url, params = {}, retry = 0) {
-            const language = Html.get('html').getAttr('lang');
             const queryString = new URLSearchParams(params).toString();
             if (queryString.length > 0) {
                 if (url.indexOf('?') === -1)
@@ -32,7 +31,7 @@ var Admin;
                 const response = (await fetch(url, {
                     method: 'GET',
                     headers: {
-                        'Accept-Language': language,
+                        'Accept-Language': Admin.getLanguage(),
                         'Accept': 'application/json',
                         'Content-Type': 'application/json; charset=utf-8',
                     },
@@ -90,12 +89,11 @@ var Admin;
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
         static async post(url, datas = {}, retry = 0) {
-            const language = Html.get('html').getAttr('lang');
             try {
                 const response = (await fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Accept-Language': language,
+                        'Accept-Language': Admin.getLanguage(),
                         'Accept': 'application/json',
                         'Content-Type': 'application/json; charset=utf-8',
                     },

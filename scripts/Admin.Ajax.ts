@@ -19,8 +19,6 @@ namespace Admin {
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
         static async get(url: string, params: Admin.Ajax.Params = {}, retry: number = 0): Promise<Admin.Ajax.Results> {
-            const language = Html.get('html').getAttr('lang');
-
             const queryString = new URLSearchParams(params).toString();
             if (queryString.length > 0) {
                 if (url.indexOf('?') === -1) url += '?' + queryString;
@@ -31,7 +29,7 @@ namespace Admin {
                 const response: Response = (await fetch(url, {
                     method: 'GET',
                     headers: {
-                        'Accept-Language': language,
+                        'Accept-Language': Admin.getLanguage(),
                         'Accept': 'application/json',
                         'Content-Type': 'application/json; charset=utf-8',
                     },
@@ -93,13 +91,11 @@ namespace Admin {
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
         static async post(url: string, datas: Admin.Ajax.Datas = {}, retry: number = 0): Promise<Admin.Ajax.Results> {
-            const language = Html.get('html').getAttr('lang');
-
             try {
                 const response: Response = (await fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Accept-Language': language,
+                        'Accept-Language': Admin.getLanguage(),
                         'Accept': 'application/json',
                         'Content-Type': 'application/json; charset=utf-8',
                     },
