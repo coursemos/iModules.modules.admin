@@ -6,27 +6,29 @@
  * @file /modules/admin/scripts/Admin.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 9.
+ * @modified 2023. 3. 20.
  */
 namespace Admin {
     export namespace Form {
+        export namespace Panel {
+            export interface Properties extends Admin.Panel.Properties {
+                /**
+                 * @type {Admin.Form.FieldDefaults} fieldDefaults - 내부 필드의 기본설정값
+                 */
+                fieldDefaults?: Admin.Form.FieldDefaults;
+            }
+        }
+
         export class Panel extends Admin.Panel {
             loading: boolean = false;
-
-            fieldDefaults: {
-                labelWidth?: number;
-                labelPosition?: string;
-                labelAlign?: string;
-                labelSeparator?: string;
-                width?: number;
-            };
+            fieldDefaults: Admin.Form.FieldDefaults;
 
             /**
              * 기본필드 클래스 생성한다.
              *
              * @param {Object} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Form.Panel.Properties = null) {
                 super(properties);
 
                 this.role = 'form';
@@ -218,28 +220,63 @@ namespace Admin {
             }
         }
 
+        export interface FieldDefaults {
+            /**
+             * @type {number} labelWidth - 필드라벨 너비
+             */
+            labelWidth?: number;
+
+            /**
+             * @type {string} labelPosition - 필드라벨 위치
+             */
+            labelPosition?: 'top' | 'left';
+
+            /**
+             * @type {string} labelAlign - 필드라벨 텍스트정렬(기본값 : left)
+             */
+            labelAlign?: 'left' | 'right';
+
+            /**
+             * @type {string} labelSeparator - 필드라벨 구분자(기본값 : ":")
+             */
+            labelSeparator?: string;
+
+            /**
+             * @type {number} width - 필드 전체너비
+             */
+            width?: number;
+        }
+
         export interface Request {
             url: string;
             params?: Ajax.Params;
             message?: string;
         }
 
+        export namespace FieldSet {
+            export interface Properties extends Admin.Component.Properties {
+                /**
+                 * @type {string} title - 필드셋 제목
+                 */
+                title?: string;
+
+                /**
+                 * @type {Admin.Form.FieldDefaults} fieldDefaults - 필드셋 내부 필드 기본 설정
+                 */
+                fieldDefaults?: Admin.Form.FieldDefaults;
+            }
+        }
+
         export class FieldSet extends Admin.Component {
             title: string;
-            fieldDefaults: {
-                labelWidth?: number;
-                labelPosition?: string;
-                labelAlign?: string;
-                labelSeparator?: string;
-                width?: number;
-            };
+            fieldDefaults: Admin.Form.FieldDefaults;
 
             /**
              * 기본필드 클래스 생성한다.
              *
              * @param {Object} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Form.FieldSet.Properties = null) {
                 super(properties);
 
                 this.type = 'form';
@@ -273,17 +310,9 @@ namespace Admin {
             /**
              * 필드 기본값을 적용한다.
              *
-             * @param {Object} defaults - 필드 기본값
+             * @param {Admin.Form.FieldDefaults} defaults - 필드 기본값
              */
-            setDefaults(
-                defaults: {
-                    labelWidth?: number;
-                    labelPosition?: string;
-                    labelAlign?: string;
-                    labelSeparator?: string;
-                    width?: number;
-                } = null
-            ): void {
+            setDefaults(defaults: Admin.Form.FieldDefaults = null): void {
                 this.initItems();
 
                 this.fieldDefaults = this.fieldDefaults ?? defaults;
@@ -331,6 +360,70 @@ namespace Admin {
         }
 
         export namespace Field {
+            export namespace Base {
+                export interface Properties extends Admin.Component.Properties {
+                    /**
+                     * @type {string} name - 필드명
+                     */
+                    name?: string;
+
+                    /**
+                     * @type {string} inputName - 폼 전송시 값이 전달될 필드명(NULL 인 경우 name 사용)
+                     */
+                    inputName?: string;
+
+                    /**
+                     * @type {boolean} allowBlank - 공백허용여부
+                     */
+                    allowBlank?: boolean;
+
+                    /**
+                     * @type {string} label - 라벨텍스트
+                     */
+                    label?: string;
+
+                    /**
+                     * @type {'top'|'left'} labelPosition - 라벨위치
+                     */
+                    labelPosition?: 'top' | 'left';
+
+                    /**
+                     * @type {'left'|'right'} labelAlign - 라벨정렬
+                     */
+                    labelAlign?: 'left' | 'right';
+
+                    /**
+                     * @type {number} labelWidth - 라벨너비
+                     */
+                    labelWidth?: number;
+
+                    /**
+                     * @type {string} labelSeparator - 라벨구분자
+                     */
+                    labelSeparator?: string;
+
+                    /**
+                     * @type {string} helpText - 도움말
+                     */
+                    helpText?: string;
+
+                    /**
+                     * @type {number} width - 필드너비
+                     */
+                    width?: number;
+
+                    /**
+                     * @type {any} value - 필드값
+                     */
+                    value?: any;
+
+                    /**
+                     * @type {Function} validator - 필드값 유효성 체크 함수
+                     */
+                    validator?: (value: string, field: Admin.Form.Field.Base) => Promise<boolean | string>;
+                }
+            }
+
             export class Base extends Admin.Component {
                 type: string = 'form';
                 role: string = 'field';
@@ -352,20 +445,14 @@ namespace Admin {
                 validator: (value: string, field: Admin.Form.Field.Base) => Promise<boolean | string>;
                 validation: boolean | string = true;
 
-                fieldDefaults: {
-                    labelWidth?: number;
-                    labelPosition?: string;
-                    labelAlign?: string;
-                    labelSeparator?: string;
-                    width?: number;
-                };
+                fieldDefaults: Admin.Form.FieldDefaults;
 
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Base.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.Base.Properties = null) {
                     super(properties);
 
                     this.name = this.properties.name ?? null;
@@ -422,17 +509,9 @@ namespace Admin {
                 /**
                  * 필드 기본값을 적용한다.
                  *
-                 * @param {Object} defaults - 필드 기본값
+                 * @param {Admin.Form.FieldDefaults} defaults - 필드 기본값
                  */
-                setDefaults(
-                    defaults: {
-                        labelWidth?: number;
-                        labelPosition?: string;
-                        labelAlign?: string;
-                        labelSeparator?: string;
-                        width?: number;
-                    } = null
-                ): void {
+                setDefaults(defaults: Admin.Form.FieldDefaults = null): void {
                     this.initItems();
 
                     this.fieldDefaults = defaults;
@@ -787,6 +866,20 @@ namespace Admin {
                 }
             }
 
+            export namespace Container {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {'row' | 'column'} direction - 정렬방향
+                     */
+                    direction?: 'row' | 'column';
+
+                    /**
+                     * @type {number} gap - 내부 필드간 간격
+                     */
+                    gap?: number;
+                }
+            }
+
             export class Container extends Admin.Component {
                 type: string = 'form';
                 role: string = 'field';
@@ -800,13 +893,7 @@ namespace Admin {
                 helpText: string;
                 width: number;
 
-                fieldDefaults: {
-                    labelWidth?: number;
-                    labelPosition?: string;
-                    labelAlign?: string;
-                    labelSeparator?: string;
-                    width?: number;
-                };
+                fieldDefaults: Admin.Form.FieldDefaults;
 
                 allowBlank: boolean = true;
                 errors: Map<string, { is_error: boolean; message: string }> = new Map();
@@ -817,9 +904,9 @@ namespace Admin {
                 /**
                  * 필드 컨테이너를 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Container.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.Container.Properties = null) {
                     super(properties);
 
                     this.label = this.properties.fieldLabel ?? null;
@@ -873,17 +960,9 @@ namespace Admin {
                 /**
                  * 필드 기본값을 적용한다.
                  *
-                 * @param {Object} defaults - 필드 기본값
+                 * @param {Admin.Form.FieldDefaults} defaults - 필드 기본값
                  */
-                setDefaults(
-                    defaults: {
-                        labelWidth?: number;
-                        labelPosition?: string;
-                        labelAlign?: string;
-                        labelSeparator?: string;
-                        width?: number;
-                    } = null
-                ): void {
+                setDefaults(defaults: Admin.Form.FieldDefaults = null): void {
                     this.initItems();
 
                     this.fieldDefaults = defaults;
@@ -1112,6 +1191,15 @@ namespace Admin {
                 }
             }
 
+            export namespace Text {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
+                     */
+                    emptyText?: string;
+                }
+            }
+
             export class Text extends Admin.Form.Field.Base {
                 field: string = 'text';
                 inputType: string = 'text';
@@ -1123,9 +1211,9 @@ namespace Admin {
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Text.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.Text.Properties = null) {
                     super(properties);
 
                     this.emptyText = this.properties.emptyText ?? '';
@@ -1255,7 +1343,7 @@ namespace Admin {
                  *
                  * @param {Object} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.Base.Properties = null) {
                     super(properties);
                 }
 
@@ -1304,6 +1392,55 @@ namespace Admin {
                 }
             }
 
+            export namespace Select {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {Admin.Store} store - 목록 store
+                     */
+                    store: Admin.Store;
+
+                    /**
+                     * @type {boolean} multiple - 다중선택여부
+                     */
+                    multiple?: boolean;
+
+                    /**
+                     * @type {boolean} search - 목록 검색여부
+                     */
+                    search?: boolean;
+
+                    /**
+                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
+                     */
+                    emptyText?: string;
+
+                    /**
+                     * @type {string} displayField - 선택된 값을 표시할 store 의 field 명
+                     */
+                    displayField?: string;
+
+                    /**
+                     * @type {string} valueField - 폼 전송시 전송될 값을 지정할 store 의 field 명
+                     */
+                    valueField?: string;
+
+                    /**
+                     * @type {string} listField - 목록 항목에 표시할 store 의 field 명
+                     */
+                    listField?: string;
+
+                    /**
+                     * @type {Function} renderer - 선택된 항목을 보일 때 사용할 렌더링 함수
+                     */
+                    renderer?: (
+                        display: string | string[],
+                        record: Admin.Data.Record | Admin.Data.Record[],
+                        $display: Dom,
+                        field: Admin.Form.Field.Select
+                    ) => string;
+                }
+            }
+
             export class Select extends Admin.Form.Field.Base {
                 field: string = 'select';
 
@@ -1333,9 +1470,9 @@ namespace Admin {
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Select.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.Select.Properties = null) {
                     super(properties);
 
                     this.search = this.properties.search === true;
@@ -1718,6 +1855,20 @@ namespace Admin {
                 }
             }
 
+            export namespace TextArea {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
+                     */
+                    emptyText?: string;
+
+                    /**
+                     * @type {number} rows - textarea 의 라인수
+                     */
+                    rows?: number;
+                }
+            }
+
             export class TextArea extends Admin.Form.Field.Base {
                 field: string = 'textarea';
                 rows: number;
@@ -1729,9 +1880,9 @@ namespace Admin {
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.TextArea.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.TextArea.Properties = null) {
                     super(properties);
 
                     this.rows = this.properties.rows ?? 5;
@@ -1843,6 +1994,30 @@ namespace Admin {
                 }
             }
 
+            export namespace Check {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {string} boxLabel - 선택항목명
+                     */
+                    boxLabel?: string;
+
+                    /**
+                     * @type {string} onValue - 선택시 전송될 값
+                     */
+                    onValue?: string;
+
+                    /**
+                     * @type {string} offValue - 미선택시 전송될 값
+                     */
+                    offValue?: string;
+
+                    /**
+                     * @type {boolean} checked - 선택여부
+                     */
+                    checked?: boolean;
+                }
+            }
+
             export class Check extends Admin.Form.Field.Base {
                 field: string = 'check';
                 boxLabel: string;
@@ -1856,9 +2031,9 @@ namespace Admin {
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Check.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.Check.Properties = null) {
                     super(properties);
 
                     this.boxLabel = this.properties.boxLabel ?? '';
@@ -1995,6 +2170,25 @@ namespace Admin {
                 }
             }
 
+            export namespace CheckGroup {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {number} gap - 내부 선택항목간 간격
+                     */
+                    gap?: number;
+
+                    /**
+                     * @type {number} columns - 한줄당 표시될 선택항목 갯수
+                     */
+                    columns?: number;
+
+                    /**
+                     * @type {string} options - 선택항목
+                     */
+                    options: { [onValue: string]: string };
+                }
+            }
+
             export class CheckGroup extends Admin.Form.Field.Base {
                 field: string = 'checkgroup';
                 gap: number;
@@ -2004,9 +2198,9 @@ namespace Admin {
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.CheckGroup.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.CheckGroup.Properties = null) {
                     super(properties);
 
                     this.columns = this.properties.columns ?? 1;
@@ -2127,6 +2321,25 @@ namespace Admin {
                 }
             }
 
+            export namespace Radio {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {string} boxLabel - 선택항목명
+                     */
+                    boxLabel?: string;
+
+                    /**
+                     * @type {string} onValue - 선택시 전송될 값
+                     */
+                    onValue?: string;
+
+                    /**
+                     * @type {boolean} checked - 선택여부
+                     */
+                    checked?: boolean;
+                }
+            }
+
             export class Radio extends Admin.Form.Field.Base {
                 field: string = 'radio';
                 boxLabel: string;
@@ -2139,9 +2352,9 @@ namespace Admin {
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Radio.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.Radio.Properties = null) {
                     super(properties);
 
                     this.boxLabel = this.properties.boxLabel ?? '';
@@ -2315,6 +2528,25 @@ namespace Admin {
                 }
             }
 
+            export namespace RadioGroup {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {number} gap - 내부 선택항목간 간격
+                     */
+                    gap?: number;
+
+                    /**
+                     * @type {number} columns - 한줄당 표시될 선택항목 갯수
+                     */
+                    columns?: number;
+
+                    /**
+                     * @type {string} options - 선택항목
+                     */
+                    options: { [onValue: string]: string };
+                }
+            }
+
             export class RadioGroup extends Admin.Form.Field.Base {
                 field: string = 'radiogroup';
                 gap: number;
@@ -2324,9 +2556,9 @@ namespace Admin {
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.RadioGroup.Properties} properties - 객체설정
                  */
-                constructor(properties: { [key: string]: any } = null) {
+                constructor(properties: Admin.Form.Field.RadioGroup.Properties = null) {
                     super(properties);
 
                     this.columns = this.properties.columns ?? 1;

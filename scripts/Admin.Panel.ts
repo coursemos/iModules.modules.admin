@@ -6,9 +6,33 @@
  * @file /modules/admin/scripts/Admin.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2023. 3. 20.
  */
 namespace Admin {
+    export namespace Panel {
+        export interface Properties extends Admin.Component.Properties {
+            /**
+             * @type {boolean|[boolean, boolean, boolean, boolean]} border - 패널 테두리 표시여부 (상단, 우측, 하단, 좌측)
+             */
+            border?: boolean | [boolean, boolean, boolean, boolean];
+
+            /**
+             * @type {Admin.Title|string} title - 패널 제목
+             */
+            title?: Admin.Title | string;
+
+            /**
+             * @type {Admin.Toolbar|(Admin.Component | string)[]} topbar - 패널 상단바
+             */
+            topbar?: Admin.Toolbar | (Admin.Component | string)[];
+
+            /**
+             * @type {Admin.Toolbar|(Admin.Component | string)[]} topbar - 패널 하단바
+             */
+            bottombar?: Admin.Toolbar | (Admin.Component | string)[];
+        }
+    }
+
     export class Panel extends Admin.Component {
         type: string = 'panel';
         role: string = 'panel';
@@ -21,9 +45,9 @@ namespace Admin {
         /**
          * 패널을 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Panel.Properties} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } = null) {
+        constructor(properties: Admin.Panel.Properties = null) {
             super(properties);
 
             this.layout = this.properties.layout ?? 'auto';

@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 9.
+ * @modified 2023. 3. 20.
  */
 var Admin;
 (function (Admin) {
@@ -212,7 +212,7 @@ var Admin;
             /**
              * 필드 기본값을 적용한다.
              *
-             * @param {Object} defaults - 필드 기본값
+             * @param {Admin.Form.FieldDefaults} defaults - 필드 기본값
              */
             setDefaults(defaults = null) {
                 this.initItems();
@@ -281,7 +281,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Base.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -329,7 +329,7 @@ var Admin;
                 /**
                  * 필드 기본값을 적용한다.
                  *
-                 * @param {Object} defaults - 필드 기본값
+                 * @param {Admin.Form.FieldDefaults} defaults - 필드 기본값
                  */
                 setDefaults(defaults = null) {
                     this.initItems();
@@ -664,7 +664,7 @@ var Admin;
                 /**
                  * 필드 컨테이너를 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Container.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -709,7 +709,7 @@ var Admin;
                 /**
                  * 필드 기본값을 적용한다.
                  *
-                 * @param {Object} defaults - 필드 기본값
+                 * @param {Admin.Form.FieldDefaults} defaults - 필드 기본값
                  */
                 setDefaults(defaults = null) {
                     this.initItems();
@@ -916,7 +916,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Text.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1093,7 +1093,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Select.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1452,7 +1452,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.TextArea.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1563,7 +1563,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Check.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1691,7 +1691,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.CheckGroup.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1806,7 +1806,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.Radio.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1964,7 +1964,7 @@ var Admin;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
-                 * @param {Object} properties - 객체설정
+                 * @param {Admin.Form.Field.RadioGroup.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);

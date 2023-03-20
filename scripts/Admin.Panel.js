@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 15.
+ * @modified 2023. 3. 20.
  */
 var Admin;
 (function (Admin) {
@@ -20,7 +20,7 @@ var Admin;
         /**
          * 패널을 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Panel.Properties} properties - 객체설정
          */
         constructor(properties = null) {
             super(properties);
