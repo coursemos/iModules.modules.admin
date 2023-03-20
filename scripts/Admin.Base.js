@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 3. 20.
  */
 var Admin;
 (function (Admin) {
@@ -107,6 +107,16 @@ var Admin;
         return Html.get('body').getAttr('data-rewrite') === 'true';
     }
     Admin.isRewrite = isRewrite;
+    /**
+     * 현재 언어코드를 가져온다.
+     *
+     * @return {string} language
+     */
+    function getLanguage() {
+        Admin.language ??= Html.get('html').getAttr('lang');
+        return Admin.language;
+    }
+    Admin.getLanguage = getLanguage;
     /**
      * 기본 URL 경로를 가져온다.
      *
@@ -344,7 +354,7 @@ var Admin;
         /**
          * 객체를 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Base.Properties} properties - 객체설정
          */
         constructor(properties = null) {
             this.properties = properties ?? {};

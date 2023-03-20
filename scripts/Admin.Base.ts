@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 3. 20.
  */
 namespace Admin {
     export let items: Map<string, Admin.Base> = new Map();
@@ -14,6 +14,7 @@ namespace Admin {
     export let currentComponent: Admin.Component = null;
     export let viewport: Admin.Viewport.Panel;
     export let viewportListener: () => Promise<Admin.Component>;
+    export let language: string;
 
     /**
      * 객체를 등록한다.
@@ -110,6 +111,16 @@ namespace Admin {
      */
     export function isRewrite(): boolean {
         return Html.get('body').getAttr('data-rewrite') === 'true';
+    }
+
+    /**
+     * 현재 언어코드를 가져온다.
+     *
+     * @return {string} language
+     */
+    export function getLanguage(): string {
+        Admin.language ??= Html.get('html').getAttr('lang');
+        return Admin.language;
     }
 
     /**
@@ -361,17 +372,36 @@ namespace Admin {
         }
     }
 
+    export namespace Base {
+        export interface Listeners {
+            [name: string]: Function;
+        }
+
+        export interface Properties {
+            /**
+             * @type {string} id - Admin 객체 고유값
+             */
+            id?: string;
+
+            /**
+             * @type {Admin.Base.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.Base.Listeners;
+            [key: string]: any;
+        }
+    }
+
     export class Base {
         id: string;
-        properties: { [key: string]: any };
-        listeners: { [key: string]: Function[] } = {};
+        properties: Admin.Base.Properties;
+        listeners: { [name: string]: Function[] } = {};
 
         /**
          * 객체를 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Base.Properties} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } = null) {
+        constructor(properties: Admin.Base.Properties = null) {
             this.properties = properties ?? {};
             this.id = properties?.id ?? 'Admin-' + Admin.getIndex();
 
