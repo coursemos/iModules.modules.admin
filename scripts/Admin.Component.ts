@@ -6,9 +6,58 @@
  * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 13.
+ * @modified 2023. 3. 20.
  */
 namespace Admin {
+    export namespace Component {
+        export interface Properties extends Admin.Base.Properties {
+            /**
+             * @type {'auto'|'fit'|'column'|'column-item'} layout - 컴포넌트 레이아웃
+             */
+            layout?: 'auto' | 'fit' | 'column' | 'column-item';
+
+            /**
+             * @type {Admin.Component[]} items - 컴포넌트의 하위 컴포넌트
+             */
+            items?: Admin.Component[];
+
+            /**
+             * @type {string|number} padding - 컴포넌트 내부 여백
+             */
+            padding?: string | number;
+
+            /**
+             * @type {string|number} margin - 컴포넌트 외부 여백
+             */
+            margin?: string | number;
+
+            /**
+             * @type {string|number} style - 컴포넌트 스타일정의
+             */
+            style?: string;
+
+            /**
+             * @type {boolean} hidden - 컴포넌트 숨김여부
+             */
+            hidden?: boolean;
+
+            /**
+             * @type {boolean} disabled - 컴포넌트 비활성화여부
+             */
+            disabled?: boolean;
+
+            /**
+             * @type {'X'|'Y'|boolean} scrollable - 컴포넌트 스크롤여부
+             */
+            scrollable?: 'X' | 'Y' | boolean;
+
+            /**
+             * @type {Dom} $scrollable - 컴포넌트 내부 스크롤되는 DOM 객체
+             */
+            $scrollable?: Dom;
+        }
+    }
+
     export class Component extends Admin.Base {
         parent: Admin.Component;
         type: string = 'component';
@@ -36,7 +85,7 @@ namespace Admin {
          *
          * @param {Object} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } = null) {
+        constructor(properties: Admin.Component.Properties = null) {
             super(properties);
 
             this.parent = null;

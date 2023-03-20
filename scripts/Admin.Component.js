@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 13.
+ * @modified 2023. 3. 20.
  */
 var Admin;
 (function (Admin) {
