@@ -1,0 +1,61 @@
+{
+    "errors": {
+        "DUPLICATED_ADMIN_CONTEXT_PATH": "추가하고자 하는 관리자 경로 ${path} 가 이미 ${name}(${component})에서 사용중입니다."
+    },
+    "admin": {
+        "navigation": {
+            "folder": {
+                "title": "폴더명",
+                "add": "폴더추가",
+                "delete": "폴더삭제",
+                "edit": "폴더수정",
+                "duplicated": "폴더명이 중복됩니다.",
+                "preset": {
+                    "modules": "모듈",
+                    "plugins": "플러그인",
+                    "sites": "사이트"
+                }
+            },
+            "smart": {
+                "none": "자동으로 하위메뉴를 추가하지 않음",
+                "modules": "신규 모듈의 관리자메뉴를 자동으로 추가",
+                "plugins": "신규 플러그인의 관리자메뉴를 자동으로 추가"
+            }
+        },
+        "contexts": {
+            "dashboard": "대시보드",
+            "modules": "모듈관리",
+            "plugins": "플러그인관리",
+            "sites": "사이트관리",
+            "sitemap": "사이트맵관리",
+            "database": "데이터베이스"
+        },
+        "sites": {
+            "title": "사이트관리",
+            "domains": {
+                "add": "도메인추가",
+                "edit": "도메인수정",
+                "host": "호스트명",
+                "alias": "대체호스트명을 한줄에 한개씩 입력하여 주십시오.<br>(예: sub.domain.com 또는 *.domain.com)",
+                "options": {
+                    "title": "도메인옵션",
+                    "is_rewrite": "짧은주소를 사용합니다.",
+                    "is_internationalization": "다국어 사이트를 활성화합니다."
+                },
+                "membership": {
+                    "title": "회원목록",
+                    "DEPENDENCE": "다른 도메인과 회원목록을 통합하여 사용합니다.",
+                    "INDEPENDENCE": "다른 도메인의 회원목록과 분리된 독립된 회원목록을 통합하여 사용합니다."
+                }
+            },
+            "sites": {
+                "add": "사이트추가",
+                "title": "사이트명",
+                "default": "기본정보",
+                "language": "언어",
+                "description": "사이트설명",
+                "default_language": "도메인 기본언어로 설정"
+            }
+        }
+    }
+}
