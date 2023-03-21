@@ -18,6 +18,7 @@ var Admin;
             store;
             multiple;
             selections = [];
+            wrap;
             value = null;
             displayField;
             valueField;
@@ -38,6 +39,7 @@ var Admin;
                     this.onUpdate();
                 });
                 this.multiple = this.properties.multiple === true;
+                this.wrap = this.properties.wrap === true;
                 this.displayField = this.properties.displayField ?? 'display';
                 this.valueField = this.properties.valueField ?? 'value';
                 this.renderer =
@@ -201,6 +203,9 @@ var Admin;
                     .getRecords()
                     .forEach((record, index) => {
                     const $item = Html.create('li').setData('record', record);
+                    if (this.wrap === true) {
+                        $item.addClass('wrap');
+                    }
                     $item.on('click', () => {
                         this.toggle(index);
                     });

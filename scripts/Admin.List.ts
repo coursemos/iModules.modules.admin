@@ -10,6 +10,60 @@
  */
 namespace Admin {
     export namespace List {
+        export namespace Panel {
+            export interface Properties extends Admin.Base.Properties {
+                /**
+                 * @type {Admin.Store} store - 목록 store
+                 */
+                store: Admin.Store;
+
+                /**
+                 * @type {boolean} multiple - 다중선택여부
+                 */
+                multiple?: boolean;
+
+                /**
+                 * @type {boolean} wrap - 목록 줄바꿈 여부
+                 */
+                wrap?: boolean;
+
+                /**
+                 * @type {string} class - 목록 스타일클래스
+                 */
+                class?: string;
+
+                /**
+                 * @type {string | number | string[] | number[]} value - 선택항목
+                 */
+                value?: string | number | string[] | number[];
+
+                /**
+                 * @type {string} displayField - 선택된 값을 표시할 store 의 field 명
+                 */
+                displayField?: string;
+
+                /**
+                 * @type {string} valueField - 폼 전송시 전송될 값을 지정할 store 의 field 명
+                 */
+                valueField?: string;
+
+                /**
+                 * @type {string} listField - 목록 항목에 표시할 store 의 field 명
+                 */
+                listField?: string;
+
+                /**
+                 * @type {number} maxHeight - 목록 최대높이
+                 */
+                maxHeight?: number;
+
+                /**
+                 * @type {Function} renderer - 선택된 항목을 보일 때 사용할 렌더링 함수
+                 */
+                renderer?: (display: string, record: Admin.Data.Record, $dom: Dom, list: Admin.List.Panel) => string;
+            }
+        }
+
         export class Panel extends Admin.Panel {
             type: string = 'list';
             role: string = 'panel';
@@ -17,6 +71,7 @@ namespace Admin {
             store: Admin.Store;
             multiple: boolean;
             selections: Admin.Data.Record[] = [];
+            wrap: boolean;
             value: string | number | string[] | number[] = null;
 
             displayField: string;
@@ -42,6 +97,7 @@ namespace Admin {
                 });
 
                 this.multiple = this.properties.multiple === true;
+                this.wrap = this.properties.wrap === true;
 
                 this.displayField = this.properties.displayField ?? 'display';
                 this.valueField = this.properties.valueField ?? 'value';
@@ -229,6 +285,10 @@ namespace Admin {
                     .getRecords()
                     .forEach((record: Admin.Data.Record, index: number) => {
                         const $item = Html.create('li').setData('record', record);
+                        if (this.wrap === true) {
+                            $item.addClass('wrap');
+                        }
+
                         $item.on('click', () => {
                             this.toggle(index);
                         });
