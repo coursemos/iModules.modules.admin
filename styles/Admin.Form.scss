@@ -22,30 +22,36 @@ div[data-component][data-type='panel'][data-role='form'] {
 
 div[data-component][data-type='form'][data-role='fieldset'] {
     > div[data-role='container'] {
-        > fieldset[data-role='content'] {
+        > div[data-role='top'] {
+            position: relative;
+            height: 10px;
+
             > legend {
-                display: inline-block;
+                position: absolute;
+                display: block;
                 width: fit-content;
-                margin-top: 0px;
-                margin-bottom: 0px;
-                margin-left: calc(var(--padding-default) * 0.5);
-                margin-right: calc(var(--padding-default) * 0.5);
-                padding: var(--padding-default);
-                height: var(--text-height);
+                height: 21px;
+                line-height: 21px;
+                left: 10px;
+                top: 0;
+                z-index: 1;
                 font-size: var(--font-size-default);
                 font-family: var(--font-family-default);
+                padding-left: var(--padding-default);
+                padding-right: var(--padding-default);
                 background: var(--panel-background);
-                line-height: calc(var(--text-height) - var(--padding-default) * 2);
-                box-sizing: border-box;
             }
+        }
+
+        > div[data-role='content'] {
+            border: 1px solid var(--panel-border-color-default);
+            background: var(--panel-background);
 
             display: flex;
             flex-direction: column;
             row-gap: var(--padding-default);
             align-items: stretch;
             height: max-content;
-
-            border: 1px solid var(--panel-border-color-default);
         }
     }
 }
@@ -72,6 +78,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 text-overflow: ellipsis;
                 overflow: hidden;
                 position: relative;
+                box-sizing: border-box;
 
                 > i {
                     font-style: normal;
@@ -84,6 +91,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 }
 
                 &.right {
+                    width: 100%;
                     text-align: right;
                     padding-right: var(--padding-default);
                 }
@@ -161,6 +169,20 @@ div[data-component][data-type='form'][data-role='field'] {
 
                 &.flex {
                     width: min-content;
+                }
+            }
+
+            &.row {
+                flex-direction: row;
+            }
+
+            &.column {
+                flex-direction: column;
+
+                > div[data-component] {
+                    &.flex {
+                        width: 100%;
+                    }
                 }
             }
         }
@@ -520,6 +542,86 @@ div[data-component][data-type='form'][data-role='field'] {
         > div[data-role='inputs'] {
             width: 100%;
             display: grid;
+        }
+    }
+}
+
+div[data-component][data-type='list'][data-role='panel'].template {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            > ul {
+                > li {
+                    padding-left: var(--padding-default);
+
+                    > div {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        column-gap: 10px;
+
+                        > i {
+                            width: 60px;
+                            height: 42px;
+                            display: block;
+                            flex-shrink: 0;
+                            flex-grow: 0;
+                            background-repeat: no-repeat;
+                            background-size: cover;
+                            background-position: 50% 50%;
+                            box-sizing: border-box;
+                        }
+
+                        > div.text {
+                            flex-grow: 1;
+
+                            > b {
+                                display: block;
+                                height: 22px;
+                                line-height: 22px;
+                            }
+
+                            > small {
+                                margin-top: 2px;
+                                display: block;
+                                font-size: 12px;
+                                height: 14px;
+                                line-height: 14px;
+                                color: var(--input-color-help);
+                            }
+                        }
+                    }
+
+                    &.selected {
+                        > div {
+                            > i {
+                                border: 2px solid var(--input-background-select);
+                            }
+                        }
+
+                        &::before {
+                            display: none;
+                        }
+                    }
+
+                    &.focused {
+                        > div {
+                            > div.text {
+                                > small {
+                                    color: var(--input-background-default);
+                                }
+                            }
+                        }
+                    }
+
+                    &.selected.focused {
+                        > div {
+                            > i {
+                                outline: 1px solid var(--input-background-default);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
