@@ -12,6 +12,7 @@ var Admin;
 (function (Admin) {
     class Message {
         static message = null;
+        static INFO = Html.create('i').addClass('info');
         static ERROR = Html.create('i').addClass('error');
         static OK = [{ button: 'ok', text: '@buttons/ok', buttonClass: 'confirm' }];
         /**
