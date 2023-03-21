@@ -33,10 +33,26 @@ div[data-component][data-type='list'][data-role='panel'] {
                     box-sizing: border-box;
                     cursor: pointer;
                     color: var(--color-default);
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
+                    > small {
+                        font-size: var(--font-size-small);
+                        color: var(--input-color-help);
+                    }
+
+                    &.wrap {
+                        white-space: normal;
+                    }
 
                     &.focused {
                         background: var(--input-background-select);
                         color: var(--input-color-select);
+
+                        > small {
+                            color: var(--input-color-select);
+                        }
                     }
 
                     &.selected {
