@@ -86,15 +86,15 @@ namespace Admin {
              */
             getFields(): Admin.Form.Field.Base[] {
                 const fields: Admin.Form.Field.Base[] = [];
-
-                Html.all('div[data-component][data-type=form][data-role=field][data-name]', this.$getContent()).forEach(
-                    ($field) => {
-                        const field = Admin.getComponent($field.getData('component'));
-                        if (field instanceof Admin.Form.Field.Base) {
-                            fields.push(field);
-                        }
+                for (const item of this.items) {
+                    if (item instanceof Admin.Form.FieldSet) {
+                        fields.push(...item.getFields());
+                    } else if (item instanceof Admin.Form.Field.Container) {
+                        fields.push(...item.getFields());
+                    } else if (item instanceof Admin.Form.Field.Base) {
+                        fields.push(item);
                     }
-                );
+                }
 
                 return fields;
             }
@@ -283,7 +283,9 @@ namespace Admin {
                 this.role = 'fieldset';
                 this.title = this.properties.title ?? null;
                 this.fieldDefaults = this.properties.fieldDefaults ?? null;
-                this.padding = this.properties.padding ?? '0px 10px 10px 10px';
+                this.padding = this.properties.padding ?? '10px';
+
+                this.$setTop();
             }
 
             /**
@@ -295,7 +297,11 @@ namespace Admin {
 
                     for (const item of this.properties.items ?? []) {
                         if (item instanceof Admin.Component) {
-                            if (item instanceof Admin.Form.Field.Container || item instanceof Admin.Form.Field.Base) {
+                            if (
+                                item instanceof Admin.Form.FieldSet ||
+                                item instanceof Admin.Form.Field.Container ||
+                                item instanceof Admin.Form.Field.Base
+                            ) {
                                 item.setDefaults(this.fieldDefaults);
                             }
 
@@ -318,7 +324,11 @@ namespace Admin {
                 this.fieldDefaults = this.fieldDefaults ?? defaults;
 
                 for (const item of this.items) {
-                    if (item instanceof Admin.Form.Field.Container || item instanceof Admin.Form.Field.Base) {
+                    if (
+                        item instanceof Admin.Form.FieldSet ||
+                        item instanceof Admin.Form.Field.Container ||
+                        item instanceof Admin.Form.Field.Base
+                    ) {
                         item.setDefaults(this.fieldDefaults);
                     }
                 }
@@ -339,27 +349,64 @@ namespace Admin {
             }
 
             /**
-             * 필드셋을 랜더링한다.
+             * 필드셋에 속한 모든 필드를 가져온다.
+             *
+             * @return {Admin.Form.Field.Base[]} fields
              */
-            renderContent(): void {
-                const $content = this.$setContent(Html.create('fieldset'));
-
-                const $legend = Html.create('legend');
-                if (this.title !== null) {
-                    $legend.html(this.title);
-                } else {
-                    $legend.hide();
-                }
-                $content.append($legend);
-
+            getFields(): Admin.Form.Field.Base[] {
+                const fields: Admin.Form.Field.Base[] = [];
                 for (const item of this.items) {
-                    $content.append(item.$getComponent());
-                    item.render();
+                    if (item instanceof Admin.Form.FieldSet) {
+                        fields.push(...item.getFields());
+                    } else if (item instanceof Admin.Form.Field.Container) {
+                        fields.push(...item.getFields());
+                    } else if (item instanceof Admin.Form.Field.Base) {
+                        fields.push(item);
+                    }
+                }
+
+                return fields;
+            }
+
+            /**
+             * 필드셋 제목을 랜더링한다.
+             */
+            renderTop(): void {
+                const $top = this.$getTop();
+
+                if (this.title !== null) {
+                    const $legend = Html.create('legend');
+                    $legend.html(this.title);
+                    $top.append($legend);
                 }
             }
         }
 
         export namespace Field {
+            /**
+             * 필드 컴포넌트를 생성한다.
+             *
+             * @param {Object} field - 필드정보
+             * @return {Admin.Form.Field.Base} field
+             */
+            export function Create(field: {
+                name?: string;
+                label?: string;
+                type?: string;
+                value?: any;
+                default?: any;
+                options?: { [value: string]: string }[];
+            }): Admin.Form.Field.Base {
+                switch (field.type) {
+                    default:
+                        return new Admin.Form.Field.Text({
+                            name: field.name ?? null,
+                            fieldLabel: field.label ?? null,
+                            value: field.value ?? field.default ?? null,
+                        });
+                }
+            }
+
             export namespace Base {
                 export interface Properties extends Admin.Component.Properties {
                     /**
@@ -455,8 +502,8 @@ namespace Admin {
                 constructor(properties: Admin.Form.Field.Base.Properties = null) {
                     super(properties);
 
-                    this.name = this.properties.name ?? null;
-                    this.inputName = this.properties.inputName ?? this.name ?? this.id;
+                    this.name = this.properties.name ?? this.id;
+                    this.inputName = this.properties.inputName === undefined ? this.name : this.properties.inputName;
                     this.allowBlank = this.properties.allowBlank !== false;
                     this.label = this.properties.fieldLabel ?? null;
                     this.labelPosition = this.properties.labelPosition ?? null;
@@ -483,30 +530,6 @@ namespace Admin {
                 }
 
                 /**
-                 * 필드의 하위 필드를 정의한다.
-                 */
-                initItems(): void {
-                    if (this.items === null) {
-                        this.items = [];
-
-                        for (const item of this.properties.items ?? []) {
-                            if (item instanceof Admin.Component) {
-                                if (
-                                    item instanceof Admin.Form.Field.Container ||
-                                    item instanceof Admin.Form.Field.Base
-                                ) {
-                                    item.setDefaults(this.fieldDefaults);
-                                }
-
-                                this.items.push(item);
-                            }
-                        }
-                    }
-
-                    super.initItems();
-                }
-
-                /**
                  * 필드 기본값을 적용한다.
                  *
                  * @param {Admin.Form.FieldDefaults} defaults - 필드 기본값
@@ -520,12 +543,6 @@ namespace Admin {
                     this.labelAlign ??= defaults?.labelAlign ?? null;
                     this.labelSeparator ??= defaults?.labelSeparator ?? null;
                     this.width ??= defaults?.width ?? null;
-
-                    for (const item of this.items) {
-                        if (item instanceof Admin.Form.Field.Container || item instanceof Admin.Form.Field.Base) {
-                            item.setDefaults(defaults);
-                        }
-                    }
                 }
 
                 /**
@@ -619,12 +636,12 @@ namespace Admin {
                  */
                 getValues(): { [key: string]: any } {
                     const values: { [key: string]: any } = {};
-                    if (this.name === null) {
+                    if (this.inputName === null) {
                         return values;
                     }
 
                     if (this.value !== null) {
-                        values[this.name] = this.value;
+                        values[this.inputName] = this.value;
                     }
 
                     return values;
@@ -892,12 +909,9 @@ namespace Admin {
                 labelSeparator: string;
                 helpText: string;
                 width: number;
-
                 fieldDefaults: Admin.Form.FieldDefaults;
-
                 allowBlank: boolean = true;
                 errors: Map<string, { is_error: boolean; message: string }> = new Map();
-
                 direction: 'row' | 'column' = 'row';
                 gap: number;
 
@@ -919,6 +933,7 @@ namespace Admin {
                     this.width = this.properties.width ?? null;
                     this.fieldDefaults = null;
                     this.scrollable = false;
+                    this.allowBlank = true;
 
                     this.direction = this.properties.direction ?? 'row';
                     this.gap = this.properties.gap ?? 5;
@@ -942,11 +957,15 @@ namespace Admin {
                         for (const item of this.properties.items ?? []) {
                             if (item instanceof Admin.Component) {
                                 if (
+                                    item instanceof Admin.Form.FieldSet ||
                                     item instanceof Admin.Form.Field.Container ||
                                     item instanceof Admin.Form.Field.Base
                                 ) {
                                     item.setDefaults(this.fieldDefaults);
-                                    this.allowBlank = this.allowBlank == true && item.allowBlank;
+
+                                    if (item instanceof Admin.Form.Field.Base) {
+                                        this.allowBlank = this.allowBlank == true && item.allowBlank;
+                                    }
                                 }
 
                                 this.items.push(item);
@@ -973,7 +992,11 @@ namespace Admin {
                     this.width ??= defaults?.width ?? null;
 
                     for (const item of this.items) {
-                        if (item instanceof Admin.Form.Field.Container || item instanceof Admin.Form.Field.Base) {
+                        if (
+                            item instanceof Admin.Form.FieldSet ||
+                            item instanceof Admin.Form.Field.Container ||
+                            item instanceof Admin.Form.Field.Base
+                        ) {
                             item.setDefaults(defaults);
                         }
                     }
@@ -1093,6 +1116,26 @@ namespace Admin {
                 }
 
                 /**
+                 * 필드 컨테이너에 속한 모든 필드를 가져온다.
+                 *
+                 * @return {Admin.Form.Field.Base[]} fields
+                 */
+                getFields(): Admin.Form.Field.Base[] {
+                    const fields: Admin.Form.Field.Base[] = [];
+                    for (const item of this.items) {
+                        if (item instanceof Admin.Form.FieldSet) {
+                            fields.push(...item.getFields());
+                        } else if (item instanceof Admin.Form.Field.Container) {
+                            fields.push(...item.getFields());
+                        } else if (item instanceof Admin.Form.Field.Base) {
+                            fields.push(item);
+                        }
+                    }
+
+                    return fields;
+                }
+
+                /**
                  * 필드 라벨을 랜더링한다.
                  */
                 renderTop(): void {
@@ -1110,7 +1153,7 @@ namespace Admin {
                  */
                 renderContent(): void {
                     const $fields = Html.create('div', { 'data-role': 'fields' });
-                    $fields.setStyle('flex-direction', this.direction);
+                    $fields.addClass(this.direction);
                     $fields.setStyle('gap', this.gap + 'px');
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
@@ -1191,6 +1234,72 @@ namespace Admin {
                 }
             }
 
+            export class Hidden extends Admin.Form.Field.Base {
+                field: string = 'hidden';
+
+                $input: Dom;
+
+                /**
+                 * 기본필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Base.Properties} properties - 객체설정
+                 */
+                constructor(properties: Admin.Form.Field.Base.Properties = null) {
+                    super(properties);
+                }
+
+                /**
+                 * INPUT 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput(): Dom {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('input', {
+                            type: 'hidden',
+                            name: this.inputName,
+                        });
+                    }
+
+                    return this.$input;
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 */
+                setValue(value: any): void {
+                    value = value?.toString() ?? '';
+                    if (this.$getInput().getValue() != value) {
+                        this.$getInput().setValue(value);
+                    }
+
+                    super.setValue(value);
+                }
+
+                /**
+                 * INPUT 태그를 랜더링한다.
+                 */
+                renderContent(): void {
+                    const $input = this.$getInput();
+                    this.$getContent().append($input);
+                }
+
+                /**
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 */
+                onRender(): void {
+                    super.onRender();
+
+                    if (this.value !== undefined || this.value !== null) {
+                        this.setValue(this.value);
+                    }
+
+                    this.hide();
+                }
+            }
+
             export namespace Text {
                 export interface Properties extends Admin.Form.Field.Base.Properties {
                     /**
@@ -1209,7 +1318,7 @@ namespace Admin {
                 $emptyText: Dom;
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 텍스트필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.Text.Properties} properties - 객체설정
                  */
@@ -1339,7 +1448,7 @@ namespace Admin {
                 $display: Dom;
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 디스플레이필드 클래스 생성한다.
                  *
                  * @param {Object} properties - 객체설정
                  */
@@ -1438,6 +1547,26 @@ namespace Admin {
                         $display: Dom,
                         field: Admin.Form.Field.Select
                     ) => string;
+
+                    /**
+                     * @type {Function} renderer - 목록 항목을 보일 때 사용할 렌더링 함수
+                     */
+                    listRenderer?: (
+                        display: string,
+                        record: Admin.Data.Record,
+                        $dom: Dom,
+                        list: Admin.List.Panel
+                    ) => string;
+
+                    /**
+                     * @type {boolean} listWrap - 목록 줄바꿈여부
+                     */
+                    listWrap?: boolean;
+
+                    /**
+                     * @type {string} listClass - 목록 스타일 클래스명
+                     */
+                    listClass?: string;
                 }
             }
 
@@ -1468,7 +1597,7 @@ namespace Admin {
                 list: Admin.List.Panel;
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 선택항목필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.Select.Properties} properties - 객체설정
                  */
@@ -1549,6 +1678,8 @@ namespace Admin {
                             displayField: this.displayField,
                             valueField: this.valueField,
                             multiple: this.multiple,
+                            wrap: this.properties.listWrap === true,
+                            class: this.properties.listClass ?? null,
                             listeners: {
                                 load: () => {
                                     this.onLoad();
@@ -1878,7 +2009,7 @@ namespace Admin {
                 $emptyText: Dom;
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 텍스트에리어필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.TextArea.Properties} properties - 객체설정
                  */
@@ -2029,7 +2160,7 @@ namespace Admin {
                 $boxLabel: Dom;
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 체크박스필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.Check.Properties} properties - 객체설정
                  */
@@ -2117,12 +2248,12 @@ namespace Admin {
                  */
                 getValues(): { [key: string]: any } {
                     const values: { [key: string]: any } = {};
-                    if (this.name === null) {
+                    if (this.inputName === null) {
                         return values;
                     }
 
                     if (this.getRawValue() !== null) {
-                        values[this.name] = this.getRawValue();
+                        values[this.inputName] = this.getRawValue();
                     }
 
                     return values;
@@ -2196,7 +2327,7 @@ namespace Admin {
                 options: { [key: string]: string };
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 체크박스그룹필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.CheckGroup.Properties} properties - 객체설정
                  */
@@ -2283,12 +2414,12 @@ namespace Admin {
                  */
                 getValues(): { [key: string]: any } {
                     const values: { [key: string]: any } = {};
-                    if (this.name === null) {
+                    if (this.inputName === null) {
                         return values;
                     }
 
                     if (this.getValue().length > 0) {
-                        values[this.name] = this.getValue();
+                        values[this.inputName] = this.getValue();
                     }
 
                     return values;
@@ -2350,7 +2481,7 @@ namespace Admin {
                 $boxLabel: Dom;
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 라디오필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.Radio.Properties} properties - 객체설정
                  */
@@ -2449,12 +2580,12 @@ namespace Admin {
                  */
                 getValues(): { [key: string]: any } {
                     const values: { [key: string]: any } = {};
-                    if (this.name === null) {
+                    if (this.inputName === null) {
                         return values;
                     }
 
                     if (this.getRawValue() !== null) {
-                        values[this.name] = this.getRawValue();
+                        values[this.inputName] = this.getRawValue();
                     }
 
                     return values;
@@ -2554,7 +2685,7 @@ namespace Admin {
                 options: { [key: string]: string };
 
                 /**
-                 * 기본필드 클래스 생성한다.
+                 * 라디오그룹필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.RadioGroup.Properties} properties - 객체설정
                  */
@@ -2630,12 +2761,12 @@ namespace Admin {
                  */
                 getValues(): { [key: string]: any } {
                     const values: { [key: string]: any } = {};
-                    if (this.name === null) {
+                    if (this.inputName === null) {
                         return values;
                     }
 
                     if (this.getValue() !== null) {
-                        values[this.name] = this.getValue();
+                        values[this.inputName] = this.getValue();
                     }
 
                     return values;
@@ -2666,6 +2797,192 @@ namespace Admin {
                     super.onRender();
                     this.setValue(this.value);
                 }
+            }
+
+            export namespace Theme {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    gap?: number;
+                    configsParams?: { [key: string]: string };
+                }
+            }
+
+            export class Theme extends Admin.Form.Field.Base {
+                type: string = 'form';
+                role: string = 'field';
+                field: string = 'theme';
+
+                listUrl: string;
+                configsUrl: string;
+                configsParams: { [key: string]: string };
+                select: Admin.Form.Field.Select;
+                fieldset: Admin.Form.FieldSet;
+
+                gap: number;
+
+                /**
+                 * 템플릿필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Template.Properties} properties - 객체설정
+                 */
+                constructor(properties: Admin.Form.Field.Theme.Properties = null) {
+                    super(properties);
+
+                    this.value = this.properties.value ?? null;
+                    if (this.value !== null && typeof this.value == 'string') {
+                        this.value = { name: this.value, configs: {} };
+                    }
+                    this.oValue = this.value;
+
+                    this.gap = this.properties.gap ?? 5;
+
+                    this.listUrl = Admin.getProcessUrl('module', 'admin', 'themes');
+                    this.configsUrl = Admin.getProcessUrl('module', 'admin', 'theme');
+                    this.configsParams = this.properties.configsParams ?? {};
+                }
+
+                /**
+                 * 폼 패널의 하위 컴포넌트를 정의한다.
+                 */
+                initItems(): void {
+                    if (this.items === null) {
+                        this.items = [];
+
+                        this.select = new Admin.Form.Field.Select({
+                            name: this.name,
+                            flex: true,
+                            store: new Admin.Store.Ajax({
+                                url: this.listUrl,
+                            }),
+                            displayField: 'title',
+                            valueField: 'name',
+                            listField: 'name',
+                            listClass: 'template',
+                            listRenderer: (display: string, record: Admin.Data.Record) => {
+                                const html = [
+                                    '<div>',
+                                    '    <i style="background-image:url(' + record.data.screenshot + ');"></i>',
+                                    '    <div class="text">',
+                                    '        <b>' + display + '</b>',
+                                    '        <small>(' + record.data.dir + ')</small>',
+                                    '    </div>',
+                                    '</div>',
+                                ];
+                                return html.join('');
+                            },
+                            listeners: {
+                                change: async (field: Admin.Form.Field.Select, value: string) => {
+                                    field.disable();
+
+                                    const params = this.configsParams;
+                                    params.name = value;
+                                    const configs = await Admin.Ajax.get(this.configsUrl, params);
+                                    this.fieldset.empty();
+
+                                    if (configs.fields.length == 0) {
+                                        this.fieldset.hide();
+                                    } else {
+                                        for (const field of configs.fields) {
+                                            const item = Admin.Form.Field.Create(field);
+                                            item.addEvent('change', () => {
+                                                this.updateValue();
+                                            });
+                                            this.fieldset.append(item);
+                                        }
+                                        this.fieldset.show();
+                                    }
+
+                                    this.updateValue();
+                                },
+                            },
+                        });
+                        this.items.push(this.select);
+                        this.items.push(this.getFieldSet());
+                    }
+
+                    super.initItems();
+                }
+
+                /**
+                 * 테마설정을 위한 필드셋을 가져온다.
+                 *
+                 * @return {Admin.Form.FieldSet} fieldset
+                 */
+                getFieldSet(): Admin.Form.FieldSet {
+                    if (this.fieldset === undefined) {
+                        this.fieldset = new Admin.Form.FieldSet({
+                            title: Admin.printText('admin/theme_configs'),
+                            hidden: true,
+                            flex: true,
+                            items: [],
+                        });
+                    }
+
+                    return this.fieldset;
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 */
+                setValue(value: any): void {
+                    if (typeof value == 'string') {
+                        this.value = { name: value, configs: {} };
+                    } else {
+                        this.value = value;
+                    }
+
+                    if (this.isChanged() === true) {
+                        this.onChange();
+                        this.oValue = this.value;
+                    }
+                }
+
+                /**
+                 * 현재 입력된 값으로 값을 업데이트한다.
+                 */
+                updateValue(): void {
+                    const name = this.select.getValue();
+                    const configs = {};
+
+                    for (const item of this.fieldset.getFields()) {
+                        configs[item.name] = item.getValue();
+                    }
+
+                    if (this.value?.name != name || JSON.stringify(this.value?.configs) != JSON.stringify(configs)) {
+                        this.setValue({ name: name, configs: configs });
+                        return;
+                    }
+                }
+
+                /**
+                 * 필드 컨테이너에 속한 필드를 랜더링한다.
+                 */
+                renderContent(): void {
+                    const $fields = Html.create('div', { 'data-role': 'fields' });
+                    $fields.addClass('column');
+                    $fields.setStyle('gap', '5px');
+                    for (let item of this.getItems()) {
+                        $fields.append(item.$getComponent());
+
+                        if (item.properties.flex !== undefined) {
+                            item.$getComponent().setStyle(
+                                'flex-grow',
+                                item.properties.flex === true ? 1 : item.properties.flex
+                            );
+                            item.$getComponent().addClass('flex');
+                        }
+
+                        if (item.isRenderable() == true) {
+                            item.render();
+                        }
+                    }
+                    this.$getContent().append($fields);
+                }
+            }
+
+            export class Template extends Admin.Form.Field.Theme {
+                //
             }
         }
     }
