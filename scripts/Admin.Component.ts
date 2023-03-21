@@ -37,6 +37,11 @@ namespace Admin {
             style?: string;
 
             /**
+             * @type {string} class - 컴포넌트 스타일클래스
+             */
+            class?: string;
+
+            /**
              * @type {boolean} hidden - 컴포넌트 숨김여부
              */
             hidden?: boolean;
@@ -74,6 +79,7 @@ namespace Admin {
         padding: string | number;
         margin: string | number;
         style: string;
+        class: string;
         hidden: boolean;
         disabled: boolean;
         scrollable: string | boolean;
@@ -96,6 +102,7 @@ namespace Admin {
             this.padding = this.properties.padding ?? null;
             this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
+            this.class = this.properties.class ?? null;
             this.hidden = this.properties.hidden ?? false;
             this.disabled = this.properties.disabled ?? false;
             this.scrollable = this.properties.scrollable ?? false;
@@ -555,6 +562,10 @@ namespace Admin {
                 this.$getComponent().hide();
             }
 
+            if (this.class !== null) {
+                this.$getComponent().addClass(...this.class.split(' '));
+            }
+
             if (this.isRenderable() == true) {
                 this.$getComponent().append(this.$container);
 
@@ -629,6 +640,24 @@ namespace Admin {
             this.scrollbar?.remove();
             this.$component.remove();
             super.remove();
+        }
+
+        /**
+         * 하위 컴포넌트를 모두 제거한다.
+         */
+        empty(): void {
+            if (Array.isArray(this.items) == true) {
+                this.items.forEach((item: Admin.Component) => {
+                    item.remove();
+                });
+
+                this.items = [];
+            }
+
+            if (this.isRendered() == true) {
+                this.$getContent().empty();
+                this.renderContent();
+            }
         }
 
         /**

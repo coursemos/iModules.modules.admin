@@ -24,6 +24,7 @@ var Admin;
         padding;
         margin;
         style;
+        class;
         hidden;
         disabled;
         scrollable;
@@ -43,6 +44,7 @@ var Admin;
             this.padding = this.properties.padding ?? null;
             this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
+            this.class = this.properties.class ?? null;
             this.hidden = this.properties.hidden ?? false;
             this.disabled = this.properties.disabled ?? false;
             this.scrollable = this.properties.scrollable ?? false;
@@ -449,6 +451,9 @@ var Admin;
             if (this.hidden == true) {
                 this.$getComponent().hide();
             }
+            if (this.class !== null) {
+                this.$getComponent().addClass(...this.class.split(' '));
+            }
             if (this.isRenderable() == true) {
                 this.$getComponent().append(this.$container);
                 if (this.$getTop() != null) {
@@ -511,6 +516,21 @@ var Admin;
             this.scrollbar?.remove();
             this.$component.remove();
             super.remove();
+        }
+        /**
+         * 하위 컴포넌트를 모두 제거한다.
+         */
+        empty() {
+            if (Array.isArray(this.items) == true) {
+                this.items.forEach((item) => {
+                    item.remove();
+                });
+                this.items = [];
+            }
+            if (this.isRendered() == true) {
+                this.$getContent().empty();
+                this.renderContent();
+            }
         }
         /**
          * 현재 컴포넌트가 화면상에 출력되었을 때 이벤트를 처리한다.
