@@ -6,189 +6,301 @@
  * @file /modules/admin/themes/default/styles/style.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 11. 28.
+ * @modified 2023. 3. 6.
  */
-html,
-body {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    font-family: SUIT;
-    font-size: 16px;
-    overflow: hidden;
+:root {
+    --text-height: 32px;
+    --padding-default: 5px;
+    --padding-large: 7px;
+    --padding-small: 3px;
+    --padding-extra-large: 9px;
+    --font-family-default: NanumBarunGothic;
+    --font-family-numeric: SUIT;
+    --font-size-default: 14px;
+    --font-size-large: 16px;
+    --font-size-small: 12px;
+    --color-default: #404040;
+    --color-background: #ffffff;
+    --color-hover: #222;
+    --color-danger: #dc3535;
+    --color-primary-300: #66acfb;
+    --color-primary-400: #3391f9;
+    --color-primary-500: #0075f8;
+    --color-primary-600: #005ec6;
+    --color-primary-700: #004695;
+    --color-gray-800: #6f6f6f;
+    --color-gray-700: #b4b4b4;
+    --color-gray-600: #d0d0d0;
+    --color-gray-500: #dadada;
+    --color-gray-400: #e6e6e6;
+    --color-gray-300: #f7f7f7;
+    --background-focus: #ffedb5;
+
+    --scrollbar-background-default: var(--color-gray-500);
+    --scrollbar-background-track: var(--color-gray-400);
+    --scrollbar-background-bar: rgba(0, 0, 0, 0.6);
+    --scrollbar-background-drag: #222222;
+    --scrollbar-border-color-bar: rgba(255, 255, 255, 0.4);
+
+    --input-background-default: var(--color-background);
+    --input-background-hover: var(--color-background);
+    --input-background-focus: var(--color-background);
+    --input-background-select: var(--color-primary-500);
+    --input-background-error: var(--color-background);
+    --input-border-color-default: var(--color-gray-400);
+    --input-border-color-hover: var(--color-gray-400);
+    --input-border-color-focus: var(--color-primary-500);
+    --input-border-color-select: var(--color-primary-500);
+    --input-border-color-error: var(--color-danger);
+    --input-color-default: var(--color-default);
+    --input-color-select: var(--color-background);
+    --input-color-required: var(--color-danger);
+    --input-color-error: var(--color-danger);
+    --input-color-empty: var(--color-gray-700);
+    --input-color-help: var(--color-gray-700);
+
+    --button-color-default: var(--color-default);
+    --button-color-hover: var(--color-hover);
+    --button-color-focus: var(--color-hover);
+    --button-color-pressed: var(--color-background);
+    --button-color-confirm: var(--color-background);
+    --button-color-danger: var(--color-background);
+    --button-background-default: var(--color-background);
+    --button-background-hover: var(--color-gray-300);
+    --button-background-focus: var(--color-gray-300);
+    --button-background-pressed: var(--color-primary-500);
+    --button-background-confirm: var(--color-primary-500);
+    --button-background-danger: var(--color-danger);
+    --button-border-color-default: var(--color-gray-400);
+    --button-border-color-hover: var(--color-gray-500);
+    --button-border-color-focus: var(--color-primary-500);
+    --button-border-color-pressed: var(--color-primary-500);
+    --button-border-color-confirm: var(--color-primary-500);
+    --button-border-color-danger: var(--color-danger);
+    --button-border-color-focus-inset: var(--color-background);
+
+    --header-height: 50px;
+    --header-background: #2d3845;
+    --header-color-default: #fff;
+    --header-color-sub: #ccc;
+    --header-title-background: #242c37;
+
+    --viewport-title-background: #48535f;
+
+    --navigation-width: 260px;
+    --navigation-collapsed-width: 46px;
+    --navigation-button-background-toggle: #6d56fb;
+    --navigation-button-color-toggle: #ffffff;
+    --navigation-background: #2d3845;
+    --navigation-toolbar-background-default: #191c21;
+    --navigation-toolbar-background-focus: #000000;
+    --navigation-color-default: #9e9ea6;
+    --navigation-color-focus: #ffffff;
+    --navigation-border-color-default: #424c58;
+    --navigation-item-height: 40px;
+    --navigation-item-margin: 2px;
+    --navigation-item-border-color-drop: var(--color-primary-500);
+
+    --title-height: calc(var(--text-height) + var(--padding-large) * 2);
+    --title-background: var(--color-primary-400);
+    --title-color: #fff;
+
+    --toolbar-height: calc(var(--text-height) + var(--padding-default) * 2);
+    --toolbar-background: var(--color-background);
+    --toolbar-border-color: var(--color-gray-400);
+    --toolbar-color-default: var(--color-default);
+    --toolbar-button-background-default: var(--color-gray-300);
+    --toolbar-button-background-hover: var(--color-gray-400);
+    --toolbar-button-background-focus: var(--color-gray-300);
+    --toolbar-button-border-color-default: var(--color-gray-400);
+    --toolbar-button-border-color-hover: var(--color-gray-500);
+    --toolbar-button-border-color-focus: var(--color-primary-500);
+
+    --tabbar-height: var(--title-height);
+    --tabbar-background: var(--title-background);
+    --tabbar-button-background-default: transparent;
+    --tabbar-button-background-hover: var(--color-primary-500);
+    --tabbar-button-background-selected: var(--color-background);
+    --tabbar-button-border-color-default: transparent;
+    --tabbar-button-color-default: var(--color-background);
+    --tabbar-button-color-hover: var(--color-background);
+    --tabbar-button-color-selected: var(--color-primary-500);
+
+    --panel-background: var(--color-background);
+    --panel-border-color-default: var(--color-gray-500);
+    --panel-background-disabled: var(--color-gray-600);
+
+    --grid-header-border-color: var(--color-gray-400);
+    --grid-header-background-default: var(--color-gray-300);
+    --grid-header-background-hover: #eaeff4;
+    --grid-header-color-default: var(--color-default);
+    --grid-header-color-button: var(--color-gray-800);
+    --grid-row-border-color-default: var(--color-gray-400);
+    --grid-row-border-color-hover: #d9dfe4;
+    --grid-row-border-color-focus: #f0dfab;
+    --grid-row-border-color-select: var(--color-primary-400);
+    --grid-column-background-default: var(--color-background);
+    --grid-column-background-hover: #e7ecf2;
+    --grid-column-background-focus: #ffedb5;
+    --grid-column-background-select: var(--color-primary-300);
+    --grid-column-border-color-focus: var(--color-primary-500);
+    --grid-column-border-color-selected-focused: var(--color-primary-700);
+    --grid-color-select: var(--color-background);
+
+    --message-icon-background-default: var(--color-gray-800);
+    --message-icon-color-default: var(--color-background);
+    --message-color-default: var(--color-default);
+
+    --menu-border-color: var(--color-gray-500);
+    --menu-background-default: var(--color-background);
+    --menu-shadow-color: rgba(0, 0, 0, 0.1);
+    --menu-title-color: var(--color-background);
+    --menu-title-background: var(--viewport-title-background);
+    --menu-title-height: calc(var(--text-height) + var(--padding-default) * 2);
+    --menu-item-height: calc(var(--text-height) + var(--padding-small) * 2);
+    --menu-item-color: var(--color-default);
+    --menu-item-color-hover: var(--color-background);
+    --menu-item-border-color: var(--color-gray-500);
+    --menu-item-background-hover: var(--color-primary-400);
 }
 
 body {
+    overflow: hidden;
+
     > header {
         width: 100%;
-        height: 60px;
-        background: var(--theme-color);
-        display: flex;
-        flex-direction: row;
-        align-items: stretch;
+        height: var(--header-height);
+        background: var(--header-background);
+        font-size: 0;
 
         > h1 {
-            flex-basis: 250px;
-            flex-shrink: 0;
-            background: rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            vertical-align: middle;
+            width: var(--navigation-width);
+            height: var(--header-height);
+            background: var(--header-title-background);
+            font-size: var(--font-size-large);
+            color: var(--header-color-default);
+            line-height: var(--header-height);
+            font-family: var(--font-family-numeric);
+            font-weight: normal;
+            text-align: center;
 
             > i {
-                display: inline-block;
-                width: 60px;
-                height: 60px;
-                background: rgba(0, 0, 0, 0.2);
+                float: left;
+                display: block;
+                width: var(--navigation-collapsed-width);
+                height: var(--header-height);
+                background-color: #0075f8;
+                position: relative;
+                font-size: 24px;
+                text-align: center;
+                line-height: var(--header-height);
                 vertical-align: middle;
             }
 
             > label {
+                color: var(--header-color-sub);
+
+                > b {
+                    color: var(--header-color-default);
+                }
+            }
+
+            &::after {
+                clear: both;
+                content: ' ';
+                display: block;
+            }
+        }
+
+        > div {
+            display: inline-block;
+            vertical-align: middle;
+            width: calc(100% - var(--navigation-width));
+            height: var(--header-height);
+            text-align: right;
+            padding-right: var(--padding-extra-large);
+            box-sizing: border-box;
+            font-family: var(--font-family-default);
+
+            > b {
                 display: inline-block;
-                width: calc(100% - 54px);
-                height: 54px;
                 vertical-align: middle;
+                color: #fff;
+                font-size: 14px;
+                line-height: var(--header-height);
+            }
+
+            > i {
+                display: inline-block;
+                vertical-align: middle;
+                width: calc(var(--header-height) - var(--padding-extra-large) * 2 - 2px);
+                height: calc(var(--header-height) - var(--padding-extra-large) * 2 - 2px);
+                border: 1px solid var(--header-color-sub);
+                margin: calc(var(--padding-extra-large));
+                border-radius: 50%;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: 50% 50%;
+            }
+
+            > button {
+                position: relative;
+                display: inline-block;
+                vertical-align: middle;
+                background: var(--color-danger);
+                height: calc(var(--header-height) - var(--padding-extra-large) * 2);
+                line-height: calc(var(--header-height) - var(--padding-extra-large) * 2);
+                margin-top: var(--padding-extra-large);
+                margin-bottom: var(--padding-extra-large);
+                border: 0;
+                font-family: inherit;
+                font-size: var(--font-size-default);
+                color: var(--header-color-default);
+                padding-left: var(--padding-extra-large);
+                padding-right: var(--padding-extra-large);
+                border-radius: 5px;
+                cursor: pointer;
+
+                &:hover {
+                    &::before {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        z-index: 1;
+                        background: rgba(0, 0, 0, 0.1);
+                        content: ' ';
+                    }
+                }
             }
         }
     }
 
     > main {
         width: 100%;
-        height: calc(100% - 80px);
-        display: flex;
-        flex-direction: row;
-        align-items: stretch;
+        height: calc(100% - var(--header-height));
+        overflow: hidden;
+        background: var(--color-background);
+    }
+}
 
-        > aside {
-            flex-basis: 250px;
-            flex-shrink: 0;
-            background: #35393e;
+@media (max-width: 500px) {
+    body {
+        > header {
+            > h1 {
+                width: var(--navigation-collapsed-width);
 
-            > ul {
-                list-style: none;
-                display: block;
-
-                > li {
-                    position: relative;
-                    display: block;
-                    margin: 10px 10px;
-                    border-radius: 8px;
-                    overflow: hidden;
-
-                    &.opened {
-                        background: #2a2e32;
-
-                        > button {
-                            &::before {
-                                content: '\e909';
-                            }
-                        }
-
-                        > ul {
-                            display: block;
-                        }
-                    }
-
-                    > a {
-                        display: block;
-                        width: 100%;
-                        height: 40px;
-
-                        &.selected {
-                            color: red;
-                        }
-
-                        > i {
-                            display: inline-block;
-                            width: 40px;
-                            height: 40px;
-                            line-height: 40px;
-                            color: #fff;
-                            font-size: 18px;
-                            vertical-align: middle;
-                            text-align: center;
-                            margin-right: 10px;
-                        }
-
-                        > span {
-                            display: inline-block;
-                            color: #fff;
-                            font-size: 14px;
-                            width: calc(100% - 54px);
-                            height: 40px;
-                            line-height: 40px;
-                            vertical-align: middle;
-                            padding-right: 14px;
-                        }
-                    }
-
-                    > button {
-                        position: absolute;
-                        width: 40px;
-                        height: 40px;
-                        top: 0;
-                        right: 0;
-                        background: transparent;
-                        border: 0;
-                        cursor: pointer;
-                        font-size: 16px;
-                        font-family: moimz;
-                        color: #fff;
-
-                        &::before {
-                            content: '\e910';
-                        }
-                    }
-
-                    > ul {
-                        background: #2e3136;
-                        display: none;
-
-                        > li {
-                            > a {
-                                display: block;
-                                width: 100%;
-                                height: 40px;
-                                color: rgba(255, 255, 255, 0.7);
-
-                                &.selected {
-                                    color: red;
-                                }
-
-                                > i {
-                                    display: inline-block;
-                                    width: 40px;
-                                    height: 40px;
-                                    line-height: 40px;
-                                    font-size: 12px;
-                                    vertical-align: middle;
-                                    text-align: center;
-                                    margin-right: 10px;
-                                }
-
-                                > span {
-                                    display: inline-block;
-                                    font-size: 12px;
-                                    width: calc(100% - 54px);
-                                    height: 40px;
-                                    line-height: 40px;
-                                    vertical-align: middle;
-                                    padding-right: 14px;
-                                }
-                            }
-                        }
-                    }
+                > label {
+                    display: none;
                 }
             }
-        }
 
-        > section {
-            width: calc(100% - 250px);
+            > div {
+                width: calc(100% - var(--navigation-collapsed-width));
+            }
         }
-    }
-
-    > footer {
-        display: block;
-        width: 100%;
-        height: 20px;
-        background: #2a2e32;
     }
 }
