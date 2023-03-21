@@ -9,8 +9,37 @@
  * @modified 2022. 12. 20.
  */
 namespace Admin {
+    export namespace Store {
+        export interface Properties extends Admin.Base.Properties {
+            /**
+             * @type {Object} fieldTypes - 필드값의 타입을 정의한다.
+             */
+            fieldTypes?: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
+
+            /**
+             * @type {boolean} autoLoad - Store 가 정의된 후 자동으로 데이터를 불러올지 여부
+             */
+            autoLoad?: boolean;
+
+            /**
+             * @type {boolean} remoteSort - store 외부에서 데이터를 정렬할지 여부
+             */
+            remoteSort?: boolean;
+
+            /**
+             * @type {Object} sorter - 데이터 정렬방식
+             */
+            sorters?: { field: string; direction: string }[];
+
+            /**
+             * @type {string[]} - 레코드 고유값
+             */
+            primaryKeys?: string[];
+        }
+    }
+
     export class Store extends Admin.Base {
-        fieldTypes: { [key: string]: string };
+        fieldTypes: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
         autoLoad: boolean = true;
         remoteSort: boolean = false;
         sorters: { field: string; direction: string }[];
@@ -25,9 +54,9 @@ namespace Admin {
         /**
          * 데이터스토어를 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Store.Properties} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } = null) {
+        constructor(properties: Admin.Store.Properties = null) {
             super(properties);
 
             this.fieldTypes = this.properties.fieldTypes ?? {};
@@ -260,6 +289,20 @@ namespace Admin {
     }
 
     export namespace Store {
+        export namespace Array {
+            export interface Properties extends Admin.Store.Properties {
+                /**
+                 * @type {string[]} fields - 데이터 필드
+                 */
+                fields: string[];
+
+                /**
+                 * @type {string[][]} datas - 데이터셋
+                 */
+                datas?: any[][];
+            }
+        }
+
         export class Array extends Admin.Store {
             fields: string[];
             datas: any[][];
@@ -267,9 +310,9 @@ namespace Admin {
             /**
              * Array 스토어를 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.Store.Array.Properties} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Store.Array.Properties = null) {
                 super(properties);
 
                 this.fields = this.properties.fields ?? [];
@@ -315,6 +358,30 @@ namespace Admin {
             }
         }
 
+        export namespace Ajax {
+            export interface Properties extends Admin.Store.Properties {
+                /**
+                 * @type {'get'|'post'} method - 데이터를 가져올 방식
+                 */
+                method?: 'get' | 'post';
+
+                /**
+                 * @type {string} url - 데이터를 가져올 URL
+                 */
+                url: string;
+
+                /**
+                 * @type {number} limit - 페이지당 가져올 갯수
+                 */
+                limit?: number;
+
+                /**
+                 * @type {number} page - 가져올 페이지 번호
+                 */
+                page?: number;
+            }
+        }
+
         export class Ajax extends Admin.Store {
             method: string;
             url: string;
@@ -326,7 +393,7 @@ namespace Admin {
              *
              * @param {Object} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Store.Ajax.Properties = null) {
                 super(properties);
 
                 this.url = this.properties?.url ?? null;

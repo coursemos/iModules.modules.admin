@@ -25,7 +25,7 @@ var Admin;
         /**
          * 데이터스토어를 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Store.Properties} properties - 객체설정
          */
         constructor(properties = null) {
             super(properties);
@@ -243,7 +243,7 @@ var Admin;
             /**
              * Array 스토어를 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.Store.Array.Properties} properties - 객체설정
              */
             constructor(properties = null) {
                 super(properties);
