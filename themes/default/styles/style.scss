@@ -47,6 +47,7 @@
     --input-background-focus: var(--color-background);
     --input-background-select: var(--color-primary-500);
     --input-background-error: var(--color-background);
+    --input-background-disabled: var(--color-gray-400);
     --input-border-color-default: var(--color-gray-400);
     --input-border-color-hover: var(--color-gray-400);
     --input-border-color-focus: var(--color-primary-500);
@@ -58,6 +59,7 @@
     --input-color-error: var(--color-danger);
     --input-color-empty: var(--color-gray-700);
     --input-color-help: var(--color-gray-700);
+    --input-color-disabled: var(--color-gray-700);
 
     --button-color-default: var(--color-default);
     --button-color-hover: var(--color-hover);
