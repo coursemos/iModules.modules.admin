@@ -9,6 +9,94 @@
  * @modified 2023. 2. 26.
  */
 namespace Admin {
+    export namespace Window {
+        export interface Properties extends Admin.Component.Properties {
+            /**
+             * @type {boolean} modal - 모달창 여부
+             */
+            modal?: boolean;
+
+            /**
+             * @type {boolean} resizable - 크기조절허용 여부
+             */
+            resizable?: boolean;
+
+            /**
+             * @type {boolean} closable - 닫기허용 여부
+             */
+            closable?: boolean;
+
+            /**
+             * @type {boolean} movable - 이동허용 여부
+             */
+            movable?: boolean;
+
+            /**
+             * @type {boolean} maximizable - 최대화허용 여부
+             */
+            maximizable?: boolean;
+
+            /**
+             * @type {boolean} maximized - 최대화 여부
+             */
+            maximized?: boolean;
+
+            /**
+             * @type {boolean} collapsible - 최소화허용 여부
+             */
+            collapsible?: boolean;
+
+            /**
+             * @type {boolean} collapsed - 최소화 여부
+             */
+            collapsed?: boolean;
+
+            /**
+             * @type {string} collapseDirection - 최소화 방향
+             */
+            collapseDirection?: boolean;
+
+            /**
+             * @type {number} width - 가로크기
+             */
+            width?: number;
+
+            /**
+             * @type {number} height - 가로크기
+             */
+            height?: number;
+
+            /**
+             * @type {number} minWidth - 최소가로크기
+             */
+            minWidth?: number;
+
+            /**
+             * @type {number} maxWidth - 최대가로크기
+             */
+            maxWidth?: number;
+
+            /**
+             * @type {number} minHeight - 최소세로크기
+             */
+            minHeight?: number;
+
+            /**
+             * @type {number} maxHeight - 최대세로크기
+             */
+            maxHeight?: number;
+
+            /**
+             * @type {string|Admin.Title} title - 창 제목
+             */
+            title?: string | Admin.Title;
+
+            /**
+             * @type {Admin.Button[]} buttons - 버튼목록
+             */
+            buttons?: Admin.Button[];
+        }
+    }
     export class Window extends Admin.Component {
         static $windows: Dom;
         static windows: Map<string, Admin.Window> = new Map();
@@ -45,9 +133,9 @@ namespace Admin {
         /**
          * 윈도우를 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Window.Properties} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } = null) {
+        constructor(properties: Admin.Window.Properties = null) {
             super(properties);
 
             this.layout = 'auto';

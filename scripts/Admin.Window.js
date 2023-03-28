@@ -43,7 +43,7 @@ var Admin;
         /**
          * 윈도우를 생성한다.
          *
-         * @param {Object} properties - 객체설정
+         * @param {Admin.Window.Properties} properties - 객체설정
          */
         constructor(properties = null) {
             super(properties);
