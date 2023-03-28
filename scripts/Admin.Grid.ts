@@ -10,6 +10,20 @@
  */
 namespace Admin {
     export namespace Grid {
+        export namespace Panel {
+            export interface Properties extends Admin.Panel.Properties {
+                /**
+                 * @type {(Admin.Grid.Column | Admin.Grid.Column.Properties)[]} columns - 컬럼정보
+                 */
+                columns: (Admin.Grid.Column | Admin.Grid.Column.Properties)[];
+
+                /**
+                 * @type {Admin.Store}
+                 */
+                store: Admin.Store;
+            }
+        }
+
         export class Panel extends Admin.Panel {
             type: string = 'panel';
             role: string = 'grid';
@@ -37,7 +51,7 @@ namespace Admin {
              *
              * @param {Object} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Grid.Panel.Properties = null) {
                 super(properties);
 
                 this.freeze = this.properties.freeze ?? 0;
@@ -837,6 +851,90 @@ namespace Admin {
             }
         }
 
+        export namespace Column {
+            export interface Properties extends Admin.Base.Properties {
+                /**
+                 * @type {string} text - 컬럼제목
+                 */
+                text?: string;
+
+                /**
+                 * @type {string} dataIndex - 데이터를 가져올 인덱스명
+                 */
+                dataIndex?: string;
+
+                /**
+                 * @type {string} width - 컬럼너비
+                 */
+                width?: number;
+
+                /**
+                 * @type {string} minWidth - 컬럼최소너비 (최소너비가 설정될 경우 그리드패널의 가로너비를 채우기 위해 최소너비 이상으로 확대된다.)
+                 */
+                minWidth?: number;
+
+                /**
+                 * @type {boolean} resizable - 너비조절가능여부
+                 */
+                resizable?: boolean;
+
+                /**
+                 * @type {boolean} sortable - 정렬가능여부
+                 */
+                sortable?: boolean;
+
+                /**
+                 * @type {boolean} hidden - 숨김여부
+                 */
+                hidden?: boolean;
+
+                /**
+                 * @type {boolean} headerWrap - 컬럼제목 줄바꿈여부
+                 */
+                headerWrap?: boolean;
+
+                /**
+                 * @type {'left'|'center'|'right'} headerAlign - 컬럼제목 가로정렬
+                 */
+                headerAlign?: 'left' | 'center' | 'right';
+
+                /**
+                 * @type {'top'|'middle'|'bottom'} headerAlign - 컬럼제목 세로정렬
+                 */
+                headerVerticalAlign?: 'top' | 'middle' | 'bottom';
+
+                /**
+                 * @type {boolean} textWrap - 데이터 줄바꿈여부
+                 */
+                textWrap?: boolean;
+
+                /**
+                 * @type {'left' | 'center' | 'right'} textAlign - 데이터 가로정렬
+                 */
+                textAlign?: 'left' | 'center' | 'right';
+
+                /**
+                 * @type {'top'|'middle'|'bottom'} textVerticalAlign - 데이터 세로정렬
+                 */
+                textVerticalAlign?: 'top' | 'middle' | 'bottom';
+
+                /**
+                 * @type {(Admin.Grid.Column | Admin.Grid.Column.Properties)[]} columns - 하위컬럼
+                 */
+                columns?: (Admin.Grid.Column | Admin.Grid.Column.Properties)[];
+
+                renderer?: (
+                    value: any,
+                    record: Admin.Data.Record,
+                    $dom: Dom,
+                    rowIndex: number,
+                    columnIndex: number,
+                    column: Admin.Grid.Column,
+                    grid: Admin.Grid.Panel
+                ) => string;
+            }
+        }
+
         export class Column extends Admin.Base {
             grid: Admin.Grid.Panel;
             parent: Admin.Grid.Column = null;
@@ -856,13 +954,22 @@ namespace Admin {
             textVerticalAlign: string;
             columns: Admin.Grid.Column[];
             resizer: Admin.Resizer;
+            renderer: (
+                value: any,
+                record: Admin.Data.Record,
+                $dom: Dom,
+                rowIndex: number,
+                columnIndex: number,
+                column: Admin.Grid.Column,
+                grid: Admin.Grid.Panel
+            ) => string;
 
             /**
              * 그리드패널 컬럼객체를 생성한다.
              *
              * @param {Object} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Grid.Column.Properties = null) {
                 super(properties);
 
                 this.text = this.properties.text ?? '';
@@ -880,6 +987,7 @@ namespace Admin {
                 this.textAlign = this.properties.textAlign ?? 'left';
                 this.textVerticalAlign = this.properties.textVerticalAlign ?? 'middle';
                 this.columns = [];
+                this.renderer = this.properties.renderer ?? null;
 
                 for (let column of properties?.columns ?? []) {
                     if (!(column instanceof Admin.Grid.Column)) {
@@ -1232,12 +1340,12 @@ namespace Admin {
              * 컬럼의 데이터컬럼 레이아웃을 가져온다.
              *
              * @param {any} value - 컬럼의 dataIndex 데이터
-             * @param {Object} record - 컬럼이 속한 행의 모든 데이터셋
+             * @param {Admin.Data.Record} record - 컬럼이 속한 행의 모든 데이터셋
              * @param {number} rowIndex - 행 인덱스
              * @param {number} columnIndex - 열 인덱스
              * @return {Dom} $layout
              */
-            $getBody(value: any, record: { [key: string]: any }, rowIndex: number, columnIndex: number): Dom {
+            $getBody(value: any, record: Admin.Data.Record, rowIndex: number, columnIndex: number): Dom {
                 const $column = Html.create('div')
                     .setData('role', 'column')
                     .setData('row', rowIndex)
@@ -1263,7 +1371,11 @@ namespace Admin {
                 });
 
                 const $display = Html.create('div').setData('display', 'view');
-                $display.text(value);
+                if (this.renderer !== null) {
+                    $display.html(this.renderer(value, record, $column, rowIndex, columnIndex, this, this.getGrid()));
+                } else {
+                    $display.html(value);
+                }
 
                 $column.append($display);
 

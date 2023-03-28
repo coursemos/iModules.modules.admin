@@ -747,6 +747,7 @@ var Admin;
             textVerticalAlign;
             columns;
             resizer;
+            renderer;
             /**
              * 그리드패널 컬럼객체를 생성한다.
              *
@@ -769,6 +770,7 @@ var Admin;
                 this.textAlign = this.properties.textAlign ?? 'left';
                 this.textVerticalAlign = this.properties.textVerticalAlign ?? 'middle';
                 this.columns = [];
+                this.renderer = this.properties.renderer ?? null;
                 for (let column of properties?.columns ?? []) {
                     if (!(column instanceof Admin.Grid.Column)) {
                         column = new Admin.Grid.Column(column);
@@ -1090,7 +1092,7 @@ var Admin;
              * 컬럼의 데이터컬럼 레이아웃을 가져온다.
              *
              * @param {any} value - 컬럼의 dataIndex 데이터
-             * @param {Object} record - 컬럼이 속한 행의 모든 데이터셋
+             * @param {Admin.Data.Record} record - 컬럼이 속한 행의 모든 데이터셋
              * @param {number} rowIndex - 행 인덱스
              * @param {number} columnIndex - 열 인덱스
              * @return {Dom} $layout
@@ -1118,7 +1120,12 @@ var Admin;
                     this.grid.focusCell($column.getData('row'), $column.getData('column'));
                 });
                 const $display = Html.create('div').setData('display', 'view');
-                $display.text(value);
+                if (this.renderer !== null) {
+                    $display.html(this.renderer(value, record, $column, rowIndex, columnIndex, this, this.getGrid()));
+                }
+                else {
+                    $display.html(value);
+                }
                 $column.append($display);
                 if (this.isHidden() == true) {
                     $column.setStyle('display', 'none');
