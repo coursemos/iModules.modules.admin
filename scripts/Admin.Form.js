@@ -317,6 +317,7 @@ var Admin;
                 oValue = null;
                 validator;
                 validation = true;
+                readonly;
                 fieldDefaults;
                 /**
                  * 기본필드 클래스 생성한다.
@@ -341,6 +342,7 @@ var Admin;
                     this.validator = this.properties.validator ?? null;
                     this.value = this.properties.value ?? null;
                     this.oValue = this.value;
+                    this.readonly = this.properties.readonly === true;
                     if (this.label !== null) {
                         this.$setTop();
                     }
@@ -588,6 +590,22 @@ var Admin;
                         $bottom.append($text);
                         this.$getBottom().addClass('error');
                     }
+                }
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled) {
+                    if (disabled == true) {
+                        this.$getContent().addClass('disabled');
+                    }
+                    else {
+                        this.$getContent().removeClass('disabled');
+                    }
+                    super.setDisabled(disabled);
+                    return this;
                 }
                 /**
                  * 필드 라벨을 랜더링한다.
@@ -1126,6 +1144,7 @@ var Admin;
             Field.Number = Number;
             class Display extends Admin.Form.Field.Base {
                 field = 'display';
+                renderer;
                 $display;
                 /**
                  * 디스플레이필드 클래스 생성한다.
@@ -1134,6 +1153,7 @@ var Admin;
                  */
                 constructor(properties = null) {
                     super(properties);
+                    this.renderer = this.properties.renderer ?? null;
                 }
                 /**
                  * DISPLAY 필드 DOM 을 가져온다.
@@ -1153,7 +1173,12 @@ var Admin;
                  */
                 setValue(value) {
                     value = value?.toString() ?? '';
-                    this.$getDisplay().html(value);
+                    if (this.renderer === null) {
+                        this.$getDisplay().html(value);
+                    }
+                    else {
+                        this.$getDisplay().html(this.renderer(value, this));
+                    }
                     super.setValue(value);
                 }
                 /**
@@ -1660,6 +1685,7 @@ var Admin;
                 offValue;
                 checked;
                 $input;
+                $label;
                 $boxLabel;
                 /**
                  * 체크박스필드 클래스 생성한다.
@@ -1687,12 +1713,42 @@ var Admin;
                             type: 'checkbox',
                             value: this.onValue,
                         });
+                        if (this.readonly === true) {
+                            this.$input.setAttr('disabled', 'disabled');
+                        }
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
                             this.setValue(input.checked);
                         });
                     }
                     return this.$input;
+                }
+                /**
+                 * LABEL DOM 을 가져온다.
+                 *
+                 * @return {Dom} $label
+                 */
+                $getLabel() {
+                    if (this.$label === undefined) {
+                        this.$label = Html.create('label');
+                    }
+                    return this.$label;
+                }
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled) {
+                    if (disabled == true) {
+                        this.$getInput().setAttr('disabled', 'disabled');
+                    }
+                    else if (this.readonly === false) {
+                        this.$getInput().removeAttr('disabled');
+                    }
+                    super.setDisabled(disabled);
+                    return this;
                 }
                 /**
                  * INPUT 박스라벨 DOM 을 가져온다.
@@ -1760,7 +1816,7 @@ var Admin;
                  * 필드태그를 랜더링한다.
                  */
                 renderContent() {
-                    const $label = Html.create('label');
+                    const $label = this.$getLabel();
                     const $input = this.$getInput();
                     $label.append($input);
                     const $boxLabel = this.$getBoxLabel();
@@ -1815,6 +1871,7 @@ var Admin;
                                 inputName: (this.name ?? this.inputName) + '[]',
                                 onValue: value,
                                 checked: this.value.includes(value),
+                                readonly: this.readonly,
                                 boxLabel: this.options[value],
                                 listeners: {
                                     change: () => {
@@ -2295,14 +2352,9 @@ var Admin;
                  */
                 renderContent() {
                     const $fields = Html.create('div', { 'data-role': 'fields' });
-                    $fields.addClass('column');
-                    $fields.setStyle('gap', '5px');
+                    $fields.setStyle('row-gap', this.gap + 'px');
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
-                        if (item.properties.flex !== undefined) {
-                            item.$getComponent().setStyle('flex-grow', item.properties.flex === true ? 1 : item.properties.flex);
-                            item.$getComponent().addClass('flex');
-                        }
                         if (item.isRenderable() == true) {
                             item.render();
                         }

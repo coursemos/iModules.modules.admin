@@ -468,6 +468,11 @@ namespace Admin {
                      * @type {Function} validator - 필드값 유효성 체크 함수
                      */
                     validator?: (value: string, field: Admin.Form.Field.Base) => Promise<boolean | string>;
+
+                    /**
+                     * @type {boolean} readonly - 읽기전용여부
+                     */
+                    readonly?: boolean;
                 }
             }
 
@@ -491,6 +496,7 @@ namespace Admin {
                 oValue: any = null;
                 validator: (value: string, field: Admin.Form.Field.Base) => Promise<boolean | string>;
                 validation: boolean | string = true;
+                readonly: boolean;
 
                 fieldDefaults: Admin.Form.FieldDefaults;
 
@@ -519,6 +525,7 @@ namespace Admin {
 
                     this.value = this.properties.value ?? null;
                     this.oValue = this.value;
+                    this.readonly = this.properties.readonly === true;
 
                     if (this.label !== null) {
                         this.$setTop();
@@ -798,6 +805,24 @@ namespace Admin {
                         $bottom.append($text);
                         this.$getBottom().addClass('error');
                     }
+                }
+
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled: boolean): this {
+                    if (disabled == true) {
+                        this.$getContent().addClass('disabled');
+                    } else {
+                        this.$getContent().removeClass('disabled');
+                    }
+
+                    super.setDisabled(disabled);
+
+                    return this;
                 }
 
                 /**
@@ -1442,9 +1467,19 @@ namespace Admin {
                 inputType: string = 'number';
             }
 
+            export namespace Display {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {Function} renderer - 필드 랜더러
+                     */
+                    renderer?: (value: string, field: Admin.Form.Field.Display) => string;
+                }
+            }
+
             export class Display extends Admin.Form.Field.Base {
                 field: string = 'display';
 
+                renderer: (value: string, field: Admin.Form.Field.Display) => string;
                 $display: Dom;
 
                 /**
@@ -1452,8 +1487,10 @@ namespace Admin {
                  *
                  * @param {Object} properties - 객체설정
                  */
-                constructor(properties: Admin.Form.Field.Base.Properties = null) {
+                constructor(properties: Admin.Form.Field.Display.Properties = null) {
                     super(properties);
+
+                    this.renderer = this.properties.renderer ?? null;
                 }
 
                 /**
@@ -1476,7 +1513,11 @@ namespace Admin {
                  */
                 setValue(value: any): void {
                     value = value?.toString() ?? '';
-                    this.$getDisplay().html(value);
+                    if (this.renderer === null) {
+                        this.$getDisplay().html(value);
+                    } else {
+                        this.$getDisplay().html(this.renderer(value, this));
+                    }
 
                     super.setValue(value);
                 }
@@ -2157,6 +2198,7 @@ namespace Admin {
                 checked: boolean;
 
                 $input: Dom;
+                $label: Dom;
                 $boxLabel: Dom;
 
                 /**
@@ -2187,6 +2229,11 @@ namespace Admin {
                             type: 'checkbox',
                             value: this.onValue,
                         });
+
+                        if (this.readonly === true) {
+                            this.$input.setAttr('disabled', 'disabled');
+                        }
+
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLInputElement;
                             this.setValue(input.checked);
@@ -2194,6 +2241,37 @@ namespace Admin {
                     }
 
                     return this.$input;
+                }
+
+                /**
+                 * LABEL DOM 을 가져온다.
+                 *
+                 * @return {Dom} $label
+                 */
+                $getLabel(): Dom {
+                    if (this.$label === undefined) {
+                        this.$label = Html.create('label');
+                    }
+
+                    return this.$label;
+                }
+
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled: boolean): this {
+                    if (disabled == true) {
+                        this.$getInput().setAttr('disabled', 'disabled');
+                    } else if (this.readonly === false) {
+                        this.$getInput().removeAttr('disabled');
+                    }
+
+                    super.setDisabled(disabled);
+
+                    return this;
                 }
 
                 /**
@@ -2272,7 +2350,7 @@ namespace Admin {
                  * 필드태그를 랜더링한다.
                  */
                 renderContent(): void {
-                    const $label = Html.create('label');
+                    const $label = this.$getLabel();
                     const $input = this.$getInput();
                     $label.append($input);
 
@@ -2356,6 +2434,7 @@ namespace Admin {
                                     inputName: (this.name ?? this.inputName) + '[]',
                                     onValue: value,
                                     checked: this.value.includes(value),
+                                    readonly: this.readonly,
                                     boxLabel: this.options[value],
                                     listeners: {
                                         change: () => {
@@ -2960,18 +3039,9 @@ namespace Admin {
                  */
                 renderContent(): void {
                     const $fields = Html.create('div', { 'data-role': 'fields' });
-                    $fields.addClass('column');
-                    $fields.setStyle('gap', '5px');
+                    $fields.setStyle('row-gap', this.gap + 'px');
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
-
-                        if (item.properties.flex !== undefined) {
-                            item.$getComponent().setStyle(
-                                'flex-grow',
-                                item.properties.flex === true ? 1 : item.properties.flex
-                            );
-                            item.$getComponent().addClass('flex');
-                        }
 
                         if (item.isRenderable() == true) {
                             item.render();
