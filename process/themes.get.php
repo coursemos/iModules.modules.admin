@@ -32,11 +32,10 @@ foreach ($names as $name) {
 
 $modules = Modules::all();
 foreach ($modules as $module) {
-    if ($module->is_theme == true) {
-        $mModule = Modules::get($module->name);
-        $names = File::getDirectoryItems($mModule->getPath() . '/themes', 'directory', false);
+    if ($module->isTheme() == true) {
+        $names = File::getDirectoryItems($module->getPath() . '/themes', 'directory', false);
         foreach ($names as $name) {
-            $themes[] = new Theme((object) ['name' => '/modules/' . $module->name . '/' . basename($name)]);
+            $themes[] = new Theme((object) ['name' => '/modules/' . $module->getName() . '/' . basename($name)]);
         }
     }
 }
