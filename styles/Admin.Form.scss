@@ -46,7 +46,6 @@ div[data-component][data-type='form'][data-role='fieldset'] {
         > div[data-role='content'] {
             border: 1px solid var(--panel-border-color-default);
             background: var(--panel-background);
-
             display: flex;
             flex-direction: column;
             row-gap: var(--padding-default);
@@ -250,7 +249,7 @@ div[data-component][data-type='form'][data-role='field'] {
 
         > div {
             width: 100%;
-            height: var(--text-height);
+            min-height: var(--text-height);
             box-sizing: border-box;
             background: transparent;
             padding: var(--padding-default);
@@ -535,6 +534,32 @@ div[data-component][data-type='form'][data-role='field'] {
                 font-family: var(--font-family-default);
             }
         }
+
+        &.disabled {
+            > label {
+                cursor: not-allowed;
+
+                > input {
+                    cursor: not-allowed;
+
+                    &::after {
+                        background: var(--input-background-disabled);
+                    }
+
+                    &[type='checkbox'] {
+                        &:checked::after {
+                            border-color: var(--input-border-color-default);
+                            background: var(--input-background-disabled);
+                            color: var(--input-color-disabled);
+                        }
+                    }
+                }
+
+                > span {
+                    color: var(--input-color-disabled);
+                }
+            }
+        }
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='checkgroup'],
@@ -542,6 +567,25 @@ div[data-component][data-type='form'][data-role='field'] {
         > div[data-role='inputs'] {
             width: 100%;
             display: grid;
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='theme'] {
+        > div[data-role='fields'] {
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+
+            > div[data-component] {
+                flex-shrink: 0;
+                margin-top: 0;
+                margin-left: 0;
+            }
+
+            > div[data-component] {
+                width: 100%;
+            }
         }
     }
 }
