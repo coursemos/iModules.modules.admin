@@ -6,9 +6,48 @@
  * @file /modules/admin/scripts/Admin.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2023. 3. 27.
  */
 namespace Admin {
+    export namespace Button {
+        export interface Properties extends Admin.Component.Properties {
+            /**
+             * @type {string} text - 버튼텍스트
+             */
+            text?: string;
+
+            /**
+             * @type {string} iconClass - 아이콘 스타일시트 클래스
+             */
+            iconClass?: string;
+
+            /**
+             * @type {string} buttonClass - 버튼 스타일시트 클래스
+             */
+            buttonClass?: string;
+
+            /**
+             * @type {number} tabIndex - 탭 인덱스
+             */
+            tabIndex?: number;
+
+            /**
+             * @type {boolean} toggle - 토글여부
+             */
+            toggle?: boolean;
+
+            /**
+             * @type {boolean} pressed - 토글이 활성화된 상태에서 토글활성화여부
+             */
+            pressed?: boolean;
+
+            /**
+             * @type {Function} handler - 버튼 클릭 핸들러
+             */
+            handler?: (button: Admin.Button) => void;
+        }
+    }
+
     export class Button extends Admin.Component {
         type: string = 'button';
         role: string = 'button';
@@ -27,7 +66,7 @@ namespace Admin {
          *
          * @param {Object} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } = null) {
+        constructor(properties: Admin.Button.Properties = null) {
             super(properties);
 
             this.text = this.properties.text ?? '';
