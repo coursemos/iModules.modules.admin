@@ -6,9 +6,33 @@
  * @file /modules/admin/scripts/Admin.Title.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 3. 28.
  */
 namespace Admin {
+    export namespace Title {
+        export interface Properties extends Admin.Component.Properties {
+            /**
+             * @type {string} title - 제목텍스트
+             */
+            title?: string;
+
+            /**
+             * @type {string} iconClass - 아이콘 스타일시트 클래스
+             */
+            iconClass?: string;
+
+            /**
+             * @type {boolean} movable - 제목 이동여부
+             */
+            movable?: boolean;
+
+            /**
+             * @type {(Admin.Title.Tool|Admin.Title.Tool.Properties[]} tools - 툴
+             */
+            tools?: (Admin.Title.Tool | Admin.Title.Tool.Properties)[];
+        }
+    }
+
     export class Title extends Admin.Component {
         type: string = 'title';
         role: string = 'title';
@@ -21,9 +45,9 @@ namespace Admin {
         /**
          * 텍스트 객체를 생성한다.
          *
-         * @param {Object|string} properties 객체설정
+         * @param {Admin.Title.Properties|string} properties 객체설정
          */
-        constructor(properties: { [key: string]: any } | string) {
+        constructor(properties: Admin.Title.Properties | string = null) {
             if (typeof properties == 'string') {
                 const title = properties;
                 properties = { title: title };
@@ -49,12 +73,42 @@ namespace Admin {
         }
 
         /**
+         * 제목 텍스트를 설정한다.
+         *
+         * @param {string} title
+         */
+        setTitle(title: string): void {
+            this.title = title;
+
+            if (this.isRendered() == true) {
+                const $text = Html.get('> span', this.$getContent());
+                $text.html(this.title);
+            }
+        }
+
+        /**
          * 제목 아이콘을 설정한다.
          *
          * @param {string} iconClass
          */
         setIconClass(iconClass: string): void {
             this.iconClass = iconClass;
+
+            if (this.isRendered() == true) {
+                const $icon = Html.get('> i', this.$getContent());
+                if (this.iconClass) {
+                    if ($icon.getEl() !== null) {
+                        $icon.removeClass().addClass(...this.iconClass.split(' '));
+                    } else {
+                        const $icon = Html.create('i').addClass(...this.iconClass.split(' '));
+                        this.$getContent().prepend($icon);
+                    }
+                } else {
+                    if ($icon.getEl() !== null) {
+                        $icon.remove();
+                    }
+                }
+            }
         }
 
         /**
@@ -99,7 +153,7 @@ namespace Admin {
          * @param {string} iconClass - 툴아이콘 스타일
          * @param {Function} handler - 툴버튼 클릭 핸들러
          */
-        addTool(text: string, iconClass: string, handler: Function): void {
+        addTool(text: string, iconClass: string, handler: (tool: Admin.Title.Tool) => void): void {
             const tool = new Admin.Title.Tool({ text: text, iconClass: iconClass, handler: handler });
             this.tools.push(tool);
 
@@ -142,19 +196,38 @@ namespace Admin {
     }
 
     export namespace Title {
+        export namespace Tool {
+            export interface Properties extends Admin.Component.Properties {
+                /**
+                 * @type {string} title - 제목텍스트
+                 */
+                text?: string;
+
+                /**
+                 * @type {string} iconClass - 아이콘 스타일시트 클래스
+                 */
+                iconClass?: string;
+
+                /**
+                 * @type {string} handler - 클릭 핸들러
+                 */
+                handler?: (tool: Admin.Title.Tool) => void;
+            }
+        }
+
         export class Tool extends Admin.Component {
             type: string = 'title';
             role: string = 'tool';
             text: string;
             iconClass: string;
-            handler: Function;
+            handler: (tool: Admin.Title.Tool) => void;
 
             /**
              * 툴버튼 객체를 생성한다.
              *
-             * @param {Object} properties 객체설정
+             * @param {Admin.Title.Tool.Properties} properties 객체설정
              */
-            constructor(properties: { [key: string]: any }) {
+            constructor(properties: Admin.Title.Tool.Properties = null) {
                 super(properties);
 
                 this.text = this.properties.text ?? null;

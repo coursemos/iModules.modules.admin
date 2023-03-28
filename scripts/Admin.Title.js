@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Title.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 3. 28.
  */
 var Admin;
 (function (Admin) {
@@ -21,9 +21,9 @@ var Admin;
         /**
          * 텍스트 객체를 생성한다.
          *
-         * @param {Object|string} properties 객체설정
+         * @param {Admin.Title.Properties|string} properties 객체설정
          */
-        constructor(properties) {
+        constructor(properties = null) {
             if (typeof properties == 'string') {
                 const title = properties;
                 properties = { title: title };
@@ -45,12 +45,41 @@ var Admin;
             return this;
         }
         /**
+         * 제목 텍스트를 설정한다.
+         *
+         * @param {string} title
+         */
+        setTitle(title) {
+            this.title = title;
+            if (this.isRendered() == true) {
+                const $text = Html.get('> span', this.$getContent());
+                $text.html(this.title);
+            }
+        }
+        /**
          * 제목 아이콘을 설정한다.
          *
          * @param {string} iconClass
          */
         setIconClass(iconClass) {
             this.iconClass = iconClass;
+            if (this.isRendered() == true) {
+                const $icon = Html.get('> i', this.$getContent());
+                if (this.iconClass) {
+                    if ($icon.getEl() !== null) {
+                        $icon.removeClass().addClass(...this.iconClass.split(' '));
+                    }
+                    else {
+                        const $icon = Html.create('i').addClass(...this.iconClass.split(' '));
+                        this.$getContent().prepend($icon);
+                    }
+                }
+                else {
+                    if ($icon.getEl() !== null) {
+                        $icon.remove();
+                    }
+                }
+            }
         }
         /**
          * 제목을 포함한 상위 컴포넌트의 이동가능여부를 설정한다.
@@ -139,9 +168,9 @@ var Admin;
             /**
              * 툴버튼 객체를 생성한다.
              *
-             * @param {Object} properties 객체설정
+             * @param {Admin.Title.Tool.Properties} properties 객체설정
              */
-            constructor(properties) {
+            constructor(properties = null) {
                 super(properties);
                 this.text = this.properties.text ?? null;
                 this.iconClass = this.properties.iconClass ?? null;
