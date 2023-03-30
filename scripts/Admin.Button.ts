@@ -90,16 +90,25 @@ namespace Admin {
          * @param {string} iconClass - 변경할 아이콘 클래스
          */
         setIconClass(iconClass: string = null): void {
-            const $button = Html.get('> button', this.$getContent());
-            const $icon = Html.get('> i.icon', $button);
-
-            if (this.iconClass !== null) {
-                $icon.removeClass(...this.iconClass.split(' '));
-            }
-
             this.iconClass = iconClass;
-            if (this.iconClass !== null) {
-                $icon.addClass(...this.iconClass.split(' '));
+
+            if (this.isRendered() == true) {
+                const $button = Html.get('> button', this.$getContent());
+                const $icon = Html.get('> i.icon', $button);
+
+                if (this.iconClass === null) {
+                    if ($icon.getEl() !== null) {
+                        $icon.remove();
+                    }
+                } else {
+                    if ($icon.getEl() !== null) {
+                        $icon.removeClass().addClass('icon', ...this.iconClass.split(' '));
+                    } else {
+                        const $icon = Html.create('i').addClass('icon');
+                        $icon.addClass(...this.iconClass.split(' '));
+                        this.$button.prepend($icon);
+                    }
+                }
             }
         }
 
@@ -109,21 +118,23 @@ namespace Admin {
          * @param {string} text - 변경할 텍스트
          */
         setText(text: string = null): void {
-            const $button = Html.get('> button', this.$getContent());
-            const $text = Html.get('> span', $button);
-
             this.text = text;
 
-            if (this.text === null) {
-                if ($text.getEl() !== null) {
-                    $text.remove();
-                }
-            } else {
-                if ($text.getEl() !== null) {
-                    $text.html(text);
+            if (this.isRendered() == true) {
+                const $button = Html.get('> button', this.$getContent());
+                const $text = Html.get('> span', $button);
+
+                if (this.text === null) {
+                    if ($text.getEl() !== null) {
+                        $text.remove();
+                    }
                 } else {
-                    const $text = Html.create('span').html(this.text);
-                    this.$button.append($text);
+                    if ($text.getEl() !== null) {
+                        $text.html(text);
+                    } else {
+                        const $text = Html.create('span').html(this.text);
+                        this.$button.append($text);
+                    }
                 }
             }
         }
