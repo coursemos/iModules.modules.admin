@@ -2,6 +2,10 @@
     "errors": {
         "DUPLICATED_ADMIN_CONTEXT_PATH": "추가하고자 하는 관리자 경로 ${path} 가 이미 ${name}(${component})에서 사용중입니다."
     },
+    "buttons": {
+        "install": "설치하기",
+        "update": "업데이트하기"
+    },
     "admin": {
         "navigation": {
             "folder": {
@@ -30,6 +34,42 @@
             "sitemap": "사이트맵관리",
             "database": "데이터베이스"
         },
+        "modules": {
+            "title": "모듈관리",
+            "modules": {
+                "title": "모듈명",
+                "version": "버전",
+                "description": "모듈설명",
+                "author": "제작자",
+                "status": {
+                    "title": "상태",
+                    "INSTALLED": "정상설치",
+                    "NEED_UPDATE": "업데이트필요",
+                    "NOT_INSTALLED": "설치되지않음"
+                },
+                "databases": "DB용량",
+                "attachments": "첨부파일용량",
+                "update_size": "사용용량통계 갱신",
+                "homepage": "홈페이지",
+                "language": "기본언어",
+                "hash": "패키지해시",
+                "show": {
+                    "title": "모듈정보보기",
+                    "defaults": "기본정보",
+                    "details": "상세설명",
+                    "properties": {
+                        "title": "모듈속성",
+                        "GLOBAL": "전역모듈",
+                        "ADMIN": "관리자",
+                        "CONTEXT": "컨텍스트",
+                        "WIDGET": "위젯",
+                        "THEME": "사이트테마",
+                        "CRON": "자동화작업",
+                        "CONFIGS": "모듈환경설정"
+                    }
+                }
+            }
+        },
         "sites": {
             "title": "사이트관리",
             "domains": {
@@ -50,12 +90,15 @@
             },
             "sites": {
                 "add": "사이트추가",
+                "edit": "사이트수정",
                 "title": "사이트명",
                 "default": "기본정보",
                 "language": "언어",
                 "description": "사이트설명",
                 "default_language": "도메인 기본언어로 설정"
             }
-        }
+        },
+        "theme_configs": "테마 설정",
+        "template_configs": "템플릿 설정"
     }
 }
