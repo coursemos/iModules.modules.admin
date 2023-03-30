@@ -151,16 +151,24 @@ class Admin
     }
 
     /**
-     * 현재 모듈 관리자에서 사용하는 head 리소스를 가져온다.
+     * 현재 모듈 관리자에서 추가로 사용하는 자바스크립트를 가져온다.
+     * /admin/scripts/Admin.js 파일은 자동으로 불러온다.
      *
      * @return string[] $scripts
      */
     public function scripts(): array
     {
-        if (is_file($this->getPath() . '/scripts/Admin.js') == true) {
-            return [$this->getBase() . '/scripts/Admin.js'];
-        }
+        return [];
+    }
 
+    /**
+     * 현재 모듈 관리자에서 추가로 사용하는 스타일시트를 가져온다.
+     * /admin/scripts/Admin.css, /admin/scripts/Admin.scss 파일은 자동으로 불러온다.
+     *
+     * @return string[] $styles
+     */
+    public function styles(): array
+    {
         return [];
     }
 
@@ -176,6 +184,10 @@ class Admin
             switch ($path) {
                 case '/dashboard':
                     Html::script($this->getBase() . '/scripts/dashboard.js');
+                    break;
+
+                case '/modules':
+                    Html::script($this->getBase() . '/scripts/modules.js');
                     break;
 
                 case '/sites':
