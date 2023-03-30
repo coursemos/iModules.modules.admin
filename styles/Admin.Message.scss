@@ -8,6 +8,31 @@
  * @license MIT License
  * @modified 2023. 2. 23.
  */
+@keyframes Admin-Message-Loading1 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes Admin-Message-Loading2 {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(15px, 0);
+    }
+}
+@keyframes Admin-Message-Loading3 {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+
 div[data-component][data-type='window'] {
     > div[data-role='container'] > div[data-role='content'] > div[data-role='messagebox'] {
         width: 90vw;
@@ -44,6 +69,40 @@ div[data-component][data-type='window'] {
                             content: '\ea10';
                         }
                     }
+
+                    &.loading {
+                        position: relative;
+
+                        > i {
+                            position: absolute;
+                            top: 20px;
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
+                            background: #fff;
+                            animation-timing-function: cubic-bezier(0, 1, 1, 0);
+
+                            &:nth-child(1) {
+                                left: 5px;
+                                animation: Admin-Message-Loading1 0.6s infinite;
+                            }
+
+                            &:nth-child(2) {
+                                left: 5px;
+                                animation: Admin-Message-Loading2 0.6s infinite;
+                            }
+
+                            &:nth-child(3) {
+                                left: 20px;
+                                animation: Admin-Message-Loading2 0.6s infinite;
+                            }
+
+                            &:nth-child(4) {
+                                left: 35px;
+                                animation: Admin-Message-Loading3 0.6s infinite;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -60,6 +119,34 @@ div[data-component][data-type='window'] {
                     font-size: var(--font-size-default);
                     line-height: 1.6;
                     word-break: break-all;
+                }
+            }
+        }
+
+        &.loading {
+            display: block;
+            text-align: center;
+
+            > div {
+                &[data-role='icon'] {
+                    margin: 0 auto;
+                    background: var(--message-icon-background-default);
+                    border-radius: 5px;
+
+                    > i {
+                        margin: 0 auto;
+                    }
+                }
+
+                &[data-role='message'] {
+                    padding-top: 10px;
+                    min-height: 0;
+                    display: block;
+
+                    > div {
+                        width: 100%;
+                        text-align: center;
+                    }
                 }
             }
         }
