@@ -46,7 +46,7 @@ div[data-component][data-type='button'] {
                     padding-left: var(--padding-large);
                     padding-right: var(--padding-large);
                     text-align: left;
-                    font-size: var(--font-size-small);
+                    font-size: var(--font-size-default);
 
                     &:empty {
                         display: none;

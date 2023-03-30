@@ -12,6 +12,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
     > div[data-role='container'] {
         position: relative;
         overflow: hidden;
+        cursor: default !important;
 
         > div[data-role='content'] {
             display: flex;
@@ -21,6 +22,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
             position: relative;
             width: calc(100% + 1px);
             margin-right: -1px;
+            color: var(--color-default);
 
             > div[data-role='resize-guide'] {
                 border-top: 0;
@@ -121,7 +123,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                         > div[data-role='text'] {
                             background: var(--grid-header-background-default);
-                            font-size: var(--font-size-small);
+                            font-size: var(--font-size-default);
                             font-family: var(--font-family-default);
                             padding-top: var(--padding-default);
                             padding-bottom: var(--padding-default);
@@ -184,7 +186,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                     > label {
                         flex-grow: 1;
-                        font-size: var(--font-size-small);
+                        font-size: var(--font-size-default);
                         font-family: var(--font-family-default);
                         padding-top: var(--padding-default);
                         padding-bottom: var(--padding-default);
@@ -355,7 +357,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         > div[data-display='view'] {
                             width: 100%;
                             height: 100%;
-                            font-size: var(--font-size-small);
+                            font-size: var(--font-size-default);
                             font-family: var(--font-family-default);
                             padding-top: var(--padding-default);
                             padding-bottom: var(--padding-default);
@@ -376,7 +378,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                 margin-right: 5px;
                                 line-height: 16px;
                                 vertical-align: top;
-                                font-size: 14px;
+                                font-size: var(--font-size-default);
                             }
                         }
                     }
