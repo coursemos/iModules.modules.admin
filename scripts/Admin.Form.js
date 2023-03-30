@@ -23,7 +23,7 @@ var Admin;
             constructor(properties = null) {
                 super(properties);
                 this.role = 'form';
-                this.fieldDefaults = this.properties.fieldDefaults ?? null;
+                this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 100 };
                 this.padding = this.properties.padding ?? 10;
             }
             /**
@@ -65,7 +65,7 @@ var Admin;
              */
             getFields() {
                 const fields = [];
-                for (const item of this.items) {
+                for (const item of this.items ?? []) {
                     if (item instanceof Admin.Form.FieldSet) {
                         fields.push(...item.getFields());
                     }
@@ -137,14 +137,16 @@ var Admin;
                 if (this.loading === true) {
                     return;
                 }
+                Admin.Message.loading(Admin.printText('actions/loading'), Admin.printText('actions/wait'));
                 this.loading = true;
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
-                    for (const name in response.datas) {
-                        this.getField(name)?.setValue(response.datas[name]);
+                    for (const name in response.data) {
+                        this.getField(name)?.setValue(response.data[name]);
                     }
                 }
                 this.loading = false;
+                Admin.Message.close();
                 return response;
             }
             /**
@@ -162,6 +164,7 @@ var Admin;
                     this.scrollToErrorField();
                     return;
                 }
+                Admin.Message.loading(Admin.printText('actions/saving'), Admin.printText('actions/wait'));
                 this.loading = true;
                 const data = this.getValues();
                 if (params !== null) {
@@ -177,6 +180,7 @@ var Admin;
                     this.scrollToErrorField();
                 }
                 this.loading = false;
+                Admin.Message.close();
                 return response;
             }
         }
@@ -254,7 +258,7 @@ var Admin;
              */
             getFields() {
                 const fields = [];
-                for (const item of this.items) {
+                for (const item of this.items ?? []) {
                     if (item instanceof Admin.Form.FieldSet) {
                         fields.push(...item.getFields());
                     }
@@ -278,23 +282,51 @@ var Admin;
                     $top.append($legend);
                 }
             }
+            /**
+             * 필드셋을 랜더링한다.
+             */
+            render() {
+                super.render();
+                const paddingTop = parseInt(this.$getContent().getStyle('padding-top').replace('/px$/', ''), 10);
+                this.$getContent().setStyle('padding-top', Math.max(paddingTop, 16) + 'px');
+            }
         }
         Form.FieldSet = FieldSet;
         let Field;
         (function (Field) {
-            /**
-             * 필드 컴포넌트를 생성한다.
-             *
-             * @param {Object} field - 필드정보
-             * @return {Admin.Form.Field.Base} field
-             */
             function Create(field) {
                 switch (field.type) {
+                    case 'fieldset':
+                        return new Admin.Form.FieldSet({
+                            title: field.label ?? null,
+                            items: ((fields) => {
+                                const items = [];
+                                for (const field of fields) {
+                                    items.push(Admin.Form.Field.Create(field));
+                                }
+                                return items;
+                            })(field.items ?? []),
+                        });
+                    case 'number':
+                        return new Admin.Form.Field.Number({
+                            name: field.name ?? null,
+                            fieldLabel: field.label ?? null,
+                            value: field.value ?? null,
+                            width: 200,
+                        });
+                    case 'template':
+                        return new Admin.Form.Field.Template({
+                            name: field.name ?? null,
+                            fieldLabel: field.label ?? null,
+                            value: field.value?.name ?? null,
+                            targetType: field.target.type,
+                            targetName: field.target.name,
+                        });
                     default:
                         return new Admin.Form.Field.Text({
                             name: field.name ?? null,
                             fieldLabel: field.label ?? null,
-                            value: field.value ?? field.default ?? null,
+                            value: field.value ?? null,
                         });
                 }
             }
@@ -872,7 +904,7 @@ var Admin;
                  */
                 getFields() {
                     const fields = [];
-                    for (const item of this.items) {
+                    for (const item of this.items ?? []) {
                         if (item instanceof Admin.Form.FieldSet) {
                             fields.push(...item.getFields());
                         }
@@ -2221,6 +2253,7 @@ var Admin;
                 role = 'field';
                 field = 'theme';
                 listUrl;
+                listParams;
                 configsUrl;
                 configsParams;
                 select;
@@ -2229,7 +2262,7 @@ var Admin;
                 /**
                  * 템플릿필드 클래스 생성한다.
                  *
-                 * @param {Admin.Form.Field.Template.Properties} properties - 객체설정
+                 * @param {Admin.Form.Field.Theme.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -2240,6 +2273,7 @@ var Admin;
                     this.oValue = this.value;
                     this.gap = this.properties.gap ?? 5;
                     this.listUrl = Admin.getProcessUrl('module', 'admin', 'themes');
+                    this.listParams = null;
                     this.configsUrl = Admin.getProcessUrl('module', 'admin', 'theme');
                     this.configsParams = this.properties.configsParams ?? {};
                 }
@@ -2249,11 +2283,35 @@ var Admin;
                 initItems() {
                     if (this.items === null) {
                         this.items = [];
+                        this.items.push(this.getSelect());
+                        this.items.push(this.getFieldSet());
+                    }
+                    super.initItems();
+                }
+                /**
+                 * 테마설정을 불러오기 위한 설정 매개변수를 가져온다.
+                 *
+                 * @param {string} name - 테마명
+                 * @return {Object} params
+                 */
+                getConfigsParams(name) {
+                    const params = this.configsParams;
+                    params.name = name;
+                    return params;
+                }
+                /**
+                 * 테마설정을 위한 셀렉트필드를 가져온다.
+                 *
+                 * @return {Admin.Form.Field.Select} select
+                 */
+                getSelect() {
+                    if (this.select === undefined) {
                         this.select = new Admin.Form.Field.Select({
                             name: this.name,
                             flex: true,
                             store: new Admin.Store.Ajax({
                                 url: this.listUrl,
+                                params: this.listParams,
                             }),
                             displayField: 'title',
                             valueField: 'name',
@@ -2274,11 +2332,9 @@ var Admin;
                             listeners: {
                                 change: async (field, value) => {
                                     field.disable();
-                                    const params = this.configsParams;
-                                    params.name = value;
-                                    const configs = await Admin.Ajax.get(this.configsUrl, params);
+                                    const configs = await Admin.Ajax.get(this.configsUrl, this.getConfigsParams(value));
                                     this.fieldset.empty();
-                                    if (configs.fields.length == 0) {
+                                    if ((configs?.fields?.length ?? 0) == 0) {
                                         this.fieldset.hide();
                                     }
                                     else {
@@ -2295,10 +2351,8 @@ var Admin;
                                 },
                             },
                         });
-                        this.items.push(this.select);
-                        this.items.push(this.getFieldSet());
                     }
-                    super.initItems();
+                    return this.select;
                 }
                 /**
                  * 테마설정을 위한 필드셋을 가져온다.
@@ -2361,9 +2415,78 @@ var Admin;
                     }
                     this.$getContent().append($fields);
                 }
+                /**
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 */
+                onRender() {
+                    super.onRender();
+                    if ((this.value?.name ?? null) !== null) {
+                        this.getSelect().setValue(this.value.name);
+                    }
+                }
             }
             Field.Theme = Theme;
             class Template extends Admin.Form.Field.Theme {
+                type = 'form';
+                role = 'field';
+                field = 'template';
+                targetType;
+                targetName;
+                context = null;
+                /**
+                 * 템플릿필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Template.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.targetType = this.properties.targetType;
+                    this.targetName = this.properties.targetName;
+                    this.value = this.properties.value ?? null;
+                    if (this.value !== null && typeof this.value == 'string') {
+                        this.value = { name: this.value, configs: {} };
+                    }
+                    this.oValue = this.value;
+                    this.gap = this.properties.gap ?? 5;
+                    this.listUrl = Admin.getProcessUrl('module', 'admin', 'templates');
+                    this.listParams = { targetType: this.targetType, targetName: this.targetName };
+                    this.configsUrl = Admin.getProcessUrl('module', 'admin', 'template');
+                    this.configsParams = this.properties.configsParams ?? {};
+                    this.configsParams.targetType = this.targetType;
+                    this.configsParams.targetName = this.targetName;
+                }
+                /**
+                 * 컨텍스트 템플릿설정을 불러오기 위해 context 정보를 설정한다.
+                 *
+                 * @param {string} host - 호스트명
+                 * @param {string} language - 언어코드
+                 * @param {string} path - 컨텍스트경로
+                 */
+                setContext(host, language, path) {
+                    this.context = {
+                        host: host,
+                        language: language,
+                        path: path,
+                    };
+                }
+                /**
+                 * 테마설정을 불러오기 위한 설정 매개변수를 가져온다.
+                 *
+                 * @param {string} name - 테마명
+                 * @return {Object} params
+                 */
+                getConfigsParams(name) {
+                    const params = this.configsParams;
+                    params.name = name;
+                    params.targetType = this.targetType;
+                    params.targetName = this.targetName;
+                    if (this.context !== null) {
+                        params.host = this.context.host;
+                        params.language = this.context.language;
+                        params.path = this.context.path;
+                    }
+                    return params;
+                }
             }
             Field.Template = Template;
         })(Field = Form.Field || (Form.Field = {}));
