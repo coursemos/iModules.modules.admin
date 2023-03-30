@@ -291,6 +291,22 @@ var Admin;
             this.name = name;
         }
         /**
+         * 컴포넌트타입을 가져온다.
+         *
+         * @return {string} type - 컴포넌트타입(module, plugin, widget)
+         */
+        getType() {
+            return this.type;
+        }
+        /**
+         * 컴포넌트명을 가져온다.
+         *
+         * @return {string} name - 컴포넌트명
+         */
+        getName() {
+            return this.name;
+        }
+        /**
          * 언어팩을 불러온다.
          *
          * @param string $text 언어팩코드
@@ -344,6 +360,14 @@ var Admin;
          */
         getProcessUrl(path) {
             return Admin.getProcessUrl(this.type, this.name, path);
+        }
+        /**
+         * 사용자정의 환경설정 폼을 가져온다.
+         *
+         * @return {Admin.Form.Panel} configsForm - 설정폼
+         */
+        async getConfigsForm() {
+            return null;
         }
     }
     Admin.Interface = Interface;

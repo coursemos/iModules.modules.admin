@@ -297,7 +297,7 @@ namespace Admin {
      * 관리자 인터페이스 클래스를 정의한다.
      */
     export class Interface {
-        type: string;
+        type: 'module' | 'plugin' | 'widget';
         name: string;
 
         /**
@@ -306,9 +306,27 @@ namespace Admin {
          * @param {string} type - 컴포넌트타입 (module, plugin, widget)
          * @param {string} name - 컴포넌트명
          */
-        constructor(type: string, name: string) {
+        constructor(type: 'module' | 'plugin' | 'widget', name: string) {
             this.type = type;
             this.name = name;
+        }
+
+        /**
+         * 컴포넌트타입을 가져온다.
+         *
+         * @return {string} type - 컴포넌트타입(module, plugin, widget)
+         */
+        getType(): 'module' | 'plugin' | 'widget' {
+            return this.type;
+        }
+
+        /**
+         * 컴포넌트명을 가져온다.
+         *
+         * @return {string} name - 컴포넌트명
+         */
+        getName(): string {
+            return this.name;
         }
 
         /**
@@ -369,6 +387,15 @@ namespace Admin {
          */
         getProcessUrl(path: string): string {
             return Admin.getProcessUrl(this.type, this.name, path);
+        }
+
+        /**
+         * 사용자정의 환경설정 폼을 가져온다.
+         *
+         * @return {Admin.Form.Panel} configsForm - 설정폼
+         */
+        async getConfigsForm(): Promise<Admin.Form.Panel> {
+            return null;
         }
     }
 
