@@ -14,6 +14,7 @@ var Admin;
         static message = null;
         static INFO = Html.create('i').addClass('info');
         static ERROR = Html.create('i').addClass('error');
+        static LOADING = Html.create('i').addClass('loading').html('<i></i><i></i><i></i><i></i>');
         static OK = [{ button: 'ok', text: '@buttons/ok', buttonClass: 'confirm' }];
         /**
          * 메시지창을 연다.
@@ -37,6 +38,7 @@ var Admin;
             Admin.Message.message = new Admin.Window({
                 title: properties?.title ?? '',
                 modal: true,
+                movable: false,
                 resizable: false,
                 closable: false,
                 buttons: buttons,
@@ -46,6 +48,9 @@ var Admin;
             });
             const $content = Admin.Message.message.$getContent();
             const $messagebox = Html.create('div', { 'data-role': 'messagebox' });
+            if (properties?.messageClass) {
+                $messagebox.addClass(...properties.messageClass.split(' '));
+            }
             if (properties?.icon instanceof Dom) {
                 const $icon = Html.create('div', { 'data-role': 'icon' });
                 $icon.append(properties?.icon);
@@ -56,6 +61,20 @@ var Admin;
             $messagebox.append($message);
             $content.append($messagebox);
             Admin.Message.message.show();
+        }
+        /**
+         * 로딩메시지를 연다.
+         *
+         * @param {string} title - 로딩제목
+         * @param {string} message - 로딩메시지
+         */
+        static loading(title = null, message = null) {
+            Admin.Message.show({
+                title: title ?? Admin.printText('actions/loading'),
+                icon: Admin.Message.LOADING,
+                message: message ?? Admin.printText('actions/wait'),
+                messageClass: 'loading',
+            });
         }
         /**
          * 메시지창을 닫는다.
