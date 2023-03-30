@@ -15,7 +15,6 @@ var Admin;
         autoLoad = true;
         remoteSort = false;
         sorters;
-        params = {};
         primaryKeys;
         loading = false;
         loaded = false;
@@ -33,7 +32,6 @@ var Admin;
             this.autoLoad = this.properties.autoLoad !== false;
             this.remoteSort = this.properties.remoteSort !== true;
             this.sorters = this.properties.sorters ?? [];
-            this.params = this.properties.params ?? {};
             this.primaryKeys = this.properties.primaryKeys ?? [];
             if (this.properties.sorter) {
                 this.sorters.push({ field: this.properties.sorter[0], direction: this.properties.sorter[1] });
@@ -78,26 +76,6 @@ var Admin;
          */
         getPrimaryKeys() {
             return this.primaryKeys;
-        }
-        /**
-         * 데이터를 불러오기 위한 매개변수를 설정한다.
-         *
-         * @param {Object} params - 매개변수
-         */
-        setParams(params) {
-            for (const key in params) {
-                this.setParam(key, params[key]);
-            }
-        }
-        /**
-         * 데이터를 불러오기 위한 매개변수를 설정한다.
-         *
-         * @param {string} key - 매개변수명
-         * @param {any} value - 매개변수값
-         */
-        setParam(key, value) {
-            this.params ??= {};
-            this.params[key] = value;
         }
         /**
          * 데이터를 추가한다.
@@ -287,6 +265,7 @@ var Admin;
         class Ajax extends Admin.Store {
             method;
             url;
+            params;
             limit;
             page;
             /**
@@ -297,12 +276,33 @@ var Admin;
             constructor(properties = null) {
                 super(properties);
                 this.url = this.properties?.url ?? null;
+                this.params = this.properties.params ?? null;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
                 if (this.autoLoad == true) {
                     this.load();
                 }
+            }
+            /**
+             * 데이터를 불러오기 위한 매개변수를 설정한다.
+             *
+             * @param {Object} params - 매개변수
+             */
+            setParams(params) {
+                for (const key in params) {
+                    this.setParam(key, params[key]);
+                }
+            }
+            /**
+             * 데이터를 불러오기 위한 매개변수를 설정한다.
+             *
+             * @param {string} key - 매개변수명
+             * @param {any} value - 매개변수값
+             */
+            setParam(key, value) {
+                this.params ??= {};
+                this.params[key] = value;
             }
             /**
              * 데이터를 가져온다.

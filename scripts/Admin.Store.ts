@@ -43,7 +43,6 @@ namespace Admin {
         autoLoad: boolean = true;
         remoteSort: boolean = false;
         sorters: { field: string; direction: string }[];
-        params: { [key: string]: any } = {};
         primaryKeys: string[];
         loading: boolean = false;
         loaded: boolean = false;
@@ -63,7 +62,6 @@ namespace Admin {
             this.autoLoad = this.properties.autoLoad !== false;
             this.remoteSort = this.properties.remoteSort !== true;
             this.sorters = this.properties.sorters ?? [];
-            this.params = this.properties.params ?? {};
             this.primaryKeys = this.properties.primaryKeys ?? [];
 
             if (this.properties.sorter) {
@@ -114,28 +112,6 @@ namespace Admin {
          */
         getPrimaryKeys(): string[] {
             return this.primaryKeys;
-        }
-
-        /**
-         * 데이터를 불러오기 위한 매개변수를 설정한다.
-         *
-         * @param {Object} params - 매개변수
-         */
-        setParams(params: { [key: string]: any }): void {
-            for (const key in params) {
-                this.setParam(key, params[key]);
-            }
-        }
-
-        /**
-         * 데이터를 불러오기 위한 매개변수를 설정한다.
-         *
-         * @param {string} key - 매개변수명
-         * @param {any} value - 매개변수값
-         */
-        setParam(key: string, value: any) {
-            this.params ??= {};
-            this.params[key] = value;
         }
 
         /**
@@ -371,6 +347,11 @@ namespace Admin {
                 url: string;
 
                 /**
+                 * @type {Object} params - 데이터를 가져올때 사용할 매개변수
+                 */
+                params?: { [key: string]: any };
+
+                /**
                  * @type {number} limit - 페이지당 가져올 갯수
                  */
                 limit?: number;
@@ -385,6 +366,7 @@ namespace Admin {
         export class Ajax extends Admin.Store {
             method: string;
             url: string;
+            params: { [key: string]: any };
             limit: number;
             page: number;
 
@@ -397,6 +379,7 @@ namespace Admin {
                 super(properties);
 
                 this.url = this.properties?.url ?? null;
+                this.params = this.properties.params ?? null;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
@@ -404,6 +387,28 @@ namespace Admin {
                 if (this.autoLoad == true) {
                     this.load();
                 }
+            }
+
+            /**
+             * 데이터를 불러오기 위한 매개변수를 설정한다.
+             *
+             * @param {Object} params - 매개변수
+             */
+            setParams(params: { [key: string]: any }): void {
+                for (const key in params) {
+                    this.setParam(key, params[key]);
+                }
+            }
+
+            /**
+             * 데이터를 불러오기 위한 매개변수를 설정한다.
+             *
+             * @param {string} key - 매개변수명
+             * @param {any} value - 매개변수값
+             */
+            setParam(key: string, value: any) {
+                this.params ??= {};
+                this.params[key] = value;
             }
 
             /**
