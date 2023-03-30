@@ -112,13 +112,13 @@ var modules;
                                 const window = button.getParent();
                                 const form = button.getParent().getItemAt(0);
                                 const results = await form.submit({
-                                    url: Admin.Modules.get('admin').getProcessUrl('domain'),
+                                    url: this.getProcessUrl('domain'),
                                     params: { origin: host ?? null },
                                 });
                                 if (results.success == true) {
                                     Admin.Message.show({
-                                        title: await Admin.getText('info'),
-                                        message: await Admin.getText('actions/saved'),
+                                        title: (await Admin.getText('info')),
+                                        message: (await Admin.getText('actions/saved')),
                                         icon: Admin.Message.INFO,
                                         buttons: Admin.Message.OK,
                                         handler: () => {
@@ -140,7 +140,7 @@ var modules;
                             if (host !== null) {
                                 const form = window.getItemAt(0);
                                 const results = await form.load({
-                                    url: Admin.Modules.get('admin').getProcessUrl('domain'),
+                                    url: this.getProcessUrl('domain'),
                                     params: { host: host },
                                 });
                                 if (results.success == false) {
@@ -231,13 +231,13 @@ var modules;
                                 const window = button.getParent();
                                 const form = button.getParent().getItemAt(0);
                                 const results = await form.submit({
-                                    url: Admin.Modules.get('admin').getProcessUrl('domain'),
+                                    url: this.getProcessUrl('domain'),
                                     params: { origin: host ?? null },
                                 });
                                 if (results.success == true) {
                                     Admin.Message.show({
-                                        title: await Admin.getText('info'),
-                                        message: await Admin.getText('actions/saved'),
+                                        title: (await Admin.getText('info')),
+                                        message: (await Admin.getText('actions/saved')),
                                         icon: Admin.Message.INFO,
                                         buttons: Admin.Message.OK,
                                         handler: () => {
@@ -259,7 +259,7 @@ var modules;
                             if (host !== null) {
                                 const form = window.getItemAt(0);
                                 const results = await form.load({
-                                    url: Admin.Modules.get('admin').getProcessUrl('domain'),
+                                    url: this.getProcessUrl('domain'),
                                     params: { host: host },
                                 });
                                 if (results.success == false) {
@@ -269,6 +269,276 @@ var modules;
                         },
                     },
                 }).show();
+            }
+            /**
+             * 사이트맵을 추가한다.
+             */
+            addSitemap() { }
+            /**
+             * 모듈정보를 확인한다.
+             *
+             * @param {string} name - 모듈명
+             */
+            showModule(name) {
+                new Admin.Window({
+                    title: 'Loading...',
+                    width: 600,
+                    modal: true,
+                    resizable: false,
+                    items: [
+                        new Admin.Form.Panel({
+                            border: false,
+                            layout: 'fit',
+                            fieldDefaults: { labelWidth: 100, labelAlign: 'right' },
+                            items: [
+                                new Admin.Form.FieldSet({
+                                    title: this.printText('admin/modules/modules/show/defaults'),
+                                    items: [
+                                        new Admin.Form.Field.Container({
+                                            direction: 'row',
+                                            items: [
+                                                new Admin.Form.Field.Container({
+                                                    width: 100,
+                                                    direction: 'column',
+                                                    items: [
+                                                        new Admin.Form.Field.Display({
+                                                            name: 'icon',
+                                                            renderer: (value) => {
+                                                                const box = document.createElement('div');
+                                                                box.style.setProperty('margin', 'calc(var(--padding-default) * -1)');
+                                                                box.style.setProperty('width', '100px');
+                                                                box.style.setProperty('height', '100px');
+                                                                box.style.setProperty('border', '1px solid transparent');
+                                                                box.style.setProperty('border-color', 'var(--input-border-color-default)');
+                                                                box.style.setProperty('border-radius', '5px');
+                                                                box.style.setProperty('padding', '20px');
+                                                                box.style.setProperty('box-sizing', 'border-box');
+                                                                box.innerHTML = value ? value : '<i class="icon"></i>';
+                                                                const icon = box.firstChild;
+                                                                icon.style.setProperty('width', '58px');
+                                                                icon.style.setProperty('height', '58px');
+                                                                icon.style.setProperty('line-height', '58px');
+                                                                icon.style.setProperty('text-align', 'center');
+                                                                icon.style.setProperty('font-size', '32px');
+                                                                return box.outerHTML;
+                                                            },
+                                                        }),
+                                                        new Admin.Form.Field.Display({
+                                                            name: 'version',
+                                                            renderer: (value) => {
+                                                                const box = document.createElement('div');
+                                                                box.style.setProperty('margin', 'calc(var(--padding-default) * -1)');
+                                                                box.style.setProperty('width', '100px');
+                                                                box.style.setProperty('height', '30px');
+                                                                box.style.setProperty('background', 'var(--input-background-select)');
+                                                                box.style.setProperty('border-radius', '5px');
+                                                                box.style.setProperty('line-height', '30px');
+                                                                box.style.setProperty('text-align', 'center');
+                                                                box.style.setProperty('color', 'var(--input-color-select)');
+                                                                box.innerHTML = value;
+                                                                return box.outerHTML;
+                                                            },
+                                                        }),
+                                                    ],
+                                                }),
+                                                new Admin.Form.Field.Container({
+                                                    flex: 1,
+                                                    direction: 'column',
+                                                    items: [
+                                                        new Admin.Form.Field.Display({
+                                                            fieldLabel: this.printText('admin/modules/modules/author'),
+                                                            name: 'author',
+                                                        }),
+                                                        new Admin.Form.Field.Display({
+                                                            fieldLabel: this.printText('admin/modules/modules/homepage'),
+                                                            name: 'homepage',
+                                                        }),
+                                                        new Admin.Form.Field.Display({
+                                                            fieldLabel: this.printText('admin/modules/modules/language'),
+                                                            name: 'language',
+                                                        }),
+                                                        new Admin.Form.Field.Display({
+                                                            fieldLabel: this.printText('admin/modules/modules/hash'),
+                                                            name: 'hash',
+                                                        }),
+                                                    ],
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                                new Admin.Form.FieldSet({
+                                    title: this.printText('admin/modules/modules/show/details'),
+                                    items: [
+                                        new Admin.Form.Field.Display({
+                                            name: 'description',
+                                        }),
+                                    ],
+                                }),
+                                new Admin.Form.FieldSet({
+                                    title: this.printText('admin/modules/modules/show/properties/title'),
+                                    items: [
+                                        new Admin.Form.Field.CheckGroup({
+                                            name: 'properties',
+                                            readonly: true,
+                                            columns: 4,
+                                            options: {
+                                                GLOBAL: this.printText('admin/modules/modules/show/properties/GLOBAL'),
+                                                ADMIN: this.printText('admin/modules/modules/show/properties/ADMIN'),
+                                                CONTEXT: this.printText('admin/modules/modules/show/properties/CONTEXT'),
+                                                WIDGET: this.printText('admin/modules/modules/show/properties/WIDGET'),
+                                                THEME: this.printText('admin/modules/modules/show/properties/THEME'),
+                                                CRON: this.printText('admin/modules/modules/show/properties/CRON'),
+                                                CONFIGS: this.printText('admin/modules/modules/show/properties/CONFIGS'),
+                                            },
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }),
+                    ],
+                    buttons: [
+                        new Admin.Button({
+                            text: this.printText('buttons/configs'),
+                            tabIndex: -1,
+                            hidden: true,
+                            handler: (button) => {
+                                this.setModuleConfigs(name, button.getParent().getData('configs'));
+                            },
+                        }),
+                        new Admin.Button({
+                            text: this.printText('buttons/close'),
+                            buttonClass: 'confirm',
+                            handler: (button) => {
+                                const window = button.getParent();
+                                window.close();
+                            },
+                        }),
+                    ],
+                    listeners: {
+                        show: async (window) => {
+                            const form = window.getItemAt(0);
+                            const results = await form.load({
+                                url: this.getProcessUrl('module'),
+                                params: { name: name },
+                            });
+                            window.setData('configs', results);
+                            if (results.success == true) {
+                                window.getTitle().setTitle(results.data.title);
+                                const button = window.buttons.at(0);
+                                if (results.data.status == 'INSTALLED') {
+                                    if (results.data.properties.includes('CONFIGS') == true) {
+                                        button.show();
+                                    }
+                                }
+                                else if (results.data.status == 'NEED_UPDATE') {
+                                    button.setText((await this.getText('buttons/update')));
+                                    button.show();
+                                }
+                                else {
+                                    button.setText((await this.getText('buttons/install')));
+                                    button.show();
+                                }
+                            }
+                            else {
+                                window.close();
+                            }
+                        },
+                    },
+                }).show();
+            }
+            /**
+             * 모듈설정을 확인한다.
+             *
+             * @param {string} name - 모듈명
+             * @param {Admin.Ajax.Results} configs - 모듈정보
+             */
+            async setModuleConfigs(name, configs = null) {
+                let response = configs;
+                if (response === null) {
+                    Admin.Message.loading();
+                    response = await Admin.Ajax.get(this.getProcessUrl('module'), { name: name });
+                    Admin.Message.close();
+                }
+                if (response.data.properties.includes('CONFIGS') == true) {
+                    let form = (await Admin.Modules.get(name)?.getConfigsForm()) ?? null;
+                    if (form !== null && form instanceof Admin.Form.Panel) {
+                        form.border = false;
+                        form.layout = 'fit';
+                    }
+                    else {
+                        form = new Admin.Form.Panel({
+                            border: false,
+                            layout: 'fit',
+                            items: ((fields) => {
+                                const items = [];
+                                for (const field of fields) {
+                                    items.push(Admin.Form.Field.Create(field));
+                                }
+                                return items;
+                            })(response.fields),
+                        });
+                    }
+                    new Admin.Window({
+                        title: response.data.title,
+                        width: 600,
+                        modal: true,
+                        resizable: false,
+                        items: [form],
+                        buttons: [
+                            new Admin.Button({
+                                text: this.printText('buttons/cancel'),
+                                tabIndex: -1,
+                                handler: (button) => {
+                                    const window = button.getParent();
+                                    window.close();
+                                },
+                            }),
+                            new Admin.Button({
+                                text: this.printText('buttons/ok'),
+                                buttonClass: 'confirm',
+                                handler: async (button) => {
+                                    const window = button.getParent();
+                                    const form = window.getItemAt(0);
+                                    const isValid = await form.isValid();
+                                    if (isValid == true) {
+                                        const configs = form.getValues();
+                                        const success = await this.installModule(name, configs);
+                                        if (success == true) {
+                                            window.close();
+                                        }
+                                    }
+                                },
+                            }),
+                        ],
+                    }).show();
+                }
+                else {
+                }
+            }
+            /**
+             * 모듈을 설치한다.
+             *
+             * @param {string} name - 모듈명
+             * @param {Ojbect} configs - 모듈설정 (NULL 인 경우 모듈설정여부를 확인 후 모듈 설정을 먼저 한다.)
+             */
+            async installModule(name, configs = null) {
+                Admin.Message.loading();
+                if (configs === null) {
+                    const response = await Admin.Ajax.get(this.getProcessUrl('module'), { name: name });
+                    if (response.data.properties.includes('CONFIGS') == true) {
+                        Admin.Message.close();
+                        this.setModuleConfigs(name, response);
+                        return false;
+                    }
+                }
+                const results = await Admin.Ajax.post(this.getProcessUrl('module'), { name: name, configs: configs });
+                if (results.success == true) {
+                    Admin.Message.close();
+                    Admin.getComponent('modules')?.getStore().reload();
+                    return true;
+                }
+                return false;
             }
         }
         admin.AdminAdmin = AdminAdmin;
