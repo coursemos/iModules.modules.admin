@@ -374,6 +374,7 @@ var Admin;
     class Base {
         id;
         properties;
+        dataValues = new Map();
         listeners = {};
         /**
          * 객체를 생성한다.
@@ -397,6 +398,24 @@ var Admin;
          */
         getId() {
             return this.id;
+        }
+        /**
+         * 객체에 데이터값을 저장한다.
+         *
+         * @param {string} key - 저장할 데이터키
+         * @param {any} value - 데이터
+         */
+        setData(key, value) {
+            this.dataValues.set(key, value);
+        }
+        /**
+         * 데이터를 가져온다.
+         *
+         * @param {string} key - 가져올 데이터키
+         * @return {any} value - 데이터
+         */
+        getData(key) {
+            return this.dataValues.get(key) ?? null;
         }
         /**
          * 객체를 제거한다.

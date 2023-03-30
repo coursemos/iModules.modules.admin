@@ -421,6 +421,7 @@ namespace Admin {
     export class Base {
         id: string;
         properties: Admin.Base.Properties;
+        dataValues: Map<string, any> = new Map();
         listeners: { [name: string]: Function[] } = {};
 
         /**
@@ -447,6 +448,26 @@ namespace Admin {
          */
         getId(): string {
             return this.id;
+        }
+
+        /**
+         * 객체에 데이터값을 저장한다.
+         *
+         * @param {string} key - 저장할 데이터키
+         * @param {any} value - 데이터
+         */
+        setData(key: string, value: any): void {
+            this.dataValues.set(key, value);
+        }
+
+        /**
+         * 데이터를 가져온다.
+         *
+         * @param {string} key - 가져올 데이터키
+         * @return {any} value - 데이터
+         */
+        getData(key: string): any {
+            return this.dataValues.get(key) ?? null;
         }
 
         /**
