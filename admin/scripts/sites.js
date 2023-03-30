@@ -32,7 +32,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: await me.getText('admin/sites/domains/add'),
+                        text: (await me.getText('admin/sites/domains/add')),
                         handler: () => {
                             me.addDomain();
                         },
@@ -49,7 +49,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: await me.getText('admin/sites/domains/host'),
+                        text: (await me.getText('admin/sites/domains/host')),
                         dataIndex: 'host',
                     },
                 ],
@@ -87,8 +87,9 @@ Admin.ready(async () => {
                     selectionChange: (selections) => {
                         const sites = Admin.getComponent('sites');
                         if (selections.length == 1) {
-                            sites.getStore().setParams({ host: selections[0].get('host') });
-                            sites.getStore().reload();
+                            const store = sites.getStore();
+                            store.setParams({ host: selections[0].get('host') });
+                            store.reload();
                             sites.enable();
                             Admin.setContextUrl(Admin.getContextUrl('/' + selections[0].get('host')));
                         }
@@ -114,7 +115,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: await me.getText('admin/sites/sites/add'),
+                        text: (await me.getText('admin/sites/sites/add')),
                         handler: () => {
                             me.addSite();
                         },
@@ -131,7 +132,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: await me.getText('admin/sites/sites/title'),
+                        text: (await me.getText('admin/sites/sites/title')),
                         dataIndex: 'title',
                     },
                 ],
@@ -168,13 +169,12 @@ Admin.ready(async () => {
                     selectionChange: (selections) => {
                         const sitemap = Admin.getComponent('sitemap');
                         if (selections.length == 1) {
-                            sitemap
-                                .getStore()
-                                .setParams({
+                            const store = sitemap.getStore();
+                            store.setParams({
                                 host: selections[0].get('host'),
                                 language: selections[0].get('language'),
                             });
-                            sitemap.getStore().load();
+                            store.reload();
                             sitemap.enable();
                             Admin.setContextUrl(Admin.getContextUrl('/' + selections[0].get('host') + '/' + selections[0].get('language')));
                         }
@@ -200,7 +200,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: await me.getText('admin/sites/sitemap/add'),
+                        text: (await me.getText('admin/sites/sitemap/add')),
                         handler: () => {
                             me.addSitemap();
                         },
@@ -217,7 +217,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: await me.getText('admin/sites/sitemap/path'),
+                        text: (await me.getText('admin/sites/sitemap/path')),
                         dataIndex: 'path',
                     },
                 ],

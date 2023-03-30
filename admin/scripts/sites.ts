@@ -33,7 +33,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: await me.getText('admin/sites/domains/add'),
+                        text: (await me.getText('admin/sites/domains/add')) as string,
                         handler: () => {
                             me.addDomain();
                         },
@@ -50,7 +50,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: await me.getText('admin/sites/domains/host'),
+                        text: (await me.getText('admin/sites/domains/host')) as string,
                         dataIndex: 'host',
                     },
                 ],
@@ -88,8 +88,9 @@ Admin.ready(async () => {
                     selectionChange: (selections: Admin.Data.Record[]) => {
                         const sites = Admin.getComponent('sites') as Admin.Grid.Panel;
                         if (selections.length == 1) {
-                            sites.getStore().setParams({ host: selections[0].get('host') });
-                            sites.getStore().reload();
+                            const store = sites.getStore() as Admin.Store.Ajax;
+                            store.setParams({ host: selections[0].get('host') });
+                            store.reload();
                             sites.enable();
 
                             Admin.setContextUrl(Admin.getContextUrl('/' + selections[0].get('host')));
@@ -115,7 +116,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: await me.getText('admin/sites/sites/add'),
+                        text: (await me.getText('admin/sites/sites/add')) as string,
                         handler: () => {
                             me.addSite();
                         },
@@ -132,7 +133,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: await me.getText('admin/sites/sites/title'),
+                        text: (await me.getText('admin/sites/sites/title')) as string,
                         dataIndex: 'title',
                     },
                 ],
@@ -169,13 +170,12 @@ Admin.ready(async () => {
                     selectionChange: (selections: Admin.Data.Record[]) => {
                         const sitemap = Admin.getComponent('sitemap') as Admin.Grid.Panel;
                         if (selections.length == 1) {
-                            sitemap
-                                .getStore()
-                                .setParams({
-                                    host: selections[0].get('host'),
-                                    language: selections[0].get('language'),
-                                });
-                            sitemap.getStore().load();
+                            const store = sitemap.getStore() as Admin.Store.Ajax;
+                            store.setParams({
+                                host: selections[0].get('host'),
+                                language: selections[0].get('language'),
+                            });
+                            store.reload();
                             sitemap.enable();
                             Admin.setContextUrl(
                                 Admin.getContextUrl(
@@ -204,7 +204,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: await me.getText('admin/sites/sitemap/add'),
+                        text: (await me.getText('admin/sites/sitemap/add')) as string,
                         handler: () => {
                             me.addSitemap();
                         },
@@ -221,7 +221,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: await me.getText('admin/sites/sitemap/path'),
+                        text: (await me.getText('admin/sites/sitemap/path')) as string,
                         dataIndex: 'path',
                     },
                 ],
