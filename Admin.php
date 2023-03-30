@@ -62,7 +62,7 @@ class Admin extends \Module
     {
         if (isset(self::$_contexts) === false) {
             foreach (\Modules::all() as $module) {
-                $this->getAdminClass('module', $module->name)?->init();
+                $this->getAdminClass('module', $module->getName())?->init();
             }
 
             uksort(self::$_contexts, function ($left, $right) {
@@ -411,7 +411,12 @@ class Admin extends \Module
 
         $hasInterface = false;
         foreach (\Modules::all() as $module) {
-            $scripts = $this->getAdminClass('module', $module->name)?->scripts() ?? [];
+            if (is_file($module->getPath() . '/admin/scripts/Admin.js') == true) {
+                $hasInterface = true;
+                Cache::script('admin.interfaces', $module->getBase() . '/admin/scripts/Admin.js');
+            }
+
+            $scripts = $this->getAdminClass('module', $module->getName())?->scripts() ?? [];
             $hasInterface = $hasInterface == true || count($scripts) > 0;
             foreach ($scripts as $script) {
                 Cache::script('admin.interfaces', $script);
@@ -440,6 +445,28 @@ class Admin extends \Module
         Cache::style('admin', $this->getBase() . '/styles/Admin.Viewport.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.scss');
         Html::style(Cache::style('admin'), 10);
+
+        $hasInterface = false;
+        foreach (\Modules::all() as $module) {
+            if (is_file($module->getPath() . '/admin/styles/Admin.css') == true) {
+                $hasInterface = true;
+                Cache::style('admin.interfaces', $module->getBase() . '/admin/styles/Admin.css');
+            }
+
+            if (is_file($module->getPath() . '/admin/styles/Admin.scss') == true) {
+                $hasInterface = true;
+                Cache::style('admin.interfaces', $module->getBase() . '/admin/styles/Admin.scss');
+            }
+
+            $styles = $this->getAdminClass('module', $module->getName())?->styles() ?? [];
+            $hasInterface = $hasInterface == true || count($styles) > 0;
+            foreach ($styles as $style) {
+                Cache::style('admin.interfaces', $style);
+            }
+        }
+        if ($hasInterface == true) {
+            Html::style(Cache::style('admin.interfaces'), 15);
+        }
 
         /**
          * 웹폰트를 불러온다.
