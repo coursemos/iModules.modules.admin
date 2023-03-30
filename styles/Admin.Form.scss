@@ -535,12 +535,22 @@ div[data-component][data-type='form'][data-role='field'] {
             }
         }
 
-        &.disabled {
+        &:has(input[disabled]) {
             > label {
-                cursor: not-allowed;
+                cursor: default;
 
                 > input {
-                    cursor: not-allowed;
+                    cursor: default;
+                }
+            }
+        }
+
+        &.disabled {
+            > label {
+                cursor: not-allowed !important;
+
+                > input {
+                    cursor: not-allowed !important;
 
                     &::after {
                         background: var(--input-background-disabled);
@@ -570,7 +580,8 @@ div[data-component][data-type='form'][data-role='field'] {
         }
     }
 
-    > div[data-role='container'] > div[data-role='content'][data-field='theme'] {
+    > div[data-role='container'] > div[data-role='content'][data-field='theme'],
+    > div[data-role='container'] > div[data-role='content'][data-field='template'] {
         > div[data-role='fields'] {
             width: 100%;
             display: flex;
