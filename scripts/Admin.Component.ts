@@ -502,6 +502,9 @@ namespace Admin {
          * @return {boolean} is_renderable
          */
         isRenderable(): boolean {
+            if (this.isRendered() == false && this.isHidden() == true) {
+                this.$getComponent().hide();
+            }
             return this.isHidden() == false && this.isRendered() == false;
         }
 
