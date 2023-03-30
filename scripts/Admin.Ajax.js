@@ -84,11 +84,11 @@ var Admin;
          * 전송할 데이터는 JSON 방식으로 전송된다.
          *
          * @param {string} url - 요청주소
-         * @param {Admin.Ajax.Datas} datas - 전송할 데이터
+         * @param {Admin.Ajax.Data} data - 전송할 데이터
          * @param {number} retry - 재시도횟수
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
-        static async post(url, datas = {}, retry = 0) {
+        static async post(url, data = {}, retry = 0) {
             try {
                 const response = (await fetch(url, {
                     method: 'POST',
@@ -97,12 +97,12 @@ var Admin;
                         'Accept': 'application/json',
                         'Content-Type': 'application/json; charset=utf-8',
                     },
-                    body: JSON.stringify(datas),
+                    body: JSON.stringify(data),
                     cache: 'no-store',
                     redirect: 'follow',
                 }).catch((error) => {
                     if (retry < 3) {
-                        return Admin.Ajax.post(url, datas, ++retry);
+                        return Admin.Ajax.post(url, data, ++retry);
                     }
                     else {
                         Admin.Message.show({
@@ -128,7 +128,7 @@ var Admin;
             }
             catch (e) {
                 if (retry < 3) {
-                    return Admin.Ajax.post(url, datas, ++retry);
+                    return Admin.Ajax.post(url, data, ++retry);
                 }
                 else {
                     Admin.Message.show({

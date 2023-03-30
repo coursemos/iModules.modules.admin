@@ -86,11 +86,11 @@ namespace Admin {
          * 전송할 데이터는 JSON 방식으로 전송된다.
          *
          * @param {string} url - 요청주소
-         * @param {Admin.Ajax.Datas} datas - 전송할 데이터
+         * @param {Admin.Ajax.Data} data - 전송할 데이터
          * @param {number} retry - 재시도횟수
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
-        static async post(url: string, datas: Admin.Ajax.Datas = {}, retry: number = 0): Promise<Admin.Ajax.Results> {
+        static async post(url: string, data: Admin.Ajax.Data = {}, retry: number = 0): Promise<Admin.Ajax.Results> {
             try {
                 const response: Response = (await fetch(url, {
                     method: 'POST',
@@ -99,12 +99,12 @@ namespace Admin {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json; charset=utf-8',
                     },
-                    body: JSON.stringify(datas),
+                    body: JSON.stringify(data),
                     cache: 'no-store',
                     redirect: 'follow',
                 }).catch((error) => {
                     if (retry < 3) {
-                        return Admin.Ajax.post(url, datas, ++retry);
+                        return Admin.Ajax.post(url, data, ++retry);
                     } else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
@@ -132,7 +132,7 @@ namespace Admin {
                 return results;
             } catch (e) {
                 if (retry < 3) {
-                    return Admin.Ajax.post(url, datas, ++retry);
+                    return Admin.Ajax.post(url, data, ++retry);
                 } else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
@@ -154,7 +154,7 @@ namespace Admin {
             [key: string]: string;
         }
 
-        export interface Datas {
+        export interface Data {
             [key: string]: any;
         }
 
@@ -163,7 +163,7 @@ namespace Admin {
             message?: string;
             total?: number;
             records?: any[];
-            data?: Object;
+            data?: Admin.Ajax.Data;
             [key: string]: any;
         }
     }
