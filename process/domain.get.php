@@ -38,4 +38,4 @@ if ($domain === null) {
 }
 
 $results->success = true;
-$results->datas = $domain;
+$results->data = $domain;
