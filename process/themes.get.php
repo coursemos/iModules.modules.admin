@@ -24,6 +24,9 @@ if ($mAdmin->checkPermission('/sites') == false) {
     return;
 }
 
+/**
+ * @var Theme[] $themes
+ */
 $themes = [];
 $names = File::getDirectoryItems(Configs::path() . '/themes', 'directory', false);
 foreach ($names as $name) {
@@ -43,10 +46,10 @@ foreach ($modules as $module) {
 $records = [];
 foreach ($themes as $theme) {
     $records[] = [
-        'name' => $theme->getName(false),
+        'name' => $theme->getPathName(),
         'title' => $theme->getTitle(),
         'dir' => $theme->getBase(),
-        'screenshot' => $mAdmin->getDir() . '/images/noimage.png',
+        'screenshot' => $theme->getScreenshot() ?? $mAdmin->getDir() . '/images/noimage.png',
     ];
 }
 
