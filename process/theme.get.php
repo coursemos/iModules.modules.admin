@@ -28,4 +28,7 @@ $name = Request::get('name', true);
 $theme = new Theme((object) ['name' => $name]);
 $results->success = true;
 $results->theme = $name;
-$results->fields = $theme->getPackage()->getConfigFields();
+
+// @todo 실제 기존의 테마설정값을 가져온다.
+$configs = null;
+$results->fields = $theme->getPackage()->getConfigsFields($configs);
