@@ -85,6 +85,66 @@ namespace Admin {
         }
 
         /**
+         * 아이콘 클래스를 변경한다.
+         *
+         * @param {string} iconClass - 변경할 아이콘 클래스
+         */
+        setIconClass(iconClass: string = null): void {
+            const $button = Html.get('> button', this.$getContent());
+            const $icon = Html.get('> i.icon', $button);
+
+            if (this.iconClass !== null) {
+                $icon.removeClass(...this.iconClass.split(' '));
+            }
+
+            this.iconClass = iconClass;
+            if (this.iconClass !== null) {
+                $icon.addClass(...this.iconClass.split(' '));
+            }
+        }
+
+        /**
+         * 버튼 텍스트를 변경한다.
+         *
+         * @param {string} text - 변경할 텍스트
+         */
+        setText(text: string = null): void {
+            const $button = Html.get('> button', this.$getContent());
+            const $text = Html.get('> span', $button);
+
+            this.text = text;
+
+            if (this.text === null) {
+                if ($text.getEl() !== null) {
+                    $text.remove();
+                }
+            } else {
+                if ($text.getEl() !== null) {
+                    $text.html(text);
+                } else {
+                    const $text = Html.create('span').html(this.text);
+                    this.$button.append($text);
+                }
+            }
+        }
+
+        /**
+         * 토글 상태를 변경한다.
+         *
+         * @param {boolean} toggle - 토글여부
+         */
+        setPressed(toggle: boolean): void {
+            this.pressed = toggle;
+            if (this.pressed == true) {
+                this.$button.addClass('pressed');
+            } else {
+                this.$button.removeClass('pressed');
+            }
+
+            this.fireEvent('toggle', [this, this.pressed]);
+        }
+
+        /**
          * 버튼의 비활성화여부를 설정한다.
          *
          * @param {boolean} disabled - 비활성여부
@@ -122,41 +182,6 @@ namespace Admin {
             }
 
             this.$getContent().append(this.$button);
-        }
-
-        /**
-         * 아이콘 클래스를 변경한다.
-         *
-         * @param {string} iconClass - 변경할 아이콘 클래스
-         */
-        setIconClass(iconClass: string = null): void {
-            const $button = Html.get('> button', this.$getContent());
-            const $icon = Html.get('> i.icon', $button);
-
-            if (this.iconClass !== null) {
-                $icon.removeClass(...this.iconClass.split(' '));
-            }
-
-            this.iconClass = iconClass;
-            if (this.iconClass !== null) {
-                $icon.addClass(...this.iconClass.split(' '));
-            }
-        }
-
-        /**
-         * 토글 상태를 변경한다.
-         *
-         * @param {boolean} toggle - 토글여부
-         */
-        setPressed(toggle: boolean): void {
-            this.pressed = toggle;
-            if (this.pressed == true) {
-                this.$button.addClass('pressed');
-            } else {
-                this.$button.removeClass('pressed');
-            }
-
-            this.fireEvent('toggle', [this, this.pressed]);
         }
 
         /**
