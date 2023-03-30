@@ -102,7 +102,7 @@ div[data-component][data-type='toolbar'][data-role='item'] {
     &[data-tool='text'] {
         > div[data-role='container'] {
             > div[data-role='content'] {
-                font-size: var(--font-size-small);
+                font-size: var(--font-size-default);
                 font-family: var(--font-family-default);
                 color: var(--toolbar-color-default);
             }
