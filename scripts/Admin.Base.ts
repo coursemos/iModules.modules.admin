@@ -9,7 +9,9 @@
  * @modified 2023. 3. 20.
  */
 namespace Admin {
-    export let items: Map<string, Admin.Base> = new Map();
+    export const items: Map<string, Admin.Base> = new Map();
+    export const modules: Map<string, Admin.Interface> = new Map();
+
     export let index: number = 0;
     export let currentComponent: Admin.Component = null;
     export let viewport: Admin.Viewport.Panel;
@@ -243,54 +245,47 @@ namespace Admin {
         }
     }
 
-    export interface Constructor {
+    export interface InterfaceConstructor {
         new (type: string, name: string): Admin.Interface;
     }
 
     /**
-     * 모듈을 관리하는 클래스를 정의한다.
+     * 모듈 관리자 인터페이스를 가져온다.
+     *
+     * @param {string} name - 모듈명
+     * @return {?Admin.Module} module - 모듈 관리자 클래스
      */
-    export namespace Modules {
-        export const classes: { [key: string]: Admin.Interface } = {};
-
-        /**
-         * 모듈 관리자 클래스를 가져온다.
-         *
-         * @param {string} name - 모듈명
-         * @return {?Admin.Module} module - 모듈 관리자 클래스
-         */
-        export function get(name: string): Admin.Interface | null {
-            if (Admin.Modules.classes[name] === undefined) {
-                const namespaces = name.split('/');
-                if (window['modules'] === undefined) {
-                    return null;
-                }
-
-                let namespace: Object | Admin.Constructor = window['modules'];
-                for (const name of namespaces) {
-                    if (namespace[name] === undefined) {
-                        return null;
-                    }
-                    namespace = namespace[name];
-                }
-                const classname = namespaces.pop().replace(/^[a-z]/, (char: string) => char.toUpperCase()) + 'Admin';
-                if (namespace[classname] === undefined) {
-                    return null;
-                }
-
-                if (
-                    typeof namespace[classname] == 'function' &&
-                    namespace[classname].prototype instanceof Admin.Interface
-                ) {
-                    Admin.Modules.classes[name] = new (namespace[classname] as Admin.Constructor)('module', name);
-                    return Admin.Modules.classes[name];
-                }
-
+    export function getModule(name: string): Admin.Interface {
+        if (Admin.modules.has(name) == false) {
+            const namespaces = name.split('/');
+            if (window['modules'] === undefined) {
                 return null;
             }
 
-            return Admin.Modules.classes[name];
+            let namespace: Object | Admin.InterfaceConstructor = window['modules'];
+            for (const name of namespaces) {
+                if (namespace[name] === undefined) {
+                    return null;
+                }
+                namespace = namespace[name];
+            }
+            const classname = namespaces.pop().replace(/^[a-z]/, (char: string) => char.toUpperCase()) + 'Admin';
+            if (namespace[classname] === undefined) {
+                return null;
+            }
+
+            if (
+                typeof namespace[classname] == 'function' &&
+                namespace[classname].prototype instanceof Admin.Interface
+            ) {
+                Admin.modules.set(name, new (namespace[classname] as Admin.InterfaceConstructor)('module', name));
+                return Admin.modules.get(name);
+            }
+
+            return null;
         }
+
+        return Admin.modules.get(name);
     }
 
     /**

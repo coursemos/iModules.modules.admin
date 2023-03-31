@@ -9,7 +9,7 @@
  * @modified 2023. 3. 21.
  */
 Admin.ready(async () => {
-    const me = Admin.Modules.get('admin') as modules.admin.AdminAdmin;
+    const me = Admin.getModule('admin') as modules.admin.AdminAdmin;
 
     return new Admin.Grid.Panel({
         id: 'modules',

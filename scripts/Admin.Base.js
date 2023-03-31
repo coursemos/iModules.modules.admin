@@ -11,6 +11,7 @@
 var Admin;
 (function (Admin) {
     Admin.items = new Map();
+    Admin.modules = new Map();
     Admin.index = 0;
     Admin.currentComponent = null;
     /**
@@ -235,45 +236,38 @@ var Admin;
     }
     Admin.session = session;
     /**
-     * 모듈을 관리하는 클래스를 정의한다.
+     * 모듈 관리자 인터페이스를 가져온다.
+     *
+     * @param {string} name - 모듈명
+     * @return {?Admin.Module} module - 모듈 관리자 클래스
      */
-    let Modules;
-    (function (Modules) {
-        Modules.classes = {};
-        /**
-         * 모듈 관리자 클래스를 가져온다.
-         *
-         * @param {string} name - 모듈명
-         * @return {?Admin.Module} module - 모듈 관리자 클래스
-         */
-        function get(name) {
-            if (Admin.Modules.classes[name] === undefined) {
-                const namespaces = name.split('/');
-                if (window['modules'] === undefined) {
-                    return null;
-                }
-                let namespace = window['modules'];
-                for (const name of namespaces) {
-                    if (namespace[name] === undefined) {
-                        return null;
-                    }
-                    namespace = namespace[name];
-                }
-                const classname = namespaces.pop().replace(/^[a-z]/, (char) => char.toUpperCase()) + 'Admin';
-                if (namespace[classname] === undefined) {
-                    return null;
-                }
-                if (typeof namespace[classname] == 'function' &&
-                    namespace[classname].prototype instanceof Admin.Interface) {
-                    Admin.Modules.classes[name] = new namespace[classname]('module', name);
-                    return Admin.Modules.classes[name];
-                }
+    function getModule(name) {
+        if (Admin.modules.has(name) == false) {
+            const namespaces = name.split('/');
+            if (window['modules'] === undefined) {
                 return null;
             }
-            return Admin.Modules.classes[name];
+            let namespace = window['modules'];
+            for (const name of namespaces) {
+                if (namespace[name] === undefined) {
+                    return null;
+                }
+                namespace = namespace[name];
+            }
+            const classname = namespaces.pop().replace(/^[a-z]/, (char) => char.toUpperCase()) + 'Admin';
+            if (namespace[classname] === undefined) {
+                return null;
+            }
+            if (typeof namespace[classname] == 'function' &&
+                namespace[classname].prototype instanceof Admin.Interface) {
+                Admin.modules.set(name, new namespace[classname]('module', name));
+                return Admin.modules.get(name);
+            }
+            return null;
         }
-        Modules.get = get;
-    })(Modules = Admin.Modules || (Admin.Modules = {}));
+        return Admin.modules.get(name);
+    }
+    Admin.getModule = getModule;
     /**
      * 관리자 인터페이스 클래스를 정의한다.
      */
