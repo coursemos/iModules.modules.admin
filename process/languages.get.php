@@ -31,7 +31,7 @@ $records = [];
 $languages = File::getDirectoryItems(Configs::get('path') . '/languages');
 foreach ($languages as $language) {
     if (preg_match('/([a-z]{2})\.json$/', $language, $match) == true) {
-        $json = json_decode(file_get_contents($language));
+        $json = json_decode(File::read($language));
         if ($json == null || isset($json->language) == false) {
             continue;
         }
