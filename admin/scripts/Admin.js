@@ -179,10 +179,10 @@ var modules;
                                     items: [
                                         new Admin.Form.Field.Text({
                                             name: 'title',
-                                            fieldLabel: this.printText('admin/sites/sites/title'),
+                                            label: this.printText('admin/sites/sites/title'),
                                         }),
                                         new Admin.Form.Field.Container({
-                                            fieldLabel: this.printText('admin/sites/sites/language'),
+                                            label: this.printText('admin/sites/sites/language'),
                                             items: [
                                                 new Admin.Form.Field.Select({
                                                     name: 'language',
@@ -203,12 +203,12 @@ var modules;
                                         }),
                                         new Admin.Form.Field.TextArea({
                                             name: 'description',
-                                            fieldLabel: this.printText('admin/sites/sites/description'),
+                                            label: this.printText('admin/sites/sites/description'),
                                             rows: 3,
                                         }),
                                         new Admin.Form.Field.Theme({
                                             name: 'theme',
-                                            fieldLabel: '테마', //this.printText('admin/sites/sites/theme'),
+                                            label: '테마', //this.printText('admin/sites/sites/theme'),
                                         }),
                                     ],
                                 }),
@@ -346,19 +346,19 @@ var modules;
                                                     direction: 'column',
                                                     items: [
                                                         new Admin.Form.Field.Display({
-                                                            fieldLabel: this.printText('admin/modules/modules/author'),
+                                                            label: this.printText('admin/modules/modules/author'),
                                                             name: 'author',
                                                         }),
                                                         new Admin.Form.Field.Display({
-                                                            fieldLabel: this.printText('admin/modules/modules/homepage'),
+                                                            label: this.printText('admin/modules/modules/homepage'),
                                                             name: 'homepage',
                                                         }),
                                                         new Admin.Form.Field.Display({
-                                                            fieldLabel: this.printText('admin/modules/modules/language'),
+                                                            label: this.printText('admin/modules/modules/language'),
                                                             name: 'language',
                                                         }),
                                                         new Admin.Form.Field.Display({
-                                                            fieldLabel: this.printText('admin/modules/modules/hash'),
+                                                            label: this.printText('admin/modules/modules/hash'),
                                                             name: 'hash',
                                                         }),
                                                     ],
@@ -511,6 +511,15 @@ var modules;
                                 },
                             }),
                         ],
+                        listeners: {
+                            show: (window) => {
+                                const form = window.getItemAt(0);
+                                for (const field in response.configs ?? {}) {
+                                    console.log(field, form.getField(field));
+                                    form.getField(field)?.setValue(response.configs[field]);
+                                }
+                            },
+                        },
                     }).show();
                 }
                 else {
@@ -537,6 +546,11 @@ var modules;
                     Admin.Message.close();
                     Admin.getComponent('modules')?.getStore().reload();
                     return true;
+                }
+                else {
+                    if ((results.message ?? null) === null) {
+                        Admin.Message.close();
+                    }
                 }
                 return false;
             }
