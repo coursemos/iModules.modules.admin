@@ -18,14 +18,16 @@
         "core": "4.0.0"
     },
     "language": "ko",
+    "global": true,
+    "theme": true,
+    "admin": true,
     "configs": {
         "theme": {
+            "label": {
+                "ko": "관리자테마"
+            },
             "type": "theme",
             "default": "/modules/admin/default"
-        },
-        "template": {
-            "type": "template",
-            "default": "default"
         }
     },
     "databases": {
