@@ -26,6 +26,11 @@ if ($mAdmin->isAdmin() == false) {
 
 $name = Request::get('name', true);
 $module = Modules::get($name);
+if ($module === null) {
+    $results->success = false;
+    $results->message = $mAdmin->getErrorText('NOT_FOUND_MODULE', ['module' => $name]);
+    return;
+}
 
 $properties = [];
 if ($module->isGlobal() == true) {
@@ -69,3 +74,4 @@ $results->data = [
                 : 'INSTALLED'),
 ];
 $results->fields = $module->getPackage()->getConfigsFields();
+$results->configs = $module->getConfigs();
