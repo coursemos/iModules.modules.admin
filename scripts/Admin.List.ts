@@ -89,6 +89,9 @@ namespace Admin {
                 super(properties);
 
                 this.store = this.properties.store;
+                this.store.addEvent('beforeLoad', () => {
+                    this.onBeforeLoad();
+                });
                 this.store.addEvent('load', () => {
                     this.onLoad();
                 });
@@ -336,6 +339,13 @@ namespace Admin {
                         this.onSelectionComplete();
                     }
                 });
+            }
+
+            /**
+             * 데이터스토어의 데이터를 불러오기전 이벤트를 처리한다.
+             */
+            onBeforeLoad(): void {
+                this.fireEvent('beforeLoad', [this, this.getStore()]);
             }
 
             /**

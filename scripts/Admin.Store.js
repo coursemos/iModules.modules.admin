@@ -308,6 +308,7 @@ var Admin;
              * 데이터를 가져온다.
              */
             load() {
+                this.onBeforeLoad();
                 if (this.loaded == true) {
                     this.onLoad();
                     return;
@@ -316,7 +317,6 @@ var Admin;
                     return;
                 }
                 this.loading = true;
-                this.onBeforeLoad();
                 Admin.Ajax.get(this.url, this.params)
                     .then((results) => {
                     if (results.success == true) {

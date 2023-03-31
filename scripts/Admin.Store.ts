@@ -415,6 +415,8 @@ namespace Admin {
              * 데이터를 가져온다.
              */
             load(): void {
+                this.onBeforeLoad();
+
                 if (this.loaded == true) {
                     this.onLoad();
                     return;
@@ -425,8 +427,6 @@ namespace Admin {
                 }
 
                 this.loading = true;
-
-                this.onBeforeLoad();
 
                 Admin.Ajax.get(this.url, this.params)
                     .then((results: Admin.Ajax.Results) => {
