@@ -320,7 +320,8 @@ class Admin extends \Module
             return null;
         }
         $classPaths = explode('/', $name);
-        $className = '\\' . $type . 's\\' . implode('\\', $classPaths) . '\\admin\\Admin';
+        $className = ucfirst(end($classPaths));
+        $className = '\\' . $type . 's\\' . implode('\\', $classPaths) . '\\admin\\' . $className . 'Admin';
         if (class_exists($className) == false) {
             return null;
         }
@@ -411,9 +412,12 @@ class Admin extends \Module
 
         $hasInterface = false;
         foreach (\Modules::all() as $module) {
-            if (is_file($module->getPath() . '/admin/scripts/Admin.js') == true) {
+            if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . 'Admin.js') == true) {
                 $hasInterface = true;
-                Cache::script('admin.interfaces', $module->getBase() . '/admin/scripts/Admin.js');
+                Cache::script(
+                    'admin.interfaces',
+                    $module->getBase() . '/admin/scripts/' . $module->getClassName() . 'Admin.js'
+                );
             }
 
             $scripts = $this->getAdminClass('module', $module->getName())?->scripts() ?? [];
@@ -448,14 +452,20 @@ class Admin extends \Module
 
         $hasInterface = false;
         foreach (\Modules::all() as $module) {
-            if (is_file($module->getPath() . '/admin/styles/Admin.css') == true) {
+            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
                 $hasInterface = true;
-                Cache::style('admin.interfaces', $module->getBase() . '/admin/styles/Admin.css');
+                Cache::style(
+                    'admin.interfaces',
+                    $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.css'
+                );
             }
 
-            if (is_file($module->getPath() . '/admin/styles/Admin.scss') == true) {
+            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.scss') == true) {
                 $hasInterface = true;
-                Cache::style('admin.interfaces', $module->getBase() . '/admin/styles/Admin.scss');
+                Cache::style(
+                    'admin.interfaces',
+                    $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.scss'
+                );
             }
 
             $styles = $this->getAdminClass('module', $module->getName())?->styles() ?? [];
@@ -513,7 +523,7 @@ class Admin extends \Module
     {
         switch ($code) {
             /**
-             * 게시판이 존재하지 않는 경우
+             * 관리자 컨텍스트 URL 이 이미 정의된 경우
              */
             case 'DUPLICATED_ADMIN_CONTEXT_PATH':
                 $error = ErrorHandler::data();
@@ -552,10 +562,11 @@ class Admin extends \Module
     /**
      * 관리자모듈이 설치된 이후 관리자 메뉴를 업데이트한다.
      *
-     * @param string $previous 이전설치버전
+     * @param string $previous 이전설치버전 (NULL 인 경우 신규설치)
+     * @param object $configs 모듈설정
      * @return bool $success 설치성공여부
      */
-    public static function install(string $previous = null): bool
+    public function install(string $previous = null, object $configs = null): bool
     {
         $success = parent::install($previous);
         if ($success == true) {

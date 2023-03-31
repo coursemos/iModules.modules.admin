@@ -129,7 +129,7 @@ class Context
     {
         switch ($this->_type) {
             case 'CONTEXT':
-                $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\Admin$/';
+                $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)Admin$/';
                 if (preg_match($regExp, get_class($this->_admin), $match) == true) {
                     $type = $match[1];
                     $name = $match[2];

@@ -10,7 +10,6 @@
  * @modified 2023. 2. 26.
  */
 namespace modules\admin\admin;
-use \Html;
 class Admin
 {
     /**
@@ -31,14 +30,6 @@ class Admin
      */
     public function init(): void
     {
-        if (get_called_class() == 'modules\\admin\\admin\\Admin') {
-            $this->addContext('/dashboard', $this->getText('admin/contexts/dashboard'), 'xi xi-presentation', true);
-            $this->addContext('/modules', $this->getText('admin/contexts/modules'), 'xi xi-box', true);
-            $this->addContext('/plugins', $this->getText('admin/contexts/plugins'), 'xi xi-plug', true);
-            $this->addContext('/sites', $this->getText('admin/contexts/sites'), 'xi xi-check-home-o', true);
-            $this->addContext('/sitemap', $this->getText('admin/contexts/sitemap'), 'xi xi-sitemap', true);
-            $this->addContext('/database', $this->getText('admin/contexts/database'), 'xi xi-db-full', true);
-        }
     }
 
     /**
@@ -107,7 +98,7 @@ class Admin
      */
     public function getComponent(): \Component
     {
-        $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\Admin$/';
+        $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)Admin$/';
         if (preg_match($regExp, get_called_class(), $match) == true) {
             $type = $match[1];
             $name = $match[2];
@@ -180,22 +171,6 @@ class Admin
      */
     public function getContent(string $path, ?string $subPath = null): string
     {
-        if (get_called_class() == 'modules\\admin\\admin\\Admin') {
-            switch ($path) {
-                case '/dashboard':
-                    Html::script($this->getBase() . '/scripts/dashboard.js');
-                    break;
-
-                case '/modules':
-                    Html::script($this->getBase() . '/scripts/modules.js');
-                    break;
-
-                case '/sites':
-                    Html::script($this->getBase() . '/scripts/sites.js');
-                    break;
-            }
-        }
-
         return '';
     }
 }
