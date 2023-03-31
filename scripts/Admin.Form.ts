@@ -68,6 +68,14 @@ namespace Admin {
              * @return {Admin.Form.Field.Base} field
              */
             getField(name: string): Admin.Form.Field.Base {
+                for (const field of this.getFields()) {
+                    if (field.name === name) {
+                        return field;
+                    }
+                }
+
+                return null;
+                /*
                 const $field = Html.get(
                     'div[data-component][data-type=form][data-role=field][data-name=' + name + ']',
                     this.$getContent()
@@ -77,6 +85,7 @@ namespace Admin {
                 }
 
                 return Admin.getComponent($field.getData('component')) as Admin.Form.Field.Base;
+                */
             }
 
             /**
@@ -105,6 +114,16 @@ namespace Admin {
              * @return {boolean} is_valid
              */
             async isValid(): Promise<boolean> {
+                if (this.loading === true) {
+                    Admin.Message.show({
+                        title: Admin.printText('info'),
+                        message: Admin.printText('actions/waiting'),
+                        icon: Admin.Message.INFO,
+                        buttons: Admin.Message.OK,
+                    });
+                    return false;
+                }
+
                 const validations: Promise<boolean>[] = [];
 
                 this.getFields().forEach((field) => {
@@ -156,6 +175,15 @@ namespace Admin {
             }
 
             /**
+             * 폼 패널이 로딩중인지 설정한다.
+             *
+             * @param {boolean} loading - 로딩여부
+             */
+            setLoading(loading: boolean): void {
+                this.loading = loading;
+            }
+
+            /**
              * 폼 패널 데이터를 불러온다.
              *
              * @param {Admin.Form.Request} request - 요청정보
@@ -163,6 +191,12 @@ namespace Admin {
              */
             async load({ url, params = null, message = null }: Admin.Form.Request): Promise<Admin.Ajax.Results> {
                 if (this.loading === true) {
+                    Admin.Message.show({
+                        title: Admin.printText('info'),
+                        message: Admin.printText('actions/waiting'),
+                        icon: Admin.Message.INFO,
+                        buttons: Admin.Message.OK,
+                    });
                     return;
                 }
 
@@ -191,6 +225,12 @@ namespace Admin {
              */
             async submit({ url, params = null, message = null }: Admin.Form.Request): Promise<Admin.Ajax.Results> {
                 if (this.loading === true) {
+                    Admin.Message.show({
+                        title: Admin.printText('info'),
+                        message: Admin.printText('actions/waiting'),
+                        icon: Admin.Message.INFO,
+                        buttons: Admin.Message.OK,
+                    });
                     return;
                 }
 
@@ -355,6 +395,22 @@ namespace Admin {
             }
 
             /**
+             * 필드셋에 속한 필드를 가져온다.
+             *
+             * @param {string} name - 필드명
+             * @return {Admin.Form.Field.Base} field
+             */
+            getField(name: string): Admin.Form.Field.Base {
+                for (const field of this.getFields()) {
+                    if (field.name === name) {
+                        return field;
+                    }
+                }
+
+                return null;
+            }
+
+            /**
              * 필드셋에 속한 모든 필드를 가져온다.
              *
              * @return {Admin.Form.Field.Base[]} fields
@@ -436,7 +492,7 @@ namespace Admin {
                     case 'number':
                         return new Admin.Form.Field.Number({
                             name: field.name ?? null,
-                            fieldLabel: field.label ?? null,
+                            label: field.label ?? null,
                             value: field.value ?? null,
                             width: 200,
                         });
@@ -444,7 +500,7 @@ namespace Admin {
                     case 'template':
                         return new Admin.Form.Field.Template({
                             name: field.name ?? null,
-                            fieldLabel: field.label ?? null,
+                            label: field.label ?? null,
                             value: field.value?.name ?? null,
                             targetType: field.target.type,
                             targetName: field.target.name,
@@ -453,7 +509,7 @@ namespace Admin {
                     default:
                         return new Admin.Form.Field.Text({
                             name: field.name ?? null,
-                            fieldLabel: field.label ?? null,
+                            label: field.label ?? null,
                             value: field.value ?? null,
                         });
                 }
@@ -563,7 +619,7 @@ namespace Admin {
                     this.name = this.properties.name ?? this.id;
                     this.inputName = this.properties.inputName === undefined ? this.name : this.properties.inputName;
                     this.allowBlank = this.properties.allowBlank !== false;
-                    this.label = this.properties.fieldLabel ?? null;
+                    this.label = this.properties.label ?? null;
                     this.labelPosition = this.properties.labelPosition ?? null;
                     this.labelAlign = this.properties.labelAlign ?? null;
                     this.labelWidth = this.properties.labelWidth ?? null;
@@ -1000,7 +1056,7 @@ namespace Admin {
                 constructor(properties: Admin.Form.Field.Container.Properties = null) {
                     super(properties);
 
-                    this.label = this.properties.fieldLabel ?? null;
+                    this.label = this.properties.label ?? null;
                     this.labelPosition = this.properties.labelPosition ?? null;
                     this.labelAlign = this.properties.labelAlign ?? null;
                     this.labelWidth = this.properties.labelWidth ?? null;
@@ -1464,9 +1520,9 @@ namespace Admin {
                     }
 
                     if (value.length > 0) {
-                        this.$emptyText.hide();
+                        this.$getEmptyText().hide();
                     } else {
-                        this.$emptyText.show();
+                        this.$getEmptyText().show();
                     }
 
                     super.setValue(value);
@@ -1774,6 +1830,9 @@ namespace Admin {
                             wrap: this.properties.listWrap === true,
                             class: this.properties.listClass ?? null,
                             listeners: {
+                                beforeLoad: () => {
+                                    this.onBeforeLoad();
+                                },
                                 load: () => {
                                     this.onLoad();
                                 },
@@ -2053,12 +2112,22 @@ namespace Admin {
                 }
 
                 /**
+                 * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
+                 */
+                onBeforeLoad(): void {
+                    this.getForm().setLoading(true);
+                    this.fireEvent('beforeLoad', [this.getStore(), this]);
+                }
+
+                /**
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad(): void {
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
+                    this.getForm().setLoading(false);
+                    this.fireEvent('load', [this.getStore(), this]);
                 }
 
                 /**
@@ -2068,6 +2137,7 @@ namespace Admin {
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
+                    this.fireEvent('update', [this.getStore(), this]);
                 }
 
                 /**
@@ -3032,25 +3102,34 @@ namespace Admin {
                             },
                             listeners: {
                                 change: async (field: Admin.Form.Field.Select, value: string) => {
+                                    this.getForm().setLoading(true);
                                     field.disable();
 
                                     const configs = await Admin.Ajax.get(this.configsUrl, this.getConfigsParams(value));
-                                    this.fieldset.empty();
+                                    this.getFieldSet().empty();
 
                                     if ((configs?.fields?.length ?? 0) == 0) {
-                                        this.fieldset.hide();
+                                        this.getFieldSet().hide();
                                     } else {
                                         for (const field of configs.fields) {
                                             const item = Admin.Form.Field.Create(field);
                                             item.addEvent('change', () => {
                                                 this.updateValue();
                                             });
-                                            this.fieldset.append(item);
+                                            this.getFieldSet().append(item);
                                         }
-                                        this.fieldset.show();
+
+                                        if ((this.value?.configs ?? null) !== null) {
+                                            for (const name in this.value.configs) {
+                                                this.getFieldSet().getField(name)?.setValue(this.value.configs[name]);
+                                            }
+                                        }
+
+                                        this.getFieldSet().show();
                                     }
 
                                     this.updateValue();
+                                    this.getForm().setLoading(false);
                                 },
                             },
                         });
@@ -3083,10 +3162,12 @@ namespace Admin {
                  */
                 setValue(value: any): void {
                     if (typeof value == 'string') {
-                        this.value = { name: value, configs: {} };
+                        this.value = { name: value, configs: this.value?.configs ?? {} };
                     } else {
                         this.value = value;
                     }
+
+                    this.getSelect().setValue(this.value?.name ?? null);
 
                     if (this.isChanged() === true) {
                         this.onChange();
@@ -3098,10 +3179,10 @@ namespace Admin {
                  * 현재 입력된 값으로 값을 업데이트한다.
                  */
                 updateValue(): void {
-                    const name = this.select.getValue();
+                    const name = this.getSelect().getValue();
                     const configs = {};
 
-                    for (const item of this.fieldset.getFields()) {
+                    for (const item of this.getFieldSet().getFields()) {
                         configs[item.name] = item.getValue();
                     }
 

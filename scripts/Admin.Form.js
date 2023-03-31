@@ -52,11 +52,23 @@ var Admin;
              * @return {Admin.Form.Field.Base} field
              */
             getField(name) {
-                const $field = Html.get('div[data-component][data-type=form][data-role=field][data-name=' + name + ']', this.$getContent());
+                for (const field of this.getFields()) {
+                    if (field.name === name) {
+                        return field;
+                    }
+                }
+                return null;
+                /*
+                const $field = Html.get(
+                    'div[data-component][data-type=form][data-role=field][data-name=' + name + ']',
+                    this.$getContent()
+                );
                 if ($field.getEl() === null) {
                     return null;
                 }
-                return Admin.getComponent($field.getData('component'));
+
+                return Admin.getComponent($field.getData('component')) as Admin.Form.Field.Base;
+                */
             }
             /**
              * 폼 패널에 속한 모든 필드를 가져온다.
@@ -84,6 +96,15 @@ var Admin;
              * @return {boolean} is_valid
              */
             async isValid() {
+                if (this.loading === true) {
+                    Admin.Message.show({
+                        title: Admin.printText('info'),
+                        message: Admin.printText('actions/waiting'),
+                        icon: Admin.Message.INFO,
+                        buttons: Admin.Message.OK,
+                    });
+                    return false;
+                }
                 const validations = [];
                 this.getFields().forEach((field) => {
                     validations.push(field.isValid());
@@ -128,6 +149,14 @@ var Admin;
                 return values;
             }
             /**
+             * 폼 패널이 로딩중인지 설정한다.
+             *
+             * @param {boolean} loading - 로딩여부
+             */
+            setLoading(loading) {
+                this.loading = loading;
+            }
+            /**
              * 폼 패널 데이터를 불러온다.
              *
              * @param {Admin.Form.Request} request - 요청정보
@@ -135,6 +164,12 @@ var Admin;
              */
             async load({ url, params = null, message = null }) {
                 if (this.loading === true) {
+                    Admin.Message.show({
+                        title: Admin.printText('info'),
+                        message: Admin.printText('actions/waiting'),
+                        icon: Admin.Message.INFO,
+                        buttons: Admin.Message.OK,
+                    });
                     return;
                 }
                 Admin.Message.loading(Admin.printText('actions/loading'), Admin.printText('actions/wait'));
@@ -157,6 +192,12 @@ var Admin;
              */
             async submit({ url, params = null, message = null }) {
                 if (this.loading === true) {
+                    Admin.Message.show({
+                        title: Admin.printText('info'),
+                        message: Admin.printText('actions/waiting'),
+                        icon: Admin.Message.INFO,
+                        buttons: Admin.Message.OK,
+                    });
                     return;
                 }
                 const isValid = await this.isValid();
@@ -252,6 +293,20 @@ var Admin;
                 }
             }
             /**
+             * 필드셋에 속한 필드를 가져온다.
+             *
+             * @param {string} name - 필드명
+             * @return {Admin.Form.Field.Base} field
+             */
+            getField(name) {
+                for (const field of this.getFields()) {
+                    if (field.name === name) {
+                        return field;
+                    }
+                }
+                return null;
+            }
+            /**
              * 필드셋에 속한 모든 필드를 가져온다.
              *
              * @return {Admin.Form.Field.Base[]} fields
@@ -310,14 +365,14 @@ var Admin;
                     case 'number':
                         return new Admin.Form.Field.Number({
                             name: field.name ?? null,
-                            fieldLabel: field.label ?? null,
+                            label: field.label ?? null,
                             value: field.value ?? null,
                             width: 200,
                         });
                     case 'template':
                         return new Admin.Form.Field.Template({
                             name: field.name ?? null,
-                            fieldLabel: field.label ?? null,
+                            label: field.label ?? null,
                             value: field.value?.name ?? null,
                             targetType: field.target.type,
                             targetName: field.target.name,
@@ -325,7 +380,7 @@ var Admin;
                     default:
                         return new Admin.Form.Field.Text({
                             name: field.name ?? null,
-                            fieldLabel: field.label ?? null,
+                            label: field.label ?? null,
                             value: field.value ?? null,
                         });
                 }
@@ -361,7 +416,7 @@ var Admin;
                     this.name = this.properties.name ?? this.id;
                     this.inputName = this.properties.inputName === undefined ? this.name : this.properties.inputName;
                     this.allowBlank = this.properties.allowBlank !== false;
-                    this.label = this.properties.fieldLabel ?? null;
+                    this.label = this.properties.label ?? null;
                     this.labelPosition = this.properties.labelPosition ?? null;
                     this.labelAlign = this.properties.labelAlign ?? null;
                     this.labelWidth = this.properties.labelWidth ?? null;
@@ -735,7 +790,7 @@ var Admin;
                  */
                 constructor(properties = null) {
                     super(properties);
-                    this.label = this.properties.fieldLabel ?? null;
+                    this.label = this.properties.label ?? null;
                     this.labelPosition = this.properties.labelPosition ?? null;
                     this.labelAlign = this.properties.labelAlign ?? null;
                     this.labelWidth = this.properties.labelWidth ?? null;
@@ -1123,10 +1178,10 @@ var Admin;
                         this.$getInput().setValue(value);
                     }
                     if (value.length > 0) {
-                        this.$emptyText.hide();
+                        this.$getEmptyText().hide();
                     }
                     else {
-                        this.$emptyText.show();
+                        this.$getEmptyText().show();
                     }
                     super.setValue(value);
                 }
@@ -1323,6 +1378,9 @@ var Admin;
                             wrap: this.properties.listWrap === true,
                             class: this.properties.listClass ?? null,
                             listeners: {
+                                beforeLoad: () => {
+                                    this.onBeforeLoad();
+                                },
                                 load: () => {
                                     this.onLoad();
                                 },
@@ -1577,12 +1635,21 @@ var Admin;
                     }
                 }
                 /**
+                 * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
+                 */
+                onBeforeLoad() {
+                    this.getForm().setLoading(true);
+                    this.fireEvent('beforeLoad', [this.getStore(), this]);
+                }
+                /**
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad() {
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
+                    this.getForm().setLoading(false);
+                    this.fireEvent('load', [this.getStore(), this]);
                 }
                 /**
                  * 셀렉트폼의 목록 데이터가 변경되었을 때 이벤트를 처리한다.
@@ -1591,6 +1658,7 @@ var Admin;
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
+                    this.fireEvent('update', [this.getStore(), this]);
                 }
                 /**
                  * 컴포넌트를 제거한다.
@@ -2331,11 +2399,12 @@ var Admin;
                             },
                             listeners: {
                                 change: async (field, value) => {
+                                    this.getForm().setLoading(true);
                                     field.disable();
                                     const configs = await Admin.Ajax.get(this.configsUrl, this.getConfigsParams(value));
-                                    this.fieldset.empty();
+                                    this.getFieldSet().empty();
                                     if ((configs?.fields?.length ?? 0) == 0) {
-                                        this.fieldset.hide();
+                                        this.getFieldSet().hide();
                                     }
                                     else {
                                         for (const field of configs.fields) {
@@ -2343,11 +2412,17 @@ var Admin;
                                             item.addEvent('change', () => {
                                                 this.updateValue();
                                             });
-                                            this.fieldset.append(item);
+                                            this.getFieldSet().append(item);
                                         }
-                                        this.fieldset.show();
+                                        if ((this.value?.configs ?? null) !== null) {
+                                            for (const name in this.value.configs) {
+                                                this.getFieldSet().getField(name)?.setValue(this.value.configs[name]);
+                                            }
+                                        }
+                                        this.getFieldSet().show();
                                     }
                                     this.updateValue();
+                                    this.getForm().setLoading(false);
                                 },
                             },
                         });
@@ -2377,11 +2452,12 @@ var Admin;
                  */
                 setValue(value) {
                     if (typeof value == 'string') {
-                        this.value = { name: value, configs: {} };
+                        this.value = { name: value, configs: this.value?.configs ?? {} };
                     }
                     else {
                         this.value = value;
                     }
+                    this.getSelect().setValue(this.value?.name ?? null);
                     if (this.isChanged() === true) {
                         this.onChange();
                         this.oValue = this.value;
@@ -2391,9 +2467,9 @@ var Admin;
                  * 현재 입력된 값으로 값을 업데이트한다.
                  */
                 updateValue() {
-                    const name = this.select.getValue();
+                    const name = this.getSelect().getValue();
                     const configs = {};
-                    for (const item of this.fieldset.getFields()) {
+                    for (const item of this.getFieldSet().getFields()) {
                         configs[item.name] = item.getValue();
                     }
                     if (this.value?.name != name || JSON.stringify(this.value?.configs) != JSON.stringify(configs)) {
