@@ -6,7 +6,7 @@
  * @file /styles/Admin.Window.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 12.
+ * @modified 2023. 4. 1.
  */
 div[data-component][data-type='window'] {
     position: absolute;
@@ -26,6 +26,7 @@ div[data-component][data-type='window'] {
         box-sizing: border-box;
 
         > div[data-role='content'] {
+            position: relative;
             flex-grow: 1;
             flex-shrink: 1;
             display: flex;
