@@ -369,6 +369,12 @@ var Admin;
                             value: field.value ?? null,
                             width: 200,
                         });
+                    case 'theme':
+                        return new Admin.Form.Field.Theme({
+                            name: field.name ?? null,
+                            label: field.label ?? null,
+                            value: field.value?.name ?? null,
+                        });
                     case 'template':
                         return new Admin.Form.Field.Template({
                             name: field.name ?? null,
