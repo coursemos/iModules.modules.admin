@@ -121,6 +121,14 @@ Admin.ready(async () => {
                             },
                         },
                         {
+                            text: me.printText('buttons/configs'),
+                            iconClass: 'xi xi-cog',
+                            hidden: record.data.properties.includes('CONFIGS') === false,
+                            handler: () => {
+                                me.setModuleConfigs(record.data.name);
+                            },
+                        },
+                        {
                             text: me.printText('buttons/install'),
                             iconClass: 'xi xi-new',
                             hidden: record.data.status !== 'NOT_INSTALLED',
