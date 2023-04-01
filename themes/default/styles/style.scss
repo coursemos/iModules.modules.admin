@@ -42,6 +42,10 @@
     --scrollbar-background-drag: #222222;
     --scrollbar-border-color-bar: rgba(255, 255, 255, 0.4);
 
+    --loading-background: var(--color-gray-600);
+    --loading-color-indicator: var(--color-background);
+    --loading-color-text: var(--color-gray-800);
+
     --input-background-default: var(--color-background);
     --input-background-hover: var(--color-background);
     --input-background-focus: var(--color-background);
