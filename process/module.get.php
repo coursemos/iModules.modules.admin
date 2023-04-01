@@ -32,29 +32,6 @@ if ($module === null) {
     return;
 }
 
-$properties = [];
-if ($module->isGlobal() == true) {
-    $properties[] = 'GLOBAL';
-}
-if ($module->isAdmin() == true) {
-    $properties[] = 'ADMIN';
-}
-if ($module->isContext() == true) {
-    $properties[] = 'CONTEXT';
-}
-if ($module->isWidget() == true) {
-    $properties[] = 'WIDGET';
-}
-if ($module->isTheme() == true) {
-    $properties[] = 'THEME';
-}
-if ($module->isCron() == true) {
-    $properties[] = 'CRON';
-}
-if ($module->isConfigs() == true) {
-    $properties[] = 'CONFIGS';
-}
-
 $results->success = true;
 $results->data = [
     'icon' => $module->getIcon(),
@@ -65,7 +42,7 @@ $results->data = [
     'language' => $module->getPackage()->getLanguage(true),
     'hash' => $module->getPackage()->getHash(),
     'description' => $module->getPackage()->getDescription(),
-    'properties' => $properties,
+    'properties' => $module->getPackageProperties(),
     'status' =>
         $module->isInstalled() == false
             ? 'NOT_INSTALLED'

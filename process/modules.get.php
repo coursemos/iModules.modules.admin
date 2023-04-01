@@ -50,6 +50,7 @@ foreach ($modules as $module) {
         'version' => $module->getVersion(),
         'description' => $module->getPackage()->getDescription(),
         'author' => $module->getPackage()->getAuthor(),
+        'properties' => $module->getPackageProperties(),
         'status' =>
             $module->isInstalled() == false
                 ? 'NOT_INSTALLED'
