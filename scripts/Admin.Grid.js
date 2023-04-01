@@ -738,6 +738,20 @@ var Admin;
                     e.preventDefault();
                 }
             }
+            /**
+             * 그리드 패널을 제거한다.
+             */
+            remove() {
+                this.store.remove();
+                this.loading.close();
+                this.headers.forEach((header) => {
+                    header.remove();
+                });
+                this.columns.forEach((column) => {
+                    column.remove();
+                });
+                super.remove();
+            }
         }
         Grid.Panel = Panel;
         class Column extends Admin.Base {
