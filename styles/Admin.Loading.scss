@@ -98,16 +98,20 @@ div[data-type='loading'][data-role='loading'] {
             flex-direction: row;
         }
 
-        > div[data-role='message'] {
+        > div[data-role='text'] {
             font-family: var(--font-family-default);
             font-size: var(--font-size-small);
             color: var(--loading-color-text);
         }
 
         &:not(.row) {
-            > div[data-role='indicator'][data-type='column'] + div[data-role='message'] {
+            > div[data-role='indicator'][data-type='column'] + div[data-role='text'] {
                 padding-bottom: var(--padding-default);
             }
         }
+    }
+
+    &.show {
+        visibility: visible;
     }
 }
