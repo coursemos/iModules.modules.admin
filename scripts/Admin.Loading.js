@@ -40,11 +40,17 @@ var Admin;
                 $box.addClass(this.direction);
                 const $indicator = Html.create('div', { 'data-role': 'indicator', 'data-type': this.type });
                 $box.append($indicator);
-                if (this.type == 'column') {
-                    $indicator.html('<i></i><i></i><i></i>');
+                switch (this.type) {
+                    case 'column':
+                    case 'atom':
+                        $indicator.html('<i></i><i></i><i></i>');
+                        break;
+                    case 'dot':
+                        $indicator.html('<i></i><i></i><i></i><i></i>');
+                        break;
                 }
                 const $text = Html.create('div', { 'data-role': 'text' });
-                $text.html(this.text ?? Admin.printText('actions/loading'));
+                $text.html(this.text ?? Admin.printText('actions/loading_status'));
                 $box.append($text);
                 $loading.append($box);
                 this.component.$getContent().append($loading);
@@ -60,7 +66,7 @@ var Admin;
         setText(text) {
             const $loading = this.$getLoading();
             const $text = Html.get('div[data-role=text]', $loading);
-            $text.html(text ?? Admin.printText('actions/loading'));
+            $text.html(text ?? Admin.printText('actions/loading_status'));
         }
         /**
          * 로딩메시지를 보인다.
@@ -82,6 +88,7 @@ var Admin;
             if ($loading.getEl() !== null) {
                 $loading.remove();
             }
+            this.remove();
         }
     }
     Admin.Loading = Loading;

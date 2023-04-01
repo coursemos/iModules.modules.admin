@@ -10,7 +10,7 @@
  */
 namespace Admin {
     export namespace Loading {
-        export type Type = 'column' | 'box' | 'circle';
+        export type Type = 'column' | 'box' | 'circle' | 'dot' | 'atom';
 
         export interface Properties extends Admin.Base.Properties {
             /**
@@ -66,12 +66,19 @@ namespace Admin {
                 const $indicator = Html.create('div', { 'data-role': 'indicator', 'data-type': this.type });
                 $box.append($indicator);
 
-                if (this.type == 'column') {
-                    $indicator.html('<i></i><i></i><i></i>');
+                switch (this.type) {
+                    case 'column':
+                    case 'atom':
+                        $indicator.html('<i></i><i></i><i></i>');
+                        break;
+
+                    case 'dot':
+                        $indicator.html('<i></i><i></i><i></i><i></i>');
+                        break;
                 }
 
                 const $text = Html.create('div', { 'data-role': 'text' });
-                $text.html(this.text ?? Admin.printText('actions/loading'));
+                $text.html(this.text ?? Admin.printText('actions/loading_status'));
                 $box.append($text);
 
                 $loading.append($box);
@@ -91,7 +98,7 @@ namespace Admin {
         setText(text: string): void {
             const $loading = this.$getLoading();
             const $text = Html.get('div[data-role=text]', $loading);
-            $text.html(text ?? Admin.printText('actions/loading'));
+            $text.html(text ?? Admin.printText('actions/loading_status'));
         }
 
         /**
@@ -116,6 +123,7 @@ namespace Admin {
             if ($loading.getEl() !== null) {
                 $loading.remove();
             }
+            this.remove();
         }
     }
 }

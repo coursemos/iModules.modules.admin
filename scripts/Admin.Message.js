@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 26.
+ * @modified 2023. 4. 1.
  */
 var Admin;
 (function (Admin) {
@@ -42,6 +42,11 @@ var Admin;
                 resizable: false,
                 closable: false,
                 buttons: buttons,
+                listeners: {
+                    show: (window) => {
+                        window.$getComponent().setAttr('data-role', 'message');
+                    },
+                },
             });
             Admin.Message.message.addEvent('close', () => {
                 Admin.Message.message = null;
@@ -67,14 +72,32 @@ var Admin;
          *
          * @param {string} title - 로딩제목
          * @param {string} message - 로딩메시지
+         * @param {Admin.Loading.Type} type - 로딩형태
          */
-        static loading(title = null, message = null) {
-            Admin.Message.show({
-                title: title ?? Admin.printText('actions/loading'),
-                icon: Admin.Message.LOADING,
-                message: message ?? Admin.printText('actions/wait'),
-                messageClass: 'loading',
+        static loading(title = null, message = null, type = null) {
+            Admin.Message.close();
+            Admin.Message.message = new Admin.Window({
+                title: title ?? Admin.printText('actions/loading_status'),
+                modal: true,
+                movable: false,
+                resizable: false,
+                closable: false,
+                width: 300,
+                listeners: {
+                    show: (window) => {
+                        window.$getComponent().setAttr('data-role', 'message');
+                        window.setData('loading', new Admin.Loading(window, {
+                            type: type ?? 'dot',
+                            text: message ?? Admin.printText('actions/loading'),
+                        }));
+                        window.getData('loading')?.show();
+                    },
+                    close: (window) => {
+                        window.getData('loading')?.close();
+                    },
+                },
             });
+            Admin.Message.message.show();
         }
         /**
          * 메시지창을 닫는다.
