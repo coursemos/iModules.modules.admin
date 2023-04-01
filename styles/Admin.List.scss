@@ -78,6 +78,18 @@ div[data-component][data-type='list'][data-role='panel'] {
                     }
                 }
             }
+
+            > div[data-type='loading'][data-role='loading'] {
+                --loading-color-indicator: var(--input-color-default);
+                --loading-color-text: var(--input-color-default);
+                --loading-box-background: var(--input-background-loading);
+            }
+
+            &:has(div[data-type='loading'][data-role='loading'].show) {
+                > ul[data-role='list'] {
+                    min-height: 100px;
+                }
+            }
         }
     }
 }

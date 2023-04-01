@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 28.
+ * @modified 2023. 4. 1.
  */
 var Admin;
 (function (Admin) {
@@ -24,10 +24,11 @@ var Admin;
             valueField;
             renderer;
             maxHeight;
+            loading;
             /**
              * 패널을 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.List.Panel.Properties} properties - 객체설정
              */
             constructor(properties = null) {
                 super(properties);
@@ -52,6 +53,11 @@ var Admin;
                         });
                 this.maxHeight = this.properties.maxHeight ?? null;
                 this.scrollable = 'Y';
+                this.loading = new Admin.Loading(this, {
+                    type: this.properties.loadingType ?? 'column',
+                    direction: 'column',
+                    text: this.properties.loadingText ?? null,
+                });
             }
             /**
              * 목록의 최대높이를 설정한다.
@@ -197,11 +203,15 @@ var Admin;
              * 목록을 랜더링한다.
              */
             renderContent() {
-                if (this.getStore().isLoaded() === false)
-                    return;
                 const $content = this.$getContent();
-                $content.empty();
                 const $list = Html.create('ul', { 'data-role': 'list' });
+                $content.append($list);
+            }
+            /**
+             * 목록 데이터를 업데이트한다.
+             */
+            updateContent() {
+                const $list = Html.get(' > ul[data-role=list]', this.$getContent());
                 this.getStore()
                     .getRecords()
                     .forEach((record, index) => {
@@ -218,7 +228,6 @@ var Admin;
                     $item.html(this.renderer(record.get(this.displayField), record, $item, this));
                     $list.append($item);
                 });
-                $content.append($list);
             }
             /**
              * 셀렉트폼이 랜더링이 완료되었을 때 이벤트를 처리한다.
@@ -254,6 +263,7 @@ var Admin;
              * 데이터스토어의 데이터를 불러오기전 이벤트를 처리한다.
              */
             onBeforeLoad() {
+                this.loading.show();
                 this.fireEvent('beforeLoad', [this, this.getStore()]);
             }
             /**
@@ -262,13 +272,14 @@ var Admin;
             onLoad() {
                 if (this.getStore().isLoaded() === false)
                     return;
+                this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
             }
             /**
              * 데이터스토어의 데이터가 변경되었 때 이벤트를 처리한다.
              */
             onUpdate() {
-                this.renderContent();
+                this.updateContent();
                 this.fireEvent('update', [this, this.getStore()]);
             }
             /**

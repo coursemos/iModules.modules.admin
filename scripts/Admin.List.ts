@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 28.
+ * @modified 2023. 4. 1.
  */
 namespace Admin {
     export namespace List {
@@ -61,6 +61,16 @@ namespace Admin {
                  * @type {Function} renderer - 선택된 항목을 보일 때 사용할 렌더링 함수
                  */
                 renderer?: (display: string, record: Admin.Data.Record, $dom: Dom, list: Admin.List.Panel) => string;
+
+                /**
+                 * @type {string} loadingType - 로딩메시지 타입
+                 */
+                loadingType?: Admin.Loading.Type;
+
+                /**
+                 * @type {string} loadingText - 로딩메시지
+                 */
+                loadingText?: string;
             }
         }
 
@@ -80,12 +90,14 @@ namespace Admin {
 
             maxHeight: number;
 
+            loading: Admin.Loading;
+
             /**
              * 패널을 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.List.Panel.Properties} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.List.Panel.Properties = null) {
                 super(properties);
 
                 this.store = this.properties.store;
@@ -112,6 +124,12 @@ namespace Admin {
 
                 this.maxHeight = this.properties.maxHeight ?? null;
                 this.scrollable = 'Y';
+
+                this.loading = new Admin.Loading(this, {
+                    type: this.properties.loadingType ?? 'column',
+                    direction: 'column',
+                    text: this.properties.loadingText ?? null,
+                });
             }
 
             /**
@@ -278,12 +296,17 @@ namespace Admin {
              * 목록을 랜더링한다.
              */
             renderContent(): void {
-                if (this.getStore().isLoaded() === false) return;
-
                 const $content = this.$getContent();
-                $content.empty();
-
                 const $list = Html.create('ul', { 'data-role': 'list' });
+                $content.append($list);
+            }
+
+            /**
+             * 목록 데이터를 업데이트한다.
+             */
+            updateContent(): void {
+                const $list = Html.get(' > ul[data-role=list]', this.$getContent());
+
                 this.getStore()
                     .getRecords()
                     .forEach((record: Admin.Data.Record, index: number) => {
@@ -301,8 +324,6 @@ namespace Admin {
                         $item.html(this.renderer(record.get(this.displayField), record, $item, this));
                         $list.append($item);
                     });
-
-                $content.append($list);
             }
 
             /**
@@ -345,6 +366,7 @@ namespace Admin {
              * 데이터스토어의 데이터를 불러오기전 이벤트를 처리한다.
              */
             onBeforeLoad(): void {
+                this.loading.show();
                 this.fireEvent('beforeLoad', [this, this.getStore()]);
             }
 
@@ -353,7 +375,7 @@ namespace Admin {
              */
             onLoad(): void {
                 if (this.getStore().isLoaded() === false) return;
-
+                this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
             }
 
@@ -361,7 +383,7 @@ namespace Admin {
              * 데이터스토어의 데이터가 변경되었 때 이벤트를 처리한다.
              */
             onUpdate(): void {
-                this.renderContent();
+                this.updateContent();
                 this.fireEvent('update', [this, this.getStore()]);
             }
 
