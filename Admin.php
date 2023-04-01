@@ -386,6 +386,7 @@ class Admin extends \Module
          * 사용되는 모든 스크립트 파일을 캐시를 이용해 압축한다.
          */
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Base.js');
+        Cache::script('admin', $this->getBase() . '/scripts/Admin.Loading.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Ajax.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Scrollbar.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Drag.js');
@@ -431,6 +432,7 @@ class Admin extends \Module
         }
 
         Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
+        Cache::style('admin', $this->getBase() . '/styles/Admin.Loading.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Component.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Absolute.scss');

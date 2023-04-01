@@ -1,0 +1,108 @@
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 로딩메시지 스타일시트를 정의한다.
+ * 
+ * @file /styles/Admin.Loading.scss
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2023. 4. 1.
+ */
+@keyframes loading-indicator-column {
+    0% {
+        top: 10%;
+        height: 80%;
+    }
+    50%,
+    100% {
+        top: 30%;
+        height: 40%;
+    }
+}
+
+div[data-type='loading'][data-role='loading'] {
+    --loading-size: 50px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+
+    &::before {
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.5;
+        background: var(--loading-background);
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: ' ';
+    }
+
+    > div[data-role='box'] {
+        display: flex;
+        align-items: center;
+        padding: var(--padding-large);
+        border-radius: 5px;
+        background: var(--loading-background);
+
+        > div[data-role='indicator'] {
+            width: var(--loading-size);
+            height: var(--loading-size);
+            position: relative;
+
+            &[data-type='column'] {
+                > i {
+                    display: inline-block;
+                    position: absolute;
+                    top: 10%;
+                    width: 20%;
+                    height: 80%;
+                    background: var(--loading-color-indicator);
+                    animation: loading-indicator-column 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+
+                    &:nth-child(1) {
+                        left: 10%;
+                        animation-delay: -0.24s;
+                    }
+
+                    &:nth-child(2) {
+                        left: 40%;
+                        animation-delay: -0.12s;
+                    }
+
+                    &:nth-child(3) {
+                        left: 70%;
+                        animation-delay: 0;
+                    }
+                }
+            }
+        }
+
+        &.column {
+            flex-direction: column;
+        }
+
+        &.row {
+            flex-direction: row;
+        }
+
+        > div[data-role='message'] {
+            font-family: var(--font-family-default);
+            font-size: var(--font-size-default);
+            color: var(--loading-color);
+        }
+
+        &:not(.row) {
+            > div[data-role='indicator'][data-type='column'] + div[data-role='message'] {
+                padding-bottom: var(--padding-default);
+            }
+        }
+    }
+}
