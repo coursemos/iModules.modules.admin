@@ -24,11 +24,13 @@ var Admin;
             selections = [];
             selectionMode;
             store;
+            autoLoad;
             $header;
             $body;
             $footer;
             focusedRow = null;
             focusedCell = { rowIndex: null, columnIndex: null };
+            loading;
             /**
              * 그리드패널을 생성한다.
              *
@@ -50,10 +52,15 @@ var Admin;
                 this.store.addEvent('update', () => {
                     this.onUpdate();
                 });
+                this.autoLoad = this.properties.autoLoad === true;
                 this.initColumns();
                 this.$header = Html.create('div').setData('role', 'header');
                 this.$body = Html.create('div').setData('role', 'body');
                 this.$footer = Html.create('div').setData('role', 'footer');
+                this.loading = new Admin.Loading(this, {
+                    type: this.properties.loadingType ?? 'column',
+                    message: this.properties.loadingMessage ?? null,
+                });
             }
             /**
              * 그리드패널 헤더의 하위 컴포넌트를 초기화한다.
@@ -620,7 +627,9 @@ var Admin;
              */
             onRender() {
                 super.onRender();
-                this.onLoad();
+                if (this.autoLoad === true) {
+                    this.getStore().load();
+                }
                 this.$getComponent().on('keydown', (e) => {
                     if (e.key.indexOf('Arrow') === 0) {
                         let rowIndex = 0;
@@ -689,6 +698,8 @@ var Admin;
              * 데이터가 로드되기 전 이벤트를 처리한다.
              */
             onBeforeLoad() {
+                console.log('onBeforeLoad');
+                this.loading.show();
                 this.fireEvent('selectionChange', [[], this]);
             }
             /**
@@ -697,6 +708,7 @@ var Admin;
             onLoad() {
                 if (this.getStore().isLoaded() === false)
                     return;
+                this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
             }
             /**

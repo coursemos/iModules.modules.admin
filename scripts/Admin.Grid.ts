@@ -18,9 +18,24 @@ namespace Admin {
                 columns: (Admin.Grid.Column | Admin.Grid.Column.Properties)[];
 
                 /**
-                 * @type {Admin.Store}
+                 * @type {Admin.Store} store - 데이터스토어
                  */
                 store: Admin.Store;
+
+                /**
+                 * @type {boolean} autoLoad - 객체가 랜더링된 후 데이터를 자동으로 불러올지 여부
+                 */
+                autoLoad?: boolean;
+
+                /**
+                 * @type {string} loadingType - 로딩메시지 타입
+                 */
+                loadingType?: Admin.Loading.Type;
+
+                /**
+                 * @type {string} loadingMessage - 로딩메시지
+                 */
+                loadingMessage?: string;
             }
         }
 
@@ -38,6 +53,7 @@ namespace Admin {
             selectionMode: 'NONE' | 'SINGLE' | 'SIMPLE' | 'MULTI' | 'CHECKBOX';
 
             store: Admin.Store;
+            autoLoad: boolean;
 
             $header: Dom;
             $body: Dom;
@@ -45,6 +61,8 @@ namespace Admin {
 
             focusedRow: number = null;
             focusedCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
+
+            loading: Admin.Loading;
 
             /**
              * 그리드패널을 생성한다.
@@ -69,12 +87,18 @@ namespace Admin {
                 this.store.addEvent('update', () => {
                     this.onUpdate();
                 });
+                this.autoLoad = this.properties.autoLoad === true;
 
                 this.initColumns();
 
                 this.$header = Html.create('div').setData('role', 'header');
                 this.$body = Html.create('div').setData('role', 'body');
                 this.$footer = Html.create('div').setData('role', 'footer');
+
+                this.loading = new Admin.Loading(this, {
+                    type: this.properties.loadingType ?? 'column',
+                    message: this.properties.loadingMessage ?? null,
+                });
             }
 
             /**
@@ -722,7 +746,10 @@ namespace Admin {
              */
             onRender(): void {
                 super.onRender();
-                this.onLoad();
+
+                if (this.autoLoad === true) {
+                    this.getStore().load();
+                }
 
                 this.$getComponent().on('keydown', (e: KeyboardEvent) => {
                     if (e.key.indexOf('Arrow') === 0) {
@@ -805,6 +832,8 @@ namespace Admin {
              * 데이터가 로드되기 전 이벤트를 처리한다.
              */
             onBeforeLoad(): void {
+                console.log('onBeforeLoad');
+                this.loading.show();
                 this.fireEvent('selectionChange', [[], this]);
             }
 
@@ -814,6 +843,7 @@ namespace Admin {
             onLoad(): void {
                 if (this.getStore().isLoaded() === false) return;
 
+                this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
             }
 
