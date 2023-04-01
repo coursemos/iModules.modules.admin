@@ -17,11 +17,6 @@ namespace Admin {
             fieldTypes?: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
 
             /**
-             * @type {boolean} autoLoad - Store 가 정의된 후 자동으로 데이터를 불러올지 여부
-             */
-            autoLoad?: boolean;
-
-            /**
              * @type {boolean} remoteSort - store 외부에서 데이터를 정렬할지 여부
              */
             remoteSort?: boolean;
@@ -40,7 +35,6 @@ namespace Admin {
 
     export class Store extends Admin.Base {
         fieldTypes: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
-        autoLoad: boolean = true;
         remoteSort: boolean = false;
         sorters: { field: string; direction: string }[];
         primaryKeys: string[];
@@ -59,7 +53,6 @@ namespace Admin {
             super(properties);
 
             this.fieldTypes = this.properties.fieldTypes ?? {};
-            this.autoLoad = this.properties.autoLoad !== false;
             this.remoteSort = this.properties.remoteSort !== true;
             this.sorters = this.properties.sorters ?? [];
             this.primaryKeys = this.properties.primaryKeys ?? [];
@@ -383,10 +376,6 @@ namespace Admin {
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
-
-                if (this.autoLoad == true) {
-                    this.load();
-                }
             }
 
             /**

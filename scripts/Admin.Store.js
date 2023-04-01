@@ -12,7 +12,6 @@ var Admin;
 (function (Admin) {
     class Store extends Admin.Base {
         fieldTypes;
-        autoLoad = true;
         remoteSort = false;
         sorters;
         primaryKeys;
@@ -29,7 +28,6 @@ var Admin;
         constructor(properties = null) {
             super(properties);
             this.fieldTypes = this.properties.fieldTypes ?? {};
-            this.autoLoad = this.properties.autoLoad !== false;
             this.remoteSort = this.properties.remoteSort !== true;
             this.sorters = this.properties.sorters ?? [];
             this.primaryKeys = this.properties.primaryKeys ?? [];
@@ -280,9 +278,6 @@ var Admin;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
-                if (this.autoLoad == true) {
-                    this.load();
-                }
             }
             /**
              * 데이터를 불러오기 위한 매개변수를 설정한다.
