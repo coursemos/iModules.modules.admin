@@ -17,6 +17,7 @@ Admin.ready(async () => {
         layout: 'fit',
         title: (await me.getText('admin/modules/title')),
         selectionMode: 'SINGLE',
+        autoLoad: true,
         topbar: [
             new Admin.Form.Field.Text({
                 name: 'keyword',
@@ -102,7 +103,6 @@ Admin.ready(async () => {
         ],
         store: new Admin.Store.Ajax({
             url: me.getProcessUrl('modules'),
-            autoLoad: true,
             primaryKeys: ['name'],
         }),
         listeners: {
