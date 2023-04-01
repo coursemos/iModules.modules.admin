@@ -125,6 +125,9 @@ namespace Admin {
 
                 const isLoading = this.isLoading();
                 if (isLoading == true && message !== false) {
+                    if (typeof message == 'string') {
+                        this.loading.setText(message);
+                    }
                     this.loading.show();
                 } else {
                     this.loading.hide();
@@ -155,7 +158,7 @@ namespace Admin {
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting'),
+                        message: Admin.printText('actions/waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -222,14 +225,14 @@ namespace Admin {
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting'),
+                        message: Admin.printText('actions/waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
                     return;
                 }
 
-                this.setLoading(this, true, true);
+                this.setLoading(this, true, message ?? true);
 
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
@@ -253,7 +256,7 @@ namespace Admin {
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting'),
+                        message: Admin.printText('actions/waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -266,7 +269,7 @@ namespace Admin {
                     return;
                 }
 
-                this.setLoading(this, true, Admin.printText('actions/saving'));
+                this.setLoading(this, true, message ?? Admin.printText('actions/saving_status'));
 
                 const data = this.getValues();
                 if (params !== null) {

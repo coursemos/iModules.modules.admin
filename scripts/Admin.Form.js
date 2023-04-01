@@ -95,6 +95,9 @@ var Admin;
                 this.loadings.set(component, loading);
                 const isLoading = this.isLoading();
                 if (isLoading == true && message !== false) {
+                    if (typeof message == 'string') {
+                        this.loading.setText(message);
+                    }
                     this.loading.show();
                 }
                 else {
@@ -123,7 +126,7 @@ var Admin;
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting'),
+                        message: Admin.printText('actions/waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -182,13 +185,13 @@ var Admin;
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting'),
+                        message: Admin.printText('actions/waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
                     return;
                 }
-                this.setLoading(this, true, true);
+                this.setLoading(this, true, message ?? true);
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
@@ -208,7 +211,7 @@ var Admin;
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting'),
+                        message: Admin.printText('actions/waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -219,7 +222,7 @@ var Admin;
                     this.scrollToErrorField();
                     return;
                 }
-                this.setLoading(this, true, Admin.printText('actions/saving'));
+                this.setLoading(this, true, message ?? Admin.printText('actions/saving_status'));
                 const data = this.getValues();
                 if (params !== null) {
                     for (const key in params) {
