@@ -381,6 +381,15 @@ div[data-component][data-type='form'][data-role='field'] {
                 border-color: var(--input-border-color-error);
             }
         }
+
+        > div[data-type='loading'][data-role='loading'] {
+            --loading-box-size: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
+            --loading-box-padding: var(--padding-default);
+            --loading-color-indicator: var(--input-color-default);
+            --loading-color-text: var(--input-color-default);
+            --loading-box-align: flex-start;
+            --loading-box-background: var(--input-background-loading);
+        }
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='textarea'] {

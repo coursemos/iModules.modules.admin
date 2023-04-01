@@ -13,7 +13,8 @@ var Admin;
     let Form;
     (function (Form) {
         class Panel extends Admin.Panel {
-            loading = false;
+            loading;
+            loadings = new Map();
             fieldDefaults;
             /**
              * 기본필드 클래스 생성한다.
@@ -25,6 +26,10 @@ var Admin;
                 this.role = 'form';
                 this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 100 };
                 this.padding = this.properties.padding ?? 10;
+                this.loading = new Admin.Loading(this, {
+                    type: this.properties.loadingType ?? 'column',
+                    message: this.properties.loadingMessage ?? null,
+                });
             }
             /**
              * 폼 패널의 하위 컴포넌트를 정의한다.
@@ -58,17 +63,6 @@ var Admin;
                     }
                 }
                 return null;
-                /*
-                const $field = Html.get(
-                    'div[data-component][data-type=form][data-role=field][data-name=' + name + ']',
-                    this.$getContent()
-                );
-                if ($field.getEl() === null) {
-                    return null;
-                }
-
-                return Admin.getComponent($field.getData('component')) as Admin.Form.Field.Base;
-                */
             }
             /**
              * 폼 패널에 속한 모든 필드를 가져온다.
@@ -91,12 +85,42 @@ var Admin;
                 return fields;
             }
             /**
+             * 폼 패널을 로딩상태로 설정한다.
+             *
+             * @param {Admin.Component} component - 로딩상태를 요청한 컴포넌트
+             * @param {boolean} loading - 로딩여부
+             * @param {string|boolean} message - 로딩메시지 표시여부
+             */
+            setLoading(component, loading, message = false) {
+                this.loadings.set(component, loading);
+                const isLoading = this.isLoading();
+                if (isLoading == true && message !== false) {
+                    this.loading.show();
+                }
+                else {
+                    this.loading.hide();
+                }
+            }
+            /**
+             * 폼 패널이 로딩중인지 확인한다.
+             *
+             * @return {boolean} is_loading
+             */
+            isLoading() {
+                for (const loading of this.loadings.values()) {
+                    if (loading === true) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            /**
              * 폼 패널에 속한 모든 필드가 유효한지 확인한다.
              *
              * @return {boolean} is_valid
              */
             async isValid() {
-                if (this.loading === true) {
+                if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
                         message: Admin.printText('actions/waiting'),
@@ -149,21 +173,13 @@ var Admin;
                 return values;
             }
             /**
-             * 폼 패널이 로딩중인지 설정한다.
-             *
-             * @param {boolean} loading - 로딩여부
-             */
-            setLoading(loading) {
-                this.loading = loading;
-            }
-            /**
              * 폼 패널 데이터를 불러온다.
              *
              * @param {Admin.Form.Request} request - 요청정보
              * @return {Promise<Admin.Ajax.results>} results
              */
             async load({ url, params = null, message = null }) {
-                if (this.loading === true) {
+                if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
                         message: Admin.printText('actions/waiting'),
@@ -172,16 +188,14 @@ var Admin;
                     });
                     return;
                 }
-                Admin.Message.loading(Admin.printText('actions/loading'), Admin.printText('actions/wait'));
-                this.loading = true;
+                this.setLoading(this, true, true);
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
                         this.getField(name)?.setValue(response.data[name]);
                     }
                 }
-                this.loading = false;
-                Admin.Message.close();
+                this.setLoading(this, false);
                 return response;
             }
             /**
@@ -191,7 +205,7 @@ var Admin;
              * @return {Promise<Admin.Ajax.results>} results
              */
             async submit({ url, params = null, message = null }) {
-                if (this.loading === true) {
+                if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
                         message: Admin.printText('actions/waiting'),
@@ -205,8 +219,7 @@ var Admin;
                     this.scrollToErrorField();
                     return;
                 }
-                Admin.Message.loading(Admin.printText('actions/saving'), Admin.printText('actions/wait'));
-                this.loading = true;
+                this.setLoading(this, true, Admin.printText('actions/saving'));
                 const data = this.getValues();
                 if (params !== null) {
                     for (const key in params) {
@@ -220,8 +233,7 @@ var Admin;
                     }
                     this.scrollToErrorField();
                 }
-                this.loading = false;
-                Admin.Message.close();
+                this.setLoading(this, false);
                 return response;
             }
         }
@@ -1307,6 +1319,7 @@ var Admin;
                 $display;
                 absolute;
                 list;
+                loading;
                 /**
                  * 선택항목필드 클래스 생성한다.
                  *
@@ -1333,6 +1346,11 @@ var Admin;
                                 }
                                 return '';
                             });
+                    this.loading = new Admin.Loading(this, {
+                        type: this.properties.loadingType ?? 'column',
+                        direction: 'row',
+                        message: this.properties.loadingMessage ?? null,
+                    });
                 }
                 /**
                  * 절대위치 목록 컴포넌트를 가져온다.
@@ -1644,7 +1662,8 @@ var Admin;
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
                  */
                 onBeforeLoad() {
-                    this.getForm().setLoading(true);
+                    this.loading.show();
+                    this.getForm().setLoading(this, true, false);
                     this.fireEvent('beforeLoad', [this.getStore(), this]);
                 }
                 /**
@@ -1654,7 +1673,8 @@ var Admin;
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
-                    this.getForm().setLoading(false);
+                    this.loading.hide();
+                    this.getForm().setLoading(this, false);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
                 /**
@@ -2405,7 +2425,7 @@ var Admin;
                             },
                             listeners: {
                                 change: async (field, value) => {
-                                    this.getForm().setLoading(true);
+                                    this.getForm().setLoading(this, true);
                                     field.disable();
                                     const configs = await Admin.Ajax.get(this.configsUrl, this.getConfigsParams(value));
                                     this.getFieldSet().empty();
@@ -2428,7 +2448,7 @@ var Admin;
                                         this.getFieldSet().show();
                                     }
                                     this.updateValue();
-                                    this.getForm().setLoading(false);
+                                    this.getForm().setLoading(this, false);
                                 },
                             },
                         });

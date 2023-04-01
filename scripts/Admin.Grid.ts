@@ -97,6 +97,7 @@ namespace Admin {
 
                 this.loading = new Admin.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
+                    direction: 'column',
                     message: this.properties.loadingMessage ?? null,
                 });
             }
@@ -832,7 +833,6 @@ namespace Admin {
              * 데이터가 로드되기 전 이벤트를 처리한다.
              */
             onBeforeLoad(): void {
-                console.log('onBeforeLoad');
                 this.loading.show();
                 this.fireEvent('selectionChange', [[], this]);
             }

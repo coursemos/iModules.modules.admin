@@ -16,11 +16,22 @@ namespace Admin {
                  * @type {Admin.Form.FieldDefaults} fieldDefaults - 내부 필드의 기본설정값
                  */
                 fieldDefaults?: Admin.Form.FieldDefaults;
+
+                /**
+                 * @type {string} loadingType - 로딩메시지 타입
+                 */
+                loadingType?: Admin.Loading.Type;
+
+                /**
+                 * @type {string} loadingMessage - 로딩메시지
+                 */
+                loadingMessage?: string;
             }
         }
 
         export class Panel extends Admin.Panel {
-            loading: boolean = false;
+            loading: Admin.Loading;
+            loadings: Map<Admin.Component, boolean> = new Map();
             fieldDefaults: Admin.Form.FieldDefaults;
 
             /**
@@ -34,6 +45,11 @@ namespace Admin {
                 this.role = 'form';
                 this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 100 };
                 this.padding = this.properties.padding ?? 10;
+
+                this.loading = new Admin.Loading(this, {
+                    type: this.properties.loadingType ?? 'column',
+                    message: this.properties.loadingMessage ?? null,
+                });
             }
 
             /**
@@ -75,17 +91,6 @@ namespace Admin {
                 }
 
                 return null;
-                /*
-                const $field = Html.get(
-                    'div[data-component][data-type=form][data-role=field][data-name=' + name + ']',
-                    this.$getContent()
-                );
-                if ($field.getEl() === null) {
-                    return null;
-                }
-
-                return Admin.getComponent($field.getData('component')) as Admin.Form.Field.Base;
-                */
             }
 
             /**
@@ -109,12 +114,45 @@ namespace Admin {
             }
 
             /**
+             * 폼 패널을 로딩상태로 설정한다.
+             *
+             * @param {Admin.Component} component - 로딩상태를 요청한 컴포넌트
+             * @param {boolean} loading - 로딩여부
+             * @param {string|boolean} message - 로딩메시지 표시여부
+             */
+            setLoading(component: Admin.Component, loading: boolean, message: string | boolean = false): void {
+                this.loadings.set(component, loading);
+
+                const isLoading = this.isLoading();
+                if (isLoading == true && message !== false) {
+                    this.loading.show();
+                } else {
+                    this.loading.hide();
+                }
+            }
+
+            /**
+             * 폼 패널이 로딩중인지 확인한다.
+             *
+             * @return {boolean} is_loading
+             */
+            isLoading(): boolean {
+                for (const loading of this.loadings.values()) {
+                    if (loading === true) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            /**
              * 폼 패널에 속한 모든 필드가 유효한지 확인한다.
              *
              * @return {boolean} is_valid
              */
             async isValid(): Promise<boolean> {
-                if (this.loading === true) {
+                if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
                         message: Admin.printText('actions/waiting'),
@@ -175,22 +213,13 @@ namespace Admin {
             }
 
             /**
-             * 폼 패널이 로딩중인지 설정한다.
-             *
-             * @param {boolean} loading - 로딩여부
-             */
-            setLoading(loading: boolean): void {
-                this.loading = loading;
-            }
-
-            /**
              * 폼 패널 데이터를 불러온다.
              *
              * @param {Admin.Form.Request} request - 요청정보
              * @return {Promise<Admin.Ajax.results>} results
              */
             async load({ url, params = null, message = null }: Admin.Form.Request): Promise<Admin.Ajax.Results> {
-                if (this.loading === true) {
+                if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
                         message: Admin.printText('actions/waiting'),
@@ -200,9 +229,7 @@ namespace Admin {
                     return;
                 }
 
-                Admin.Message.loading(Admin.printText('actions/loading'), Admin.printText('actions/wait'));
-
-                this.loading = true;
+                this.setLoading(this, true, true);
 
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
@@ -211,8 +238,7 @@ namespace Admin {
                     }
                 }
 
-                this.loading = false;
-                Admin.Message.close();
+                this.setLoading(this, false);
 
                 return response;
             }
@@ -224,7 +250,7 @@ namespace Admin {
              * @return {Promise<Admin.Ajax.results>} results
              */
             async submit({ url, params = null, message = null }: Admin.Form.Request): Promise<Admin.Ajax.Results> {
-                if (this.loading === true) {
+                if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
                         message: Admin.printText('actions/waiting'),
@@ -240,9 +266,7 @@ namespace Admin {
                     return;
                 }
 
-                Admin.Message.loading(Admin.printText('actions/saving'), Admin.printText('actions/wait'));
-
-                this.loading = true;
+                this.setLoading(this, true, Admin.printText('actions/saving'));
 
                 const data = this.getValues();
                 if (params !== null) {
@@ -259,8 +283,7 @@ namespace Admin {
                     this.scrollToErrorField();
                 }
 
-                this.loading = false;
-                Admin.Message.close();
+                this.setLoading(this, false);
 
                 return response;
             }
@@ -1723,6 +1746,16 @@ namespace Admin {
                      * @type {string} listClass - 목록 스타일 클래스명
                      */
                     listClass?: string;
+
+                    /**
+                     * @type {string} loadingType - 로딩메시지 타입
+                     */
+                    loadingType?: Admin.Loading.Type;
+
+                    /**
+                     * @type {string} loadingMessage - 로딩메시지
+                     */
+                    loadingMessage?: string;
                 }
             }
 
@@ -1751,6 +1784,8 @@ namespace Admin {
 
                 absolute: Admin.Absolute;
                 list: Admin.List.Panel;
+
+                loading: Admin.Loading;
 
                 /**
                  * 선택항목필드 클래스 생성한다.
@@ -1782,6 +1817,12 @@ namespace Admin {
 
                             return '';
                         });
+
+                    this.loading = new Admin.Loading(this, {
+                        type: this.properties.loadingType ?? 'column',
+                        direction: 'row',
+                        message: this.properties.loadingMessage ?? null,
+                    });
                 }
 
                 /**
@@ -2122,7 +2163,8 @@ namespace Admin {
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
                  */
                 onBeforeLoad(): void {
-                    this.getForm().setLoading(true);
+                    this.loading.show();
+                    this.getForm().setLoading(this, true, false);
                     this.fireEvent('beforeLoad', [this.getStore(), this]);
                 }
 
@@ -2133,7 +2175,8 @@ namespace Admin {
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
-                    this.getForm().setLoading(false);
+                    this.loading.hide();
+                    this.getForm().setLoading(this, false);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
 
@@ -3109,7 +3152,7 @@ namespace Admin {
                             },
                             listeners: {
                                 change: async (field: Admin.Form.Field.Select, value: string) => {
-                                    this.getForm().setLoading(true);
+                                    this.getForm().setLoading(this, true);
                                     field.disable();
 
                                     const configs = await Admin.Ajax.get(this.configsUrl, this.getConfigsParams(value));
@@ -3136,7 +3179,7 @@ namespace Admin {
                                     }
 
                                     this.updateValue();
-                                    this.getForm().setLoading(false);
+                                    this.getForm().setLoading(this, false);
                                 },
                             },
                         });

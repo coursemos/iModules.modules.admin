@@ -21,7 +21,11 @@
 }
 
 div[data-type='loading'][data-role='loading'] {
-    --loading-size: 40px;
+    --loading-box-size: 40px;
+    --loading-box-padding: var(--padding-large);
+    --loading-box-align: center;
+    --loading-box-background: var(--loading-background);
+
     position: absolute;
     top: 0;
     left: 0;
@@ -29,7 +33,7 @@ div[data-type='loading'][data-role='loading'] {
     height: 100%;
     z-index: 1000;
     display: flex;
-    justify-content: center;
+    justify-content: var(--loading-box-align);
     align-items: center;
     visibility: hidden;
 
@@ -48,13 +52,14 @@ div[data-type='loading'][data-role='loading'] {
     > div[data-role='box'] {
         display: flex;
         align-items: center;
-        padding: var(--padding-large);
-        border-radius: 5px;
-        background: var(--loading-background);
+        padding: var(--loading-box-padding);
+        background: var(--loading-box-background);
+        margin: 1px;
+        gap: 5px;
 
         > div[data-role='indicator'] {
-            width: var(--loading-size);
-            height: var(--loading-size);
+            width: var(--loading-box-size);
+            height: var(--loading-box-size);
             position: relative;
 
             &[data-type='column'] {
@@ -96,7 +101,7 @@ div[data-type='loading'][data-role='loading'] {
         > div[data-role='message'] {
             font-family: var(--font-family-default);
             font-size: var(--font-size-small);
-            color: var(--loading-color);
+            color: var(--loading-color-text);
         }
 
         &:not(.row) {
