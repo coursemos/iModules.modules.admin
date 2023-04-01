@@ -574,7 +574,11 @@ namespace modules {
              * @param {Ojbect} configs - 모듈설정 (NULL 인 경우 모듈설정여부를 확인 후 모듈 설정을 먼저 한다.)
              */
             async installModule(name: string, configs: { [key: string]: any } = null): Promise<boolean> {
-                Admin.Message.loading();
+                Admin.Message.loading(
+                    (await Admin.getText('actions/installing_status')) as string,
+                    (await Admin.getText('actions/installing')) as string,
+                    'atom'
+                );
 
                 if (configs === null) {
                     const response = await Admin.Ajax.get(this.getProcessUrl('module'), { name: name });

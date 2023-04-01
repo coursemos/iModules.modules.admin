@@ -532,7 +532,7 @@ var modules;
              * @param {Ojbect} configs - 모듈설정 (NULL 인 경우 모듈설정여부를 확인 후 모듈 설정을 먼저 한다.)
              */
             async installModule(name, configs = null) {
-                Admin.Message.loading();
+                Admin.Message.loading((await Admin.getText('actions/installing_status')), (await Admin.getText('actions/installing')), 'atom');
                 if (configs === null) {
                     const response = await Admin.Ajax.get(this.getProcessUrl('module'), { name: name });
                     if (response.data.properties.includes('CONFIGS') == true) {
