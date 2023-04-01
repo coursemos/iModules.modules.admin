@@ -55,7 +55,6 @@ Admin.ready(async () => {
                 ],
                 store: new Admin.Store.Ajax({
                     url: me.getProcessUrl('domains'),
-                    autoLoad: true,
                     primaryKeys: ['host'],
                 }),
                 listeners: {
@@ -138,7 +137,6 @@ Admin.ready(async () => {
                 ],
                 store: new Admin.Store.Ajax({
                     url: me.getProcessUrl('sites'),
-                    autoLoad: false,
                 }),
                 listeners: {
                     update: (grid, store) => {
@@ -223,7 +221,6 @@ Admin.ready(async () => {
                 ],
                 store: new Admin.Store.Ajax({
                     url: me.getProcessUrl('sites'),
-                    autoLoad: false,
                 }),
             }),
         ],
