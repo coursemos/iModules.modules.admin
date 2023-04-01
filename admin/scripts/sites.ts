@@ -25,6 +25,7 @@ Admin.ready(async () => {
                 minWidth: 200,
                 columnResizable: false,
                 selectionMode: 'SINGLE',
+                autoLoad: true,
                 topbar: [
                     new Admin.Form.Field.Text({
                         name: 'keyword',
