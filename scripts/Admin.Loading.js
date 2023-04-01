@@ -34,7 +34,7 @@ var Admin;
          * @return {Dom} $loading
          */
         $getLoading() {
-            if (Html.get('div[data-type=loading][data-role=loading]', this.component.$getContent()).getEl() == null) {
+            if (Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent()).getEl() == null) {
                 const $loading = Html.create('div', { 'data-type': 'loading', 'data-role': 'loading' });
                 const $box = Html.create('div', { 'data-role': 'box' });
                 $box.addClass(this.direction);
@@ -49,7 +49,7 @@ var Admin;
                 $loading.append($box);
                 this.component.$getContent().append($loading);
             }
-            const $loading = Html.get('div[data-type=loading][data-role=loading]', this.component.$getContent());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent());
             return $loading;
         }
         /**
@@ -65,7 +65,7 @@ var Admin;
          * 로딩메시지를 닫는다.
          */
         close() {
-            const $loading = Html.get('div[data-type=loading][data-role=loading]', this.component.$getContent());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent());
             if ($loading.getEl() !== null) {
                 $loading.remove();
             }
