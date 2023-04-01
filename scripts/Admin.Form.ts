@@ -23,9 +23,9 @@ namespace Admin {
                 loadingType?: Admin.Loading.Type;
 
                 /**
-                 * @type {string} loadingMessage - 로딩메시지
+                 * @type {string} loadingText - 로딩메시지
                  */
-                loadingMessage?: string;
+                loadingText?: string;
             }
         }
 
@@ -48,7 +48,7 @@ namespace Admin {
 
                 this.loading = new Admin.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
-                    message: this.properties.loadingMessage ?? null,
+                    message: this.properties.loadingText ?? null,
                 });
             }
 
@@ -1753,9 +1753,9 @@ namespace Admin {
                     loadingType?: Admin.Loading.Type;
 
                     /**
-                     * @type {string} loadingMessage - 로딩메시지
+                     * @type {string} loadingText - 로딩메시지
                      */
-                    loadingMessage?: string;
+                    loadingText?: string;
                 }
             }
 
@@ -1821,7 +1821,7 @@ namespace Admin {
                     this.loading = new Admin.Loading(this, {
                         type: this.properties.loadingType ?? 'column',
                         direction: 'row',
-                        message: this.properties.loadingMessage ?? null,
+                        message: this.properties.loadingText ?? null,
                     });
                 }
 
@@ -2025,6 +2025,7 @@ namespace Admin {
                  */
                 expand(): void {
                     this.getAbsolute().show();
+                    this.loading.hide();
 
                     if (this.value !== null) {
                         this.getStore()
@@ -2163,8 +2164,10 @@ namespace Admin {
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
                  */
                 onBeforeLoad(): void {
-                    this.loading.show();
-                    this.getForm().setLoading(this, true, false);
+                    if (this.isExpand() == false) {
+                        this.loading.show();
+                    }
+                    this.getForm()?.setLoading(this, true, false);
                     this.fireEvent('beforeLoad', [this.getStore(), this]);
                 }
 
@@ -2176,7 +2179,7 @@ namespace Admin {
                         this.setValue(this.rawValue);
                     }
                     this.loading.hide();
-                    this.getForm().setLoading(this, false);
+                    this.getForm()?.setLoading(this, false);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
 
@@ -3152,7 +3155,7 @@ namespace Admin {
                             },
                             listeners: {
                                 change: async (field: Admin.Form.Field.Select, value: string) => {
-                                    this.getForm().setLoading(this, true);
+                                    this.getForm()?.setLoading(this, true);
                                     field.disable();
 
                                     const configs = await Admin.Ajax.get(this.configsUrl, this.getConfigsParams(value));
@@ -3179,7 +3182,7 @@ namespace Admin {
                                     }
 
                                     this.updateValue();
-                                    this.getForm().setLoading(this, false);
+                                    this.getForm()?.setLoading(this, false);
                                 },
                             },
                         });

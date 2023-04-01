@@ -60,7 +60,7 @@ var Admin;
                 this.loading = new Admin.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
                     direction: 'column',
-                    message: this.properties.loadingMessage ?? null,
+                    message: this.properties.loadingText ?? null,
                 });
             }
             /**

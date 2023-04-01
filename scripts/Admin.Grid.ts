@@ -33,9 +33,9 @@ namespace Admin {
                 loadingType?: Admin.Loading.Type;
 
                 /**
-                 * @type {string} loadingMessage - 로딩메시지
+                 * @type {string} loadingText - 로딩메시지
                  */
-                loadingMessage?: string;
+                loadingText?: string;
             }
         }
 
@@ -98,7 +98,7 @@ namespace Admin {
                 this.loading = new Admin.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
                     direction: 'column',
-                    message: this.properties.loadingMessage ?? null,
+                    message: this.properties.loadingText ?? null,
                 });
             }
 

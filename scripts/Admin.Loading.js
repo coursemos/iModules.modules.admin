@@ -14,7 +14,7 @@ var Admin;
         component;
         type;
         direction;
-        message;
+        text;
         /**
          * 로딩메시지를 생성한다.
          *
@@ -26,7 +26,7 @@ var Admin;
             this.component = component;
             this.type = this.properties.type;
             this.direction = this.properties.direction ?? 'column';
-            this.message = this.properties.message ?? null;
+            this.text = this.properties.text ?? null;
         }
         /**
          * 로딩메시지 DOM 을 가져온다.
@@ -43,9 +43,9 @@ var Admin;
                 if (this.type == 'column') {
                     $indicator.html('<i></i><i></i><i></i>');
                 }
-                const $message = Html.create('div', { 'data-role': 'message' });
-                $message.html(this.message ?? Admin.printText('actions/loading'));
-                $box.append($message);
+                const $text = Html.create('div', { 'data-role': 'text' });
+                $text.html(this.text ?? Admin.printText('actions/loading'));
+                $box.append($text);
                 $loading.append($box);
                 this.component.$getContent().append($loading);
             }
@@ -53,13 +53,26 @@ var Admin;
             return $loading;
         }
         /**
+         * 로딩메시지를 설정한다.
+         *
+         * @param {string} text - 로딩메시지
+         */
+        setText(text) {
+            const $loading = this.$getLoading();
+            const $text = Html.get('div[data-role=text]', $loading);
+            $text.html(text ?? Admin.printText('actions/loading'));
+        }
+        /**
          * 로딩메시지를 보인다.
          */
         show() {
-            this.$getLoading().setStyle('visibility', 'visible');
+            this.$getLoading().addClass('show');
         }
+        /**
+         * 로딩메시지를 숨긴다.
+         */
         hide() {
-            this.$getLoading().setStyle('visibility', 'hidden');
+            this.$getLoading().removeClass('show');
         }
         /**
          * 로딩메시지를 닫는다.

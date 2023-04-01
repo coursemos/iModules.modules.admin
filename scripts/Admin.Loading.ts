@@ -13,9 +13,20 @@ namespace Admin {
         export type Type = 'column' | 'box' | 'circle';
 
         export interface Properties extends Admin.Base.Properties {
+            /**
+             * @type {Admin.Loading.Type} type - 로딩아이콘 타입
+             */
             type: Admin.Loading.Type;
+
+            /**
+             * @type {direction} direction - 로딩아이콘 및 로딩메시지의 위치방향
+             */
             direction?: 'column' | 'row';
-            message?: string;
+
+            /**
+             * @type {string} text - 로딩메시지
+             */
+            text?: string;
         }
     }
 
@@ -24,7 +35,7 @@ namespace Admin {
 
         type: Admin.Loading.Type;
         direction: 'column' | 'row';
-        message: string;
+        text: string;
 
         /**
          * 로딩메시지를 생성한다.
@@ -38,7 +49,7 @@ namespace Admin {
             this.component = component;
             this.type = this.properties.type;
             this.direction = this.properties.direction ?? 'column';
-            this.message = this.properties.message ?? null;
+            this.text = this.properties.text ?? null;
         }
 
         /**
@@ -59,9 +70,9 @@ namespace Admin {
                     $indicator.html('<i></i><i></i><i></i>');
                 }
 
-                const $message = Html.create('div', { 'data-role': 'message' });
-                $message.html(this.message ?? Admin.printText('actions/loading'));
-                $box.append($message);
+                const $text = Html.create('div', { 'data-role': 'text' });
+                $text.html(this.text ?? Admin.printText('actions/loading'));
+                $box.append($text);
 
                 $loading.append($box);
                 this.component.$getContent().append($loading);
@@ -73,14 +84,28 @@ namespace Admin {
         }
 
         /**
+         * 로딩메시지를 설정한다.
+         *
+         * @param {string} text - 로딩메시지
+         */
+        setText(text: string): void {
+            const $loading = this.$getLoading();
+            const $text = Html.get('div[data-role=text]', $loading);
+            $text.html(text ?? Admin.printText('actions/loading'));
+        }
+
+        /**
          * 로딩메시지를 보인다.
          */
         show(): void {
-            this.$getLoading().setStyle('visibility', 'visible');
+            this.$getLoading().addClass('show');
         }
 
+        /**
+         * 로딩메시지를 숨긴다.
+         */
         hide(): void {
-            this.$getLoading().setStyle('visibility', 'hidden');
+            this.$getLoading().removeClass('show');
         }
 
         /**

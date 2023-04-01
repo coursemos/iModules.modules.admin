@@ -28,7 +28,7 @@ var Admin;
                 this.padding = this.properties.padding ?? 10;
                 this.loading = new Admin.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
-                    message: this.properties.loadingMessage ?? null,
+                    message: this.properties.loadingText ?? null,
                 });
             }
             /**
@@ -1349,7 +1349,7 @@ var Admin;
                     this.loading = new Admin.Loading(this, {
                         type: this.properties.loadingType ?? 'column',
                         direction: 'row',
-                        message: this.properties.loadingMessage ?? null,
+                        message: this.properties.loadingText ?? null,
                     });
                 }
                 /**
@@ -1532,6 +1532,7 @@ var Admin;
                  */
                 expand() {
                     this.getAbsolute().show();
+                    this.loading.hide();
                     if (this.value !== null) {
                         this.getStore()
                             .getRecords()
@@ -1662,8 +1663,10 @@ var Admin;
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
                  */
                 onBeforeLoad() {
-                    this.loading.show();
-                    this.getForm().setLoading(this, true, false);
+                    if (this.isExpand() == false) {
+                        this.loading.show();
+                    }
+                    this.getForm()?.setLoading(this, true, false);
                     this.fireEvent('beforeLoad', [this.getStore(), this]);
                 }
                 /**
@@ -1674,7 +1677,7 @@ var Admin;
                         this.setValue(this.rawValue);
                     }
                     this.loading.hide();
-                    this.getForm().setLoading(this, false);
+                    this.getForm()?.setLoading(this, false);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
                 /**
@@ -2425,7 +2428,7 @@ var Admin;
                             },
                             listeners: {
                                 change: async (field, value) => {
-                                    this.getForm().setLoading(this, true);
+                                    this.getForm()?.setLoading(this, true);
                                     field.disable();
                                     const configs = await Admin.Ajax.get(this.configsUrl, this.getConfigsParams(value));
                                     this.getFieldSet().empty();
@@ -2448,7 +2451,7 @@ var Admin;
                                         this.getFieldSet().show();
                                     }
                                     this.updateValue();
-                                    this.getForm().setLoading(this, false);
+                                    this.getForm()?.setLoading(this, false);
                                 },
                             },
                         });
