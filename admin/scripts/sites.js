@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/sites.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 21.
+ * @modified 2023. 4. 3.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -24,7 +24,6 @@ Admin.ready(async () => {
                 minWidth: 200,
                 columnResizable: false,
                 selectionMode: 'SINGLE',
-                autoLoad: true,
                 topbar: [
                     new Admin.Form.Field.Text({
                         name: 'keyword',
@@ -107,6 +106,7 @@ Admin.ready(async () => {
                 columnResizable: false,
                 selectionMode: 'SINGLE',
                 disabled: true,
+                autoLoad: false,
                 topbar: [
                     new Admin.Form.Field.Text({
                         name: 'keyword',
@@ -191,6 +191,7 @@ Admin.ready(async () => {
                 columnResizable: false,
                 selectionMode: 'SINGLE',
                 disabled: true,
+                autoLoad: false,
                 topbar: [
                     new Admin.Form.Field.Text({
                         name: 'keyword',
