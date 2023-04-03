@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 26.
+ * @modified 2023. 4. 3.
  */
 namespace Admin {
     export namespace Grid {
@@ -87,7 +87,7 @@ namespace Admin {
                 this.store.addEvent('update', () => {
                     this.onUpdate();
                 });
-                this.autoLoad = this.properties.autoLoad === true;
+                this.autoLoad = this.properties.autoLoad !== false;
 
                 this.initColumns();
 

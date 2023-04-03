@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 26.
+ * @modified 2023. 4. 3.
  */
 var Admin;
 (function (Admin) {
@@ -52,7 +52,7 @@ var Admin;
                 this.store.addEvent('update', () => {
                     this.onUpdate();
                 });
-                this.autoLoad = this.properties.autoLoad === true;
+                this.autoLoad = this.properties.autoLoad !== false;
                 this.initColumns();
                 this.$header = Html.create('div').setData('role', 'header');
                 this.$body = Html.create('div').setData('role', 'body');
