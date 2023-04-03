@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 19.
+ * @modified 2023. 4. 3.
  */
 namespace modules\admin;
 use \Router;
@@ -408,13 +408,11 @@ class Admin extends \Module
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Message.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Viewport.js');
         Cache::script('admin', $this->getBase() . '/scripts/Admin.Menu.js');
-        Cache::script('admin', $this->getBase() . '/scripts/script.js');
         Html::script(Cache::script('admin'), 10);
 
-        $hasInterface = false;
+        Cache::script('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.js');
         foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . 'Admin.js') == true) {
-                $hasInterface = true;
                 Cache::script(
                     'admin.interfaces',
                     $module->getBase() . '/admin/scripts/' . $module->getClassName() . 'Admin.js'
@@ -422,14 +420,11 @@ class Admin extends \Module
             }
 
             $scripts = $this->getAdminClass('module', $module->getName())?->scripts() ?? [];
-            $hasInterface = $hasInterface == true || count($scripts) > 0;
             foreach ($scripts as $script) {
                 Cache::script('admin.interfaces', $script);
             }
         }
-        if ($hasInterface == true) {
-            Html::script(Cache::script('admin.interfaces'), 15);
-        }
+        Html::script(Cache::script('admin.interfaces'), 15);
 
         Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
         Cache::style('admin', $this->getBase() . '/styles/Admin.Loading.scss');
@@ -452,10 +447,9 @@ class Admin extends \Module
         Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.scss');
         Html::style(Cache::style('admin'), 10);
 
-        $hasInterface = false;
+        Cache::style('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.scss');
         foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
-                $hasInterface = true;
                 Cache::style(
                     'admin.interfaces',
                     $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.css'
@@ -463,7 +457,6 @@ class Admin extends \Module
             }
 
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.scss') == true) {
-                $hasInterface = true;
                 Cache::style(
                     'admin.interfaces',
                     $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.scss'
@@ -471,14 +464,11 @@ class Admin extends \Module
             }
 
             $styles = $this->getAdminClass('module', $module->getName())?->styles() ?? [];
-            $hasInterface = $hasInterface == true || count($styles) > 0;
             foreach ($styles as $style) {
                 Cache::style('admin.interfaces', $style);
             }
         }
-        if ($hasInterface == true) {
-            Html::style(Cache::style('admin.interfaces'), 15);
-        }
+        Html::style(Cache::style('admin.interfaces'), 15);
 
         /**
          * 웹폰트를 불러온다.
