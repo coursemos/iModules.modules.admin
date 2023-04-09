@@ -7,7 +7,9 @@
  * @file /modules/admin/process/contexts.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 22.
+ * @modified 2023. 4. 7.
+ *
+ * @var \modules\admin\Admin $me
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
@@ -15,12 +17,10 @@ if (defined('__IM_PROCESS__') == false) {
 
 /**
  * 관리자권한이 존재하는지 확인한다.
- * @var \modules\admin\Admin $mAdmin
  */
-$mAdmin = Modules::get('admin');
-if ($mAdmin->isAdmin() == false) {
+if ($me->isAdmin() == false) {
     $results->success = false;
-    $results->message = $mAdmin->getErrorText('FORBIDDEN');
+    $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 

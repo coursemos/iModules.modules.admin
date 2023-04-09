@@ -7,8 +7,9 @@
  * @file /modules/admin/process/module.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 12.
+ * @modified 2023. 4. 7.
  *
+ * @var \modules\admin\Admin $me
  * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
@@ -17,12 +18,10 @@ if (defined('__IM_PROCESS__') == false) {
 
 /**
  * 관리자권한이 존재하는지 확인한다.
- * @var \modules\admin\Admin $mAdmin
  */
-$mAdmin = Modules::get('admin');
-if ($mAdmin->isAdmin() == false) {
+if ($me->isAdmin() == false) {
     $results->success = false;
-    $results->message = $mAdmin->getErrorText('FORBIDDEN');
+    $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 
@@ -31,7 +30,7 @@ $name = $input->get('name', $errors);
 $module = Modules::get($name);
 if ($module === null) {
     $results->success = false;
-    $results->message = $mAdmin->getErrorText('NOT_FOUND_MODULE', ['module' => $name]);
+    $results->message = $me->getErrorText('NOT_FOUND_MODULE', ['module' => $name]);
     return;
 }
 $configs = $input->get('configs') ? $module->getPackage()->getConfigs($input->get('configs')) : null;
@@ -40,14 +39,14 @@ $installable = Modules::installable($name);
 if ($installable->success == false) {
     $results->success = false;
     if (isset($installable->dependencies['core']) == true) {
-        $results->message = $mAdmin->getErrorText('DEPENDENCY_ERROR_CORE', [
+        $results->message = $me->getErrorText('DEPENDENCY_ERROR_CORE', [
             'requirement' => $installable->dependencies['core']->requirement,
             'current' => $installable->dependencies['core']->current,
         ]);
     } else {
         $dependencies = [];
         foreach ($installable->dependencies as $name => $versions) {
-            $dependencies[] = $mAdmin->getErrorText('DEPENDENCY_ERROR_MODULE', [
+            $dependencies[] = $me->getErrorText('DEPENDENCY_ERROR_MODULE', [
                 'name' => $name,
                 'requirement' => $versions->requirement,
                 'current' => $versions->current,
