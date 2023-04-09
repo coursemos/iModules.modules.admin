@@ -85,6 +85,15 @@ namespace Admin {
         }
 
         /**
+         * 버튼 DOM 을 가져온다.
+         *
+         * @returns {Dom} $button
+         */
+        $getButton(): Dom {
+            return this.$button;
+        }
+
+        /**
          * 아이콘 클래스를 변경한다.
          *
          * @param {string} iconClass - 변경할 아이콘 클래스
