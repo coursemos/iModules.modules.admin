@@ -199,7 +199,10 @@ var Admin;
     /**
      * 프로세스 URL 경로를 가져온다.
      *
-     * @return {string} baseUrl
+     * @param {'module'|'plugin'|'widget'} type - 컴포넌트 타입
+     * @param {string} name - 컴포넌트명
+     * @param {string} path - 실행경로
+     * @return {string} processUrl
      */
     function getProcessUrl(type, name, path) {
         const is_rewrite = Html.get('body').getAttr('data-rewrite') === 'true';
