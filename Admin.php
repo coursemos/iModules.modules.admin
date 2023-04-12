@@ -447,7 +447,7 @@ class Admin extends \Module
         Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.scss');
         Html::style(Cache::style('admin'), 10);
 
-        Cache::style('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.scss');
+        Cache::style('admin.interfaces', $this->getBase() . '/admin/styles/Admin.scss');
         foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
                 Cache::style(
