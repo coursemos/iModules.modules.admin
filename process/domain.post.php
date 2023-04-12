@@ -35,7 +35,8 @@ $insert['is_internationalization'] = $input->get('is_internationalization') ?? '
 $insert['membership'] = $input->get('membership') ?? 'DEPENDENCE';
 
 $origin = $input->get('origin');
-$check = $this->db()
+$check = $me
+    ->db()
     ->select()
     ->from(iModules::table('domains'))
     ->where('host', $insert['host']);
@@ -43,22 +44,23 @@ if ($origin !== null) {
     $check->where('host', $origin, '!=');
 }
 if ($check->has() == true) {
-    $errors['host'] = $this->getErrorText('DUPLICATED');
+    $errors['host'] = $me->getErrorText('DUPLICATED');
 }
 
 if (count($errors) == 0) {
     if ($origin === null) {
         $insert['language'] = Router::getLanguage();
-        $insert['sort'] = $this->db()
+        $insert['sort'] = $me
+            ->db()
             ->select()
             ->from(iModules::table('domains'))
             ->count();
 
-        $this->db()
+        $me->db()
             ->insert(iModules::table('domains'), $insert)
             ->execute();
     } else {
-        $this->db()
+        $me->db()
             ->update(iModules::table('domains'), $insert)
             ->where('host', $origin)
             ->execute();
