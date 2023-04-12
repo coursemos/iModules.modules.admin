@@ -111,6 +111,7 @@ div[data-type='loading'][data-role='loading'] {
         > div[data-role='indicator'] {
             width: var(--loading-box-size);
             height: var(--loading-box-size);
+            flex-shrink: 0;
             position: relative;
 
             &[data-type='column'] {
