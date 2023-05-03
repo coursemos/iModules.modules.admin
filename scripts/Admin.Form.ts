@@ -237,7 +237,7 @@ namespace Admin {
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
-                        this.getField(name)?.setValue(response.data[name]);
+                        this.getField(name)?.setValue(response.data[name], true);
                     }
                 }
 
@@ -272,13 +272,7 @@ namespace Admin {
                 this.setLoading(this, true, message ?? Admin.printText('actions/saving_status'));
 
                 const data = this.getValues();
-                if (params !== null) {
-                    for (const key in params) {
-                        data[key] = params[key];
-                    }
-                }
-
-                const response = await Admin.Ajax.post(url, data);
+                const response = await Admin.Ajax.post(url, data, params, false);
                 if (response.success == false && typeof response.errors == 'object') {
                     for (const name in response.errors) {
                         this.getField(name)?.setError(true, response.errors[name]);
@@ -535,8 +529,8 @@ namespace Admin {
                             name: field.name ?? null,
                             label: field.label ?? null,
                             value: field.value?.name ?? null,
-                            targetType: field.target.type,
-                            targetName: field.target.name,
+                            componentType: field.component.type,
+                            componentName: field.component.name,
                         });
 
                     default:
@@ -634,6 +628,7 @@ namespace Admin {
                 width: number;
 
                 value: any = null;
+                pValue: any = null;
                 oValue: any = null;
                 validator: (value: string, field: Admin.Form.Field.Base) => Promise<boolean | string>;
                 validation: boolean | string = true;
@@ -664,8 +659,9 @@ namespace Admin {
                     this.scrollable = false;
                     this.validator = this.properties.validator ?? null;
 
-                    this.value = this.properties.value ?? null;
-                    this.oValue = this.value;
+                    this.value = undefined;
+                    this.pValue = undefined;
+                    this.oValue = this.properties.value ?? null;
                     this.readonly = this.properties.readonly === true;
 
                     if (this.label !== null) {
@@ -749,13 +745,18 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     this.value = value;
 
-                    if (this.isChanged() === true) {
+                    if (Format.isEqual(value, this.pValue) == false) {
                         this.onChange();
-                        this.oValue = this.value;
+                        this.pValue = value;
+                    }
+
+                    if (is_origin == true) {
+                        this.oValue = value;
                     }
                 }
 
@@ -796,38 +797,21 @@ namespace Admin {
                 }
 
                 /**
+                 * 필드값을 원상태로 복원한다.
+                 */
+                rollback(): void {
+                    if (this.isDirty() == true) {
+                        this.setValue(this.oValue);
+                    }
+                }
+
+                /**
                  * 필드값 변경여부를 가져온다.
                  *
-                 * @return {boolean} is_changed
+                 * @return {boolean} is_dirty
                  */
-                isChanged(): boolean {
-                    if (this.value === null || this.oValue === null) {
-                        return this.value !== this.oValue;
-                    }
-
-                    if (typeof this.value != typeof this.oValue) {
-                        return true;
-                    }
-
-                    if (Array.isArray(this.value) == true || Array.isArray(this.oValue) == true) {
-                        if (Array.isArray(this.value) != Array.isArray(this.oValue)) {
-                            return true;
-                        }
-
-                        if (this.value.length != this.oValue.length) {
-                            return true;
-                        }
-
-                        for (const v of this.value) {
-                            if (this.oValue.includes(v) == false) {
-                                return true;
-                            }
-                        }
-
-                        return false;
-                    } else {
-                        return this.value !== this.oValue;
-                    }
+                isDirty(): boolean {
+                    return Format.isEqual(this.value, this.oValue) !== true;
                 }
 
                 /**
@@ -1042,10 +1026,19 @@ namespace Admin {
                 }
 
                 /**
+                 * 필드가 랜더링되었을 때 이벤트를 처리한다.
+                 */
+                onRender(): void {
+                    if (this.oValue !== null && this.value === undefined) {
+                        this.setValue(this.oValue, true);
+                    }
+                }
+
+                /**
                  * 입력값이 변경되었을 때 이벤트를 처리한다.
                  */
                 onChange(): void {
-                    this.fireEvent('change', [this, this.getValue(), this.getRawValue(), this.oValue]);
+                    this.fireEvent('change', [this, this.getValue(), this.getRawValue(), this.pValue, this.oValue]);
                 }
             }
 
@@ -1434,14 +1427,13 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     value = value?.toString() ?? '';
-                    if (this.$getInput().getValue() != value) {
-                        this.$getInput().setValue(value);
-                    }
+                    this.$getInput().setValue(value);
 
-                    super.setValue(value);
+                    super.setValue(value, is_origin);
                 }
 
                 /**
@@ -1457,10 +1449,6 @@ namespace Admin {
                  */
                 onRender(): void {
                     super.onRender();
-
-                    if (this.value !== undefined || this.value !== null) {
-                        this.setValue(this.value);
-                    }
 
                     this.hide();
                 }
@@ -1545,8 +1533,9 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     value = value?.toString() ?? '';
                     if (this.$getInput().getValue() != value) {
                         this.$getInput().setValue(value);
@@ -1558,7 +1547,7 @@ namespace Admin {
                         this.$getEmptyText().show();
                     }
 
-                    super.setValue(value);
+                    super.setValue(value, is_origin);
                 }
 
                 /**
@@ -1567,17 +1556,6 @@ namespace Admin {
                 renderContent(): void {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
-                }
-
-                /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    super.onRender();
-
-                    if (this.value !== undefined || this.value !== null) {
-                        this.setValue(this.value);
-                    }
                 }
 
                 /**
@@ -1651,8 +1629,9 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     value = value?.toString() ?? '';
                     if (this.renderer === null) {
                         this.$getDisplay().html(value);
@@ -1660,7 +1639,7 @@ namespace Admin {
                         this.$getDisplay().html(this.renderer(value, this));
                     }
 
-                    super.setValue(value);
+                    super.setValue(value, is_origin);
                 }
 
                 /**
@@ -1670,16 +1649,368 @@ namespace Admin {
                     const $display = this.$getDisplay();
                     this.$getContent().append($display);
                 }
+            }
+
+            export namespace File {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {string} accept - 업로드 허용파일
+                     */
+                    accept?: string;
+
+                    /**
+                     * @type {boolean} multiple - 다중파일 선택여부
+                     */
+                    multiple?: boolean;
+                }
+            }
+
+            export class File extends Admin.Form.Field.Base {
+                type: string = 'form';
+                role: string = 'field';
+                field: string = 'file';
+
+                accept: string;
+                multiple: boolean;
+                attachment: modules.attachment.Attachment;
+                uploader: modules.attachment.Uploader;
+                $files: Dom;
+
+                button: Admin.Button;
 
                 /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 * 템플릿필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Theme.Properties} properties - 객체설정
                  */
-                onRender(): void {
-                    super.onRender();
+                constructor(properties: Admin.Form.Field.File.Properties = null) {
+                    super(properties);
 
-                    if (this.value !== undefined || this.value !== null) {
-                        this.setValue(this.value);
+                    this.accept = this.properties.accept ?? '*';
+                    this.multiple = this.properties.multiple !== false;
+
+                    if (Array.isArray(this.oValue) === false) {
+                        this.oValue = null;
                     }
+                }
+
+                /**
+                 * 파일선택 버튼을 가져온다.
+                 *
+                 * @return {Admin.Button} button
+                 */
+                getButton(): Admin.Button {
+                    if (this.button === undefined) {
+                        this.button = new Admin.Button({
+                            text: this.properties.buttonText ?? Admin.printText('buttons/file_select'),
+                            handler: () => {
+                                this.select();
+                            },
+                        });
+                    }
+                    return this.button;
+                }
+
+                /**
+                 * 첨부파일 모듈 클래스를 가져온다.
+                 *
+                 * @return {modules.attachment.Attachment} attachment
+                 */
+                getAttachment(): modules.attachment.Attachment {
+                    if (this.attachment === undefined) {
+                        this.attachment = Modules.get('attachment') as modules.attachment.Attachment;
+                    }
+
+                    return this.attachment;
+                }
+
+                /**
+                 * 업로더를 가져온다.
+                 *
+                 * @return {modules.attachment.Uploader} uploader
+                 */
+                getUploader(): modules.attachment.Uploader {
+                    if (this.uploader === undefined) {
+                        this.uploader = this.getAttachment().set(this.$getContent(), {
+                            accept: this.accept,
+                            multiple: this.multiple,
+                            listeners: {
+                                start: () => {
+                                    this.onUploadstart();
+                                },
+                                complete: (uploader: modules.attachment.Uploader) => {
+                                    this.onUploadComplete(uploader);
+                                },
+                            },
+                        });
+                    }
+
+                    return this.uploader;
+                }
+
+                /**
+                 * 파일목록 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $files
+                 */
+                $getFiles(): Dom {
+                    if (this.$files === undefined) {
+                        this.$files = Html.create('ul', { 'data-role': 'files' });
+                    }
+
+                    return this.$files;
+                }
+
+                /**
+                 * 파일을 선택한다.
+                 */
+                select(): void {
+                    this.getUploader().select();
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value: any, is_origin: boolean = false): void {
+                    if (value !== null && Array.isArray(value) == true) {
+                        this.getUploader().setValue(value);
+                    } else {
+                        this.getUploader().setValue([]);
+                    }
+
+                    super.setValue(this.getUploader().getValue(), is_origin);
+                }
+
+                /**
+                 * 파일 필드를 랜더링한다.
+                 */
+                renderContent(): void {
+                    this.$getContent().append(this.getButton().$getComponent());
+                    this.getButton().render();
+
+                    this.$getContent().append(this.$getFiles());
+                }
+
+                /**
+                 * 업로드 시작이벤트를 처리한다.
+                 */
+                onUploadstart(): void {
+                    this.getForm().setLoading(this, true);
+                }
+
+                /**
+                 * 업로드 종료이벤트를 처리한다.
+                 */
+                onUploadComplete(uploader: modules.attachment.Uploader): void {
+                    this.getForm().setLoading(this, false);
+                    console.log('File.complete', uploader.getValue());
+                    this.setValue(uploader.getValue());
+                }
+            }
+
+            export namespace Image {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {number} imageWidth - 이미지 미리보기 너비
+                     */
+                    imageWidth?: number;
+
+                    /**
+                     * @type {number} imageHeight - 이미지 미리보기 높이
+                     */
+                    imageHeight?: number;
+
+                    /**
+                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
+                     */
+                    emptyText?: string;
+                }
+            }
+
+            export class Image extends Admin.Form.Field.File {
+                type: string = 'form';
+                role: string = 'field';
+                field: string = 'image';
+
+                reset: Admin.Button;
+
+                $preview: Dom;
+
+                imageWidth: number;
+                imageHeight: number;
+
+                emptyText: string;
+                $emptyText: Dom;
+
+                $display: Dom;
+
+                /**
+                 * 템플릿필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Theme.Properties} properties - 객체설정
+                 */
+                constructor(properties: Admin.Form.Field.Theme.Properties = null) {
+                    super(properties);
+
+                    this.accept = this.properties.accept ?? 'image/*';
+                    this.multiple = false;
+
+                    const imageWidth = this.properties.imageWidth ?? 54;
+                    const imageHeight = this.properties.imageHeight ?? 54;
+
+                    this.imageWidth = Math.min(200, Math.round((imageWidth * 54) / imageHeight));
+                    this.imageHeight = 54;
+
+                    this.emptyText = this.properties.emptyText ?? '';
+                    this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+                }
+
+                /**
+                 * 초기화 버튼을 가져온다.
+                 *
+                 * @return {Admin.Button} button
+                 */
+                getReset(): Admin.Button {
+                    if (this.reset === undefined) {
+                        this.reset = new Admin.Button({
+                            text: this.properties.buttonText ?? Admin.printText('buttons/file_select'),
+                            handler: () => {
+                                //this.select();
+                            },
+                        });
+                    }
+                    return this.reset;
+                }
+
+                /**
+                 * 이미지 미리보기 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $files
+                 */
+                $getPreview(): Dom {
+                    if (this.$preview === undefined) {
+                        this.$preview = Html.create('ul', { 'data-role': 'files' });
+                        this.$preview.setStyle('width', this.imageWidth + 'px');
+                        this.$preview.setStyle('height', this.imageHeight + 'px');
+                    }
+
+                    return this.$preview;
+                }
+
+                /**
+                 * 파일정보 DOM 객체를 가져온다.
+                 *
+                 * @return {Dom} $display
+                 */
+                $getDisplay(): Dom {
+                    if (this.$display === undefined) {
+                        this.$display = Html.create('div', { 'data-role': 'display' });
+                    }
+
+                    return this.$display;
+                }
+
+                /**
+                 * placeHolder DOM 객체를 가져온다.
+                 *
+                 * @return {Dom} $emptyText
+                 */
+                $getEmptyText(): Dom {
+                    if (this.$emptyText === undefined) {
+                        this.$emptyText = Html.create('div', { 'data-role': 'empty' });
+                    }
+
+                    return this.$emptyText;
+                }
+
+                /**
+                 * placeHolder 문자열을 설정한다.
+                 *
+                 * @param {string} emptyText - placeHolder (NULL 인 경우 표시하지 않음)
+                 */
+                setEmptyText(emptyText: string = null): void {
+                    this.emptyText = emptyText === null || emptyText.length == 0 ? null : emptyText;
+
+                    if (this.isRendered() == true) {
+                        this.updateLayout();
+                    }
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value: any, is_origin: boolean = false): void {
+                    if (value !== null) {
+                        this.getUploader().setValue(Array.isArray(value) == true ? [value[0]] : [value]);
+                    } else {
+                        this.getUploader().setValue([]);
+                    }
+
+                    value = this.getUploader().getValue().length == 0 ? null : this.getUploader().getValue()[0];
+                    super.setValue(value, is_origin);
+
+                    if (value == null) {
+                        this.$getEmptyText().show();
+                        this.$getDisplay().hide();
+                    } else {
+                        this.$getEmptyText().hide();
+                        this.$getDisplay().show();
+                    }
+                }
+
+                /**
+                 * 파일 필드를 랜더링한다.
+                 */
+                renderContent(): void {
+                    this.$getContent().append(this.$getPreview());
+
+                    const $components = Html.create('div', { 'data-role': 'components' });
+                    const $buttons = Html.create('div', { 'data-role': 'buttons' });
+                    $buttons.append(this.getButton().$getComponent());
+                    this.getButton().render();
+                    $buttons.append(this.getReset().$getComponent());
+                    this.getReset().render();
+                    $components.append($buttons);
+
+                    $components.append(this.$getEmptyText());
+                    $components.append(this.$getDisplay());
+
+                    this.$getContent().append($components);
+                }
+
+                /**
+                 * 필드 레이아웃을 업데이트한다.
+                 */
+                updateLayout(): void {
+                    super.updateLayout();
+
+                    const $emptyText = this.$getEmptyText();
+                    $emptyText.html(this.emptyText);
+                }
+
+                /**
+                 * 업로드 종료이벤트를 처리한다.
+                 */
+                onUploadComplete(uploader: modules.attachment.Uploader): void {
+                    const file = uploader.getFileById(uploader.getValue()[0]);
+
+                    this.$getDisplay().html(
+                        '<span><small>(' +
+                            Format.size(file.attachment.size) +
+                            ')</small><b>' +
+                            file.attachment.name +
+                            '</b></span>'
+                    );
+
+                    console.log('image', file);
+
+                    super.onUploadComplete(uploader);
                 }
             }
 
@@ -1808,7 +2139,6 @@ namespace Admin {
                     this.listField = this.properties.listField ?? 'display';
 
                     this.rawValue = this.properties.value ?? null;
-                    this.value = null;
 
                     this.renderer =
                         this.properties.displayRenderer ??
@@ -1967,8 +2297,9 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     this.rawValue = value;
 
                     if (this.getStore().isLoaded() == false) {
@@ -1993,7 +2324,7 @@ namespace Admin {
                         );
                     }
 
-                    super.setValue(value);
+                    super.setValue(value, is_origin);
                 }
 
                 /**
@@ -2152,11 +2483,9 @@ namespace Admin {
                  * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
                  */
                 onRender(): void {
-                    super.onRender();
-
                     if (this.rawValue !== null) {
                         if (this.getStore().isLoaded() === true) {
-                            this.setValue(this.rawValue);
+                            this.setValue(this.rawValue, true);
                         } else {
                             this.getStore().load();
                         }
@@ -2178,8 +2507,8 @@ namespace Admin {
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad(): void {
-                    if (this.rawValue !== null) {
-                        this.setValue(this.rawValue);
+                    if (this.rawValue !== null && this.value === undefined) {
+                        this.setValue(this.rawValue, true);
                     }
                     this.loading.hide();
                     this.getForm()?.setLoading(this, false);
@@ -2293,8 +2622,9 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     value = value?.toString() ?? '';
                     if (this.$getInput().getValue() != value) {
                         this.$getInput().setValue(value);
@@ -2306,7 +2636,7 @@ namespace Admin {
                         this.$emptyText.show();
                     }
 
-                    super.setValue(value);
+                    super.setValue(value, is_origin);
                 }
 
                 /**
@@ -2315,17 +2645,6 @@ namespace Admin {
                 renderContent(): void {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
-                }
-
-                /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    super.onRender();
-
-                    if (this.value !== undefined || this.value !== null) {
-                        this.setValue(this.value);
-                    }
                 }
 
                 /**
@@ -2391,8 +2710,7 @@ namespace Admin {
                     this.onValue = this.properties.onValue ?? 'ON';
                     this.offValue = this.properties.offValue ?? null;
                     this.checked = this.properties.checked ?? false;
-                    this.value = this.checked;
-                    this.oValue = this.value;
+                    this.oValue = this.checked;
                 }
 
                 /**
@@ -2479,12 +2797,13 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     this.$getInput().setValue(value);
                     this.checked = this.getValue();
 
-                    super.setValue(this.checked);
+                    super.setValue(this.checked, is_origin);
                 }
 
                 /**
@@ -2540,14 +2859,6 @@ namespace Admin {
                 }
 
                 /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    super.onRender();
-                    this.setValue(this.checked);
-                }
-
-                /**
                  * 필드 레이아웃을 업데이트한다.
                  */
                 updateLayout(): void {
@@ -2593,9 +2904,9 @@ namespace Admin {
                     this.columns = this.properties.columns ?? 1;
                     this.gap = this.properties.gap ?? 5;
                     this.options = this.properties.options ?? {};
-                    this.value = this.properties.value ?? [];
-                    if (Array.isArray(this.value) === false) {
-                        this.value = [this.value];
+                    this.oValue = this.properties.value ?? [];
+                    if (Array.isArray(this.oValue) === false) {
+                        this.oValue = [this.oValue];
                     }
                 }
 
@@ -2631,8 +2942,9 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {string|string[]} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: string | string[]): void {
+                setValue(value: string | string[], is_origin: boolean = false): void {
                     if (typeof value == 'string') {
                         value = [value];
                     }
@@ -2645,7 +2957,7 @@ namespace Admin {
                         }
                     });
 
-                    super.setValue(this.getValue());
+                    super.setValue(this.getValue(), is_origin);
                 }
 
                 /**
@@ -2699,14 +3011,6 @@ namespace Admin {
                     $inputs.setStyle('grid-gap', this.gap + 'px');
                     $content.append($inputs);
                 }
-
-                /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    super.onRender();
-                    this.setValue(this.value);
-                }
             }
 
             export namespace Radio {
@@ -2748,8 +3052,7 @@ namespace Admin {
                     this.boxLabel = this.properties.boxLabel ?? '';
                     this.onValue = this.properties.onValue ?? 'ON';
                     this.checked = this.properties.checked ?? false;
-                    this.value = this.checked;
-                    this.oValue = this.value;
+                    this.oValue = this.checked;
                 }
 
                 /**
@@ -2800,13 +3103,14 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     this.$getInput().setValue(value);
                     this.checked = this.getValue();
 
-                    super.setValue(this.checked);
                     this.updateChecked();
+                    super.setValue(this.checked, is_origin);
                 }
 
                 /**
@@ -2815,7 +3119,6 @@ namespace Admin {
                  * @param {any} value - 값
                  */
                 updateValue(value: any): void {
-                    this.oValue = value;
                     this.value = value;
                     this.checked = value;
                 }
@@ -2899,14 +3202,6 @@ namespace Admin {
                 }
 
                 /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    super.onRender();
-                    this.setValue(this.checked);
-                }
-
-                /**
                  * 필드 레이아웃을 업데이트한다.
                  */
                 updateLayout(): void {
@@ -2985,15 +3280,16 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {string} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: string): void {
+                setValue(value: string, is_origin: boolean = false): void {
                     for (const item of this.items as Admin.Form.Field.Radio[]) {
                         if (item.onValue == value) {
                             item.setValue(true);
                         }
                     }
 
-                    super.setValue(this.getValue());
+                    super.setValue(this.getValue(), is_origin);
                 }
 
                 /**
@@ -3046,19 +3342,18 @@ namespace Admin {
                     $inputs.setStyle('grid-gap', this.gap + 'px');
                     $content.append($inputs);
                 }
-
-                /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    super.onRender();
-                    this.setValue(this.value);
-                }
             }
 
             export namespace Theme {
                 export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {number} gap - 설정필드간 간격
+                     */
                     gap?: number;
+
+                    /**
+                     * @type {Object} configsParams - 설정필드값을 가져오기 위한 추가변수
+                     */
                     configsParams?: { [key: string]: string };
                 }
             }
@@ -3085,11 +3380,10 @@ namespace Admin {
                 constructor(properties: Admin.Form.Field.Theme.Properties = null) {
                     super(properties);
 
-                    this.value = this.properties.value ?? null;
-                    if (this.value !== null && typeof this.value == 'string') {
-                        this.value = { name: this.value, configs: {} };
+                    this.oValue = this.properties.value ?? null;
+                    if (this.oValue !== null && typeof this.oValue == 'string') {
+                        this.oValue = { name: this.oValue, configs: {} };
                     }
-                    this.oValue = this.value;
 
                     this.gap = this.properties.gap ?? 5;
 
@@ -3215,20 +3509,15 @@ namespace Admin {
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any): void {
+                setValue(value: any, is_origin: boolean = false): void {
                     if (typeof value == 'string') {
-                        this.value = { name: value, configs: this.value?.configs ?? {} };
-                    } else {
-                        this.value = value;
+                        value = { name: value, configs: this.value?.configs ?? {} };
                     }
 
-                    this.getSelect().setValue(this.value?.name ?? null);
-
-                    if (this.isChanged() === true) {
-                        this.onChange();
-                        this.oValue = this.value;
-                    }
+                    this.getSelect().setValue(value?.name ?? null);
+                    super.setValue(value, is_origin);
                 }
 
                 /**
@@ -3242,10 +3531,7 @@ namespace Admin {
                         configs[item.name] = item.getValue();
                     }
 
-                    if (this.value?.name != name || JSON.stringify(this.value?.configs) != JSON.stringify(configs)) {
-                        this.setValue({ name: name, configs: configs });
-                        return;
-                    }
+                    this.setValue({ name: name, configs: configs });
                 }
 
                 /**
@@ -3262,30 +3548,19 @@ namespace Admin {
                     }
                     this.$getContent().append($fields);
                 }
-
-                /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    super.onRender();
-
-                    if ((this.value?.name ?? null) !== null) {
-                        this.getSelect().setValue(this.value.name);
-                    }
-                }
             }
 
             export namespace Template {
                 export interface Properties extends Admin.Form.Field.Theme.Properties {
                     /**
-                     * @type {'module'|'plugin'|'widget'} targetType - 템플릿을 불러올 컴포넌트타입
+                     * @type {'module'|'plugin'|'widget'} componentType - 템플릿을 불러올 컴포넌트타입
                      */
-                    targetType: 'module' | 'plugin' | 'widget';
+                    componentType: 'module' | 'plugin' | 'widget';
 
                     /**
-                     * @type {string} target - 컴포넌트 대상명
+                     * @type {string} componentName - 컴포넌트 대상명
                      */
-                    targetName: string;
+                    componentName: string;
                 }
             }
 
@@ -3294,8 +3569,8 @@ namespace Admin {
                 role: string = 'field';
                 field: string = 'template';
 
-                targetType: 'module' | 'plugin' | 'widget';
-                targetName: string;
+                componentType: 'module' | 'plugin' | 'widget';
+                componentName: string;
 
                 context?: { host: string; language: string; path: string } = null;
 
@@ -3307,22 +3582,14 @@ namespace Admin {
                 constructor(properties: Admin.Form.Field.Template.Properties = null) {
                     super(properties);
 
-                    this.targetType = this.properties.targetType;
-                    this.targetName = this.properties.targetName;
-                    this.value = this.properties.value ?? null;
-                    if (this.value !== null && typeof this.value == 'string') {
-                        this.value = { name: this.value, configs: {} };
-                    }
-                    this.oValue = this.value;
-
-                    this.gap = this.properties.gap ?? 5;
+                    this.componentType = this.properties.componentType;
+                    this.componentName = this.properties.componentName;
 
                     this.listUrl = Admin.getProcessUrl('module', 'admin', 'templates');
-                    this.listParams = { targetType: this.targetType, targetName: this.targetName };
+                    this.listParams = { componentType: this.componentType, componentName: this.componentName };
                     this.configsUrl = Admin.getProcessUrl('module', 'admin', 'template');
-                    this.configsParams = this.properties.configsParams ?? {};
-                    this.configsParams.targetType = this.targetType;
-                    this.configsParams.targetName = this.targetName;
+                    this.configsParams.componentType = this.componentType;
+                    this.configsParams.componentName = this.componentName;
                 }
 
                 /**
@@ -3349,8 +3616,8 @@ namespace Admin {
                 getConfigsParams(name: string): { [key: string]: any } {
                     const params = this.configsParams;
                     params.name = name;
-                    params.targetType = this.targetType;
-                    params.targetName = this.targetName;
+                    params.componentType = this.componentType;
+                    params.componentName = this.componentName;
 
                     if (this.context !== null) {
                         params.host = this.context.host;
