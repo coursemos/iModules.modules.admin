@@ -293,19 +293,13 @@ namespace Admin {
             }
 
             /**
-             * 목록을 랜더링한다.
-             */
-            renderContent(): void {
-                const $content = this.$getContent();
-                const $list = Html.create('ul', { 'data-role': 'list' });
-                $content.append($list);
-            }
-
-            /**
              * 목록 데이터를 업데이트한다.
              */
             updateContent(): void {
-                const $list = Html.get(' > ul[data-role=list]', this.$getContent());
+                const $content = this.$getContent();
+                $content.empty();
+                const $list = Html.create('ul', { 'data-role': 'list' });
+                $content.append($list);
 
                 this.getStore()
                     .getRecords()
