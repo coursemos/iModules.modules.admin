@@ -24,11 +24,11 @@ if ($me->checkPermission('/sites') == false) {
     return;
 }
 
-$targetType = Request::get('targetType', true);
-$targetName = Request::get('targetName', true);
+$componentType = Request::get('componentType', true);
+$componentName = Request::get('componentName', true);
 
-if ($targetType == 'module') {
-    $component = Modules::get($targetName);
+if ($componentType == 'module') {
+    $component = Modules::get($componentName);
 }
 
 $name = Request::get('name', true);
