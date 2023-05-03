@@ -25,7 +25,8 @@ if ($me->isAdmin() == false) {
 }
 
 $host = Request::get('host', true);
-$domain = $this->db()
+$domain = $me
+    ->db()
     ->select()
     ->from(iModules::table('domains'))
     ->where('host', $host)
@@ -33,7 +34,7 @@ $domain = $this->db()
 
 if ($domain === null) {
     $results->success = false;
-    $results->message = $this->getErrorText('NOT_FOUND');
+    $results->message = $me->getErrorText('NOT_FOUND');
     return;
 }
 
