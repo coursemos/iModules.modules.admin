@@ -34,7 +34,7 @@ $insert['is_rewrite'] = $input->get('is_rewrite') ?? 'FALSE';
 $insert['is_internationalization'] = $input->get('is_internationalization') ?? 'FALSE';
 $insert['membership'] = $input->get('membership') ?? 'DEPENDENCE';
 
-$origin = $input->get('origin');
+$origin = Request::get('host');
 $check = $me
     ->db()
     ->select()
