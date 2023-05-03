@@ -45,7 +45,7 @@ var Admin;
         /**
          * 버튼 DOM 을 가져온다.
          *
-         * @returns {Dom} $button
+         * @return {Dom} $button
          */
         $getButton() {
             return this.$button;
