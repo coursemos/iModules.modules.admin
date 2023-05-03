@@ -14,16 +14,25 @@ namespace Admin {
          * GET 방식으로 데이터를 가져온다.
          *
          * @param {string} url - 요청주소
-         * @param {Admin.Ajax.Params} params - 요청할 데이터
-         * @param {number} retry - 재시도횟수
+         * @param {Admin.Ajax.Params} params - GET 데이터
+         * @param {boolean|number} is_retry - 재시도여부
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
-        static async get(url: string, params: Admin.Ajax.Params = {}, retry: number = 0): Promise<Admin.Ajax.Results> {
-            const queryString = new URLSearchParams(params).toString();
-            if (queryString.length > 0) {
-                if (url.indexOf('?') === -1) url += '?' + queryString;
-                else url += '&' + queryString;
+        static async get(
+            url: string,
+            params: Admin.Ajax.Params = {},
+            is_retry: boolean | number = true
+        ): Promise<Admin.Ajax.Results> {
+            const requestUrl = new URL(url, location.origin);
+            for (const name in params) {
+                if (params[name] === null) {
+                    requestUrl.searchParams.delete(name);
+                } else {
+                    requestUrl.searchParams.append(name, params[name]);
+                }
             }
+            url = requestUrl.toString();
+            let retry = (is_retry === false ? 10 : is_retry) as number;
 
             try {
                 const response: Response = (await fetch(url, {
@@ -36,7 +45,7 @@ namespace Admin {
                     cache: 'no-store',
                     redirect: 'follow',
                 }).catch((error) => {
-                    if (retry < 3) {
+                    if (retry <= 3) {
                         return Admin.Ajax.get(url, params, ++retry);
                     } else {
                         Admin.Message.show({
@@ -64,7 +73,7 @@ namespace Admin {
 
                 return results;
             } catch (e) {
-                if (retry < 3) {
+                if (retry <= 3) {
                     return Admin.Ajax.get(url, params, ++retry);
                 } else {
                     Admin.Message.show({
@@ -87,10 +96,28 @@ namespace Admin {
          *
          * @param {string} url - 요청주소
          * @param {Admin.Ajax.Data} data - 전송할 데이터
-         * @param {number} retry - 재시도횟수
+         * @param {Admin.Ajax.Params} params - GET 데이터
+         * @param {boolean|number} is_retry - 재시도여부
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
-        static async post(url: string, data: Admin.Ajax.Data = {}, retry: number = 0): Promise<Admin.Ajax.Results> {
+        static async post(
+            url: string,
+            data: Admin.Ajax.Data = {},
+            params: Admin.Ajax.Params = {},
+            is_retry: boolean | number = true
+        ): Promise<Admin.Ajax.Results> {
+            const requestUrl = new URL(url, location.origin);
+            for (const name in params) {
+                if (params[name] === null) {
+                    requestUrl.searchParams.delete(name);
+                } else {
+                    requestUrl.searchParams.append(name, params[name]);
+                }
+            }
+            url = requestUrl.toString();
+            let retry = (is_retry === false ? 10 : is_retry) as number;
+            console.log('post', retry);
+
             try {
                 const response: Response = (await fetch(url, {
                     method: 'POST',
@@ -103,8 +130,8 @@ namespace Admin {
                     cache: 'no-store',
                     redirect: 'follow',
                 }).catch((error) => {
-                    if (retry < 3) {
-                        return Admin.Ajax.post(url, data, ++retry);
+                    if (retry <= 3) {
+                        return Admin.Ajax.post(url, data, params, ++retry);
                     } else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
@@ -131,8 +158,8 @@ namespace Admin {
 
                 return results;
             } catch (e) {
-                if (retry < 3) {
-                    return Admin.Ajax.post(url, data, ++retry);
+                if (retry <= 3) {
+                    return Admin.Ajax.post(url, data, params, ++retry);
                 } else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
