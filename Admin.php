@@ -239,7 +239,7 @@ class Admin extends \Module
                         continue;
                     }
 
-                    $item->title = $this->getText('admin/navigation/folder/preset/' . substr($item->title, 1));
+                    $item->title = $this->getText('admin.navigation.folder.preset.' . substr($item->title, 1));
                 }
 
                 $folder = new \modules\admin\dto\Context(
