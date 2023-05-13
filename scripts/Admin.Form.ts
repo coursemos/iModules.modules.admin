@@ -158,7 +158,7 @@ namespace Admin {
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting_retry'),
+                        message: Admin.printText('actions.waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -225,7 +225,7 @@ namespace Admin {
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting_retry'),
+                        message: Admin.printText('actions.waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -256,7 +256,7 @@ namespace Admin {
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting_retry'),
+                        message: Admin.printText('actions.waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -269,7 +269,7 @@ namespace Admin {
                     return;
                 }
 
-                this.setLoading(this, true, message ?? Admin.printText('actions/saving_status'));
+                this.setLoading(this, true, message ?? Admin.printText('actions.saving_status'));
 
                 const data = this.getValues();
                 const response = await Admin.Ajax.post(url, data, params, false);
@@ -789,8 +789,8 @@ namespace Admin {
                         return values;
                     }
 
-                    if (this.value !== null) {
-                        values[this.inputName] = this.value;
+                    if (this.getValue() !== null) {
+                        values[this.inputName] = this.getValue();
                     }
 
                     return values;
@@ -859,7 +859,7 @@ namespace Admin {
                  */
                 async validate(): Promise<boolean | string> {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return (await Admin.getText('errors/REQUIRED')) as string;
+                        return (await Admin.getText('errors.REQUIRED')) as string;
                     }
 
                     if (typeof this.validator == 'function') {
@@ -896,6 +896,8 @@ namespace Admin {
                     const $text = Html.create('p');
                     $text.html(text);
                     $bottom.append($text);
+
+                    this.updateLayout();
                 }
 
                 /**
@@ -930,6 +932,8 @@ namespace Admin {
                         $bottom.append($text);
                         this.$getBottom().addClass('error');
                     }
+
+                    this.updateLayout();
                 }
 
                 /**
@@ -1009,7 +1013,7 @@ namespace Admin {
                         this.$getContent().setStyle('width', '100%');
                     }
 
-                    if (this.helpText !== null) {
+                    if (this.$getBottom() !== null) {
                         if (this.getLabelPosition() == 'left') {
                             this.$getBottom().setStyle(
                                 'padding-left',
@@ -1662,6 +1666,16 @@ namespace Admin {
                      * @type {boolean} multiple - 다중파일 선택여부
                      */
                     multiple?: boolean;
+
+                    /**
+                     * @type {string} buttonText - 파일선택 버튼 아이콘 클래스
+                     */
+                    buttonIconClass?: string;
+
+                    /**
+                     * @type {string} buttonText - 파일선택 버튼 텍스트
+                     */
+                    buttonText?: string;
                 }
             }
 
@@ -1702,7 +1716,8 @@ namespace Admin {
                 getButton(): Admin.Button {
                     if (this.button === undefined) {
                         this.button = new Admin.Button({
-                            text: this.properties.buttonText ?? Admin.printText('buttons/file_select'),
+                            iconClass: this.properties.buttonIconClass ?? 'mi mi-upload',
+                            text: this.properties.buttonText ?? Admin.printText('buttons.file_select'),
                             handler: () => {
                                 this.select();
                             },
@@ -1806,7 +1821,6 @@ namespace Admin {
                  */
                 onUploadComplete(uploader: modules.attachment.Uploader): void {
                     this.getForm().setLoading(this, false);
-                    console.log('File.complete', uploader.getValue());
                     this.setValue(uploader.getValue());
                 }
             }
@@ -1822,6 +1836,11 @@ namespace Admin {
                      * @type {number} imageHeight - 이미지 미리보기 높이
                      */
                     imageHeight?: number;
+
+                    /**
+                     * @type {string} showSize - 이미지 크기를 보여줄지 여부
+                     */
+                    showSize?: boolean;
 
                     /**
                      * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
@@ -1841,6 +1860,7 @@ namespace Admin {
 
                 imageWidth: number;
                 imageHeight: number;
+                showSize: boolean;
 
                 emptyText: string;
                 $emptyText: Dom;
@@ -1858,11 +1878,11 @@ namespace Admin {
                     this.accept = this.properties.accept ?? 'image/*';
                     this.multiple = false;
 
-                    const imageWidth = this.properties.imageWidth ?? 54;
-                    const imageHeight = this.properties.imageHeight ?? 54;
+                    this.properties.buttonText = this.properties.buttonText ?? Admin.printText('buttons.image_select');
+                    this.properties.buttonIconClass = this.properties.buttonIconClass ?? 'mi mi-image';
 
-                    this.imageWidth = Math.min(200, Math.round((imageWidth * 54) / imageHeight));
-                    this.imageHeight = 54;
+                    this.showSize = this.properties.showSize === true;
+                    this.setImageSize(this.properties.imageWidth ?? 54, this.properties.imageHeight ?? 54);
 
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
@@ -1876,8 +1896,11 @@ namespace Admin {
                 getReset(): Admin.Button {
                     if (this.reset === undefined) {
                         this.reset = new Admin.Button({
-                            text: this.properties.buttonText ?? Admin.printText('buttons/file_select'),
+                            iconClass: 'mi mi-trash',
+                            buttonClass: 'danger',
+                            text: Admin.printText('buttons.delete'),
                             handler: () => {
+                                this.uploader.setValue([]);
                                 //this.select();
                             },
                         });
@@ -1892,9 +1915,11 @@ namespace Admin {
                  */
                 $getPreview(): Dom {
                     if (this.$preview === undefined) {
-                        this.$preview = Html.create('ul', { 'data-role': 'files' });
-                        this.$preview.setStyle('width', this.imageWidth + 'px');
-                        this.$preview.setStyle('height', this.imageHeight + 'px');
+                        this.$preview = Html.create('div', { 'data-role': 'image' });
+                        const $size = Html.create('label', { 'data-role': 'size' });
+                        this.$preview.append($size);
+                        const $files = Html.create('ul', { 'data-role': 'files' });
+                        this.$preview.append($files);
                     }
 
                     return this.$preview;
@@ -1908,6 +1933,7 @@ namespace Admin {
                 $getDisplay(): Dom {
                     if (this.$display === undefined) {
                         this.$display = Html.create('div', { 'data-role': 'display' });
+                        this.$display.hide();
                     }
 
                     return this.$display;
@@ -1927,6 +1953,45 @@ namespace Admin {
                 }
 
                 /**
+                 * 이미지 미리보기 크기를 조절한다.
+                 *
+                 * @param {number} imageWidth - 가로크기
+                 * @param {number} imageHeight - 세로크기
+                 */
+                setImageSize(imageWidth: number, imageHeight: number): void {
+                    this.imageWidth = imageWidth ?? null;
+                    this.imageHeight = imageHeight ?? null;
+
+                    imageWidth ??= 54;
+                    imageHeight ??= 54;
+
+                    const maxWidth = 200;
+                    const maxHeight = 54;
+
+                    imageWidth = Math.round((imageWidth * maxHeight) / imageHeight);
+                    imageHeight = maxHeight;
+
+                    if (imageWidth > maxWidth) {
+                        imageHeight = Math.round((imageHeight * maxWidth) / imageWidth);
+                        imageWidth = maxWidth;
+                    }
+
+                    this.$getPreview().setStyle('width', imageWidth + 'px');
+                    this.$getPreview().setStyle('height', Math.max(maxHeight, imageHeight) + 'px');
+
+                    const $size = Html.get('label[data-role=size]', this.$getPreview());
+                    if (this.showSize == true && this.imageWidth !== null && this.imageHeight !== null) {
+                        $size.html(this.imageWidth + '&times;' + this.imageHeight);
+                    } else {
+                        $size.empty();
+                    }
+
+                    const $files = Html.get('ul[data-role=files]', this.$getPreview());
+                    $files.setStyle('width', imageWidth + 'px');
+                    $files.setStyle('height', imageHeight + 'px');
+                }
+
+                /**
                  * placeHolder 문자열을 설정한다.
                  *
                  * @param {string} emptyText - placeHolder (NULL 인 경우 표시하지 않음)
@@ -1940,19 +2005,35 @@ namespace Admin {
                 }
 
                 /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue(): any {
+                    if (this.value === null || this.value.length !== 1) {
+                        return null;
+                    }
+
+                    return this.value[0];
+                }
+
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value: any, is_origin: boolean = false): void {
-                    if (value !== null) {
-                        this.getUploader().setValue(Array.isArray(value) == true ? [value[0]] : [value]);
+                    if (Array.isArray(value) === true) {
+                        if (value.length !== 1) {
+                            value = null;
+                        }
+                    } else if (typeof value == 'string') {
+                        value = [value];
                     } else {
-                        this.getUploader().setValue([]);
+                        value = null;
                     }
 
-                    value = this.getUploader().getValue().length == 0 ? null : this.getUploader().getValue()[0];
                     super.setValue(value, is_origin);
 
                     if (value == null) {
@@ -2000,15 +2081,18 @@ namespace Admin {
                 onUploadComplete(uploader: modules.attachment.Uploader): void {
                     const file = uploader.getFileById(uploader.getValue()[0]);
 
-                    this.$getDisplay().html(
-                        '<span><small>(' +
-                            Format.size(file.attachment.size) +
-                            ')</small><b>' +
-                            file.attachment.name +
-                            '</b></span>'
-                    );
-
-                    console.log('image', file);
+                    if (file === null) {
+                        this.$getDisplay().hide();
+                        this.$getEmptyText().show();
+                    } else {
+                        this.$getDisplay().html(
+                            '<span><small>(' +
+                                Format.size(file.attachment.size) +
+                                ')</small><b>' +
+                                file.attachment.name +
+                                '</b></span>'
+                        );
+                    }
 
                     super.onUploadComplete(uploader);
                 }
@@ -2977,24 +3061,6 @@ namespace Admin {
                 }
 
                 /**
-                 * 모든 필드값을 가져온다.
-                 *
-                 * @return {any} value - 값
-                 */
-                getValues(): { [key: string]: any } {
-                    const values: { [key: string]: any } = {};
-                    if (this.inputName === null) {
-                        return values;
-                    }
-
-                    if (this.getValue().length > 0) {
-                        values[this.inputName] = this.getValue();
-                    }
-
-                    return values;
-                }
-
-                /**
                  * 필드를 랜더링한다.
                  */
                 renderContent(): void {
@@ -3479,6 +3545,7 @@ namespace Admin {
                                     }
 
                                     this.updateValue();
+                                    this.fireEvent('configs', [this, configs]);
                                     this.getForm()?.setLoading(this, false);
                                 },
                             },
@@ -3495,7 +3562,7 @@ namespace Admin {
                 getFieldSet(): Admin.Form.FieldSet {
                     if (this.fieldset === undefined) {
                         this.fieldset = new Admin.Form.FieldSet({
-                            title: Admin.printText('admin/theme_configs'),
+                            title: Admin.printText('admin.theme_configs'),
                             hidden: true,
                             flex: true,
                             items: [],

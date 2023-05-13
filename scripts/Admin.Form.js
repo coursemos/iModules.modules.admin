@@ -126,7 +126,7 @@ var Admin;
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting_retry'),
+                        message: Admin.printText('actions.waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -185,7 +185,7 @@ var Admin;
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting_retry'),
+                        message: Admin.printText('actions.waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -211,7 +211,7 @@ var Admin;
                 if (this.isLoading() === true) {
                     Admin.Message.show({
                         title: Admin.printText('info'),
-                        message: Admin.printText('actions/waiting_retry'),
+                        message: Admin.printText('actions.waiting_retry'),
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
@@ -222,7 +222,7 @@ var Admin;
                     this.scrollToErrorField();
                     return;
                 }
-                this.setLoading(this, true, message ?? Admin.printText('actions/saving_status'));
+                this.setLoading(this, true, message ?? Admin.printText('actions.saving_status'));
                 const data = this.getValues();
                 const response = await Admin.Ajax.post(url, data, params, false);
                 if (response.success == false && typeof response.errors == 'object') {
@@ -557,8 +557,8 @@ var Admin;
                     if (this.inputName === null) {
                         return values;
                     }
-                    if (this.value !== null) {
-                        values[this.inputName] = this.value;
+                    if (this.getValue() !== null) {
+                        values[this.inputName] = this.getValue();
                     }
                     return values;
                 }
@@ -621,7 +621,7 @@ var Admin;
                  */
                 async validate() {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return (await Admin.getText('errors/REQUIRED'));
+                        return (await Admin.getText('errors.REQUIRED'));
                     }
                     if (typeof this.validator == 'function') {
                         return await this.validator(this.getValue(), this);
@@ -652,6 +652,7 @@ var Admin;
                     const $text = Html.create('p');
                     $text.html(text);
                     $bottom.append($text);
+                    this.updateLayout();
                 }
                 /**
                  * 에러메시지를 변경한다.
@@ -685,6 +686,7 @@ var Admin;
                         $bottom.append($text);
                         this.$getBottom().addClass('error');
                     }
+                    this.updateLayout();
                 }
                 /**
                  * 필드 비활성화여부를 설정한다.
@@ -758,7 +760,7 @@ var Admin;
                     else {
                         this.$getContent().setStyle('width', '100%');
                     }
-                    if (this.helpText !== null) {
+                    if (this.$getBottom() !== null) {
                         if (this.getLabelPosition() == 'left') {
                             this.$getBottom().setStyle('padding-left', this.label == null ? 0 : this.getLabelWidth() + 'px');
                         }
@@ -1313,7 +1315,8 @@ var Admin;
                 getButton() {
                     if (this.button === undefined) {
                         this.button = new Admin.Button({
-                            text: this.properties.buttonText ?? Admin.printText('buttons/file_select'),
+                            iconClass: this.properties.buttonIconClass ?? 'mi mi-upload',
+                            text: this.properties.buttonText ?? Admin.printText('buttons.file_select'),
                             handler: () => {
                                 this.select();
                             },
@@ -1405,7 +1408,6 @@ var Admin;
                  */
                 onUploadComplete(uploader) {
                     this.getForm().setLoading(this, false);
-                    console.log('File.complete', uploader.getValue());
                     this.setValue(uploader.getValue());
                 }
             }
@@ -1418,6 +1420,7 @@ var Admin;
                 $preview;
                 imageWidth;
                 imageHeight;
+                showSize;
                 emptyText;
                 $emptyText;
                 $display;
@@ -1430,10 +1433,10 @@ var Admin;
                     super(properties);
                     this.accept = this.properties.accept ?? 'image/*';
                     this.multiple = false;
-                    const imageWidth = this.properties.imageWidth ?? 54;
-                    const imageHeight = this.properties.imageHeight ?? 54;
-                    this.imageWidth = Math.min(200, Math.round((imageWidth * 54) / imageHeight));
-                    this.imageHeight = 54;
+                    this.properties.buttonText = this.properties.buttonText ?? Admin.printText('buttons.image_select');
+                    this.properties.buttonIconClass = this.properties.buttonIconClass ?? 'mi mi-image';
+                    this.showSize = this.properties.showSize === true;
+                    this.setImageSize(this.properties.imageWidth ?? 54, this.properties.imageHeight ?? 54);
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                 }
@@ -1445,8 +1448,11 @@ var Admin;
                 getReset() {
                     if (this.reset === undefined) {
                         this.reset = new Admin.Button({
-                            text: this.properties.buttonText ?? Admin.printText('buttons/file_select'),
+                            iconClass: 'mi mi-trash',
+                            buttonClass: 'danger',
+                            text: Admin.printText('buttons.delete'),
                             handler: () => {
+                                this.uploader.setValue([]);
                                 //this.select();
                             },
                         });
@@ -1460,9 +1466,11 @@ var Admin;
                  */
                 $getPreview() {
                     if (this.$preview === undefined) {
-                        this.$preview = Html.create('ul', { 'data-role': 'files' });
-                        this.$preview.setStyle('width', this.imageWidth + 'px');
-                        this.$preview.setStyle('height', this.imageHeight + 'px');
+                        this.$preview = Html.create('div', { 'data-role': 'image' });
+                        const $size = Html.create('label', { 'data-role': 'size' });
+                        this.$preview.append($size);
+                        const $files = Html.create('ul', { 'data-role': 'files' });
+                        this.$preview.append($files);
                     }
                     return this.$preview;
                 }
@@ -1474,6 +1482,7 @@ var Admin;
                 $getDisplay() {
                     if (this.$display === undefined) {
                         this.$display = Html.create('div', { 'data-role': 'display' });
+                        this.$display.hide();
                     }
                     return this.$display;
                 }
@@ -1489,6 +1498,38 @@ var Admin;
                     return this.$emptyText;
                 }
                 /**
+                 * 이미지 미리보기 크기를 조절한다.
+                 *
+                 * @param {number} imageWidth - 가로크기
+                 * @param {number} imageHeight - 세로크기
+                 */
+                setImageSize(imageWidth, imageHeight) {
+                    this.imageWidth = imageWidth ?? null;
+                    this.imageHeight = imageHeight ?? null;
+                    imageWidth ??= 54;
+                    imageHeight ??= 54;
+                    const maxWidth = 200;
+                    const maxHeight = 54;
+                    imageWidth = Math.round((imageWidth * maxHeight) / imageHeight);
+                    imageHeight = maxHeight;
+                    if (imageWidth > maxWidth) {
+                        imageHeight = Math.round((imageHeight * maxWidth) / imageWidth);
+                        imageWidth = maxWidth;
+                    }
+                    this.$getPreview().setStyle('width', imageWidth + 'px');
+                    this.$getPreview().setStyle('height', Math.max(maxHeight, imageHeight) + 'px');
+                    const $size = Html.get('label[data-role=size]', this.$getPreview());
+                    if (this.showSize == true && this.imageWidth !== null && this.imageHeight !== null) {
+                        $size.html(this.imageWidth + '&times;' + this.imageHeight);
+                    }
+                    else {
+                        $size.empty();
+                    }
+                    const $files = Html.get('ul[data-role=files]', this.$getPreview());
+                    $files.setStyle('width', imageWidth + 'px');
+                    $files.setStyle('height', imageHeight + 'px');
+                }
+                /**
                  * placeHolder 문자열을 설정한다.
                  *
                  * @param {string} emptyText - placeHolder (NULL 인 경우 표시하지 않음)
@@ -1500,19 +1541,34 @@ var Admin;
                     }
                 }
                 /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    if (this.value === null || this.value.length !== 1) {
+                        return null;
+                    }
+                    return this.value[0];
+                }
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value, is_origin = false) {
-                    if (value !== null) {
-                        this.getUploader().setValue(Array.isArray(value) == true ? [value[0]] : [value]);
+                    if (Array.isArray(value) === true) {
+                        if (value.length !== 1) {
+                            value = null;
+                        }
+                    }
+                    else if (typeof value == 'string') {
+                        value = [value];
                     }
                     else {
-                        this.getUploader().setValue([]);
+                        value = null;
                     }
-                    value = this.getUploader().getValue().length == 0 ? null : this.getUploader().getValue()[0];
                     super.setValue(value, is_origin);
                     if (value == null) {
                         this.$getEmptyText().show();
@@ -1552,12 +1608,17 @@ var Admin;
                  */
                 onUploadComplete(uploader) {
                     const file = uploader.getFileById(uploader.getValue()[0]);
-                    this.$getDisplay().html('<span><small>(' +
-                        Format.size(file.attachment.size) +
-                        ')</small><b>' +
-                        file.attachment.name +
-                        '</b></span>');
-                    console.log('image', file);
+                    if (file === null) {
+                        this.$getDisplay().hide();
+                        this.$getEmptyText().show();
+                    }
+                    else {
+                        this.$getDisplay().html('<span><small>(' +
+                            Format.size(file.attachment.size) +
+                            ')</small><b>' +
+                            file.attachment.name +
+                            '</b></span>');
+                    }
                     super.onUploadComplete(uploader);
                 }
             }
@@ -2056,6 +2117,36 @@ var Admin;
                 }
             }
             Field.TextArea = TextArea;
+            class Include extends Admin.Form.Field.Base {
+                field = 'include';
+                /**
+                 * 텍스트필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Text.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    value = null;
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다..
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    return null;
+                }
+            }
+            Field.Include = Include;
             class Check extends Admin.Form.Field.Base {
                 field = 'check';
                 boxLabel;
@@ -2287,21 +2378,6 @@ var Admin;
                         }
                     });
                     return value;
-                }
-                /**
-                 * 모든 필드값을 가져온다.
-                 *
-                 * @return {any} value - 값
-                 */
-                getValues() {
-                    const values = {};
-                    if (this.inputName === null) {
-                        return values;
-                    }
-                    if (this.getValue().length > 0) {
-                        values[this.inputName] = this.getValue();
-                    }
-                    return values;
                 }
                 /**
                  * 필드를 랜더링한다.
@@ -2672,6 +2748,7 @@ var Admin;
                                         this.getFieldSet().show();
                                     }
                                     this.updateValue();
+                                    this.fireEvent('configs', [this, configs]);
                                     this.getForm()?.setLoading(this, false);
                                 },
                             },
@@ -2687,7 +2764,7 @@ var Admin;
                 getFieldSet() {
                     if (this.fieldset === undefined) {
                         this.fieldset = new Admin.Form.FieldSet({
-                            title: Admin.printText('admin/theme_configs'),
+                            title: Admin.printText('admin.theme_configs'),
                             hidden: true,
                             flex: true,
                             items: [],
