@@ -163,8 +163,8 @@ window.onload = () => {
         id: 'Admin-Viewport',
         navigation: new Admin.Viewport.Navigation.Panel({
             id: 'Admin-Viewport-Navigation',
-            getUrl: Admin.getProcessUrl('module', 'admin', 'contexts'),
-            saveUrl: Admin.getProcessUrl('module', 'admin', 'contexts'),
+            getUrl: Admin.getProcessUrl('module', 'admin', 'navigation'),
+            saveUrl: Admin.getProcessUrl('module', 'admin', 'navigation'),
         }),
     }).doLayout();
 };

@@ -2,9 +2,9 @@
 /**
  * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
  *
- * 관리자 컨텍스트 목록을 저장한다.
+ * 관리자 네비게이션을 저장한다.
  *
- * @file /modules/admin/process/contexts.post.php
+ * @file /modules/admin/process/navigation.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2023. 4. 7.
