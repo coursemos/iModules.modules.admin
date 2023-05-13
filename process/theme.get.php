@@ -32,3 +32,12 @@ $results->theme = $name;
 // @todo 실제 기존의 테마설정값을 가져온다.
 $configs = null;
 $results->fields = $theme->getPackage()->getConfigsFields($configs);
+$logo = $theme->getPackage()->get('logo');
+if ($logo !== null) {
+    $results->logo = new stdClass();
+    $results->logo->width = $logo->width ?? null;
+    $results->logo->height = $logo->height ?? null;
+    $results->logo->message = $theme->getPackage()->getByLanguage('logo.message', $me->getLanguage());
+} else {
+    $results->logo = null;
+}
