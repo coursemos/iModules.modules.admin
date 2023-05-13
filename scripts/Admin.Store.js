@@ -28,7 +28,7 @@ var Admin;
         constructor(properties = null) {
             super(properties);
             this.fieldTypes = this.properties.fieldTypes ?? {};
-            this.remoteSort = this.properties.remoteSort !== true;
+            this.remoteSort = this.properties.remoteSort === true;
             this.sorters = this.properties.sorters ?? [];
             this.primaryKeys = this.properties.primaryKeys ?? [];
             if (this.properties.sorter) {
@@ -249,6 +249,9 @@ var Admin;
                 this.data = new Admin.Data(records, this.fieldTypes);
                 this.count = records.length;
                 this.total = this.count;
+                if (this.sorters.length > 0) {
+                    this.data.sort(this.sorters);
+                }
                 this.onLoad();
             }
             /**
@@ -319,6 +322,9 @@ var Admin;
                         this.data = new Admin.Data(results.records, this.fieldTypes);
                         this.count = results.records.length;
                         this.total = results.total;
+                        if (this.remoteSort === false && this.sorters.length > 0) {
+                            this.data.sort(this.sorters);
+                        }
                         this.onLoad();
                     }
                     this.loading = false;
