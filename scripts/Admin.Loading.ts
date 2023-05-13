@@ -78,7 +78,7 @@ namespace Admin {
                 }
 
                 const $text = Html.create('div', { 'data-role': 'text' });
-                $text.html(this.text ?? Admin.printText('actions/loading_status'));
+                $text.html(this.text ?? Admin.printText('actions.loading_status'));
                 $box.append($text);
 
                 $loading.append($box);
@@ -98,7 +98,7 @@ namespace Admin {
         setText(text: string): void {
             const $loading = this.$getLoading();
             const $text = Html.get('div[data-role=text]', $loading);
-            $text.html(text ?? Admin.printText('actions/loading_status'));
+            $text.html(text ?? Admin.printText('actions.loading_status'));
         }
 
         /**

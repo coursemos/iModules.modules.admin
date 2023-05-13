@@ -50,7 +50,7 @@ var Admin;
                         break;
                 }
                 const $text = Html.create('div', { 'data-role': 'text' });
-                $text.html(this.text ?? Admin.printText('actions/loading_status'));
+                $text.html(this.text ?? Admin.printText('actions.loading_status'));
                 $box.append($text);
                 $loading.append($box);
                 this.component.$getContent().append($loading);
@@ -66,7 +66,7 @@ var Admin;
         setText(text) {
             const $loading = this.$getLoading();
             const $text = Html.get('div[data-role=text]', $loading);
-            $text.html(text ?? Admin.printText('actions/loading_status'));
+            $text.html(text ?? Admin.printText('actions.loading_status'));
         }
         /**
          * 로딩메시지를 보인다.
