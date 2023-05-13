@@ -50,8 +50,8 @@ namespace Admin {
                     } else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('errors/TITLE'),
-                            message: Admin.printText('errors/CONNECT_ERROR'),
+                            title: Admin.printText('errors.TITLE'),
+                            message: Admin.printText('errors.CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
 
@@ -65,7 +65,7 @@ namespace Admin {
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors/TITLE'),
+                        title: Admin.printText('errors.TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -78,8 +78,8 @@ namespace Admin {
                 } else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors/TITLE'),
-                        message: Admin.printText('errors/CONNECT_ERROR'),
+                        title: Admin.printText('errors.TITLE'),
+                        message: Admin.printText('errors.CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
 
@@ -135,8 +135,8 @@ namespace Admin {
                     } else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('errors/TITLE'),
-                            message: Admin.printText('errors/CONNECT_ERROR'),
+                            title: Admin.printText('errors.TITLE'),
+                            message: Admin.printText('errors.CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
 
@@ -150,7 +150,7 @@ namespace Admin {
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors/TITLE'),
+                        title: Admin.printText('errors.TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -163,8 +163,8 @@ namespace Admin {
                 } else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors/TITLE'),
-                        message: Admin.printText('errors/CONNECT_ERROR'),
+                        title: Admin.printText('errors.TITLE'),
+                        message: Admin.printText('errors.CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
 
