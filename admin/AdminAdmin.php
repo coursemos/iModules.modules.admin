@@ -20,12 +20,12 @@ class AdminAdmin extends \modules\admin\admin\Admin
         /**
          * 관리자 메뉴를 추가한다.
          */
-        $this->addContext('/dashboard', $this->getText('admin/contexts/dashboard'), 'xi xi-presentation', true);
-        $this->addContext('/modules', $this->getText('admin/contexts/modules'), 'xi xi-box', true);
-        $this->addContext('/plugins', $this->getText('admin/contexts/plugins'), 'xi xi-plug', true);
-        $this->addContext('/sites', $this->getText('admin/contexts/sites'), 'xi xi-check-home-o', true);
-        $this->addContext('/sitemap', $this->getText('admin/contexts/sitemap'), 'xi xi-sitemap', true);
-        $this->addContext('/database', $this->getText('admin/contexts/database'), 'xi xi-db-full', true);
+        $this->addContext('/dashboard', $this->getText('admin.contexts.dashboard'), 'xi xi-presentation', true);
+        $this->addContext('/modules', $this->getText('admin.contexts.modules'), 'xi xi-box', true);
+        $this->addContext('/plugins', $this->getText('admin.contexts.plugins'), 'xi xi-plug', true);
+        $this->addContext('/sites', $this->getText('admin.contexts.sites'), 'xi xi-check-home-o', true);
+        $this->addContext('/sitemap', $this->getText('admin.contexts.sitemap'), 'xi xi-sitemap', true);
+        $this->addContext('/database', $this->getText('admin.contexts.database'), 'xi xi-db-full', true);
     }
 
     /**
