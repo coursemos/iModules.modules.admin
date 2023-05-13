@@ -5,16 +5,18 @@
  * 관리자 기본테마 - 메인
  *
  * @file /modules/admin/templates/default/index.html
- * @author Arzz <arzz@arzz.com>
+ * @author Arzz (arzz@arzz.com)
  * @license MIT License
- * @modified 2023. 2. 13.
+ * @modified 2023. 3. 14.
  *
+ * @var Theme $theme 현재 테마 클래스
  * @var \modules\member\Member $mMember 회원모듈
  * @var \modules\member\dto\Member $member 로그인한 유저정보
  */
 if (defined('__IM__') == false) {
     exit();
 }
+
 Html::font('NanumBarunGothic');
 Html::font('SUIT');
 ?>
@@ -23,11 +25,11 @@ Html::font('SUIT');
         <i class="mi mi-imodules"></i>
         <label><b>iModules</b> Administrator</label>
     </h1>
-    
+
     <div>
         <b><?php echo $member->getDisplayName(); ?></b>
-        <i style="background-image:url(<?php echo $member->getPhotoUrl(); ?>);"></i>
-        <button type="button"><?php echo $mMember->getText('buttons/logout'); ?></button>
+        <?php echo Html::element('i', ['style'=>'background-image:url('.$member->getPhotoUrl().');'], ''); ?>
+        <button type="button"><?php echo $mMember->getText('buttons.logout'); ?></button>
     </div>
 </header>
 
