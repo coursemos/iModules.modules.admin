@@ -43,7 +43,7 @@ namespace Admin {
         static INFO = Html.create('i').addClass('info');
         static ERROR = Html.create('i').addClass('error');
         static LOADING = Html.create('i').addClass('loading').html('<i></i><i></i><i></i><i></i>');
-        static OK = [{ button: 'ok', text: '@buttons/ok', buttonClass: 'confirm' }];
+        static OK = [{ button: 'ok', text: '@buttons.ok', buttonClass: 'confirm' }];
 
         /**
          * 메시지창을 연다.
@@ -117,7 +117,7 @@ namespace Admin {
             Admin.Message.close();
 
             Admin.Message.message = new Admin.Window({
-                title: title ?? Admin.printText('actions/loading_status'),
+                title: title ?? Admin.printText('actions.loading_status'),
                 modal: true,
                 movable: false,
                 resizable: false,
@@ -130,7 +130,7 @@ namespace Admin {
                             'loading',
                             new Admin.Loading(window, {
                                 type: type ?? 'dot',
-                                text: message ?? Admin.printText('actions/loading'),
+                                text: message ?? Admin.printText('actions.loading'),
                             })
                         );
                         window.getData('loading')?.show();
