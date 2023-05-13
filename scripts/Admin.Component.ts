@@ -606,10 +606,16 @@ namespace Admin {
                     if (this.properties.flex !== undefined && this.properties.flex > 0) {
                         this.$getComponent().setStyle('flex', this.properties.flex);
                         this.$getComponent().setStyle('flex-shrink', 0);
-                    }
 
-                    if (this.properties.minWidth !== undefined && this.properties.minWidth > 0) {
-                        this.$getComponent().setStyle('min-width', this.properties.minWidth + 'px');
+                        if (this.properties.minWidth !== undefined && this.properties.minWidth > 0) {
+                            this.$getComponent().setStyle('min-width', this.properties.minWidth + 'px');
+                        }
+                    } else {
+                        if (this.properties.width !== undefined) {
+                            this.$getComponent().setStyle('width', this.properties.width + 'px');
+                            this.$getComponent().setStyle('flex-grow', 0);
+                            this.$getComponent().setStyle('flex-shrink', 0);
+                        }
                     }
                 }
 
