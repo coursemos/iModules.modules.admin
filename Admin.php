@@ -8,19 +8,9 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 3.
+ * @modified 2023. 5. 26.
  */
 namespace modules\admin;
-use \Router;
-use \Route;
-use \Request;
-use \Cache;
-use \Theme;
-use \Modules;
-use \Html;
-use \ErrorHandler;
-use \ErrorData;
-use \stdClass;
 class Admin extends \Module
 {
     /**
@@ -51,8 +41,11 @@ class Admin extends \Module
         /**
          * 관리자 페이지를 위한 모듈 라우터를 초기화한다.
          */
-        Router::add('/admin', '#', 'html', [$this, 'doRoute']);
-        Router::add('/admin/*', '#', 'html', [$this, 'doRoute']);
+        \Router::add('/admin', '#', 'html', [$this, 'doRoute']);
+        \Router::add('/admin/*', '#', 'html', [$this, 'doRoute']);
+
+        \Router::add('/preview', '#', 'html', [$this, 'doPreview']);
+        \Router::add('/preview/*', '#', 'html', [$this, 'doPreview']);
     }
 
     /**
@@ -77,7 +70,7 @@ class Admin extends \Module
     public function addContext(\modules\admin\dto\Context $context): void
     {
         if (isset(self::$_contexts[$context->getPath()]) == true) {
-            ErrorHandler::print(
+            \ErrorHandler::print(
                 $this->error(
                     'DUPLICATED_ADMIN_CONTEXT_PATH',
                     $context->getPath(),
@@ -98,7 +91,7 @@ class Admin extends \Module
         /**
          * @var \modules\member\Member $mMember
          */
-        $mMember = Modules::get('member');
+        $mMember = \Modules::get('member');
         $member_id = $mMember->getLogged();
 
         if (isset(self::$_member) == true && self::$_member->member_id == $member_id) {
@@ -114,13 +107,13 @@ class Admin extends \Module
             $this->db()
                 ->replace($this->table('members'), [
                     'member_id' => $member_id,
-                    'language' => Request::languages(true),
+                    'language' => \Request::languages(true),
                     'contexts' => 'null',
                 ])
                 ->execute();
-            $member = new stdClass();
+            $member = new \stdClass();
             $member->member_id = $member_id;
-            $member->language = Request::languages(true);
+            $member->language = \Request::languages(true);
             $member->contexts = null;
         } else {
             $member->contexts = json_decode($member->contexts);
@@ -151,21 +144,21 @@ class Admin extends \Module
         if ($contexts == null) {
             $tree = ['/', '/modules', '/plugins'];
 
-            $modules = new stdClass();
+            $modules = new \stdClass();
             $modules->title = '@modules';
             $modules->icon = 'xi xi-box';
             $modules->smart = 'modules';
             $modules->children = [];
             $tree[] = $modules;
 
-            $plugins = new stdClass();
+            $plugins = new \stdClass();
             $plugins->title = '@plugins';
             $plugins->icon = 'xi xi-plug';
             $plugins->smart = 'plugins';
             $plugins->children = [];
             $tree[] = $plugins;
 
-            $sites = new stdClass();
+            $sites = new \stdClass();
             $sites->title = '@sites';
             $sites->icon = 'xi xi-home';
             $sites->smart = 'none';
@@ -271,10 +264,10 @@ class Admin extends \Module
     /**
      * 현재 관리자 경로에 해당하는 컨텍스트를 가져온다.
      *
-     * @param Route $route 현재 경로
+     * @param \Route $route 현재 경로
      * @return ?\modules\admin\dto\Context $context
      */
-    public function getContext(Route $route): ?\modules\admin\dto\Context
+    public function getContext(\Route $route): ?\modules\admin\dto\Context
     {
         $contexts = $this->getContexts();
         $paths = array_keys(self::$_contexts);
@@ -364,13 +357,13 @@ class Admin extends \Module
     /**
      * 관리자페이지 라우팅을 처리한다.
      *
-     * @param Route $route 현재경로
+     * @param \Route $route 현재경로
      */
-    public function doRoute(Route $route): string
+    public function doRoute(\Route $route): string
     {
         $context = $this->getContext($route);
         if ($context === null) {
-            ErrorHandler::print('NOT_FOUND_URL');
+            \ErrorHandler::print('NOT_FOUND_URL');
         }
 
         if (preg_match('/^' . \Format::reg($context->getPath()) . '/', $route->getSubPath()) == false) {
@@ -378,42 +371,43 @@ class Admin extends \Module
         }
 
         if ($this->checkPermission($context->getPath()) === false) {
-            ErrorHandler::print('FORBIDDEN');
+            \ErrorHandler::print('FORBIDDEN');
         }
 
         /**
          * 기본 자바스크립트파일을 불러온다.
          * 사용되는 모든 스크립트 파일을 캐시를 이용해 압축한다.
          */
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Base.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Loading.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Ajax.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Scrollbar.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Drag.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Resizer.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Component.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Absolute.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Store.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Title.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Text.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Button.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Panel.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.List.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Toolbar.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Tab.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Grid.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Form.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Window.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Message.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Viewport.js');
-        Cache::script('admin', $this->getBase() . '/scripts/Admin.Menu.js');
-        Html::script(Cache::script('admin'), 10);
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Base.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Loading.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Ajax.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Scrollbar.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Drag.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Resizer.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Component.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Absolute.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Store.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Title.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Text.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Button.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Panel.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Explorer.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.List.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Toolbar.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Tab.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Grid.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Form.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Window.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Message.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Viewport.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Menu.js');
+        \Html::script(\Cache::script('admin'), 10);
 
-        Cache::script('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.js');
+        \Cache::script('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.js');
         foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . 'Admin.js') == true) {
-                Cache::script(
+                \Cache::script(
                     'admin.interfaces',
                     $module->getBase() . '/admin/scripts/' . $module->getClassName() . 'Admin.js'
                 );
@@ -421,43 +415,44 @@ class Admin extends \Module
 
             $scripts = $this->getAdminClass('module', $module->getName())?->scripts() ?? [];
             foreach ($scripts as $script) {
-                Cache::script('admin.interfaces', $script);
+                \Cache::script('admin.interfaces', $script);
             }
         }
-        Html::script(Cache::script('admin.interfaces'), 15);
+        \Html::script(\Cache::script('admin.interfaces'), 15);
 
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Loading.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Component.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Absolute.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Resizer.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Title.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Text.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Button.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Panel.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.List.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Form.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Window.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Message.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Viewport.scss');
-        Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.scss');
-        Html::style(Cache::style('admin'), 10);
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Loading.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Component.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Absolute.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Resizer.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Title.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Text.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Button.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Panel.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Explorer.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.List.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Form.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Window.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Message.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Viewport.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.scss');
+        \Html::style(\Cache::style('admin'), 10);
 
-        Cache::style('admin.interfaces', $this->getBase() . '/admin/styles/Admin.scss');
+        \Cache::style('admin.interfaces', $this->getBase() . '/admin/styles/Admin.scss');
         foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
-                Cache::style(
+                \Cache::style(
                     'admin.interfaces',
                     $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.css'
                 );
             }
 
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.scss') == true) {
-                Cache::style(
+                \Cache::style(
                     'admin.interfaces',
                     $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.scss'
                 );
@@ -465,28 +460,28 @@ class Admin extends \Module
 
             $styles = $this->getAdminClass('module', $module->getName())?->styles() ?? [];
             foreach ($styles as $style) {
-                Cache::style('admin.interfaces', $style);
+                \Cache::style('admin.interfaces', $style);
             }
         }
-        Html::style(Cache::style('admin.interfaces'), 15);
+        \Html::style(\Cache::style('admin.interfaces'), 15);
 
         /**
          * 웹폰트를 불러온다.
          */
-        Html::font('XEIcon');
-        Html::font('FontAwesome');
+        \Html::font('XEIcon');
+        \Html::font('FontAwesome');
 
         /**
          * 현재 접속한 유저의 정보를 가져온다.
          * @var \modules\member\Member $mMember
          */
-        $mMember = Modules::get('member');
+        $mMember = \Modules::get('member');
         $member = $mMember->getMember();
 
         /**
          * 아이모듈 관리자 테마를 설정한다.
          */
-        $theme = new Theme($this->getConfigs('theme'));
+        $theme = new \Theme($this->getConfigs('theme'));
         $theme->assign('mMember', $mMember);
         $theme->assign('member', $member);
 
@@ -498,9 +493,61 @@ class Admin extends \Module
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));
 
-        Html::body('data-context-url', $context->getPath());
+        \Html::body('data-context-url', $context->getPath());
 
-        return $theme->getLayout('index');
+        return $theme->getLayout();
+    }
+
+    /**
+     * 관리자페이지 라우팅을 처리한다.
+     *
+     * @param \Route $route 현재경로
+     */
+    public function doPreview(\Route $route): string
+    {
+        $subPath = explode('/', $route->getSubPath());
+        $type = $subPath[1];
+        $is_viewer = end($subPath) === 'viewer';
+
+        \Html::style($this->getBase() . '/styles/preview.scss');
+        \Html::body('data-type', 'preview');
+
+        if ($is_viewer === true) {
+            \Cache::use(false);
+            if ($type == 'page') {
+                \Html::body('data-preview', 'page');
+
+                $host = \Request::get('host', true);
+                $language = \Request::get('language', true);
+                $page = \Request::get('page', true);
+
+                $site = \Sites::get($host, $language);
+                $theme = $site->getTheme();
+                $theme->assign('site', $site);
+                $theme->assign('route', \Router::get('/'));
+                return $theme->getLayout('NONE', $theme->getPage($page));
+            }
+        } else {
+            \Html::script($this->getBase() . '/scripts/preview.js');
+            \Html::body('data-preview', 'body');
+
+            if ($type == 'page') {
+                $host = \Request::get('host', true);
+                $language = \Request::get('language', true);
+                $page = \Request::get('page', true);
+
+                $queryString = [
+                    'host' => $host,
+                    'language' => $language,
+                    'page' => $page,
+                ];
+            }
+
+            $src = $route->getSubUrl('/' . $type . '/viewer', $queryString);
+            $frame = \Html::element('iframe', ['src' => $src, 'frameborder' => 0], 'NOT_SUPPORTED');
+
+            return \Html::element('div', ['id' => 'preview', 'style' => 'width:1400px;'], $frame);
+        }
     }
 
     /**
@@ -511,14 +558,14 @@ class Admin extends \Module
      * @param ?object $details 에러와 관련된 추가정보
      * @return \ErrorData $error
      */
-    public function error(string $code, ?string $message = null, ?object $details = null): ErrorData
+    public function error(string $code, ?string $message = null, ?object $details = null): \ErrorData
     {
         switch ($code) {
             /**
              * 관리자 컨텍스트 URL 이 이미 정의된 경우
              */
             case 'DUPLICATED_ADMIN_CONTEXT_PATH':
-                $error = ErrorHandler::data();
+                $error = \ErrorHandler::data();
                 $error->message = $this->getErrorText('DUPLICATED_ADMIN_CONTEXT_PATH', [
                     'path' => $message,
                     'name' => $details->getComponent()->getTitle($this->getLanguage()),
@@ -531,11 +578,11 @@ class Admin extends \Module
              * 그렇지 않은 경우 권한이 부족하다는 에러메시지를 표시한다.
              */
             case 'FORBIDDEN':
-                $error = ErrorHandler::data();
+                $error = \ErrorHandler::data();
                 /**
                  * @var ModuleMember $mMember
                  */
-                $mMember = Modules::get('member');
+                $mMember = \Modules::get('member');
                 if ($mMember->isLogged() == true) {
                     $error->prefix = $this->getErrorText('FORBIDDEN');
                     $error->message = $this->getErrorText('FORBIDDEN_DETAIL', [
