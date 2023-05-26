@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 20.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
@@ -21,6 +21,8 @@ var Admin;
         $bottom;
         items;
         layout;
+        width;
+        height;
         padding;
         margin;
         style;
@@ -41,6 +43,8 @@ var Admin;
             this.role = null;
             this.items = null;
             this.layout = this.properties.layout ?? 'auto';
+            this.width = this.properties.width ?? null;
+            this.height = this.properties.height ?? null;
             this.padding = this.properties.padding ?? null;
             this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
@@ -133,6 +137,34 @@ var Admin;
          */
         setLayoutType(layout) {
             this.layout = layout;
+        }
+        /**
+         * 컴포넌트 너비를 설정한다.
+         *
+         * @param {string|number} width - 너비
+         */
+        setWidth(width) {
+            if (width === null) {
+                this.width = null;
+                this.$component.setStyle('width', null);
+                return;
+            }
+            this.width = typeof width == 'number' ? width + 'px' : width;
+            this.$component.setStyle('width', this.width);
+        }
+        /**
+         * 컴포넌트 높이를 설정한다.
+         *
+         * @param {string|number} height - 높이
+         */
+        setHeight(height) {
+            if (height === null) {
+                this.height = null;
+                this.$component.setStyle('height', null);
+                return;
+            }
+            this.height = typeof height == 'number' ? height + 'px' : height;
+            this.$component.setStyle('height', this.height);
         }
         /**
          * 컴포넌트 객체의 최상위 DOM 을 가져온다.
@@ -451,6 +483,12 @@ var Admin;
         render() {
             this.initItems();
             this.$getComponent().setData('type', this.type).setData('role', this.role).addClass(this.layout);
+            if (this.width !== null) {
+                this.setWidth(this.width);
+            }
+            if (this.height !== null) {
+                this.setHeight(this.height);
+            }
             if (this.hidden == true) {
                 this.$getComponent().hide();
             }
@@ -526,6 +564,15 @@ var Admin;
             this.scrollbar?.remove();
             this.$component.remove();
             super.remove();
+        }
+        /**
+         * 특정 아이템을 제거한다.
+         */
+        removeItem(index) {
+            if (this.getItemAt(index) !== null) {
+                this.getItemAt(index).remove();
+                this.items = this.items.splice(index, 1);
+            }
         }
         /**
          * 하위 컴포넌트를 모두 제거한다.
