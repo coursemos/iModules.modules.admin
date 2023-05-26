@@ -7,7 +7,7 @@
  * @file /modules/admin/process/domain.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 7.
+ * @modified 2023. 5. 26.
  *
  * @var \modules\admin\Admin $me
  * @var Input $input
@@ -25,6 +25,23 @@ if ($me->isAdmin() == false) {
     return;
 }
 
+$host = Request::get('host');
+if ($host !== null) {
+    $domain = iModules::db()
+        ->select()
+        ->from(iModules::table('domains'))
+        ->where('host', $host)
+        ->getOne();
+
+    if ($domain === null) {
+        $results->success = false;
+        $results->message = $me->getErrorText('NOT_FOUND_DATA');
+        return;
+    }
+} else {
+    $domain = null;
+}
+
 $errors = [];
 
 $insert = [];
@@ -34,24 +51,21 @@ $insert['is_rewrite'] = $input->get('is_rewrite') ?? 'FALSE';
 $insert['is_internationalization'] = $input->get('is_internationalization') ?? 'FALSE';
 $insert['membership'] = $input->get('membership') ?? 'DEPENDENCE';
 
-$origin = Request::get('host');
-$check = $me
-    ->db()
+$check = iModules::db()
     ->select()
     ->from(iModules::table('domains'))
     ->where('host', $insert['host']);
-if ($origin !== null) {
-    $check->where('host', $origin, '!=');
+if ($domain !== null) {
+    $check->where('host', $domain->host, '!=');
 }
 if ($check->has() == true) {
     $errors['host'] = $me->getErrorText('DUPLICATED');
 }
 
 if (count($errors) == 0) {
-    if ($origin === null) {
+    if ($domain === null) {
         $insert['language'] = Router::getLanguage();
-        $insert['sort'] = $me
-            ->db()
+        $insert['sort'] = iModules::db()
             ->select()
             ->from(iModules::table('domains'))
             ->count();
@@ -62,7 +76,7 @@ if (count($errors) == 0) {
     } else {
         $me->db()
             ->update(iModules::table('domains'), $insert)
-            ->where('host', $origin)
+            ->where('host', $domain->host)
             ->execute();
     }
 
