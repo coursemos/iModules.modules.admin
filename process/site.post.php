@@ -7,7 +7,7 @@
  * @file /modules/admin/process/site.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 7.
+ * @modified 2023. 5. 26.
  *
  * @var \modules\admin\Admin $me
  * @var Input $input
@@ -28,15 +28,22 @@ if ($me->isAdmin() == false) {
 $errors = [];
 
 $host = Request::get('host', true);
-$origin = Request::get('language');
-if ($origin !== null) {
-    $origin = $me
-        ->db()
+$language = Request::get('language');
+if ($language !== null) {
+    $site = iModules::db()
         ->select()
         ->from(iModules::table('sites'))
         ->where('host', $host)
-        ->where('language', $origin)
+        ->where('language', $language)
         ->getOne();
+
+    if ($site === null) {
+        $results->success = false;
+        $results->message = $me->getErrorText('NOT_FOUND_DATA');
+        return;
+    }
+} else {
+    $site = null;
 }
 
 /**
@@ -57,14 +64,13 @@ $insert['emblem'] = $input->get('emblem');
 $insert['favicon'] = $input->get('favicon');
 $insert['image'] = $input->get('image');
 
-$check = $me
-    ->db()
+$check = iModules::db()
     ->select()
     ->from(iModules::table('sites'))
     ->where('host', $insert['host'])
     ->where('language', $insert['language']);
-if ($origin !== null) {
-    $check->where('language', $origin->language, '!=');
+if ($site !== null) {
+    $check->where('language', $site->language, '!=');
 }
 if ($check->has() == true) {
     $errors['language'] = $me->getErrorText('DUPLICATED');
@@ -75,32 +81,30 @@ if (count($errors) == 0) {
         $mAttachment->publishFile($input->get('logo'), $me, 'logo', $insert['host'] . '/' . $insert['language']);
     }
 
-    if ($origin === null) {
-        $insert['sort'] = $me
-            ->db()
+    if ($site === null) {
+        $insert['sort'] = iModules::db()
             ->select()
             ->from(iModules::table('sites'))
             ->count();
 
-        $me->db()
+        iModules::db()
             ->insert(iModules::table('sites'), $insert)
             ->execute();
     } else {
-        if ($origin->logo !== null && $input->get('logo') !== $origin->logo) {
-            $mAttachment->deleteFile($origin->logo);
+        if ($site->logo !== null && $input->get('logo') !== $site->logo) {
+            $mAttachment->deleteFile($site->logo);
         }
 
-        $me->db()
+        iModules::db()
             ->update(iModules::table('sites'), $insert)
-            ->where('host', $origin->host)
-            ->where('language', $origin->language)
+            ->where('host', $site->host)
+            ->where('language', $site->language)
             ->execute();
     }
 
-    Cache::remove('domains');
+    Cache::remove('sites');
 
-    $results->success = false;
-    $results->m = $insert;
+    $results->success = true;
 } else {
     $results->success = false;
     $results->errors = $errors;

@@ -7,7 +7,7 @@
  * @file /modules/admin/process/site.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 7.
+ * @modified 2023. 5. 26.
  *
  * @var \modules\admin\Admin $me
  */
@@ -26,21 +26,19 @@ if ($me->isAdmin() == false) {
 
 $host = Request::get('host', true);
 $language = Request::get('language', true);
-$domain = $me
-    ->db()
+$domain = iModules::db()
     ->select()
     ->from(iModules::table('domains'))
     ->where('host', $host)
     ->getOne();
-$site = $me
-    ->db()
+$site = iModules::db()
     ->select()
     ->from(iModules::table('sites'))
     ->where('host', $host)
     ->where('language', $language)
     ->getOne();
 
-if ($site === null || $site === null) {
+if ($domain === null || $site === null) {
     $results->success = false;
     $results->message = $me->getErrorText('NOT_FOUND');
     return;
