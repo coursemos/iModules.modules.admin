@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Absolute.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 28.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
@@ -21,8 +21,6 @@ var Admin;
         bottom;
         left;
         right;
-        width;
-        height;
         hideOnClick;
         /**
          * 버튼을 생성한다.
@@ -36,8 +34,6 @@ var Admin;
             this.bottom = this.properties.bottom ?? null;
             this.left = this.properties.left ?? null;
             this.right = this.properties.right ?? null;
-            this.width = this.properties.width ?? null;
-            this.height = this.properties.height ?? null;
             this.hideOnClick = this.properties.hideOnClick === true;
         }
         /**
@@ -80,24 +76,6 @@ var Admin;
             this.$getComponent().setStyle('width', rect.width + 'px');
             this.$getComponent().setStyle('height', rect.height + 'px');
             this.animationFrame = requestAnimationFrame(this.setRect.bind(this));
-        }
-        /**
-         * 너비를 설정한다.
-         *
-         * @param {number|string} width
-         */
-        setWidth(width) {
-            this.width = typeof width == 'number' ? width + 'px' : width;
-            this.$getContent().setStyle('width', this.width);
-        }
-        /**
-         * 높이를 위치를 설정한다.
-         *
-         * @param {number|string} height
-         */
-        setHeight(height) {
-            this.height = typeof height == 'number' ? height + 'px' : height;
-            this.$getContent().setStyle('height', this.height);
         }
         /**
          * 절대위치 DOM 으로 부터 상대위치를 가질 콘텐츠의 위치를 지정한다.
