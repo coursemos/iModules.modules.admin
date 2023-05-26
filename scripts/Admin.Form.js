@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 20.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
@@ -134,7 +134,9 @@ var Admin;
                 }
                 const validations = [];
                 this.getFields().forEach((field) => {
-                    validations.push(field.isValid());
+                    if (this.isDisabled() === false) {
+                        validations.push(field.isValid());
+                    }
                 });
                 const validates = await Promise.all(validations);
                 for (const isValid of validates) {
@@ -337,6 +339,18 @@ var Admin;
                 return fields;
             }
             /**
+             * 필드셋 비활성화여부를 설정한다.
+             *
+             * @param {boolean} disabled - 비활성화여부
+             * @return {this} this
+             */
+            setDisabled(disabled) {
+                for (const item of this.items) {
+                    item.setDisabled(disabled);
+                }
+                return this;
+            }
+            /**
              * 필드셋 제목을 랜더링한다.
              */
             renderTop() {
@@ -415,7 +429,6 @@ var Admin;
                 labelWidth;
                 labelSeparator;
                 helpText;
-                width;
                 value = null;
                 pValue = null;
                 oValue = null;
@@ -440,13 +453,12 @@ var Admin;
                     this.labelSeparator = this.properties.labelSeparator ?? null;
                     this.helpText = this.properties.helpText ?? null;
                     this.padding = this.properties.padding ?? 0;
-                    this.width = this.properties.width ?? null;
                     this.fieldDefaults = null;
                     this.scrollable = false;
                     this.validator = this.properties.validator ?? null;
                     this.value = undefined;
                     this.pValue = undefined;
-                    this.oValue = this.properties.value ?? null;
+                    this.oValue = this.properties.value;
                     this.readonly = this.properties.readonly === true;
                     if (this.label !== null) {
                         this.$setTop();
@@ -508,14 +520,6 @@ var Admin;
                     return this.labelWidth ?? 100;
                 }
                 /**
-                 * 필드너비를 설정한다.
-                 *
-                 * @param {number} width - 너비(NULL 인 경우 최대너비)
-                 */
-                setWidth(width) {
-                    this.$getComponent().setStyle('width', width === null ? null : width + 'px');
-                }
-                /**
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
@@ -537,7 +541,7 @@ var Admin;
                  * @return {any} value - 값
                  */
                 getValue() {
-                    return this.value;
+                    return this.value ?? null;
                 }
                 /**
                  * 필드값을 가져온다.
@@ -604,6 +608,9 @@ var Admin;
                  * @return {boolean} is_valid
                  */
                 async isValid() {
+                    if (this.isDisabled() === true) {
+                        return true;
+                    }
                     const validation = await this.validate();
                     this.validation = validation;
                     if (validation !== true) {
@@ -773,7 +780,7 @@ var Admin;
                  * 필드가 랜더링되었을 때 이벤트를 처리한다.
                  */
                 onRender() {
-                    if (this.oValue !== null && this.value === undefined) {
+                    if (this.oValue !== undefined && this.value === undefined) {
                         this.setValue(this.oValue, true);
                     }
                 }
@@ -795,7 +802,6 @@ var Admin;
                 labelWidth;
                 labelSeparator;
                 helpText;
-                width;
                 fieldDefaults;
                 allowBlank = true;
                 errors = new Map();
@@ -815,7 +821,6 @@ var Admin;
                     this.labelSeparator = this.properties.labelSeparator ?? null;
                     this.helpText = this.properties.helpText ?? null;
                     this.padding = this.properties.padding ?? 0;
-                    this.width = this.properties.width ?? null;
                     this.fieldDefaults = null;
                     this.scrollable = false;
                     this.allowBlank = true;
@@ -908,14 +913,6 @@ var Admin;
                  */
                 getLabelWidth() {
                     return this.labelWidth ?? 100;
-                }
-                /**
-                 * 필드너비를 설정한다.
-                 *
-                 * @param {number} width - 너비(NULL 인 경우 최대너비)
-                 */
-                setWidth(width) {
-                    this.$getComponent().setStyle('width', width === null ? null : width + 'px');
                 }
                 /**
                  * 도움말을 변경한다.
@@ -1182,6 +1179,21 @@ var Admin;
                     }
                 }
                 /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성여부
+                 * @return {Admin.Form.Field.TextArea} this
+                 */
+                setDisabled(disabled) {
+                    if (disabled == true) {
+                        this.$getInput().setAttr('disabled', 'disabled');
+                    }
+                    else {
+                        this.$getInput().removeAttr('disabled');
+                    }
+                    return this;
+                }
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
@@ -1266,9 +1278,9 @@ var Admin;
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value, is_origin = false) {
-                    value = value?.toString() ?? '';
+                    value = value?.toString() ?? null;
                     if (this.renderer === null) {
-                        this.$getDisplay().html(value);
+                        this.$getDisplay().html(value ?? '');
                     }
                     else {
                         this.$getDisplay().html(this.renderer(value, this));
@@ -1303,9 +1315,6 @@ var Admin;
                     super(properties);
                     this.accept = this.properties.accept ?? '*';
                     this.multiple = this.properties.multiple !== false;
-                    if (Array.isArray(this.oValue) === false) {
-                        this.oValue = null;
-                    }
                 }
                 /**
                  * 파일선택 버튼을 가져온다.
@@ -1802,23 +1811,29 @@ var Admin;
                  */
                 setValue(value, is_origin = false) {
                     this.rawValue = value;
-                    if (this.getStore().isLoaded() == false) {
-                        this.getStore().load();
-                        return;
-                    }
-                    if (Array.isArray(value) == true) {
+                    if (value === null) {
+                        this.$getEmptyText().show();
+                        this.$setDisplay(this.renderer('', null, this.$getDisplay(), this));
                     }
                     else {
-                        const record = this.getStore().find(this.valueField, value);
-                        if (record == null) {
-                            value = null;
-                            this.$getEmptyText().show();
+                        if (this.getStore().isLoaded() == false) {
+                            this.getStore().load();
+                            return;
+                        }
+                        if (Array.isArray(value) == true) {
                         }
                         else {
-                            value = record.get(this.valueField);
-                            this.$getEmptyText().hide();
+                            const record = this.getStore().find(this.valueField, value);
+                            if (record == null) {
+                                value = null;
+                                this.$getEmptyText().show();
+                            }
+                            else {
+                                value = record.get(this.valueField);
+                                this.$getEmptyText().hide();
+                            }
+                            this.$setDisplay(this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this));
                         }
-                        this.$setDisplay(this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this));
                     }
                     super.setValue(value, is_origin);
                 }
@@ -2076,6 +2091,21 @@ var Admin;
                     }
                 }
                 /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성여부
+                 * @return {Admin.Form.Field.TextArea} this
+                 */
+                setDisabled(disabled) {
+                    if (disabled == true) {
+                        this.$getInput().setAttr('disabled', 'disabled');
+                    }
+                    else {
+                        this.$getInput().removeAttr('disabled');
+                    }
+                    return this;
+                }
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
@@ -2117,12 +2147,321 @@ var Admin;
                 }
             }
             Field.TextArea = TextArea;
+            class Icon extends Admin.Form.Field.Base {
+                field = 'icon';
+                segmentedButton;
+                textField;
+                fileField;
+                /**
+                 * 텍스트필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Text.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                }
+                /**
+                 * 아이콘종류 선택 버튼을 가져온다.
+                 *
+                 * @return {Admin.SegmentedButton} segmentedButton
+                 */
+                getSegmentedButton() {
+                    if (this.segmentedButton === undefined) {
+                        this.segmentedButton = new Admin.SegmentedButton({
+                            items: [
+                                {
+                                    iconClass: 'xi xi-marquee-remove',
+                                    text: Admin.printText('components.form.icons.NONE'),
+                                    value: 'NONE',
+                                },
+                                {
+                                    iconClass: 'xi xi-contents-grid',
+                                    text: Admin.printText('components.form.icons.ICON'),
+                                    value: 'ICON',
+                                },
+                                {
+                                    iconClass: 'xi xi-code',
+                                    text: Admin.printText('components.form.icons.CLASS'),
+                                    value: 'CLASS',
+                                },
+                                {
+                                    iconClass: 'xi xi-image',
+                                    text: Admin.printText('components.form.icons.URL'),
+                                    value: 'URL',
+                                },
+                                {
+                                    iconClass: 'xi xi-upload-square',
+                                    text: Admin.printText('components.form.icons.FILE'),
+                                    value: 'FILE',
+                                },
+                            ],
+                            listeners: {
+                                change: (_button, value) => {
+                                    this.setIconType(value);
+                                },
+                            },
+                        });
+                    }
+                    return this.segmentedButton;
+                }
+                getIcons() {
+                    return null;
+                }
+                getTextField() {
+                    if (this.textField === undefined) {
+                        this.textField = new Admin.Form.Field.Text({
+                            emptyText: '',
+                            hidden: true,
+                        });
+                    }
+                    return this.textField;
+                }
+                getFileField() {
+                    if (this.fileField === undefined) {
+                        this.fileField = new Admin.Form.Field.Image({
+                            emptyText: '',
+                            imageWidth: 32,
+                            imageHeight: 32,
+                            hidden: true,
+                        });
+                    }
+                    return this.fileField;
+                }
+                /**
+                 * 아이콘 타입에 따른 필드구성을 수정한다.
+                 *
+                 * @param {string} type - 아이콘타입
+                 */
+                setIconType(type) {
+                    this.getTextField().hide();
+                    this.getFileField().hide();
+                    switch (type) {
+                        case 'ICON':
+                            break;
+                        case 'CLASS':
+                            this.getTextField().show();
+                            this.getTextField().setHelpText(Admin.printText('components.form.icons_help.CLASS'));
+                            break;
+                        case 'URL':
+                            this.getTextField().show();
+                            this.getTextField().setHelpText(Admin.printText('components.form.icons_help.URL'));
+                            break;
+                        case 'FILE':
+                            this.getFileField().show();
+                            this.getFileField().setHelpText(Admin.printText('components.form.icons_help.FILE'));
+                            break;
+                    }
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    if (value === null || typeof value !== 'object' || value?.type == 'NONE') {
+                        this.getSegmentedButton().setValue('NONE');
+                        value = null;
+                    }
+                    else {
+                        const type = value?.type ?? 'NONE';
+                        const icon = value?.icon ?? null;
+                        this.getSegmentedButton().setValue(type);
+                        if (type !== 'NONE') {
+                            if (type == 'CLASS' || type == 'URL') {
+                                this.getTextField().setValue(icon);
+                            }
+                            else if (type == 'FILE') {
+                                this.getFileField().setValue(icon);
+                            }
+                        }
+                        value = { type: type, icon: icon };
+                    }
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다..
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    const type = this.getSegmentedButton().getValue();
+                    if (type == null || type == 'NONE') {
+                        return null;
+                    }
+                    if (type == 'CLASS' || type == 'URL') {
+                        return { type: type, icon: this.getTextField().getValue() };
+                    }
+                    else if (type == 'FILE') {
+                        return { type: type, icon: this.getFileField().getValue() };
+                    }
+                    return null;
+                }
+                /**
+                 * 필드태그를 랜더링한다.
+                 */
+                renderContent() {
+                    const segmentedButton = this.getSegmentedButton();
+                    this.$getContent().append(segmentedButton.$getComponent());
+                    segmentedButton.render();
+                    const textField = this.getTextField();
+                    this.$getContent().append(textField.$getComponent());
+                    textField.render();
+                    const fileField = this.getFileField();
+                    this.$getContent().append(fileField.$getComponent());
+                    fileField.render();
+                }
+            }
+            Field.Icon = Icon;
+            class Page extends Admin.Form.Field.Base {
+                field = 'page';
+                host;
+                language;
+                $pages;
+                store;
+                rawValue;
+                loading;
+                /**
+                 * 페이지필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Page.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.host = this.properties.host;
+                    this.language = this.properties.language;
+                    this.rawValue = this.properties.value ?? null;
+                    this.loading = new Admin.Loading(this, {
+                        type: 'column',
+                        direction: 'row',
+                    });
+                }
+                /**
+                 * 페이지목록이 보일 DOM 을 가져온다.
+                 *
+                 * @returns {Dom} $pages
+                 */
+                $getPages() {
+                    if (this.$pages === undefined) {
+                        this.$pages = Html.create('ul', { 'data-role': 'pages' });
+                    }
+                    return this.$pages;
+                }
+                /**
+                 * 데이터스토어를 가져온다.
+                 *
+                 * @return {Admin.Store} store
+                 */
+                getStore() {
+                    if (this.store === undefined) {
+                        this.store = new Admin.Store.Ajax({
+                            url: Admin.getProcessUrl('module', 'admin', 'pages'),
+                            params: { host: this.host, language: this.language },
+                            listeners: {
+                                beforeLoad: () => {
+                                    this.onBeforeLoad();
+                                },
+                                update: () => {
+                                    this.onUpdate();
+                                },
+                            },
+                        });
+                    }
+                    return this.store;
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    this.rawValue = value;
+                    if (this.getStore().isLoaded() == false) {
+                        this.getStore().load();
+                        return;
+                    }
+                    if (Array.isArray(value) == true) {
+                    }
+                    else {
+                        const record = this.getStore().find('name', value);
+                        if (record == null) {
+                            value = null;
+                        }
+                        else {
+                            value = record.get('name');
+                            const $pages = this.$getPages();
+                            Html.all('li', $pages).forEach(($item) => {
+                                if ($item.getData('name') == value) {
+                                    $item.addClass('selected');
+                                }
+                                else {
+                                    $item.removeClass('selected');
+                                }
+                            });
+                        }
+                    }
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                renderContent() {
+                    const $pages = this.$getPages();
+                    this.$getContent().append($pages);
+                }
+                /**
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 */
+                onRender() {
+                    if (this.getStore().isLoaded() == false) {
+                        this.getStore().load();
+                    }
+                    if (this.rawValue !== null) {
+                        if (this.getStore().isLoaded() === true) {
+                            this.setValue(this.rawValue, true);
+                        }
+                    }
+                }
+                /**
+                 * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
+                 */
+                onBeforeLoad() {
+                    this.$getPages().empty();
+                    this.loading.show();
+                }
+                /**
+                 * 셀렉트폼의 목록 데이터가 변경되었을 때 이벤트를 처리한다.
+                 */
+                onUpdate() {
+                    const $pages = this.$getPages();
+                    for (const record of this.getStore().getRecords()) {
+                        const $page = Html.create('li', { 'data-name': record.get('name') });
+                        const $iframe = Html.create('iframe', { 'src': record.get('preview'), 'tabindex': '-1' });
+                        $page.append($iframe);
+                        const $name = Html.create('b', null, record.get('name'));
+                        $page.append($name);
+                        const $button = Html.create('button', { type: 'button' });
+                        $button.setData('name', record.get('name'));
+                        $button.on('click', () => {
+                            this.setValue($button.getData('name'));
+                        });
+                        $page.append($button);
+                        $pages.append($page);
+                    }
+                    this.loading.hide();
+                    if (this.rawValue !== null) {
+                        this.setValue(this.rawValue);
+                    }
+                }
+            }
+            Field.Page = Page;
             class Include extends Admin.Form.Field.Base {
                 field = 'include';
                 /**
                  * 텍스트필드 클래스 생성한다.
                  *
-                 * @param {Admin.Form.Field.Text.Properties} properties - 객체설정
+                 * @param {Admin.Form.Field.Include.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -2147,12 +2486,93 @@ var Admin;
                 }
             }
             Field.Include = Include;
+            class Permission extends Admin.Form.Field.Base {
+                field = 'permission';
+                /**
+                 * 텍스트필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Permission.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    value = null;
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다..
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    return 'true';
+                }
+            }
+            Field.Permission = Permission;
+            class Explorer extends Admin.Form.Field.Base {
+                field = 'explorer';
+                explorer;
+                explorerHeight;
+                /**
+                 * 텍스트필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Explorer.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.explorerHeight = this.height ?? 299;
+                    this.height = null;
+                }
+                getExplorer() {
+                    if (this.explorer === undefined) {
+                        this.explorer = new Admin.Explorer({
+                            border: true,
+                            height: this.explorerHeight,
+                        });
+                    }
+                    return this.explorer;
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    value = null;
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다..
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    return null;
+                }
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                renderContent() {
+                    this.$getContent().append(this.getExplorer().$getComponent());
+                    this.getExplorer().render();
+                }
+            }
+            Field.Explorer = Explorer;
             class Check extends Admin.Form.Field.Base {
                 field = 'check';
                 boxLabel;
                 onValue;
                 offValue;
                 checked;
+                displayType;
                 $input;
                 $label;
                 $boxLabel;
@@ -2167,7 +2587,7 @@ var Admin;
                     this.onValue = this.properties.onValue ?? 'ON';
                     this.offValue = this.properties.offValue ?? null;
                     this.checked = this.properties.checked ?? false;
-                    this.oValue = this.checked;
+                    this.displayType = this.properties.displayType ?? 'input';
                 }
                 /**
                  * INPUT 필드 DOM 을 가져온다.
@@ -2198,7 +2618,7 @@ var Admin;
                  */
                 $getLabel() {
                     if (this.$label === undefined) {
-                        this.$label = Html.create('label');
+                        this.$label = Html.create('label', { class: this.displayType });
                     }
                     return this.$label;
                 }
@@ -2317,10 +2737,6 @@ var Admin;
                     this.columns = this.properties.columns ?? 1;
                     this.gap = this.properties.gap ?? 5;
                     this.options = this.properties.options ?? {};
-                    this.oValue = this.properties.value ?? [];
-                    if (Array.isArray(this.oValue) === false) {
-                        this.oValue = [this.oValue];
-                    }
                 }
                 /**
                  * 폼 패널의 하위 컴포넌트를 정의한다.
@@ -2332,12 +2748,15 @@ var Admin;
                             this.items.push(new Admin.Form.Field.Check({
                                 inputName: (this.name ?? this.inputName) + '[]',
                                 onValue: value,
-                                checked: this.value.includes(value),
+                                checked: this.value?.includes(value),
                                 readonly: this.readonly,
                                 boxLabel: this.options[value],
+                                displayType: this.properties.displayType ?? 'input',
+                                style: this.properties.inputStyle ?? null,
+                                class: this.properties.inputClass ?? null,
                                 listeners: {
                                     change: () => {
-                                        this.onChange();
+                                        this.setValue(this.getValue());
                                     },
                                 },
                             }));
@@ -2356,10 +2775,10 @@ var Admin;
                         value = [value];
                     }
                     this.items.forEach((item) => {
-                        if (value.includes(item.onValue) === true) {
+                        if (value.includes(item.onValue) == true && item.getValue() == false) {
                             item.setValue(true);
                         }
-                        else {
+                        if (value.includes(item.onValue) == false && item.getValue() == true) {
                             item.setValue(false);
                         }
                     });
@@ -2400,7 +2819,9 @@ var Admin;
                 boxLabel;
                 onValue;
                 checked;
+                displayType;
                 $input;
+                $label;
                 $boxLabel;
                 /**
                  * 라디오필드 클래스 생성한다.
@@ -2412,7 +2833,7 @@ var Admin;
                     this.boxLabel = this.properties.boxLabel ?? '';
                     this.onValue = this.properties.onValue ?? 'ON';
                     this.checked = this.properties.checked ?? false;
-                    this.oValue = this.checked;
+                    this.displayType = this.properties.displayType ?? 'input';
                 }
                 /**
                  * INPUT 필드 DOM 을 가져온다.
@@ -2432,6 +2853,17 @@ var Admin;
                         });
                     }
                     return this.$input;
+                }
+                /**
+                 * LABEL DOM 을 가져온다.
+                 *
+                 * @return {Dom} $label
+                 */
+                $getLabel() {
+                    if (this.$label === undefined) {
+                        this.$label = Html.create('label', { class: this.displayType });
+                    }
+                    return this.$label;
                 }
                 /**
                  * INPUT 박스라벨 DOM 을 가져온다.
@@ -2461,8 +2893,8 @@ var Admin;
                  */
                 setValue(value, is_origin = false) {
                     this.$getInput().setValue(value);
-                    this.checked = this.getValue();
                     this.updateChecked();
+                    this.checked = this.getValue();
                     super.setValue(this.checked, is_origin);
                 }
                 /**
@@ -2471,8 +2903,8 @@ var Admin;
                  * @param {any} value - 값
                  */
                 updateValue(value) {
-                    this.value = value;
                     this.checked = value;
+                    super.setValue(this.checked);
                 }
                 /**
                  * 필드값을 가져온다.
@@ -2480,8 +2912,7 @@ var Admin;
                  * @return {any} value - 값
                  */
                 getValue() {
-                    const input = this.$getInput().getEl();
-                    return input.checked;
+                    return this.$getInput().isChecked();
                 }
                 /**
                  * 모든 필드값을 가져온다.
@@ -2519,8 +2950,8 @@ var Admin;
                         if ($component?.getData('component')) {
                             const input = Admin.getComponent($component.getData('component'));
                             if (input instanceof Admin.Form.Field.Radio) {
-                                if (input.value != input.getValue()) {
-                                    input.updateValue(input.getValue());
+                                if (input.checked != $input.isChecked()) {
+                                    input.updateValue($input.isChecked());
                                 }
                             }
                         }
@@ -2530,7 +2961,7 @@ var Admin;
                  * 필드태그를 랜더링한다.
                  */
                 renderContent() {
-                    const $label = Html.create('label');
+                    const $label = this.$getLabel();
                     const $input = this.$getInput();
                     $label.append($input);
                     const $boxLabel = this.$getBoxLabel();
@@ -2562,6 +2993,8 @@ var Admin;
                     this.columns = this.properties.columns ?? 1;
                     this.gap = this.properties.gap ?? 5;
                     this.options = this.properties.options ?? {};
+                    this.scrollable = 'x';
+                    this.$scrollable = this.$getContent();
                 }
                 /**
                  * 폼 패널의 하위 컴포넌트를 정의한다.
@@ -2575,9 +3008,14 @@ var Admin;
                                 onValue: value,
                                 checked: this.value == value,
                                 boxLabel: this.options[value],
+                                displayType: this.properties.displayType ?? 'input',
+                                style: this.properties.inputStyle ?? null,
+                                class: this.properties.inputClass ?? null,
                                 listeners: {
-                                    change: () => {
-                                        this.onChange();
+                                    change: (field, value) => {
+                                        if (value === true) {
+                                            this.setValue(field.getRawValue());
+                                        }
                                     },
                                 },
                             }));
@@ -2593,7 +3031,7 @@ var Admin;
                  */
                 setValue(value, is_origin = false) {
                     for (const item of this.items) {
-                        if (item.onValue == value) {
+                        if (item.onValue == value && item.getValue() !== true) {
                             item.setValue(true);
                         }
                     }
