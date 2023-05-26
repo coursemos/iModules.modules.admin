@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Scrollbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 6.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
@@ -428,6 +428,7 @@ var Admin;
             const current = this.getPosition()[direction];
             const remain = this.momentum[direction] + this.autoScroll[direction];
             if (Math.abs(remain) <= 1) {
+                this.autoScroll[direction] = 0;
                 return { momentum: 0, position: current };
             }
             const nextMomentum = (remain * 0.9) | 0;
