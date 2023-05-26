@@ -242,13 +242,13 @@ namespace Admin {
         }
 
         /**
-         * 필터를 추가한다.
+         * 필터를 설정한다.
          *
          * @param {string} field - 필터링할 필드명
          * @param {any} value - 필터링에 사용할 기준값
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
-        addFilter(field: string, value: any, operator: string): void {
+        setFilter(field: string, value: any, operator: string = '='): void {
             this.filters[field] = { value: value, operator: operator };
             this.filter();
         }
@@ -302,7 +302,6 @@ namespace Admin {
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
-        loop: number = 0;
         onUpdate(): void {
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {
