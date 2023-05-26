@@ -1636,15 +1636,21 @@ var Admin;
                 field = 'select';
                 store;
                 search;
+                searchField;
+                searchOperator;
+                liveSearch;
+                remoteSearch;
                 multiple;
                 emptyText;
-                $emptyText;
                 displayField;
                 valueField;
                 listField;
                 rawValue;
                 renderer;
+                $button;
                 $display;
+                $emptyText;
+                $search;
                 absolute;
                 list;
                 loading;
@@ -1656,13 +1662,18 @@ var Admin;
                 constructor(properties = null) {
                     super(properties);
                     this.search = this.properties.search === true;
+                    this.liveSearch = this.properties.liveSearch === true;
+                    this.remoteSearch = this.properties.remoteSearch === true;
                     this.multiple = this.properties.multiple === true;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.displayField = this.properties.displayField ?? 'display';
                     this.valueField = this.properties.valueField ?? 'value';
                     this.listField = this.properties.listField ?? 'display';
+                    this.searchField = this.properties.searchField ?? this.displayField;
+                    this.searchOperator = this.properties.searchOperator ?? 'likecode';
                     this.rawValue = this.properties.value ?? null;
+                    this.value = null;
                     this.renderer =
                         this.properties.renderer ??
                             ((display) => {
@@ -1728,6 +1739,7 @@ var Admin;
                             multiple: this.multiple,
                             wrap: this.properties.listWrap === true,
                             class: this.properties.listClass ?? null,
+                            hideOnEmpty: true,
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
@@ -1763,6 +1775,38 @@ var Admin;
                     return this.getList().getStore();
                 }
                 /**
+                 * 선택항목 버튼 DOM 객체를 가져온다.
+                 *
+                 * @return {Dom} $button
+                 */
+                $getButton() {
+                    if (this.$button === undefined) {
+                        this.$button = Html.create('button', { type: 'button' });
+                        if (this.search == true) {
+                            this.$button.setAttr('tabindex', '-1');
+                        }
+                        else {
+                            this.$button.setAttr('tabindex', '0');
+                        }
+                        this.$button.on('mousedown', (e) => {
+                            const $button = Html.el(e.currentTarget);
+                            if (this.isExpand() == true) {
+                                this.collapse();
+                            }
+                            else {
+                                this.expand();
+                            }
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            $button.getEl().focus();
+                        });
+                        this.setKeyboardEvent(this.$button);
+                        const $display = this.$getDisplay();
+                        this.$button.append($display);
+                    }
+                    return this.$button;
+                }
+                /**
                  * placeHolder DOM 객체를 가져온다.
                  *
                  * @return {Dom} $emptyText
@@ -1785,12 +1829,49 @@ var Admin;
                     return this.$display;
                 }
                 /**
-                 * 디스플레이 내용을 설정한다.
+                 * 검색폼 DOM 객체를 가져온다.
                  *
-                 * @return {string} display - 표시할 문자열
+                 * @return {Dom} $button
                  */
-                $setDisplay(display) {
-                    this.$display.html(display);
+                $getSearch() {
+                    if (this.$search === undefined) {
+                        this.$search = Html.create('input', { 'type': 'search', 'tabindex': '0' });
+                        this.$search.on('input', () => {
+                            if (this.$search.getData('timeout') !== null) {
+                                clearTimeout(this.$search.getData('timeout'));
+                                this.$search.setData('timeout', null);
+                            }
+                            this.match(this.$search.getValue());
+                        });
+                        this.$search.on('focus', () => {
+                            if (this.$search.getData('timeout') !== null) {
+                                clearTimeout(this.$search.getData('timeout'));
+                                this.$search.setData('timeout', null);
+                            }
+                            this.expand();
+                            this.$getDisplay().hide();
+                            this.$getEmptyText().show();
+                        });
+                        this.$search.on('mousedown', (e) => {
+                            e.stopImmediatePropagation();
+                        });
+                        this.$search.on('blur', () => {
+                            this.$search.setValue('');
+                            this.$search.setData('timeout', setTimeout(() => {
+                                this.collapse();
+                                this.$getDisplay().show();
+                                if (this.value === null) {
+                                    this.$getEmptyText().show();
+                                }
+                                else {
+                                    this.$getEmptyText().hide();
+                                }
+                                this.$search.setData('timeout', null);
+                            }, 200));
+                        });
+                        this.setKeyboardEvent(this.$search);
+                    }
+                    return this.$search;
                 }
                 /**
                  * placeHolder 문자열을 설정한다.
@@ -1800,7 +1881,7 @@ var Admin;
                 setEmptyText(emptyText = null) {
                     this.emptyText = emptyText === null || emptyText.length == 0 ? null : emptyText;
                     if (this.isRendered() == true) {
-                        this.updateLayout();
+                        this.$getEmptyText().html(this.emptyText ?? '');
                     }
                 }
                 /**
@@ -1813,7 +1894,7 @@ var Admin;
                     this.rawValue = value;
                     if (value === null) {
                         this.$getEmptyText().show();
-                        this.$setDisplay(this.renderer('', null, this.$getDisplay(), this));
+                        this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
                     }
                     else {
                         if (this.getStore().isLoaded() == false) {
@@ -1832,9 +1913,10 @@ var Admin;
                                 value = record.get(this.valueField);
                                 this.$getEmptyText().hide();
                             }
-                            this.$setDisplay(this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this));
+                            this.$getDisplay().html(this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this));
                         }
                     }
+                    this.$getDisplay().show();
                     super.setValue(value, is_origin);
                 }
                 /**
@@ -1856,6 +1938,7 @@ var Admin;
                             e.stopPropagation();
                         }
                         if (e.key == 'Enter') {
+                            this.$getButton().focus();
                             e.preventDefault();
                             e.stopPropagation();
                         }
@@ -1896,10 +1979,10 @@ var Admin;
                  */
                 focus() {
                     if (this.search == true) {
-                        Html.get('> input[type=search]', this.$getContent()).getEl().focus();
+                        this.$getSearch().focus();
                     }
                     else {
-                        Html.get('> button', this.$getContent()).getEl().focus();
+                        this.$getButton().focus();
                     }
                 }
                 /**
@@ -1909,75 +1992,30 @@ var Admin;
                  */
                 match(keyword) {
                     if (keyword.length > 0) {
-                        this.expand();
                         if (this.value === null) {
                             this.$getEmptyText().hide();
                         }
-                        else {
-                            this.$getDisplay().hide();
-                        }
                     }
                     else {
-                        this.collapse();
                         if (this.value === null) {
                             this.$getEmptyText().show();
                         }
-                        else {
-                            this.$getDisplay().show();
-                        }
                     }
-                    // @todo 실제 목록 검색 및 필터링
+                    this.getStore().setFilter(this.searchField, keyword, this.searchOperator);
                 }
                 /**
                  * 필드를 랜더링한다.
                  */
                 renderContent() {
-                    const $button = Html.create('button', { type: 'button' });
-                    if (this.search == true) {
-                        $button.setAttr('tabindex', '-1');
-                    }
-                    else {
-                        $button.setAttr('tabindex', '0');
-                    }
-                    $button.on('mousedown', (e) => {
-                        const $button = Html.el(e.currentTarget);
-                        if (this.isExpand() == true) {
-                            this.collapse();
-                        }
-                        else {
-                            this.expand();
-                        }
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        $button.getEl().focus();
-                    });
-                    this.setKeyboardEvent($button);
-                    const $display = this.$getDisplay();
-                    $button.append($display);
-                    this.$getContent().append($button);
                     if (this.search === true) {
-                        const $search = Html.create('input', { 'type': 'search', 'tabindex': '0' });
-                        $search.on('input', (e) => {
-                            const $search = Html.el(e.currentTarget);
-                            this.match($search.getValue());
-                        });
-                        this.setKeyboardEvent($search);
+                        const $search = this.$getSearch();
                         this.$getContent().append($search);
                     }
-                }
-                /**
-                 * 필드 레이아웃을 업데이트한다.
-                 */
-                updateLayout() {
-                    super.updateLayout();
-                    if (this.properties.emptyText !== null) {
-                        const $emptyText = this.$getEmptyText();
-                        $emptyText.html(this.emptyText);
-                        this.$getContent().append($emptyText);
-                    }
-                    else {
-                        this.$getEmptyText().remove();
-                    }
+                    const $button = this.$getButton();
+                    this.$getContent().append($button);
+                    const $emptyText = this.$getEmptyText();
+                    $emptyText.html(this.emptyText ?? '');
+                    this.$getContent().append($emptyText);
                 }
                 /**
                  * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.

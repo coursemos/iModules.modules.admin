@@ -2124,6 +2124,26 @@ namespace Admin {
                     search?: boolean;
 
                     /**
+                     * @type {Objext} searchField - 검색할 필드명
+                     */
+                    searchField?: string;
+
+                    /**
+                     * @type {Objext} searchOperator - 검색방법
+                     */
+                    searchOperator?: string;
+
+                    /**
+                     * @type {boolean} liveSearch - 검색어 입력도중 검색을 수행할지 여부
+                     */
+                    liveSearch?: boolean;
+
+                    /**
+                     * @type {boolean} remoteSearch - 외부에서 검색을 수행할지 여부
+                     */
+                    remoteSearch?: boolean;
+
+                    /**
                      * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
                      */
                     emptyText?: string;
@@ -2190,9 +2210,12 @@ namespace Admin {
 
                 store: Admin.Store;
                 search: boolean;
+                searchField: string;
+                searchOperator: string;
+                liveSearch: boolean;
+                remoteSearch: boolean;
                 multiple: boolean;
                 emptyText: string;
-                $emptyText: Dom;
 
                 displayField: string;
                 valueField: string;
@@ -2206,7 +2229,11 @@ namespace Admin {
                     $display: Dom,
                     field: Admin.Form.Field.Select
                 ) => string;
+
+                $button: Dom;
                 $display: Dom;
+                $emptyText: Dom;
+                $search: Dom;
 
                 absolute: Admin.Absolute;
                 list: Admin.List.Panel;
@@ -2222,6 +2249,8 @@ namespace Admin {
                     super(properties);
 
                     this.search = this.properties.search === true;
+                    this.liveSearch = this.properties.liveSearch === true;
+                    this.remoteSearch = this.properties.remoteSearch === true;
                     this.multiple = this.properties.multiple === true;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
@@ -2230,7 +2259,11 @@ namespace Admin {
                     this.valueField = this.properties.valueField ?? 'value';
                     this.listField = this.properties.listField ?? 'display';
 
+                    this.searchField = this.properties.searchField ?? this.displayField;
+                    this.searchOperator = this.properties.searchOperator ?? 'likecode';
+
                     this.rawValue = this.properties.value ?? null;
+                    this.value = null;
 
                     this.renderer =
                         this.properties.renderer ??
@@ -2302,6 +2335,7 @@ namespace Admin {
                             multiple: this.multiple,
                             wrap: this.properties.listWrap === true,
                             class: this.properties.listClass ?? null,
+                            hideOnEmpty: true,
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
@@ -2338,6 +2372,39 @@ namespace Admin {
                 }
 
                 /**
+                 * 선택항목 버튼 DOM 객체를 가져온다.
+                 *
+                 * @return {Dom} $button
+                 */
+                $getButton(): Dom {
+                    if (this.$button === undefined) {
+                        this.$button = Html.create('button', { type: 'button' });
+                        if (this.search == true) {
+                            this.$button.setAttr('tabindex', '-1');
+                        } else {
+                            this.$button.setAttr('tabindex', '0');
+                        }
+                        this.$button.on('mousedown', (e: MouseEvent) => {
+                            const $button = Html.el(e.currentTarget);
+                            if (this.isExpand() == true) {
+                                this.collapse();
+                            } else {
+                                this.expand();
+                            }
+
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            $button.getEl().focus();
+                        });
+                        this.setKeyboardEvent(this.$button);
+
+                        const $display = this.$getDisplay();
+                        this.$button.append($display);
+                    }
+                    return this.$button;
+                }
+
+                /**
                  * placeHolder DOM 객체를 가져온다.
                  *
                  * @return {Dom} $emptyText
@@ -2364,12 +2431,51 @@ namespace Admin {
                 }
 
                 /**
-                 * 디스플레이 내용을 설정한다.
+                 * 검색폼 DOM 객체를 가져온다.
                  *
-                 * @return {string} display - 표시할 문자열
+                 * @return {Dom} $button
                  */
-                $setDisplay(display: string): void {
-                    this.$display.html(display);
+                $getSearch(): Dom {
+                    if (this.$search === undefined) {
+                        this.$search = Html.create('input', { 'type': 'search', 'tabindex': '0' });
+                        this.$search.on('input', () => {
+                            if (this.$search.getData('timeout') !== null) {
+                                clearTimeout(this.$search.getData('timeout'));
+                                this.$search.setData('timeout', null);
+                            }
+                            this.match(this.$search.getValue());
+                        });
+                        this.$search.on('focus', () => {
+                            if (this.$search.getData('timeout') !== null) {
+                                clearTimeout(this.$search.getData('timeout'));
+                                this.$search.setData('timeout', null);
+                            }
+                            this.expand();
+                            this.$getDisplay().hide();
+                            this.$getEmptyText().show();
+                        });
+                        this.$search.on('mousedown', (e: MouseEvent) => {
+                            e.stopImmediatePropagation();
+                        });
+                        this.$search.on('blur', () => {
+                            this.$search.setValue('');
+                            this.$search.setData(
+                                'timeout',
+                                setTimeout(() => {
+                                    this.collapse();
+                                    this.$getDisplay().show();
+                                    if (this.value === null) {
+                                        this.$getEmptyText().show();
+                                    } else {
+                                        this.$getEmptyText().hide();
+                                    }
+                                    this.$search.setData('timeout', null);
+                                }, 200)
+                            );
+                        });
+                        this.setKeyboardEvent(this.$search);
+                    }
+                    return this.$search;
                 }
 
                 /**
@@ -2381,7 +2487,7 @@ namespace Admin {
                     this.emptyText = emptyText === null || emptyText.length == 0 ? null : emptyText;
 
                     if (this.isRendered() == true) {
-                        this.updateLayout();
+                        this.$getEmptyText().html(this.emptyText ?? '');
                     }
                 }
 
@@ -2396,7 +2502,7 @@ namespace Admin {
 
                     if (value === null) {
                         this.$getEmptyText().show();
-                        this.$setDisplay(this.renderer('', null, this.$getDisplay(), this));
+                        this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
                     } else {
                         if (this.getStore().isLoaded() == false) {
                             this.getStore().load();
@@ -2415,11 +2521,13 @@ namespace Admin {
                                 this.$getEmptyText().hide();
                             }
 
-                            this.$setDisplay(
+                            this.$getDisplay().html(
                                 this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this)
                             );
                         }
                     }
+
+                    this.$getDisplay().show();
 
                     super.setValue(value, is_origin);
                 }
@@ -2445,6 +2553,7 @@ namespace Admin {
                         }
 
                         if (e.key == 'Enter') {
+                            this.$getButton().focus();
                             e.preventDefault();
                             e.stopPropagation();
                         }
@@ -2490,9 +2599,9 @@ namespace Admin {
                  */
                 focus(): void {
                     if (this.search == true) {
-                        Html.get('> input[type=search]', this.$getContent()).getEl().focus();
+                        this.$getSearch().focus();
                     } else {
-                        Html.get('> button', this.$getContent()).getEl().focus();
+                        this.$getButton().focus();
                     }
                 }
 
@@ -2503,77 +2612,33 @@ namespace Admin {
                  */
                 match(keyword: string): void {
                     if (keyword.length > 0) {
-                        this.expand();
                         if (this.value === null) {
                             this.$getEmptyText().hide();
-                        } else {
-                            this.$getDisplay().hide();
                         }
                     } else {
-                        this.collapse();
                         if (this.value === null) {
                             this.$getEmptyText().show();
-                        } else {
-                            this.$getDisplay().show();
                         }
                     }
 
-                    // @todo 실제 목록 검색 및 필터링
+                    this.getStore().setFilter(this.searchField, keyword, this.searchOperator);
                 }
 
                 /**
                  * 필드를 랜더링한다.
                  */
                 renderContent(): void {
-                    const $button = Html.create('button', { type: 'button' });
-                    if (this.search == true) {
-                        $button.setAttr('tabindex', '-1');
-                    } else {
-                        $button.setAttr('tabindex', '0');
-                    }
-                    $button.on('mousedown', (e: MouseEvent) => {
-                        const $button = Html.el(e.currentTarget);
-                        if (this.isExpand() == true) {
-                            this.collapse();
-                        } else {
-                            this.expand();
-                        }
-
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        $button.getEl().focus();
-                    });
-                    this.setKeyboardEvent($button);
-
-                    const $display = this.$getDisplay();
-                    $button.append($display);
-
-                    this.$getContent().append($button);
-
                     if (this.search === true) {
-                        const $search = Html.create('input', { 'type': 'search', 'tabindex': '0' });
-                        $search.on('input', (e: InputEvent) => {
-                            const $search = Html.el(e.currentTarget);
-                            this.match($search.getValue());
-                        });
-                        this.setKeyboardEvent($search);
+                        const $search = this.$getSearch();
                         this.$getContent().append($search);
                     }
-                }
 
-                /**
-                 * 필드 레이아웃을 업데이트한다.
-                 */
-                updateLayout(): void {
-                    super.updateLayout();
+                    const $button = this.$getButton();
+                    this.$getContent().append($button);
 
-                    if (this.properties.emptyText !== null) {
-                        const $emptyText = this.$getEmptyText();
-                        $emptyText.html(this.emptyText);
-                        this.$getContent().append($emptyText);
-                    } else {
-                        this.$getEmptyText().remove();
-                    }
+                    const $emptyText = this.$getEmptyText();
+                    $emptyText.html(this.emptyText ?? '');
+                    this.$getContent().append($emptyText);
                 }
 
                 /**
