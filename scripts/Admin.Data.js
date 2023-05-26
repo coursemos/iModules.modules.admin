@@ -43,16 +43,16 @@ var Admin;
         /**
          * 데이터를 추가한다.
          *
-         * @param {Object[]} records
+         * @param {Object[]} items
          */
-        add(datas) {
-            for (const data of datas) {
-                for (const key in data) {
+        add(items) {
+            for (const item of items) {
+                for (const key in item) {
                     if (this.types[key] !== undefined) {
                     }
-                    data[key] = data[key];
+                    item[key] = item[key];
                 }
-                this.records.push(new Admin.Data.Record(data));
+                this.records.push(new Admin.Data.Record(item));
             }
         }
         /**
@@ -92,6 +92,45 @@ var Admin;
                         switch (filter.operator) {
                             case '=':
                                 if (value !== filter.value) {
+                                    passed = false;
+                                }
+                                break;
+                            case '!=':
+                                if (value === filter.value) {
+                                    passed = false;
+                                }
+                                break;
+                            case '>=':
+                                if (value < filter.value) {
+                                    passed = false;
+                                }
+                                break;
+                            case '>':
+                                if (value <= filter.value) {
+                                    passed = false;
+                                }
+                                break;
+                            case '<=':
+                                if (value > filter.value) {
+                                    passed = false;
+                                }
+                                break;
+                            case '<':
+                                if (value >= filter.value) {
+                                    passed = false;
+                                }
+                                break;
+                            case 'in':
+                                if (Array.isArray(filter.value) == false ||
+                                    Array.isArray(value) == true ||
+                                    filter.value.includes(value) != false) {
+                                    passed = false;
+                                }
+                                break;
+                            case 'inset':
+                                if (Array.isArray(value) == false ||
+                                    Array.isArray(filter.value) == true ||
+                                    value.includes(filter.value) != false) {
                                     passed = false;
                                 }
                                 break;
