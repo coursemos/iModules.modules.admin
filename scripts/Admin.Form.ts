@@ -2233,7 +2233,7 @@ namespace Admin {
                     this.rawValue = this.properties.value ?? null;
 
                     this.renderer =
-                        this.properties.displayRenderer ??
+                        this.properties.renderer ??
                         ((display): string => {
                             if (Array.isArray(display) == true) {
                             } else if (typeof display == 'string' && display.length > 0) {

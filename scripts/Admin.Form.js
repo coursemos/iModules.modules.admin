@@ -1664,7 +1664,7 @@ var Admin;
                     this.listField = this.properties.listField ?? 'display';
                     this.rawValue = this.properties.value ?? null;
                     this.renderer =
-                        this.properties.displayRenderer ??
+                        this.properties.renderer ??
                             ((display) => {
                                 if (Array.isArray(display) == true) {
                                 }
