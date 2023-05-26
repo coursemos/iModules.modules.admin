@@ -178,6 +178,21 @@ namespace Admin {
                                 }
                                 break;
 
+                            case 'like':
+                                if (value.search(filter.value) == -1) {
+                                    passed = false;
+                                }
+                                break;
+
+                            case 'likecode':
+                                const keycode = Format.keycode(filter.value);
+                                const valuecode = Format.keycode(value);
+
+                                if (valuecode.search(keycode) == -1) {
+                                    passed = false;
+                                }
+                                break;
+
                             default:
                                 passed = false;
                         }
