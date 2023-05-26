@@ -6,15 +6,25 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 5. 26.
  */
 namespace Admin {
     export namespace Store {
         export interface Properties extends Admin.Base.Properties {
             /**
+             * @type {string[]} - 레코드 고유값
+             */
+            primaryKeys?: string[];
+
+            /**
              * @type {Object} fieldTypes - 필드값의 타입을 정의한다.
              */
             fieldTypes?: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
+
+            /**
+             * @type {Object} sorters - 데이터 정렬방식
+             */
+            sorters?: { field: string; direction: string }[];
 
             /**
              * @type {boolean} remoteSort - store 외부에서 데이터를 정렬할지 여부
@@ -22,22 +32,24 @@ namespace Admin {
             remoteSort?: boolean;
 
             /**
-             * @type {Object} sorter - 데이터 정렬방식
+             * @type {Object} filters - 데이터 필터
              */
-            sorters?: { field: string; direction: string }[];
+            filters?: { [field: string]: { value: any; operator: string } };
 
             /**
-             * @type {string[]} - 레코드 고유값
+             * @type {boolean} remoteFilter - store 외부에서 데이터를 필터링할지 여부
              */
-            primaryKeys?: string[];
+            remoteFilter?: boolean;
         }
     }
 
     export class Store extends Admin.Base {
-        fieldTypes: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
-        remoteSort: boolean = false;
-        sorters: { field: string; direction: string }[];
         primaryKeys: string[];
+        fieldTypes: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
+        sorters: { field: string; direction: string }[];
+        remoteSort: boolean = false;
+        filters: { [field: string]: { value: any; operator: string } };
+        remoteFilter: boolean = false;
         loading: boolean = false;
         loaded: boolean = false;
         data: Admin.Data;
@@ -52,10 +64,12 @@ namespace Admin {
         constructor(properties: Admin.Store.Properties = null) {
             super(properties);
 
-            this.fieldTypes = this.properties.fieldTypes ?? {};
-            this.remoteSort = this.properties.remoteSort === true;
-            this.sorters = this.properties.sorters ?? [];
             this.primaryKeys = this.properties.primaryKeys ?? [];
+            this.fieldTypes = this.properties.fieldTypes ?? {};
+            this.sorters = this.properties.sorters ?? [];
+            this.remoteSort = this.properties.remoteSort === true;
+            this.filters = this.properties.filters ?? {};
+            this.remoteFilter = this.properties.remoteFilter === true;
 
             if (this.properties.sorter) {
                 this.sorters.push({ field: this.properties.sorter[0], direction: this.properties.sorter[1] });
@@ -210,6 +224,7 @@ namespace Admin {
         sort(field: string, direction: string): void {
             this.sorters = [{ field: field, direction: direction }];
             if (this.remoteSort == true) {
+                this.reload();
             } else {
                 this.onUpdate();
             }
@@ -223,6 +238,48 @@ namespace Admin {
         multiSort(sorters: { field: string; direction: string }[]): void {
             this.sorters = sorters;
             if (this.remoteSort == true) {
+                this.reload();
+            } else {
+                this.onUpdate();
+            }
+        }
+
+        /**
+         * 필터를 추가한다.
+         *
+         * @param {string} field - 필터링할 필드명
+         * @param {any} value - 필터링에 사용할 기준값
+         * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
+         */
+        addFilter(field: string, value: any, operator: string): void {
+            this.filters[field] = { value: value, operator: operator };
+            this.filter();
+        }
+
+        /**
+         * 특정 필드의 필터를 제거한다.
+         *
+         * @param {string} field
+         */
+        removeFilter(field: string): void {
+            delete this.filters[field];
+            this.filter();
+        }
+
+        /**
+         * 모든 필터를 초기화한다.
+         */
+        resetFilter(): void {
+            this.filters = {};
+            this.filter();
+        }
+
+        /**
+         * 정의된 필터링 규칙에 따라 필터링한다.
+         */
+        filter(): void {
+            if (this.remoteFilter === true) {
+                this.reload();
             } else {
                 this.onUpdate();
             }
@@ -253,6 +310,9 @@ namespace Admin {
             if (this.remoteSort === false && this.sorters.length > 0) {
                 this.data?.sort(this.sorters);
             }
+            if (this.remoteSort === false) {
+                this.data?.filter(this.filters);
+            }
             this.fireEvent('update', [this, this.data]);
         }
     }
@@ -266,15 +326,15 @@ namespace Admin {
                 fields: string[];
 
                 /**
-                 * @type {string[][]} datas - 데이터셋
+                 * @type {string[][]} records - 데이터
                  */
-                datas?: any[][];
+                records?: any[][];
             }
         }
 
         export class Array extends Admin.Store {
             fields: string[];
-            datas: any[][];
+            records: any[][];
 
             /**
              * Array 스토어를 생성한다.
@@ -285,9 +345,8 @@ namespace Admin {
                 super(properties);
 
                 this.fields = this.properties.fields ?? [];
-                this.datas = this.properties.datas ?? [];
+                this.records = this.properties.records ?? [];
                 this.remoteSort = false;
-
                 this.load();
             }
 
@@ -303,10 +362,10 @@ namespace Admin {
                 }
 
                 const records = [];
-                this.datas.forEach((data) => {
+                this.records.forEach((item) => {
                     const record: { [key: string]: any } = {};
                     this.fields.forEach((name, index) => {
-                        record[name] = data[index];
+                        record[name] = item[index];
                     });
                     records.push(record);
                 });
@@ -314,10 +373,6 @@ namespace Admin {
                 this.data = new Admin.Data(records, this.fieldTypes);
                 this.count = records.length;
                 this.total = this.count;
-
-                if (this.sorters.length > 0) {
-                    this.data.sort(this.sorters);
-                }
 
                 this.onLoad();
             }
@@ -405,6 +460,25 @@ namespace Admin {
             }
 
             /**
+             * 데이터를 불러오기 위한 매개변수를 가져온다.
+             *
+             * @return {Object} params - 매개변수
+             */
+            getParams(): { [key: string]: any } {
+                return this.params ?? {};
+            }
+
+            /**
+             * 데이터를 불러오기 위한 매개변수를 가져온다.
+             *
+             * @param {string} key - 매개변수명
+             * @return {any} value - 매개변수값
+             */
+            getParam(key: string): any {
+                return this.getParams()[key] ?? null;
+            }
+
+            /**
              * 데이터를 가져온다.
              */
             load(): void {
@@ -428,10 +502,6 @@ namespace Admin {
                             this.data = new Admin.Data(results.records, this.fieldTypes);
                             this.count = results.records.length;
                             this.total = results.total;
-
-                            if (this.remoteSort === false && this.sorters.length > 0) {
-                                this.data.sort(this.sorters);
-                            }
 
                             this.onLoad();
                         }

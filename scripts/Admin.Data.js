@@ -6,11 +6,12 @@
  * @file /modules/admin/scripts/Admin.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 1.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
     class Data {
+        originRecoreds = [];
         records = [];
         types = {};
         /**
@@ -29,6 +30,7 @@ var Admin;
                 }
                 this.records.push(new Admin.Data.Record(data));
             }
+            this.originRecoreds = this.records;
         }
         /**
          * 전체 데이터를 가져온다.
@@ -56,7 +58,7 @@ var Admin;
         /**
          * 데이터를 정렬한다.
          *
-         * @param {Object} sorters - 정렬기준 [{field:string, direction:(ASC|DESC)}, ...]
+         * @param {Object} sorters - 정렬기준
          */
         sort(sorters) {
             this.records.sort((left, right) => {
@@ -73,6 +75,42 @@ var Admin;
                 }
                 return 0;
             });
+        }
+        /**
+         * 데이터를 필터링한다.
+         *
+         * @param {Object} filters - 필터기준
+         */
+        filter(filters) {
+            if (Object.keys(filters).length > 0) {
+                const records = [];
+                for (const record of this.originRecoreds) {
+                    let passed = true;
+                    for (const field in filters) {
+                        const filter = filters[field];
+                        const value = record.get(field) ?? null;
+                        switch (filter.operator) {
+                            case '=':
+                                if (value !== filter.value) {
+                                    passed = false;
+                                }
+                                break;
+                            default:
+                                passed = false;
+                        }
+                        if (passed == false) {
+                            break;
+                        }
+                    }
+                    if (passed == true) {
+                        records.push(record);
+                    }
+                }
+                this.records = records;
+            }
+            else {
+                this.records = this.originRecoreds;
+            }
         }
     }
     Admin.Data = Data;

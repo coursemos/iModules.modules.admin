@@ -6,15 +6,17 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 20.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
     class Store extends Admin.Base {
-        fieldTypes;
-        remoteSort = false;
-        sorters;
         primaryKeys;
+        fieldTypes;
+        sorters;
+        remoteSort = false;
+        filters;
+        remoteFilter = false;
         loading = false;
         loaded = false;
         data;
@@ -27,10 +29,12 @@ var Admin;
          */
         constructor(properties = null) {
             super(properties);
-            this.fieldTypes = this.properties.fieldTypes ?? {};
-            this.remoteSort = this.properties.remoteSort === true;
-            this.sorters = this.properties.sorters ?? [];
             this.primaryKeys = this.properties.primaryKeys ?? [];
+            this.fieldTypes = this.properties.fieldTypes ?? {};
+            this.sorters = this.properties.sorters ?? [];
+            this.remoteSort = this.properties.remoteSort === true;
+            this.filters = this.properties.filters ?? {};
+            this.remoteFilter = this.properties.remoteFilter === true;
             if (this.properties.sorter) {
                 this.sorters.push({ field: this.properties.sorter[0], direction: this.properties.sorter[1] });
             }
@@ -167,6 +171,7 @@ var Admin;
         sort(field, direction) {
             this.sorters = [{ field: field, direction: direction }];
             if (this.remoteSort == true) {
+                this.reload();
             }
             else {
                 this.onUpdate();
@@ -180,6 +185,45 @@ var Admin;
         multiSort(sorters) {
             this.sorters = sorters;
             if (this.remoteSort == true) {
+                this.reload();
+            }
+            else {
+                this.onUpdate();
+            }
+        }
+        /**
+         * 필터를 추가한다.
+         *
+         * @param {string} field - 필터링할 필드명
+         * @param {any} value - 필터링에 사용할 기준값
+         * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
+         */
+        addFilter(field, value, operator) {
+            this.filters[field] = { value: value, operator: operator };
+            this.filter();
+        }
+        /**
+         * 특정 필드의 필터를 제거한다.
+         *
+         * @param {string} field
+         */
+        removeFilter(field) {
+            delete this.filters[field];
+            this.filter();
+        }
+        /**
+         * 모든 필터를 초기화한다.
+         */
+        resetFilter() {
+            this.filters = {};
+            this.filter();
+        }
+        /**
+         * 정의된 필터링 규칙에 따라 필터링한다.
+         */
+        filter() {
+            if (this.remoteFilter === true) {
+                this.reload();
             }
             else {
                 this.onUpdate();
@@ -208,6 +252,9 @@ var Admin;
             if (this.remoteSort === false && this.sorters.length > 0) {
                 this.data?.sort(this.sorters);
             }
+            if (this.remoteSort === false) {
+                this.data?.filter(this.filters);
+            }
             this.fireEvent('update', [this, this.data]);
         }
     }
@@ -215,7 +262,7 @@ var Admin;
     (function (Store) {
         class Array extends Admin.Store {
             fields;
-            datas;
+            records;
             /**
              * Array 스토어를 생성한다.
              *
@@ -224,7 +271,7 @@ var Admin;
             constructor(properties = null) {
                 super(properties);
                 this.fields = this.properties.fields ?? [];
-                this.datas = this.properties.datas ?? [];
+                this.records = this.properties.records ?? [];
                 this.remoteSort = false;
                 this.load();
             }
@@ -238,10 +285,10 @@ var Admin;
                     return;
                 }
                 const records = [];
-                this.datas.forEach((data) => {
+                this.records.forEach((item) => {
                     const record = {};
                     this.fields.forEach((name, index) => {
-                        record[name] = data[index];
+                        record[name] = item[index];
                     });
                     records.push(record);
                 });
@@ -249,9 +296,6 @@ var Admin;
                 this.data = new Admin.Data(records, this.fieldTypes);
                 this.count = records.length;
                 this.total = this.count;
-                if (this.sorters.length > 0) {
-                    this.data.sort(this.sorters);
-                }
                 this.onLoad();
             }
             /**
@@ -303,6 +347,23 @@ var Admin;
                 this.params[key] = value;
             }
             /**
+             * 데이터를 불러오기 위한 매개변수를 가져온다.
+             *
+             * @return {Object} params - 매개변수
+             */
+            getParams() {
+                return this.params ?? {};
+            }
+            /**
+             * 데이터를 불러오기 위한 매개변수를 가져온다.
+             *
+             * @param {string} key - 매개변수명
+             * @return {any} value - 매개변수값
+             */
+            getParam(key) {
+                return this.getParams()[key] ?? null;
+            }
+            /**
              * 데이터를 가져온다.
              */
             load() {
@@ -322,9 +383,6 @@ var Admin;
                         this.data = new Admin.Data(results.records, this.fieldTypes);
                         this.count = results.records.length;
                         this.total = results.total;
-                        if (this.remoteSort === false && this.sorters.length > 0) {
-                            this.data.sort(this.sorters);
-                        }
                         this.onLoad();
                     }
                     this.loading = false;
