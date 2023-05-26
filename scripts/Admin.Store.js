@@ -239,11 +239,8 @@ var Admin;
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
         onLoad() {
-            if (this.remoteSort === false && this.sorters.length > 0) {
-                this.data?.sort(this.sorters);
-            }
             this.fireEvent('load', [this, this.data]);
-            this.fireEvent('update', [this, this.data]);
+            this.onUpdate();
         }
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
