@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 27.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
@@ -14,11 +14,13 @@ var Admin;
         type = 'button';
         role = 'button';
         text;
+        textAlign;
         iconClass;
         buttonClass;
         tabIndex;
         toggle;
         pressed;
+        value;
         handler;
         $button;
         /**
@@ -29,18 +31,14 @@ var Admin;
         constructor(properties = null) {
             super(properties);
             this.text = this.properties.text ?? '';
+            this.textAlign = this.properties.textAlign ?? 'center';
             this.iconClass = this.properties.iconClass ?? null;
             this.buttonClass = this.properties.buttonClass ?? null;
             this.tabIndex = this.properties.tabIndex ?? null;
             this.toggle = this.properties.toggle ?? false;
             this.pressed = this.properties.pressed === true;
+            this.value = this.properties.value ?? null;
             this.handler = this.properties.handler ?? null;
-            this.$button = Html.create('button').setAttr('type', 'button');
-            if (this.tabIndex !== null)
-                this.$button.setAttr('tabindex', this.tabIndex.toString());
-            if (this.buttonClass !== null) {
-                this.$button.addClass(...this.buttonClass.split(' '));
-            }
         }
         /**
          * 버튼 DOM 을 가져온다.
@@ -48,6 +46,15 @@ var Admin;
          * @return {Dom} $button
          */
         $getButton() {
+            if (this.$button === undefined) {
+                this.$button = Html.create('button').setAttr('type', 'button');
+                this.$button.setStyle('text-align', this.textAlign);
+                if (this.tabIndex !== null)
+                    this.$button.setAttr('tabindex', this.tabIndex.toString());
+                if (this.buttonClass !== null) {
+                    this.$button.addClass(...this.buttonClass.split(' '));
+                }
+            }
             return this.$button;
         }
         /**
@@ -58,7 +65,7 @@ var Admin;
         setIconClass(iconClass = null) {
             this.iconClass = iconClass;
             if (this.isRendered() == true) {
-                const $button = Html.get('> button', this.$getContent());
+                const $button = this.$getButton();
                 const $icon = Html.get('> i.icon', $button);
                 if (this.iconClass === null) {
                     if ($icon.getEl() !== null) {
@@ -85,7 +92,7 @@ var Admin;
         setText(text = null) {
             this.text = text;
             if (this.isRendered() == true) {
-                const $button = Html.get('> button', this.$getContent());
+                const $button = this.$getButton();
                 const $text = Html.get('> span', $button);
                 if (this.text === null) {
                     if ($text.getEl() !== null) {
@@ -98,7 +105,7 @@ var Admin;
                     }
                     else {
                         const $text = Html.create('span').html(this.text);
-                        this.$button.append($text);
+                        $button.append($text);
                     }
                 }
             }
@@ -106,15 +113,15 @@ var Admin;
         /**
          * 토글 상태를 변경한다.
          *
-         * @param {boolean} toggle - 토글여부
+         * @param {boolean} pressed - 토글여부
          */
-        setPressed(toggle) {
-            this.pressed = toggle;
+        setPressed(pressed) {
+            this.pressed = pressed;
             if (this.pressed == true) {
-                this.$button.addClass('pressed');
+                this.$getButton().addClass('pressed');
             }
             else {
-                this.$button.removeClass('pressed');
+                this.$getButton().removeClass('pressed');
             }
             this.fireEvent('toggle', [this, this.pressed]);
         }
@@ -126,12 +133,28 @@ var Admin;
          */
         setDisabled(disabled) {
             if (disabled == true) {
-                this.$button.setAttr('disabled', 'disabled');
+                this.$getButton().setAttr('disabled', 'disabled');
             }
             else {
-                this.$button.removeAttr('disabled');
+                this.$getButton().removeAttr('disabled');
             }
             return super.setDisabled(disabled);
+        }
+        /**
+         * 버튼값을 가져온다.
+         *
+         * @returns {string|number} value
+         */
+        getValue() {
+            return this.value;
+        }
+        /**
+         * 버튼이 눌린 상태인지 가져온다.
+         *
+         * @returns {boolean} pressed
+         */
+        isPressed() {
+            return this.pressed;
         }
         /**
          * 레이아웃을 렌더링한다.
@@ -140,18 +163,19 @@ var Admin;
             if (this.iconClass !== null) {
                 const $icon = Html.create('i').addClass('icon');
                 $icon.addClass(...this.iconClass.split(' '));
-                this.$button.append($icon);
+                this.$getButton().append($icon);
             }
             if (this.text !== null) {
                 const $text = Html.create('span').html(this.text);
-                this.$button.append($text);
+                this.$getButton().append($text);
             }
-            if (this.handler !== null || this.toggle === true) {
-                this.$button.on('click', () => {
-                    this.onClick();
-                });
+            if (this.pressed === true) {
+                this.setPressed(true);
             }
-            this.$getContent().append(this.$button);
+            this.$getButton().on('click', () => {
+                this.onClick();
+            });
+            this.$getContent().append(this.$getButton());
         }
         /**
          * 버튼 클릭이벤트를 처리한다.
@@ -163,7 +187,104 @@ var Admin;
             if (this.handler !== null) {
                 this.handler(this);
             }
+            this.fireEvent('click', [this]);
         }
     }
     Admin.Button = Button;
+    class SegmentedButton extends Admin.Component {
+        type = 'button';
+        role = 'segmented';
+        direction;
+        pressedButton;
+        toggle;
+        value;
+        /**
+         * 분할버튼을 생성한다.
+         *
+         * @param {Object} properties - 객체설정
+         */
+        constructor(properties = null) {
+            super(properties);
+            this.direction = this.properties.direction ?? 'row';
+            this.toggle = this.properties.toggle === true;
+            this.value = this.properties.value ?? null;
+        }
+        /**
+         * 분할버튼의 각 버튼을 초기화한다.
+         */
+        initItems() {
+            let pressed = null;
+            if (this.items === null) {
+                this.items = [];
+                for (let item of this.properties.items ?? []) {
+                    if (item instanceof Admin.Button) {
+                    }
+                    else if (typeof item == 'object') {
+                        item = new Admin.Button(item);
+                    }
+                    item.toggle = false;
+                    if (item.isPressed() === true) {
+                        pressed = item;
+                    }
+                    item.addEvent('click', (button) => {
+                        if (button.isPressed() == true && this.toggle == false) {
+                            console.log('취소불가');
+                            button.setPressed(true);
+                            return;
+                        }
+                        if (button.isPressed() == false) {
+                            this.setValue(button.getValue());
+                        }
+                        else {
+                            this.setValue(null);
+                        }
+                    });
+                    this.items.push(item);
+                }
+            }
+            if (pressed !== null) {
+                this.setValue(pressed.getValue());
+            }
+            super.initItems();
+        }
+        /**
+         * 선택값을 변경한다.
+         *
+         * @param {string|number} value - 변경할 값
+         */
+        setValue(value) {
+            if (this.value === value) {
+                return;
+            }
+            this.value = value;
+            for (const button of this.items) {
+                if (button.isPressed() == true && button.getValue() !== value) {
+                    button.setPressed(false);
+                }
+                if (value !== null && button.getValue() === value) {
+                    button.setPressed(true);
+                }
+            }
+            this.fireEvent('change', [this, this.value]);
+        }
+        /**
+         * 선택된 값을 가져온다.
+         *
+         * @return {string|number} value
+         */
+        getValue() {
+            return this.value;
+        }
+        /**
+         * 선택버튼을 랜더링한다.
+         */
+        render() {
+            this.$getContent().addClass(this.direction);
+            if (this.value !== null) {
+                this.setValue(this.value);
+            }
+            super.render();
+        }
+    }
+    Admin.SegmentedButton = SegmentedButton;
 })(Admin || (Admin = {}));
