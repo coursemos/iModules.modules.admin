@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 27.
  */
 var Admin;
 (function (Admin) {
@@ -24,7 +24,9 @@ var Admin;
             valueField;
             renderer;
             maxHeight;
+            hideOnEmpty;
             loading;
+            $list;
             /**
              * 패널을 생성한다.
              *
@@ -53,6 +55,7 @@ var Admin;
                         });
                 this.maxHeight = this.properties.maxHeight ?? null;
                 this.scrollable = 'Y';
+                this.hideOnEmpty = this.properties.hideOnEmpty === true;
                 this.loading = new Admin.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
                     direction: 'column',
@@ -77,12 +80,26 @@ var Admin;
                 return this.store;
             }
             /**
+             * 목록을 표시할 DOM 객체를 가져온다.
+             *
+             * @return {Dom} $list
+             */
+            $getList() {
+                if (this.$list === undefined) {
+                    this.$list = Html.create('ul', { 'data-role': 'list' });
+                    if (this.hideOnEmpty == true) {
+                        this.$list.addClass('autohide');
+                    }
+                }
+                return this.$list;
+            }
+            /**
              * 특정 라인에 포커스를 지정한다..
              *
              * @param {number} index - 포커스를 지정할 라인 인덱스
              */
             focusRow(index) {
-                const $list = Html.get('> ul[data-role=list]', this.$getContent());
+                const $list = this.$getList();
                 const $items = Html.all('> li', $list);
                 const origin = this.getFocusedRowIndex();
                 if (origin == index) {
@@ -95,7 +112,7 @@ var Admin;
              * 포커스가 지정된 라인이 있다면 포커스를 해제한다.
              */
             blurRow() {
-                Html.all('ul[data-role=list] > li', this.$getContent()).removeClass('focused');
+                Html.all('> li', this.$getList()).removeClass('focused');
             }
             /**
              * 포커스를 이동한다.
@@ -103,8 +120,7 @@ var Admin;
              * @param {('up'|'down')} direction - 방향
              */
             moveFocusedRow(direction) {
-                const $list = Html.get('> ul[data-role=list]', this.$getContent());
-                const $items = Html.all('> li', $list);
+                const $items = Html.all('> li', this.$getList());
                 if ($items.getList().length == 0) {
                     return;
                 }
@@ -123,7 +139,7 @@ var Admin;
              * @return {number} index
              */
             getFocusedRowIndex() {
-                const $list = Html.get('> ul[data-role=list]', this.$getContent());
+                const $list = this.$getList();
                 const $items = Html.all('> li', $list);
                 if ($items.getList().length == 0) {
                     return -1;
@@ -156,7 +172,7 @@ var Admin;
                 if (is_keep == false || this.multiple == false) {
                     this.deselectAll(false);
                 }
-                Html.all('li', this.$getContent()).get(index).addClass('selected');
+                Html.all('> li', this.$getList()).get(index).addClass('selected');
                 this.onSelectionChange();
             }
             /**
@@ -165,7 +181,7 @@ var Admin;
              * @param {number} index - 선택할 라인 인덱스
              */
             deselect(index) {
-                Html.all('li', this.$getContent()).get(index).removeClass('selected');
+                Html.all('> li', this.$getList()).get(index).removeClass('selected');
                 this.onSelectionChange();
             }
             /**
@@ -174,7 +190,7 @@ var Admin;
              * @param {boolean} is_event - 이벤트 발생여부
              */
             deselectAll(is_event = true) {
-                Html.all('li', this.$getContent()).removeClass('selected');
+                Html.all('> li', this.$getList()).removeClass('selected');
                 if (is_event == true) {
                     this.onSelectionChange();
                 }
@@ -186,11 +202,11 @@ var Admin;
              */
             toggle(index) {
                 if (this.multiple == true) {
-                    if (Html.all('li', this.$getContent()).get(index).hasClass('selected') == true) {
-                        Html.all('li', this.$getContent()).get(index).addClass('selected');
+                    if (Html.all('> li', this.$getList()).get(index).hasClass('selected') == true) {
+                        Html.all('> li', this.$getList()).get(index).addClass('selected');
                     }
                     else {
-                        Html.all('li', this.$getContent()).get(index).removeClass('selected');
+                        Html.all('> li', this.$getList()).get(index).removeClass('selected');
                     }
                     this.onSelectionChange();
                 }
@@ -204,17 +220,15 @@ var Admin;
              */
             renderContent() {
                 const $content = this.$getContent();
-                const $list = Html.create('ul', { 'data-role': 'list' });
+                const $list = this.$getList();
                 $content.append($list);
             }
             /**
              * 목록 데이터를 업데이트한다.
              */
             updateContent() {
-                const $content = this.$getContent();
-                $content.empty();
-                const $list = Html.create('ul', { 'data-role': 'list' });
-                $content.append($list);
+                const $list = this.$getList();
+                $list.empty();
                 this.getStore()
                     .getRecords()
                     .forEach((record, index) => {
@@ -307,17 +321,7 @@ var Admin;
              * @return {boolean} isEqual
              */
             isEqual(selections) {
-                if (this.selections === selections)
-                    return true;
-                if (this.selections == null || selections == null)
-                    return false;
-                if (this.selections.length !== selections.length)
-                    return false;
-                for (var i = 0; i < this.selections.length; ++i) {
-                    if (this.selections[i] !== selections[i])
-                        return false;
-                }
-                return true;
+                return Format.isEqual(this.selections, selections);
             }
             /**
              * 컴포넌트를 제거한다.

@@ -6,7 +6,7 @@
  * @file /styles/Admin.List.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 6.
+ * @modified 2023. 5. 27.
  */
 div[data-component][data-type='list'][data-role='panel'] {
     > div[data-role='container'] {
@@ -75,6 +75,12 @@ div[data-component][data-type='list'][data-role='panel'] {
                         &::before {
                             background: var(--input-background-default);
                         }
+                    }
+                }
+
+                &.autohide {
+                    &:empty {
+                        display: none;
                     }
                 }
             }
