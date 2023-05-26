@@ -14,6 +14,10 @@ var Admin;
         originRecoreds = [];
         records = [];
         types = {};
+        sorting;
+        sorters;
+        filtering;
+        filters;
         /**
          * 데이터셋을 생성한다.
          *
@@ -31,6 +35,10 @@ var Admin;
                 this.records.push(new Admin.Data.Record(data));
             }
             this.originRecoreds = this.records;
+            this.sorting = false;
+            this.sorters = [];
+            this.filtering = false;
+            this.filters = {};
         }
         /**
          * 전체 데이터를 가져온다.
@@ -60,7 +68,11 @@ var Admin;
          *
          * @param {Object} sorters - 정렬기준
          */
-        sort(sorters) {
+        async sort(sorters) {
+            if (this.sorting == true) {
+                return;
+            }
+            this.sorting = true;
             this.records.sort((left, right) => {
                 for (const sorter of sorters) {
                     sorter.direction = sorter.direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
@@ -75,13 +87,19 @@ var Admin;
                 }
                 return 0;
             });
+            this.sorters = sorters;
+            this.sorting = false;
         }
         /**
          * 데이터를 필터링한다.
          *
          * @param {Object} filters - 필터기준
          */
-        filter(filters) {
+        async filter(filters) {
+            if (this.filtering == true) {
+                return;
+            }
+            this.filtering = true;
             if (Object.keys(filters).length > 0) {
                 const records = [];
                 for (const record of this.originRecoreds) {
@@ -150,6 +168,8 @@ var Admin;
             else {
                 this.records = this.originRecoreds;
             }
+            this.filters = filters;
+            this.filtering = false;
         }
     }
     Admin.Data = Data;

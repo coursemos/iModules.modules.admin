@@ -222,12 +222,7 @@ namespace Admin {
          * @param {string} direction - 정렬방향 (asc, desc)
          */
         sort(field: string, direction: string): void {
-            this.sorters = [{ field: field, direction: direction }];
-            if (this.remoteSort == true) {
-                this.reload();
-            } else {
-                this.onUpdate();
-            }
+            this.multiSort([{ field: field, direction: direction }]);
         }
 
         /**
@@ -235,12 +230,14 @@ namespace Admin {
          *
          * @param {Object} sorters - 정렬기준 [{field:string, direction:(ASC|DESC)}, ...]
          */
-        multiSort(sorters: { field: string; direction: string }[]): void {
+        async multiSort(sorters: { field: string; direction: string }[]): Promise<void> {
             this.sorters = sorters;
             if (this.remoteSort == true) {
                 this.reload();
             } else {
-                this.onUpdate();
+                this.data?.sort(this.sorters).then(() => {
+                    this.onUpdate();
+                });
             }
         }
 
@@ -277,11 +274,13 @@ namespace Admin {
         /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
-        filter(): void {
+        async filter(): Promise<void> {
             if (this.remoteFilter === true) {
                 this.reload();
             } else {
-                this.onUpdate();
+                this.data?.filter(this.filters).then(() => {
+                    this.onUpdate();
+                });
             }
         }
 
@@ -303,14 +302,27 @@ namespace Admin {
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
+        loop: number = 0;
         onUpdate(): void {
-            if (this.remoteSort === false && this.sorters.length > 0) {
-                this.data?.sort(this.sorters);
+            if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
+                if (this.remoteSort == true) {
+                    this.reload();
+                } else {
+                    this.data?.sort(this.sorters).then(() => {
+                        this.onUpdate();
+                    });
+                }
+            } else if (Format.isEqual(this.data?.filters, this.filters) == false) {
+                if (this.remoteSort == true) {
+                    this.reload();
+                } else {
+                    this.data?.filter(this.filters).then(() => {
+                        this.onUpdate();
+                    });
+                }
+            } else {
+                this.fireEvent('update', [this, this.data]);
             }
-            if (this.remoteSort === false) {
-                this.data?.filter(this.filters);
-            }
-            this.fireEvent('update', [this, this.data]);
         }
     }
 

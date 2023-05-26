@@ -13,6 +13,10 @@ namespace Admin {
         originRecoreds: Admin.Data.Record[] = [];
         records: Admin.Data.Record[] = [];
         types: { [key: string]: string } = {};
+        sorting: boolean;
+        sorters: { field: string; direction: string }[];
+        filtering: boolean;
+        filters: { [field: string]: { value: any; operator: string } };
 
         /**
          * 데이터셋을 생성한다.
@@ -33,7 +37,12 @@ namespace Admin {
 
                 this.records.push(new Admin.Data.Record(data));
             }
+
             this.originRecoreds = this.records;
+            this.sorting = false;
+            this.sorters = [];
+            this.filtering = false;
+            this.filters = {};
         }
 
         /**
@@ -68,7 +77,12 @@ namespace Admin {
          *
          * @param {Object} sorters - 정렬기준
          */
-        sort(sorters: { field: string; direction: string }[]): void {
+        async sort(sorters: { field: string; direction: string }[]): Promise<void> {
+            if (this.sorting == true) {
+                return;
+            }
+
+            this.sorting = true;
             this.records.sort((left: Admin.Data.Record, right: Admin.Data.Record) => {
                 for (const sorter of sorters) {
                     sorter.direction = sorter.direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
@@ -84,6 +98,8 @@ namespace Admin {
 
                 return 0;
             });
+            this.sorters = sorters;
+            this.sorting = false;
         }
 
         /**
@@ -91,7 +107,12 @@ namespace Admin {
          *
          * @param {Object} filters - 필터기준
          */
-        filter(filters: { [field: string]: { value: any; operator: string } }): void {
+        async filter(filters: { [field: string]: { value: any; operator: string } }): Promise<void> {
+            if (this.filtering == true) {
+                return;
+            }
+
+            this.filtering = true;
             if (Object.keys(filters).length > 0) {
                 const records: Admin.Data.Record[] = [];
                 for (const record of this.originRecoreds) {
@@ -175,6 +196,9 @@ namespace Admin {
             } else {
                 this.records = this.originRecoreds;
             }
+
+            this.filters = filters;
+            this.filtering = false;
         }
     }
 
