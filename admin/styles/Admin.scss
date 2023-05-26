@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/styles/Admin.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 3.
+ * @modified 2023. 5. 26.
  */
 section[data-role='admin'],
 main[data-role='admin'] {
@@ -19,5 +19,24 @@ main[data-role='admin'] {
         background-size: contain;
         background-repeat: no-repeat;
         background-position: 50% 50%;
+    }
+
+    div[data-component][data-type='form'][data-role='field'].context_type {
+        label {
+            > span {
+                padding: 4px 12px !important;
+                text-align: center;
+
+                > i {
+                    display: block;
+                    margin: 5px auto;
+                    font-size: 20px;
+                }
+
+                > span {
+                    white-space: nowrap;
+                }
+            }
+        }
     }
 }
