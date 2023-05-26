@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 3.
+ * @modified 2023. 5. 26.
  */
 namespace Admin {
     export namespace Grid {
@@ -16,6 +16,21 @@ namespace Admin {
                  * @type {(Admin.Grid.Column | Admin.Grid.Column.Properties)[]} columns - 컬럼정보
                  */
                 columns: (Admin.Grid.Column | Admin.Grid.Column.Properties)[];
+
+                /**
+                 * @type {number} freeze - 고정할 컬럼 인덱스
+                 */
+                freeze?: number;
+
+                /**
+                 * @type {boolean} columnResizable - 컬럼 크기조절여부
+                 */
+                columnResizable?: boolean;
+
+                /**
+                 * @type {'NONE'|'SINGLE'|'SIMPLE'|'MULTI'|'CHECKBOX'} selectionMode - 선택모드
+                 */
+                selectionMode?: 'NONE' | 'SINGLE' | 'SIMPLE' | 'MULTI' | 'CHECKBOX';
 
                 /**
                  * @type {Admin.Store} store - 데이터스토어

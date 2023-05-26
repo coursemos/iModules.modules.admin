@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 3.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
