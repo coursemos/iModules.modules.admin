@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 1.
+ * @modified 2023. 5. 26.
  */
 var Admin;
 (function (Admin) {
@@ -200,6 +200,14 @@ var Admin;
                 }
             }
             /**
+             * 목록을 랜더링한다.
+             */
+            renderContent() {
+                const $content = this.$getContent();
+                const $list = Html.create('ul', { 'data-role': 'list' });
+                $content.append($list);
+            }
+            /**
              * 목록 데이터를 업데이트한다.
              */
             updateContent() {
@@ -230,9 +238,7 @@ var Admin;
             onRender() {
                 super.onRender();
                 this.setMaxHeight(this.maxHeight);
-                if (this.getStore().isLoaded() === false) {
-                    this.getStore().load();
-                }
+                this.getStore().load();
                 this.$getComponent().on('keydown', (e) => {
                     if (e.key == 'ArrowDown' || e.key == 'ArrowUp') {
                         this.moveFocusedRow(e.key == 'ArrowDown' ? 'down' : 'up');

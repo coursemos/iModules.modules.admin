@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 1.
+ * @modified 2023. 5. 26.
  */
 namespace Admin {
     export namespace List {
@@ -293,6 +293,15 @@ namespace Admin {
             }
 
             /**
+             * 목록을 랜더링한다.
+             */
+            renderContent(): void {
+                const $content = this.$getContent();
+                const $list = Html.create('ul', { 'data-role': 'list' });
+                $content.append($list);
+            }
+
+            /**
              * 목록 데이터를 업데이트한다.
              */
             updateContent(): void {
@@ -326,10 +335,7 @@ namespace Admin {
             onRender(): void {
                 super.onRender();
                 this.setMaxHeight(this.maxHeight);
-
-                if (this.getStore().isLoaded() === false) {
-                    this.getStore().load();
-                }
+                this.getStore().load();
 
                 this.$getComponent().on('keydown', (e: KeyboardEvent) => {
                     if (e.key == 'ArrowDown' || e.key == 'ArrowUp') {
