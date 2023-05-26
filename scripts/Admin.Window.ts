@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 26.
+ * @modified 2023. 5. 26.
  */
 namespace Admin {
     export namespace Window {
@@ -55,16 +55,6 @@ namespace Admin {
              * @type {string} collapseDirection - 최소화 방향
              */
             collapseDirection?: boolean;
-
-            /**
-             * @type {number} width - 가로크기
-             */
-            width?: number;
-
-            /**
-             * @type {number} height - 가로크기
-             */
-            height?: number;
 
             /**
              * @type {number} minWidth - 최소가로크기
@@ -116,8 +106,6 @@ namespace Admin {
         collapsible: boolean;
         collapsed: boolean;
         collapseDirection: string;
-        width: number;
-        height: number;
         minWidth: number;
         maxWidth: number;
         minHeight: number;
@@ -144,8 +132,6 @@ namespace Admin {
             this.closable = this.properties.closable ?? true;
             this.movable = this.properties.movable ?? true;
 
-            this.width = this.properties.width ?? null;
-            this.height = this.properties.height ?? null;
             this.minWidth = this.properties.minWidth ?? null;
             this.maxWidth = this.properties.maxWidth ?? null;
             this.minHeight = this.properties.minHeight ?? null;
@@ -244,20 +230,6 @@ namespace Admin {
         }
 
         /**
-         * 윈도우 너비를 설정한다.
-         *
-         * @param {number} width - 너비
-         */
-        setWidth(width: number): void {
-            this.width = width;
-            if (width == null) {
-                this.$component.setStyle('width', 'auto');
-            } else {
-                this.$component.setStyle('width', width + 'px');
-            }
-        }
-
-        /**
          * 윈도우 최대너비를 설정한다.
          *
          * @param {number} maxWidth - 최대너비
@@ -272,20 +244,6 @@ namespace Admin {
                 this.$component.setStyle('maxWidth', maxWidth + 'px');
             }
             this.resizer?.setMaxWidth(maxWidth);
-        }
-
-        /**
-         * 윈도우 높이를 설정한다.
-         *
-         * @param {number} height - 높이
-         */
-        setHeight(height: number): void {
-            this.height = height;
-            if (height == null) {
-                this.$component.setStyle('height', 'auto');
-            } else {
-                this.$component.setStyle('height', height + 'px');
-            }
         }
 
         /**
