@@ -84,3 +84,9 @@ div[data-component][data-type='window'][data-role='message'] {
         }
     }
 }
+
+section[data-role='admin'][data-type='windows'] {
+    &:has(div[data-component][data-type='window'][data-role='message']) {
+        z-index: 5000;
+    }
+}
