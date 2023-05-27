@@ -77,10 +77,14 @@ div[data-component][data-type='list'][data-role='panel'] {
                         }
                     }
                 }
+            }
 
-                &.autohide {
-                    &:empty {
-                        display: none;
+            &:not(:has(div[data-type='loading'].show)) {
+                > ul[data-role='list'] {
+                    &.autohide {
+                        &:empty {
+                            display: none;
+                        }
                     }
                 }
             }
