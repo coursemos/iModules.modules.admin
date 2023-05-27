@@ -141,14 +141,14 @@ var Admin;
                             case 'in':
                                 if (Array.isArray(filter.value) == false ||
                                     Array.isArray(value) == true ||
-                                    filter.value.includes(value) != false) {
+                                    filter.value.includes(value) == false) {
                                     passed = false;
                                 }
                                 break;
                             case 'inset':
                                 if (Array.isArray(value) == false ||
                                     Array.isArray(filter.value) == true ||
-                                    value.includes(filter.value) != false) {
+                                    value.includes(filter.value) == false) {
                                     passed = false;
                                 }
                                 break;
