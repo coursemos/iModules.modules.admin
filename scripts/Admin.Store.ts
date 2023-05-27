@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 27.
  */
 namespace Admin {
     export namespace Store {
@@ -420,6 +420,16 @@ namespace Admin {
                  * @type {number} page - 가져올 페이지 번호
                  */
                 page?: number;
+
+                /**
+                 * @type {string} recordsField - 데이터가 있는 필드명
+                 */
+                recordsField?: string;
+
+                /**
+                 * @type {string} totalField - 데이터 총 갯수가 있는 필드명
+                 */
+                totalField?: string;
             }
         }
 
@@ -429,6 +439,8 @@ namespace Admin {
             params: { [key: string]: any };
             limit: number;
             page: number;
+            recordsField: string;
+            totalField: string;
 
             /**
              * Ajax 스토어를 생성한다.
@@ -443,6 +455,8 @@ namespace Admin {
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
+                this.recordsField = this.properties.recordsField ?? 'records';
+                this.totalField = this.properties.totalField ?? 'total';
             }
 
             /**
@@ -507,9 +521,9 @@ namespace Admin {
                     .then((results: Admin.Ajax.Results) => {
                         if (results.success == true) {
                             this.loaded = true;
-                            this.data = new Admin.Data(results.records, this.fieldTypes);
+                            this.data = new Admin.Data(results[this.recordsField] ?? [], this.fieldTypes);
                             this.count = results.records.length;
-                            this.total = results.total;
+                            this.total = results[this.totalField] ?? 0;
 
                             this.onLoad();
                         }

@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 27.
  */
 var Admin;
 (function (Admin) {
@@ -324,6 +324,8 @@ var Admin;
             params;
             limit;
             page;
+            recordsField;
+            totalField;
             /**
              * Ajax 스토어를 생성한다.
              *
@@ -336,6 +338,8 @@ var Admin;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
+                this.recordsField = this.properties.recordsField ?? 'records';
+                this.totalField = this.properties.totalField ?? 'total';
             }
             /**
              * 데이터를 불러오기 위한 매개변수를 설정한다.
@@ -391,9 +395,9 @@ var Admin;
                     .then((results) => {
                     if (results.success == true) {
                         this.loaded = true;
-                        this.data = new Admin.Data(results.records, this.fieldTypes);
+                        this.data = new Admin.Data(results[this.recordsField] ?? [], this.fieldTypes);
                         this.count = results.records.length;
-                        this.total = results.total;
+                        this.total = results[this.totalField] ?? 0;
                         this.onLoad();
                     }
                     this.loading = false;
