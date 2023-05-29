@@ -7,7 +7,7 @@
  * @file /modules/admin/dto/Context.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 26.
+ * @modified 2023. 5. 30.
  */
 namespace modules\admin\dto;
 class Context
@@ -132,7 +132,7 @@ class Context
                 $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)Admin$/';
                 if (preg_match($regExp, get_class($this->_admin), $match) == true) {
                     $type = $match[1];
-                    $name = $match[2];
+                    $name = str_replace('\\', '/', $match[2]);
                     if ($this->_is_root == true) {
                         return $this->_path == '/' ? '/' : preg_replace('/\/$/', '', $this->_path);
                     } else {
