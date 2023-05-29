@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 26.
+ * @modified 2023. 5. 30.
  */
 namespace modules\admin\admin;
 class Admin
@@ -101,7 +101,7 @@ class Admin
         $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)Admin$/';
         if (preg_match($regExp, get_called_class(), $match) == true) {
             $type = $match[1];
-            $name = $match[2];
+            $name = str_replace('\\', '/', $match[2]);
 
             if ($type == 'module') {
                 return \Modules::get($name);
