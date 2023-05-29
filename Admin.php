@@ -8,13 +8,13 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 namespace modules\admin;
 class Admin extends \Module
 {
     /**
-     * @var \modules\admin\dto\Context[] $_contexts 전체 컨텍스트 정보
+     * @var \modules\admin\dto\Context[] $_contexts 전체 관리자 컨텍스트 정보
      */
     private static array $_contexts;
 
@@ -127,15 +127,20 @@ class Admin extends \Module
     /**
      * 관리자 전체 컨텍스트를 가져온다.
      *
+     * @param bool $is_all_contexts 전체 컨텍스트를 경로와 함께 반환할지 여부
      * @return \modules\admin\dto\Context[] $contexts
      */
-    public function getContexts(): array
+    public function getAdminContexts(bool $is_all_contexts = false): array
     {
         if (isset(self::$_tree) === true) {
             return self::$_tree;
         }
 
         $this->initContexts();
+        if ($is_all_contexts === true) {
+            return self::$_contexts;
+        }
+
         $contexts = $this->getMember()->contexts;
 
         /**
@@ -267,12 +272,16 @@ class Admin extends \Module
      * @param \Route $route 현재 경로
      * @return ?\modules\admin\dto\Context $context
      */
-    public function getContext(\Route $route): ?\modules\admin\dto\Context
+    public function getAdminContext(\Route $route): ?\modules\admin\dto\Context
     {
-        $contexts = $this->getContexts();
+        $contexts = $this->getAdminContexts();
         $paths = array_keys(self::$_contexts);
 
         $routes = explode('/', $route->getSubPath());
+
+        /**
+         * 관리자 루트인 경우, 관리자의 첫번째 컨텍스트를 반환한다.
+         */
         if (count($routes) == 1) {
             foreach ($contexts as $context) {
                 if ($context->getType() == 'FOLDER') {
@@ -289,6 +298,9 @@ class Admin extends \Module
             return self::$_contexts['/dashboard'];
         }
 
+        /**
+         * 전체 컨텍스트에서 경로와 일치하는 컨텍스트를 찾는다.
+         */
         while (count($routes) > 1) {
             $path = implode('/', $routes);
             if (in_array($path, $paths) == true) {
@@ -332,13 +344,13 @@ class Admin extends \Module
      *
      * @return bool $is_admin
      */
-    public function isAdmin(): bool
+    public function hasPermission(): bool
     {
         return true;
     }
 
     /**
-     * 권한을 확인한다.
+     * 특정경로의 관리자 권한을 확인한다.
      *
      * @param string $path
      * @return bool|string $permission
@@ -361,7 +373,7 @@ class Admin extends \Module
      */
     public function doRoute(\Route $route): string
     {
-        $context = $this->getContext($route);
+        $context = $this->getAdminContext($route);
         if ($context === null) {
             \ErrorHandler::print('NOT_FOUND_URL');
         }
@@ -484,11 +496,6 @@ class Admin extends \Module
         $theme = new \Theme($this->getConfigs('theme'));
         $theme->assign('mMember', $mMember);
         $theme->assign('member', $member);
-
-        /*
-        $this->setTemplate($this->getConfigs('template'));
-        $templet = $this->getTemplate();
-        */
 
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));
