@@ -7,7 +7,7 @@
  * @file /modules/admin/process/module.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 7.
+ * @modified 2023. 5. 30.
  *
  * @var \modules\admin\Admin $me
  * @var Input $input
@@ -19,7 +19,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->isAdmin() == false) {
+if ($me->isAdmin('modules') == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;

@@ -7,7 +7,7 @@
  * @file /modules/admin/process/themes.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 7.
+ * @modified 2023. 5. 30.
  *
  * @var \modules\admin\Admin $me
  */
@@ -18,7 +18,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->checkPermission('/sites') == false) {
+if ($me->hasPermission() == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
@@ -35,7 +35,7 @@ foreach ($names as $name) {
 
 $modules = Modules::all();
 foreach ($modules as $module) {
-    if ($module->isTheme() == true) {
+    if ($module->hasPackageProperty('THEME') == true) {
         $names = File::getDirectoryItems($module->getPath() . '/themes', 'directory', false);
         foreach ($names as $name) {
             $themes[] = new Theme((object) ['name' => '/modules/' . $module->getName() . '/' . basename($name)]);

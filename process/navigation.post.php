@@ -7,9 +7,10 @@
  * @file /modules/admin/process/navigation.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 7.
+ * @modified 2023. 5. 30.
  *
  * @var \modules\admin\Admin $me
+ * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
@@ -18,21 +19,19 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->isAdmin() == false) {
+if ($me->hasPermission() == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 
-$member = $this->getMember();
-$contexts = json_encode($values->contexts);
+$member = $me->getMember();
+$contexts = json_encode($input->get('contexts'));
 
-$this->db()
-    ->update($this->table('members'), ['contexts' => $contexts])
+$me->db()
+    ->update($me->table('members'), ['contexts' => $contexts])
     ->where('member_id', $member->member_id)
     ->execute();
 
-sleep(1);
-
 $results->success = true;
-$results->contexts = $values->contexts;
+$results->contexts = $input->get('contexts');

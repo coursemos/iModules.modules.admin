@@ -7,7 +7,7 @@
  * @file /modules/admin/process/domains.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 7.
+ * @modified 2023. 5. 30.
  *
  * @var \modules\admin\Admin $me
  */
@@ -18,7 +18,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->checkPermission('/sites') == false) {
+if ($me->hasPermission() == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
