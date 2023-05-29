@@ -224,16 +224,6 @@ namespace Admin {
              * @return {Promise<Admin.Ajax.results>} results
              */
             async load({ url, params = null, message = null }: Admin.Form.Request): Promise<Admin.Ajax.Results> {
-                if (this.isLoading() === true) {
-                    Admin.Message.show({
-                        title: Admin.printText('info'),
-                        message: Admin.printText('actions.waiting_retry'),
-                        icon: Admin.Message.INFO,
-                        buttons: Admin.Message.OK,
-                    });
-                    return;
-                }
-
                 this.setLoading(this, true, message ?? true);
 
                 const response = await Admin.Ajax.get(url, params);
@@ -262,13 +252,13 @@ namespace Admin {
                         icon: Admin.Message.INFO,
                         buttons: Admin.Message.OK,
                     });
-                    return;
+                    return { success: false };
                 }
 
                 const isValid = await this.isValid();
                 if (isValid === false) {
                     this.scrollToErrorField();
-                    return;
+                    return { success: false };
                 }
 
                 this.setLoading(this, true, message ?? Admin.printText('actions.saving_status'));
@@ -504,7 +494,7 @@ namespace Admin {
                     type?: string;
                     value?: any;
                     default?: any;
-                    options?: { [value: string]: string }[];
+                    options?: { [value: string]: string };
                     items?: Admin.Form.Field.Create.Properties[];
                     [key: string]: any;
                 }
@@ -513,6 +503,24 @@ namespace Admin {
                 field: Admin.Form.Field.Create.Properties
             ): Admin.Form.Field.Base | Admin.Form.FieldSet {
                 switch (field.type) {
+                    case 'select':
+                        return new Admin.Form.Field.Select({
+                            name: field.name ?? null,
+                            label: field.label ?? null,
+                            value: field.value ?? null,
+                            allowBlank: field.allowBlank ?? true,
+                            store: new Admin.Store.Array({
+                                fields: ['display', 'value'],
+                                records: ((options: { [value: string]: string }) => {
+                                    const records = [];
+                                    for (const value in options) {
+                                        records.push([options[value], value]);
+                                    }
+                                    return records;
+                                })(field.options),
+                            }),
+                        });
+
                     case 'fieldset':
                         return new Admin.Form.FieldSet({
                             title: field.label ?? null,
@@ -530,6 +538,7 @@ namespace Admin {
                             name: field.name ?? null,
                             label: field.label ?? null,
                             value: field.value ?? null,
+                            allowBlank: field.allowBlank ?? true,
                             width: 200,
                         });
 
@@ -538,6 +547,7 @@ namespace Admin {
                             name: field.name ?? null,
                             label: field.label ?? null,
                             value: field.value?.name ?? null,
+                            allowBlank: field.allowBlank ?? true,
                         });
 
                     case 'template':
@@ -547,6 +557,7 @@ namespace Admin {
                             value: field.value?.name ?? null,
                             componentType: field.component.type,
                             componentName: field.component.name,
+                            allowBlank: field.allowBlank ?? true,
                         });
 
                     default:
@@ -554,6 +565,7 @@ namespace Admin {
                             name: field.name ?? null,
                             label: field.label ?? null,
                             value: field.value ?? null,
+                            allowBlank: field.allowBlank ?? true,
                         });
                 }
             }
@@ -2528,7 +2540,6 @@ namespace Admin {
                     }
 
                     this.$getDisplay().show();
-
                     super.setValue(value, is_origin);
                 }
 
@@ -2622,6 +2633,31 @@ namespace Admin {
                     }
 
                     this.getStore().setFilter(this.searchField, keyword, this.searchOperator);
+                }
+
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled: boolean): this {
+                    if (disabled == true) {
+                        this.collapse();
+                        this.$getButton().setAttr('disabled', 'disabled');
+                        if (this.search === true) {
+                            this.$getSearch().setAttr('disabled', 'disabled');
+                        }
+                    } else if (this.readonly === false) {
+                        this.$getButton().removeAttr('disabled');
+                        if (this.search === true) {
+                            this.$getSearch().removeAttr('disabled');
+                        }
+                    }
+
+                    super.setDisabled(disabled);
+
+                    return this;
                 }
 
                 /**
@@ -3172,6 +3208,7 @@ namespace Admin {
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
                  */
                 onBeforeLoad(): void {
+                    this.getForm()?.setLoading(this, true, false);
                     this.$getPages().empty();
                     this.loading.show();
                 }
@@ -3205,6 +3242,353 @@ namespace Admin {
                     if (this.rawValue !== null) {
                         this.setValue(this.rawValue);
                     }
+
+                    this.getForm()?.setLoading(this, false);
+                }
+            }
+
+            export namespace Context {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    /**
+                     * @type {Object} configsParams - 설정필드값을 가져오기 위한 추가변수
+                     */
+                    configsParams?: { [key: string]: string };
+                }
+            }
+
+            export class Context extends Admin.Form.Field.Base {
+                type: string = 'form';
+                role: string = 'field';
+                field: string = 'context';
+
+                modules: Admin.Form.Field.Select;
+                contexts: Admin.Form.Field.Select;
+                fieldset: Admin.Form.FieldSet;
+
+                rawValue: { module: string; context: string; configs: { [key: string]: any } };
+
+                /**
+                 * 템플릿필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Context.Properties} properties - 객체설정
+                 */
+                constructor(properties: Admin.Form.Field.Context.Properties = null) {
+                    super(properties);
+
+                    const module = this.properties.value?.module ?? null;
+                    const context = this.properties.value?.context ?? null;
+                    const configs = this.properties.value?.configs ?? {};
+                    this.rawValue = { module: module, context: context, configs: configs };
+                    this.value = null;
+                }
+
+                /**
+                 * 폼 패널의 하위 컴포넌트를 정의한다.
+                 */
+                initItems(): void {
+                    if (this.items === null) {
+                        this.items = [];
+
+                        this.items.push(this.getModules());
+                        this.items.push(this.getContexts());
+                        this.items.push(this.getFieldSet());
+                    }
+
+                    super.initItems();
+                }
+
+                /**
+                 * 테마설정을 위한 셀렉트필드를 가져온다.
+                 *
+                 * @return {Admin.Form.Field.Select} select
+                 */
+                getModules(): Admin.Form.Field.Select {
+                    if (this.modules === undefined) {
+                        this.modules = new Admin.Form.Field.Select({
+                            id: 'abc',
+                            store: new Admin.Store.Ajax({
+                                url: Admin.getProcessUrl('module', 'admin', 'modules'),
+                                filters: {
+                                    properties: {
+                                        value: 'CONTEXT',
+                                        operator: 'inset',
+                                    },
+                                },
+                                sorters: [{ field: 'title', direction: 'ASC' }],
+                            }),
+                            valueField: 'name',
+                            displayField: 'title',
+                            emptyText: Admin.printText('components.form.context.module_help'),
+                            search: true,
+                            listRenderer: (display: string, record: Admin.Data.Record) => {
+                                const $icon = Html.html(record.get('icon'));
+                                $icon.setStyle('width', '22px');
+                                $icon.setStyle('height', '22px');
+                                $icon.setStyle('background-size', '16px 16px');
+                                $icon.setStyle('margin-right', '4px');
+                                $icon.setStyle('vertical-align', 'middle');
+                                $icon.setStyle('line-height', '22px');
+                                $icon.setStyle('border-radius', '3px');
+
+                                const $text = Html.create('span', null, display);
+                                $text.setStyle('display', 'inline-block');
+                                $text.setStyle('vertical-align', 'middle');
+                                $icon.setStyle('height', '22px');
+                                $text.setStyle('line-height', '22px');
+
+                                return $icon.toHtml() + $text.toHtml();
+                            },
+                            renderer: (display: string, record: Admin.Data.Record) => {
+                                if (record === null) {
+                                    return display;
+                                }
+
+                                const $icon = Html.html(record.get('icon'));
+                                $icon.setStyle('width', '22px');
+                                $icon.setStyle('height', '22px');
+                                $icon.setStyle('background-size', '16px 16px');
+                                $icon.setStyle('margin-right', '4px');
+                                $icon.setStyle('vertical-align', 'middle');
+                                $icon.setStyle('line-height', '22px');
+                                $icon.setStyle('border-radius', '3px');
+
+                                const $text = Html.create('span', null, display);
+                                $text.setStyle('display', 'inline-block');
+                                $text.setStyle('vertical-align', 'middle');
+                                $icon.setStyle('height', '22px');
+                                $text.setStyle('line-height', '22px');
+
+                                return $icon.toHtml() + $text.toHtml();
+                            },
+                            listeners: {
+                                change: (_field: Admin.Form.Field.Select, value: string) => {
+                                    const store = this.getContexts().getStore() as Admin.Store.Ajax;
+                                    store.setParam('module', value);
+                                    store.reload();
+                                },
+                            },
+                        });
+                    }
+
+                    return this.modules;
+                }
+
+                /**
+                 * 모듈 컨텍스트 셀렉트필드를 가져온다.
+                 *
+                 * @return {Admin.Form.Field.Select} contexts
+                 */
+                getContexts(): Admin.Form.Field.Select {
+                    if (this.contexts === undefined) {
+                        this.contexts = new Admin.Form.Field.Select({
+                            store: new Admin.Store.Ajax({
+                                url: Admin.getProcessUrl('module', 'admin', 'module.contexts'),
+                            }),
+                            valueField: 'name',
+                            displayField: 'title',
+                            emptyText: Admin.printText('components.form.context.context_help'),
+                            search: true,
+                            disabled: true,
+                            listeners: {
+                                update: (store: Admin.Store.Ajax, field: Admin.Form.Field.Select) => {
+                                    field.setDisabled(store.getCount() == 0);
+                                    if (this.rawValue.module == this.getModules().getValue()) {
+                                        field.setValue(this.rawValue.context);
+                                    }
+                                },
+                                change: async (field: Admin.Form.Field.Select, value: string) => {
+                                    if (value === null) {
+                                        this.updateValue();
+                                        this.getFieldSet().empty();
+                                        this.getFieldSet().hide();
+                                        return;
+                                    }
+
+                                    this.getForm()?.setLoading(this, true);
+                                    field.disable();
+
+                                    const configs = await Admin.Ajax.get(
+                                        Admin.getProcessUrl('module', 'admin', 'module.context'),
+                                        {
+                                            module: this.getModules().getValue(),
+                                            context: value,
+                                        }
+                                    );
+                                    this.getFieldSet().empty();
+
+                                    if ((configs?.fields?.length ?? 0) == 0) {
+                                        this.getFieldSet().hide();
+                                    } else {
+                                        for (const field of configs.fields) {
+                                            field.allowBlank = false;
+                                            const item = Admin.Form.Field.Create(field);
+                                            item.addEvent('change', () => {
+                                                this.updateValue();
+                                            });
+                                            this.getFieldSet().append(item);
+                                        }
+
+                                        if ((this.rawValue?.configs ?? null) !== null) {
+                                            for (const name in this.rawValue.configs) {
+                                                this.getFieldSet()
+                                                    .getField(name)
+                                                    ?.setValue(this.rawValue.configs[name]);
+                                            }
+                                        }
+
+                                        this.getFieldSet().show();
+                                    }
+
+                                    field.enable();
+                                    this.fireEvent('configs', [this, configs]);
+                                    this.getForm()?.setLoading(this, false);
+                                },
+                            },
+                        });
+                    }
+
+                    return this.contexts;
+                }
+
+                /**
+                 * 컨텍스트설정을 위한 필드셋을 가져온다.
+                 *
+                 * @return {Admin.Form.FieldSet} fieldset
+                 */
+                getFieldSet(): Admin.Form.FieldSet {
+                    if (this.fieldset === undefined) {
+                        this.fieldset = new Admin.Form.FieldSet({
+                            title: Admin.printText('components.form.context_configs'),
+                            hidden: true,
+                            flex: true,
+                            items: [],
+                        });
+                    }
+
+                    return this.fieldset;
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value: any, is_origin: boolean = false): void {
+                    if (typeof value != 'object') {
+                        value = null;
+                    } else {
+                        value = {
+                            module: value?.module ?? null,
+                            context: value?.context ?? null,
+                            configs: value?.configs ?? {},
+                        };
+                    }
+
+                    this.rawValue = value;
+
+                    if (this.getModules().getValue() != value?.module) {
+                        this.getModules().setValue(value?.module ?? null);
+                    }
+
+                    super.setValue(value, is_origin);
+                }
+
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {Object} value
+                 */
+                getValue(): Object {
+                    const module = this.getModules().getValue();
+                    const context = this.getContexts().getValue();
+                    const configs = {};
+
+                    for (const item of this.getFieldSet().getFields()) {
+                        configs[item.name] = item.getValue();
+                    }
+
+                    if (module === null || context == null) {
+                        return null;
+                    }
+
+                    return { module: module, context: context, configs: configs };
+                }
+
+                /**
+                 * 현재 입력된 값으로 값을 업데이트한다.
+                 */
+                updateValue(): void {
+                    super.setValue(this.getValue());
+                }
+
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @return {boolean|string} validation
+                 */
+                async validate(): Promise<boolean | string> {
+                    if (this.allowBlank == false && this.isBlank() == true) {
+                        return (await Admin.getText('errors.REQUIRED')) as string;
+                    }
+
+                    let valid = true;
+                    for (const item of this.getFieldSet().getFields()) {
+                        valid = (await item.isValid()) && valid;
+                    }
+
+                    if (valid == false) {
+                        return null;
+                    }
+
+                    return true;
+                }
+
+                /**
+                 * 에러메시지를 변경한다.
+                 *
+                 * @param {boolean} is_error - 에러여부
+                 * @param {string} message - 에러메시지 (NULL 인 경우 에러메시지를 출력하지 않는다.)
+                 */
+                setError(is_error: boolean, message: string = null): void {
+                    this.getModules().setError(is_error, null);
+                    if (this.getModules().getValue() !== null) {
+                        this.getContexts().setError(is_error, null);
+                    }
+                    super.setError(is_error, message);
+                }
+
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled: boolean): this {
+                    if (disabled == true) {
+                        //
+                    } else if (this.readonly === false) {
+                        //
+                    }
+
+                    super.setDisabled(disabled);
+
+                    return this;
+                }
+
+                /**
+                 * 필드 컨테이너에 속한 필드를 랜더링한다.
+                 */
+                renderContent(): void {
+                    const $fields = Html.create('div', { 'data-role': 'fields' });
+                    $fields.setStyle('row-gap', '5px');
+                    for (let item of this.getItems()) {
+                        $fields.append(item.$getComponent());
+                        if (item.isRenderable() == true) {
+                            item.render();
+                        }
+                    }
+                    this.$getContent().append($fields);
                 }
             }
 
@@ -4102,8 +4486,9 @@ namespace Admin {
                 configsParams: { [key: string]: string };
                 select: Admin.Form.Field.Select;
                 fieldset: Admin.Form.FieldSet;
+                fieldsetTitle: string;
 
-                gap: number;
+                rawValue: { name: string; configs: { [key: string]: any } };
 
                 /**
                  * 템플릿필드 클래스 생성한다.
@@ -4113,17 +4498,20 @@ namespace Admin {
                 constructor(properties: Admin.Form.Field.Theme.Properties = null) {
                     super(properties);
 
-                    this.oValue = this.properties.value ?? null;
-                    if (this.oValue !== null && typeof this.oValue == 'string') {
-                        this.oValue = { name: this.oValue, configs: {} };
+                    if (typeof this.properties.value == 'string') {
+                        this.rawValue = { name: this.properties.value, configs: {} };
+                    } else {
+                        const name = this.properties.value?.name ?? null;
+                        const configs = this.properties.value?.configs ?? null;
+                        this.rawValue = { name: name, configs: configs };
                     }
-
-                    this.gap = this.properties.gap ?? 5;
 
                     this.listUrl = Admin.getProcessUrl('module', 'admin', 'themes');
                     this.listParams = null;
                     this.configsUrl = Admin.getProcessUrl('module', 'admin', 'theme');
                     this.configsParams = this.properties.configsParams ?? {};
+
+                    this.fieldsetTitle = Admin.printText('components.form.theme_configs');
                 }
 
                 /**
@@ -4185,6 +4573,13 @@ namespace Admin {
                             },
                             listeners: {
                                 change: async (field: Admin.Form.Field.Select, value: string) => {
+                                    if (value === null) {
+                                        this.updateValue();
+                                        this.getFieldSet().empty();
+                                        this.getFieldSet().hide();
+                                        return;
+                                    }
+
                                     this.getForm()?.setLoading(this, true);
                                     field.disable();
 
@@ -4195,6 +4590,7 @@ namespace Admin {
                                         this.getFieldSet().hide();
                                     } else {
                                         for (const field of configs.fields) {
+                                            field.allowBlank = false;
                                             const item = Admin.Form.Field.Create(field);
                                             item.addEvent('change', () => {
                                                 this.updateValue();
@@ -4202,16 +4598,19 @@ namespace Admin {
                                             this.getFieldSet().append(item);
                                         }
 
-                                        if ((this.value?.configs ?? null) !== null) {
-                                            for (const name in this.value.configs) {
-                                                this.getFieldSet().getField(name)?.setValue(this.value.configs[name]);
+                                        if ((this.rawValue?.configs ?? null) !== null) {
+                                            for (const name in this.rawValue.configs) {
+                                                this.getFieldSet()
+                                                    .getField(name)
+                                                    ?.setValue(this.rawValue.configs[name]);
                                             }
                                         }
 
                                         this.getFieldSet().show();
                                     }
 
-                                    this.updateValue();
+                                    field.enable();
+
                                     this.fireEvent('configs', [this, configs]);
                                     this.getForm()?.setLoading(this, false);
                                 },
@@ -4229,7 +4628,7 @@ namespace Admin {
                 getFieldSet(): Admin.Form.FieldSet {
                     if (this.fieldset === undefined) {
                         this.fieldset = new Admin.Form.FieldSet({
-                            title: Admin.printText('admin.theme_configs'),
+                            title: this.fieldsetTitle,
                             hidden: true,
                             flex: true,
                             items: [],
@@ -4248,16 +4647,21 @@ namespace Admin {
                 setValue(value: any, is_origin: boolean = false): void {
                     if (typeof value == 'string') {
                         value = { name: value, configs: this.value?.configs ?? {} };
+                    } else {
+                        value = { name: value?.name ?? null, configs: value?.configs ?? {} };
                     }
+                    this.rawValue = value;
 
-                    this.getSelect().setValue(value?.name ?? null);
+                    this.getSelect().setValue(value.name);
                     super.setValue(value, is_origin);
                 }
 
                 /**
-                 * 현재 입력된 값으로 값을 업데이트한다.
+                 * 필드값을 가져온다.
+                 *
+                 * @return {Object} value
                  */
-                updateValue(): void {
+                getValue(): Object {
                     const name = this.getSelect().getValue();
                     const configs = {};
 
@@ -4265,7 +4669,51 @@ namespace Admin {
                         configs[item.name] = item.getValue();
                     }
 
-                    this.setValue({ name: name, configs: configs });
+                    if (name === null) {
+                        return null;
+                    }
+
+                    return { name: name, configs: configs };
+                }
+
+                /**
+                 * 현재 입력된 값으로 값을 업데이트한다.
+                 */
+                updateValue(): void {
+                    super.setValue(this.getValue());
+                }
+
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @return {boolean|string} validation
+                 */
+                async validate(): Promise<boolean | string> {
+                    if (this.allowBlank == false && this.isBlank() == true) {
+                        return (await Admin.getText('errors.REQUIRED')) as string;
+                    }
+
+                    let valid = true;
+                    for (const item of this.getFieldSet().getFields()) {
+                        valid = (await item.isValid()) && valid;
+                    }
+
+                    if (valid == false) {
+                        return null;
+                    }
+
+                    return true;
+                }
+
+                /**
+                 * 에러메시지를 변경한다.
+                 *
+                 * @param {boolean} is_error - 에러여부
+                 * @param {string} message - 에러메시지 (NULL 인 경우 에러메시지를 출력하지 않는다.)
+                 */
+                setError(is_error: boolean, message: string = null): void {
+                    this.getSelect().setError(is_error, null);
+                    super.setError(is_error, message);
                 }
 
                 /**
@@ -4273,7 +4721,6 @@ namespace Admin {
                  */
                 renderContent(): void {
                     const $fields = Html.create('div', { 'data-role': 'fields' });
-                    $fields.setStyle('row-gap', this.gap + 'px');
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
                         if (item.isRenderable() == true) {
@@ -4324,6 +4771,8 @@ namespace Admin {
                     this.configsUrl = Admin.getProcessUrl('module', 'admin', 'template');
                     this.configsParams.componentType = this.componentType;
                     this.configsParams.componentName = this.componentName;
+
+                    this.fieldsetTitle = Admin.printText('components.form.template_configs');
                 }
 
                 /**

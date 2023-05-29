@@ -676,6 +676,11 @@ div[data-component][data-type='form'][data-role='field'] {
             background: var(--input-background-focus);
         }
 
+        &:has(*[disabled]) {
+            cursor: not-allowed;
+            background-color: var(--input-background-disabled);
+        }
+
         &.error {
             background: var(--input-background-error);
         }
@@ -729,6 +734,10 @@ div[data-component][data-type='form'][data-role='field'] {
                     color: var(--input-border-color-focus);
                 }
             }
+
+            &[disabled] {
+                cursor: not-allowed;
+            }
         }
 
         &:has(input[type='search']:focus) {
@@ -751,6 +760,10 @@ div[data-component][data-type='form'][data-role='field'] {
             font-size: var(--font-size-default);
             font-family: var(--font-family-default);
             background: transparent;
+
+            &[disabled] {
+                cursor: not-allowed;
+            }
         }
 
         > div[data-role='empty'] {
@@ -907,6 +920,8 @@ div[data-component][data-type='form'][data-role='field'] {
                     border-radius: 15px;
                     padding: 0px 10px;
                     max-width: 100%;
+                    box-sizing: border-box;
+                    overflow: hidden;
                     width: fit-content;
                     text-align: center;
                 }
@@ -938,6 +953,26 @@ div[data-component][data-type='form'][data-role='field'] {
                         border-color: var(--input-border-color-select);
                     }
                 }
+            }
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='context'] {
+        > div[data-role='fields'] {
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 5px;
+
+            > div[data-component] {
+                flex-shrink: 0;
+                margin-top: 0;
+                margin-left: 0;
+            }
+
+            > div[data-component] {
+                width: 100%;
             }
         }
     }
@@ -1152,6 +1187,7 @@ div[data-component][data-type='form'][data-role='field'] {
             display: flex;
             align-items: flex-start;
             flex-direction: column;
+            gap: 5px;
 
             > div[data-component] {
                 flex-shrink: 0;
