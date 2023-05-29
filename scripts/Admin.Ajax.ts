@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 9.
+ * @modified 2023. 5. 28.
  */
 namespace Admin {
     export class Ajax {
@@ -116,7 +116,6 @@ namespace Admin {
             }
             url = requestUrl.toString();
             let retry = (is_retry === false ? 10 : is_retry) as number;
-            console.log('post', retry);
 
             try {
                 const response: Response = (await fetch(url, {

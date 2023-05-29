@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 9.
+ * @modified 2023. 5. 28.
  */
 var Admin;
 (function (Admin) {
@@ -105,7 +105,6 @@ var Admin;
             }
             url = requestUrl.toString();
             let retry = (is_retry === false ? 10 : is_retry);
-            console.log('post', retry);
             try {
                 const response = (await fetch(url, {
                     method: 'POST',
