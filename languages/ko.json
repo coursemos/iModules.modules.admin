@@ -14,6 +14,29 @@
         "installing_status": "설치중",
         "installing": "설치과정은 수분이 소요될 수 있습니다.<br>잠시만 기다려주십시오."
     },
+    "components": {
+        "form": {
+            "icons": {
+                "NONE": "없음",
+                "ICON": "아이콘",
+                "CLASS": "스타일시트",
+                "URL": "이미지주소",
+                "FILE": "업로드"
+            },
+            "icons_help": {
+                "CLASS": "사이트테마의 스타일시트에 정의된 클래스를 입력하여 주십시오.",
+                "URL": "아이콘영역에 표시될 이미지주소를 입력하여 주십시오.",
+                "FILE": "아이콘으로 사용할 이미지파일을 업로드하여 주십시오."
+            },
+            "context": {
+                "module_help": "컨텍스트를 가져올 모듈을 선택하거나, 모듈을 검색할 수 있습니다.",
+                "context_help": "컨텍스트를 선택하거나, 검색할 수 있습니다."
+            },
+            "context_configs": "컨텍스트 설정",
+            "theme_configs": "테마 설정",
+            "template_configs": "템플릿 설정"
+        }
+    },
     "admin": {
         "navigation": {
             "folder": {
@@ -100,14 +123,15 @@
                 "add": "사이트추가",
                 "edit": "사이트수정",
                 "title": "사이트명",
-                "default": "기본정보",
+                "default": "기본설정",
                 "language": "언어",
                 "description": "사이트설명",
                 "default_language": "도메인 기본언어로 설정",
+                "design": "디자인설정",
                 "theme": "사이트테마",
-                "details": "상세정보",
                 "header": "사이트헤더",
                 "footer": "사이트푸터",
+                "images": "이미지설정",
                 "logo": "로고",
                 "emblem": "엠블럼",
                 "emblem_help": "브라우저 바로가기 및 사이트테마에서 사용되는 정사각형 이미지",
@@ -116,11 +140,45 @@
                 "image": "대표이미지",
                 "image_help": "OG태그의 기본이미지 또는 사이트테마에서 사용될 대표이미지"
             },
-            "sitemap": {
-                "path": "경로"
+            "contexts": {
+                "add": "컨텍스트추가",
+                "edit": "컨텍스트수정",
+                "default": "기본설정",
+                "path": "경로",
+                "icon": "아이콘",
+                "title": "컨텍스트명",
+                "description": "컨텍스트설명",
+                "image": "대표이미지",
+                "image_help": "OG태그의 기본이미지 또는 해당 컨텍스트에서 사용될 대표이미지",
+                "type": "컨텍스트종류",
+                "details": "상세설정",
+                "child": "자식메뉴",
+                "child_help": "현재 컨텍스트의 접근가능한 첫번째 자식메뉴의 주소로 이동합니다.",
+                "page": "페이지",
+                "page_help": "현재 컨텍스트에 보일 HTML 문서 또는 PHP 문서를 선택하여 주십시오.",
+                "is_routing": "하위경로",
+                "is_routing_help": "해당 컨텍스트가 하위메뉴를 자유롭게 구성할 수 있도록 설정합니다.",
+                "module": "모듈",
+                "design": "디자인설정",
+                "layout": "레이아웃",
+                "header": "컨텍스트헤더",
+                "footer": "컨텍스트푸터",
+                "types": {
+                    "EMPTY": "빈페이지",
+                    "CHILD": "자식메뉴",
+                    "PAGE": "페이지",
+                    "MODULE": "모듈",
+                    "HTML": "HTML편집",
+                    "LINK": "외부링크"
+                },
+                "visibility": "가시성설정",
+                "is_sitemap": "사이트맵",
+                "is_sitemap_help": "해당 컨텍스트를 사이트맵에 표시합니다.",
+                "is_footer_menu": "하단메뉴",
+                "is_footer_menu_help": "해당 컨텍스트를 사이트 하단메뉴에 표시합니다.",
+                "permission": "접근권한",
+                "permission_help": "접근권한이 없는 경우 사이트맵에서 표시되지 않습니다."
             }
-        },
-        "theme_configs": "테마 설정",
-        "template_configs": "템플릿 설정"
+        }
     }
 }
