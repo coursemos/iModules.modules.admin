@@ -7,7 +7,7 @@
  * @file /modules/admin/process/contexts.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 10.
+ * @modified 2023. 5. 30.
  *
  * @var \modules\admin\Admin $me
  */
@@ -18,12 +18,13 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->checkPermission('/sites') == false) {
+if ($me->hasPermission() == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 
+Cache::remove('contexts');
 $host = Request::get('host', true);
 $language = Request::get('language', true);
 $site = Sites::get($host, $language);
@@ -34,13 +35,20 @@ $tree = $index->getTree();
 $records = [];
 foreach ($tree as $index => $context) {
     $record = new stdClass();
+    $record->host = $context->getHost();
+    $record->language = $context->getLanguage();
     $record->path = $context->getPath();
     $record->title = $context->getTitle();
     $record->type = $context->getType();
     $record->sort = $index; //$context->getSort();
 
     if ($index != $context->getSort()) {
-        //
+        iModules::db()
+            ->update(iModules::table('contexts'), ['sort' => $index])
+            ->where('host', $context->getHost())
+            ->where('language', $context->getLanguage())
+            ->where('path', $context->getPath())
+            ->execute();
     }
 
     $records[] = $record;
