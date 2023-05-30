@@ -10,7 +10,17 @@
  */
 namespace Admin {
     export namespace Menu {
-        export interface Listeners extends Admin.Component.Listeners {}
+        export interface Listeners extends Admin.Component.Listeners {
+            /**
+             * @var {Function} show - 컴포넌트가 보여질 떄
+             */
+            show?: (menu: Admin.Menu) => void;
+
+            /**
+             * @var {Function} hide - 컴포넌트가 숨겨질 떄
+             */
+            hide?: (menu: Admin.Menu) => void;
+        }
 
         export interface Properties extends Admin.Component.Properties {
             /**
