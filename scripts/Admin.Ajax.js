@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 28.
+ * @modified 2023. 5. 30.
  */
 var Admin;
 (function (Admin) {

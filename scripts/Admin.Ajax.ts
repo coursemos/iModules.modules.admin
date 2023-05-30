@@ -6,9 +6,28 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 28.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
+    export namespace Ajax {
+        export interface Params {
+            [key: string]: string;
+        }
+
+        export interface Data {
+            [key: string]: any;
+        }
+
+        export interface Results {
+            success: boolean;
+            message?: string;
+            total?: number;
+            records?: any[];
+            data?: Admin.Ajax.Data;
+            [key: string]: any;
+        }
+    }
+
     export class Ajax {
         /**
          * GET 방식으로 데이터를 가져온다.
@@ -172,25 +191,6 @@ namespace Admin {
                     return { success: false };
                 }
             }
-        }
-    }
-
-    export namespace Ajax {
-        export interface Params {
-            [key: string]: string;
-        }
-
-        export interface Data {
-            [key: string]: any;
-        }
-
-        export interface Results {
-            success: boolean;
-            message?: string;
-            total?: number;
-            records?: any[];
-            data?: Admin.Ajax.Data;
-            [key: string]: any;
         }
     }
 }
