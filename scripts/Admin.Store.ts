@@ -6,10 +6,27 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 27.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
     export namespace Store {
+        export interface Listeners extends Admin.Base.Listeners {
+            /**
+             * @type {Function} load - 데이터스토어가 로딩되기 직전
+             */
+            beforeLoad?: (store: Admin.Store) => void;
+
+            /**
+             * @type {Function} load - 데이터스토어가 로딩되었을 때
+             */
+            load?: (store: Admin.Store, records: Admin.Data) => void;
+
+            /**
+             * @type {Function} update - 데이터스토어가 변경되었을 때
+             */
+            update?: (store: Admin.Store, records: Admin.Data) => void;
+        }
+
         export interface Properties extends Admin.Base.Properties {
             /**
              * @type {string[]} - 레코드 고유값
@@ -40,6 +57,11 @@ namespace Admin {
              * @type {boolean} remoteFilter - store 외부에서 데이터를 필터링할지 여부
              */
             remoteFilter?: boolean;
+
+            /**
+             * @type {Admin.Store.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.Store.Listeners;
         }
     }
 
