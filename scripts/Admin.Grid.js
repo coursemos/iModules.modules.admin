@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 var Admin;
 (function (Admin) {
@@ -260,7 +260,7 @@ var Admin;
              *
              * @param {number} index - 아이탬(행) 인덱스
              */
-            openMenu(index) {
+            openMenu(index, pointerEvent) {
                 if (this.isSelected(index) == false) {
                     this.select(index);
                 }
@@ -268,8 +268,15 @@ var Admin;
                 if ($row.getEl() == null) {
                     return;
                 }
+                const menu = new Admin.Menu();
                 const record = $row.getData('record');
-                this.fireEvent('openMenu', [record, index, this]);
+                this.fireEvent('openMenu', [menu, record, index, this]);
+                if (menu.getItems()?.length == 0) {
+                    menu.remove();
+                }
+                else {
+                    menu.showAt(pointerEvent, 'y');
+                }
             }
             /**
              * 그리드 아이템(행) 선택한다.
@@ -596,13 +603,12 @@ var Admin;
                         }
                     });
                     $row.on('contextmenu', (e) => {
-                        Admin.Menu.pointerEvent = e;
-                        this.openMenu(rowIndex);
+                        this.openMenu(rowIndex, e);
                         e.preventDefault();
                     });
                     $row.on('longpress', (e) => {
                         Admin.Menu.pointerEvent = e;
-                        this.openMenu(rowIndex);
+                        this.openMenu(rowIndex, e);
                         e.preventDefault();
                     });
                     this.$body.append($row);

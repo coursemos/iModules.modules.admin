@@ -6,11 +6,53 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
     export namespace Grid {
         export namespace Panel {
+            export interface Listeners extends Admin.Panel.Listeners {
+                /**
+                 * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+                 */
+                render?: (panel: Admin.Panel) => void;
+
+                /**
+                 * @var {Function} show - 컴포넌트가 보여질 떄
+                 */
+                show?: (panel: Admin.Panel) => void;
+
+                /**
+                 * @var {Function} hide - 컴포넌트가 숨겨질 떄
+                 */
+                hide?: (panel: Admin.Panel) => void;
+
+                /**
+                 * @type {Function} selectionChange - 선택항목이 변경되었을 때
+                 */
+                selectionChange?: (selections: Admin.Data.Record[], grid: Admin.Grid.Panel) => void;
+
+                /**
+                 * @type {Function} openItem - 아이템을 오픈할 때
+                 */
+                openItem?: (record: Admin.Data.Record, index: number, grid: Admin.Grid.Panel) => void;
+
+                /**
+                 * @type {Function} openMenu - 아이템 메뉴가 오픈될 때
+                 */
+                openMenu?: (menu: Admin.Menu, record: Admin.Data.Record, index: number, grid: Admin.Grid.Panel) => void;
+
+                /**
+                 * @type {Function} load - 데이터가 로딩되었을 때
+                 */
+                load?: (grid: Admin.Grid.Panel, store: Admin.Store) => void;
+
+                /**
+                 * @type {Function} update - 데이터가 변경되었 때
+                 */
+                update?: (grid: Admin.Grid.Panel, store: Admin.Store) => void;
+            }
+
             export interface Properties extends Admin.Panel.Properties {
                 /**
                  * @type {(Admin.Grid.Column | Admin.Grid.Column.Properties)[]} columns - 컬럼정보
@@ -51,6 +93,11 @@ namespace Admin {
                  * @type {string} loadingText - 로딩메시지
                  */
                 loadingText?: string;
+
+                /**
+                 * @type {Admin.Grid.Panel.Listeners} listeners - 이벤트리스너
+                 */
+                listeners?: Admin.Grid.Panel.Listeners;
             }
         }
 
@@ -330,7 +377,7 @@ namespace Admin {
                     return;
                 }
 
-                const record = $row.getData('record');
+                const record = $row.getData('record') as Admin.Data.Record;
                 this.fireEvent('openItem', [record, index, this]);
             }
 
@@ -339,7 +386,7 @@ namespace Admin {
              *
              * @param {number} index - 아이탬(행) 인덱스
              */
-            openMenu(index: number): void {
+            openMenu(index: number, pointerEvent: PointerEvent): void {
                 if (this.isSelected(index) == false) {
                     this.select(index);
                 }
@@ -349,8 +396,15 @@ namespace Admin {
                     return;
                 }
 
-                const record = $row.getData('record');
-                this.fireEvent('openMenu', [record, index, this]);
+                const menu = new Admin.Menu();
+                const record = $row.getData('record') as Admin.Data.Record;
+                this.fireEvent('openMenu', [menu, record, index, this]);
+
+                if (menu.getItems()?.length == 0) {
+                    menu.remove();
+                } else {
+                    menu.showAt(pointerEvent, 'y');
+                }
             }
 
             /**
@@ -724,14 +778,13 @@ namespace Admin {
                         });
 
                         $row.on('contextmenu', (e: PointerEvent) => {
-                            Admin.Menu.pointerEvent = e;
-                            this.openMenu(rowIndex);
+                            this.openMenu(rowIndex, e);
                             e.preventDefault();
                         });
 
                         $row.on('longpress', (e: PointerEvent) => {
                             Admin.Menu.pointerEvent = e;
-                            this.openMenu(rowIndex);
+                            this.openMenu(rowIndex, e);
                             e.preventDefault();
                         });
 
