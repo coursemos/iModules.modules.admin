@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Absolute.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
     export class Absolute extends Admin.Component {
@@ -205,6 +205,75 @@ namespace Admin {
                 cancelAnimationFrame(this.animationFrame);
             }
             super.remove();
+        }
+
+        /**
+         * 절대위치 기준점을 대상의 위치에 따라 적절하게 가져온다.
+         *
+         * @param {Dom|PointerEvent} target - 대상 DOM 객체 또는 포인터이벤트
+         * @param {Dom} absolute - 절대위치 DOM
+         * @param {('x'|'y')} direction - 방향
+         */
+        static getPosition(
+            target: Dom | PointerEvent,
+            absolute: Dom,
+            direction: 'x' | 'y'
+        ): { top?: number; bottom?: number; left?: number; right?: number; width?: number; height?: number } {
+            const position: {
+                top?: number;
+                bottom?: number;
+                left?: number;
+                right?: number;
+                width?: number;
+                height?: number;
+            } = {};
+            const targetRect = { top: 0, bottom: 0, left: 0, right: 0 };
+            if (target instanceof Dom) {
+                const rect = target.getEl()?.getBoundingClientRect() ?? null;
+                if (rect === null) {
+                    return position;
+                }
+
+                targetRect.top = rect.top;
+                targetRect.bottom = rect.bottom;
+                targetRect.left = rect.left;
+                targetRect.right = rect.right;
+            } else {
+                targetRect.top = targetRect.bottom = target.y;
+                targetRect.left = targetRect.right = target.x;
+            }
+            const absoluteRect = absolute.getEl()?.getBoundingClientRect() ?? null;
+            if (absoluteRect === null) {
+                return position;
+            }
+            const windowRect = { width: window.innerWidth, height: window.innerHeight };
+
+            /**
+             * 대상의 DOM 을 기준으로 상/하 위치에 보여줄 경우
+             */
+            if (direction == 'y') {
+                if (
+                    targetRect.bottom > windowRect.height / 2 &&
+                    absoluteRect.height > windowRect.height - targetRect.bottom
+                ) {
+                    position.bottom = windowRect.height - targetRect.top;
+
+                    position.height = Math.min(absoluteRect.height, windowRect.height - position.bottom - 10);
+                } else {
+                    position.top = targetRect.bottom;
+                    position.height = Math.min(absoluteRect.height, windowRect.height - position.top - 10);
+                }
+
+                if (targetRect.left + absoluteRect.width > windowRect.width) {
+                    position.right = windowRect.width - targetRect.right;
+                    position.width = Math.min(absoluteRect.width, windowRect.width - position.right - 10);
+                } else {
+                    position.left = targetRect.left;
+                    position.width = Math.min(absoluteRect.width, windowRect.width - position.left - 10);
+                }
+            }
+
+            return position;
         }
     }
 }
