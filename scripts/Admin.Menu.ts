@@ -185,11 +185,6 @@ namespace Admin {
         }
 
         /**
-         * 컴포넌트 기본 show() 메소드를 비활성화 시킨다.
-         */
-        show(): void {}
-
-        /**
          * 특정 DOM 위치에 의해 메뉴를 출력한다.
          *
          * @param {Dom|PointerEvent} dom - 메뉴를 출력할 기준이 되는 DOM 객체 또는 기준이 되는 포인터위치
@@ -197,6 +192,7 @@ namespace Admin {
          */
         showAt(dom: Dom | PointerEvent, direction: 'x' | 'y'): void {
             this.$getComponent().removeAttr('style');
+            this.setHidden(false);
 
             this.$getMenu().show();
             this.$getMenu().append(this.$getComponent());
@@ -224,21 +220,22 @@ namespace Admin {
          * 메뉴를 숨긴다.
          */
         hide(): void {
-            this.close();
+            Admin.Menu.menu = null;
+            Admin.Menu.$menu.empty();
+            Admin.Menu.$menu.hide();
+
+            super.hide();
+            console.log(this.once);
+            if (this.once == true) {
+                this.remove();
+            }
         }
 
         /**
          * 메뉴를 닫는다.
          */
         close(): void {
-            Admin.Menu.menu = null;
-            if (this.once == true) {
-                this.remove();
-            } else {
-                Admin.Menu.$menu.empty();
-            }
-            Admin.Menu.$menu.hide();
-            Admin.Menu.disconnect();
+            this.hide();
         }
 
         /**
