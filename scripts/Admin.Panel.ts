@@ -6,10 +6,27 @@
  * @file /modules/admin/scripts/Admin.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 20.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
     export namespace Panel {
+        export interface Listeners extends Admin.Component.Listeners {
+            /**
+             * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+             */
+            render?: (panel: Admin.Panel) => void;
+
+            /**
+             * @var {Function} show - 컴포넌트가 보여질 떄
+             */
+            show?: (panel: Admin.Panel) => void;
+
+            /**
+             * @var {Function} hide - 컴포넌트가 숨겨질 떄
+             */
+            hide?: (panel: Admin.Panel) => void;
+        }
+
         export interface Properties extends Admin.Component.Properties {
             /**
              * @type {boolean|[boolean, boolean, boolean, boolean]} border - 패널 테두리 표시여부 (상단, 우측, 하단, 좌측)
@@ -30,6 +47,11 @@ namespace Admin {
              * @type {Admin.Toolbar|(Admin.Component | string)[]} topbar - 패널 하단바
              */
             bottombar?: Admin.Toolbar | (Admin.Component | string)[];
+
+            /**
+             * @type {Admin.Panel.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.Panel.Listeners;
         }
     }
 
