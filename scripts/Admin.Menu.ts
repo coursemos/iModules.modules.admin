@@ -61,7 +61,7 @@ namespace Admin {
         once: boolean;
 
         /**
-         * 윈도우를 생성한다.
+         * 메뉴를 생성한다.
          *
          * @param {Object} properties - 객체설정
          */
@@ -94,10 +94,9 @@ namespace Admin {
         }
 
         /**
-         * 윈도우의 하위 컴포넌트를 정의한다.
+         * 메뉴아이템을 정의한다.
          */
         initItems(): void {
-            console.log('menu iniItems');
             if (this.items === null) {
                 this.items = [];
 
@@ -149,7 +148,6 @@ namespace Admin {
          * @param {string} title - 제목
          */
         setTitle(title: string): void {
-            console.log('setTitle', title);
             if (title === null) {
                 if (this.title !== null) {
                     this.title.remove();
@@ -235,7 +233,6 @@ namespace Admin {
             Admin.Menu.$menu.hide();
 
             super.hide();
-            console.log(this.once);
             if (this.once == true) {
                 this.remove();
             }
@@ -397,12 +394,9 @@ namespace Admin {
 
                 const $text = Html.create('span').html(this.text);
                 this.$button.append($text);
-
-                if (this.handler !== null) {
-                    this.$button.on('click', () => {
-                        this.onClick();
-                    });
-                }
+                this.$button.on('click', () => {
+                    this.onClick();
+                });
 
                 this.$getContent().append(this.$button);
             }
@@ -434,7 +428,7 @@ namespace Admin {
                     this.handler(this);
                 }
 
-                this.getParent().close();
+                this.getParent().hide();
             }
         }
     }

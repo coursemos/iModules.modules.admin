@@ -23,7 +23,7 @@ var Admin;
         title;
         once;
         /**
-         * 윈도우를 생성한다.
+         * 메뉴를 생성한다.
          *
          * @param {Object} properties - 객체설정
          */
@@ -50,10 +50,9 @@ var Admin;
             this.$scrollable = this.$getContent();
         }
         /**
-         * 윈도우의 하위 컴포넌트를 정의한다.
+         * 메뉴아이템을 정의한다.
          */
         initItems() {
-            console.log('menu iniItems');
             if (this.items === null) {
                 this.items = [];
                 for (let item of this.properties.items ?? []) {
@@ -101,7 +100,6 @@ var Admin;
          * @param {string} title - 제목
          */
         setTitle(title) {
-            console.log('setTitle', title);
             if (title === null) {
                 if (this.title !== null) {
                     this.title.remove();
@@ -179,7 +177,6 @@ var Admin;
             Admin.Menu.$menu.empty();
             Admin.Menu.$menu.hide();
             super.hide();
-            console.log(this.once);
             if (this.once == true) {
                 this.remove();
             }
@@ -302,11 +299,9 @@ var Admin;
                 this.$button.append($icon);
                 const $text = Html.create('span').html(this.text);
                 this.$button.append($text);
-                if (this.handler !== null) {
-                    this.$button.on('click', () => {
-                        this.onClick();
-                    });
-                }
+                this.$button.on('click', () => {
+                    this.onClick();
+                });
                 this.$getContent().append(this.$button);
             }
             /**
@@ -332,7 +327,7 @@ var Admin;
                 if (this.handler !== null) {
                     this.handler(this);
                 }
-                this.getParent().close();
+                this.getParent().hide();
             }
         }
         Menu.Item = Item;
