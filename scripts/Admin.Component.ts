@@ -6,10 +6,27 @@
  * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
     export namespace Component {
+        export interface Listeners extends Admin.Base.Listeners {
+            /**
+             * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+             */
+            render?: (component: Admin.Component) => void;
+
+            /**
+             * @var {Function} show - 컴포넌트가 보여질 떄
+             */
+            show?: (component: Admin.Component) => void;
+
+            /**
+             * @var {Function} hide - 컴포넌트가 숨겨질 떄
+             */
+            hide?: (component: Admin.Component) => void;
+        }
+
         export interface Properties extends Admin.Base.Properties {
             /**
              * @type {(Admin.Component|any)[]} items - 컴포넌트의 하위 컴포넌트
@@ -62,14 +79,19 @@ namespace Admin {
             disabled?: boolean;
 
             /**
-             * @type {'X'|'Y'|boolean} scrollable - 컴포넌트 스크롤여부
+             * @type {'x'|'y'|boolean} scrollable - 컴포넌트 스크롤여부
              */
-            scrollable?: 'X' | 'Y' | boolean;
+            scrollable?: 'x' | 'y' | boolean;
 
             /**
              * @type {Dom} $scrollable - 컴포넌트 내부 스크롤되는 DOM 객체
              */
             $scrollable?: Dom;
+
+            /**
+             * @type {Admin.Component.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.Component.Listeners;
         }
     }
 
@@ -424,6 +446,10 @@ namespace Admin {
          * @return {Admin.Component[]} items - 하위요소
          */
         getItems(): Admin.Component[] {
+            if (this.items === null) {
+                this.initItems();
+            }
+
             const items: Admin.Component[] = [];
 
             for (const item of this.items) {

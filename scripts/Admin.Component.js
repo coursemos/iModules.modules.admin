@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 var Admin;
 (function (Admin) {
@@ -323,6 +323,9 @@ var Admin;
          * @return {Admin.Component[]} items - 하위요소
          */
         getItems() {
+            if (this.items === null) {
+                this.initItems();
+            }
             const items = [];
             for (const item of this.items) {
                 if (item instanceof Admin.Component) {
