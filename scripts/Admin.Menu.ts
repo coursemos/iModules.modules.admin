@@ -6,9 +6,35 @@
  * @file /modules/admin/scripts/Admin.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 16.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
+    export namespace Menu {
+        export interface Listeners extends Admin.Component.Listeners {}
+
+        export interface Properties extends Admin.Component.Properties {
+            /**
+             * @type {Admin.Title|string} title - 메뉴타이틀
+             */
+            title?: Admin.Title | string;
+
+            /**
+             * @type {(Admin.Menu.Item|Admin.Menu.Item.Properties)[]} items - 메뉴아이템
+             */
+            items?: (Admin.Menu.Item | Admin.Menu.Item.Properties)[];
+
+            /**
+             * @type {boolean} once - 단발성 메뉴인지 여부
+             */
+            once?: boolean;
+
+            /**
+             * @type {Admin.Menu.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.Menu.Listeners;
+        }
+    }
+
     export class Menu extends Admin.Component {
         static $menu: Dom;
         static menu: Admin.Menu = null;
@@ -22,38 +48,46 @@ namespace Admin {
         y: number;
 
         title: Admin.Title;
+        once: boolean;
 
         /**
          * 윈도우를 생성한다.
          *
          * @param {Object} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } = null) {
+        constructor(properties: Admin.Menu.Properties | (Admin.Menu.Item | Admin.Menu.Item.Properties)[] = null) {
+            if (Array.isArray(properties) == true) {
+                properties = { items: properties as (Admin.Menu.Item | Admin.Menu.Item.Properties)[] };
+            }
+
             super(properties);
 
-            this.scrollable = this.properties.scrollable ?? 'Y';
+            this.once = this.properties.once === true;
+            this.scrollable = 'Y';
 
             if (this.properties.title instanceof Admin.Title) {
                 this.title = this.properties.title;
             } else {
-                this.title = new Admin.Title(this.properties.title ?? '');
+                this.title = this.properties.title ? new Admin.Title(this.properties.title) : null;
+            }
+
+            if (this.title !== null) {
+                this.$setTop();
+                this.title.setParent(this);
             }
 
             if (this.properties.iconClass) {
                 this.title.setIconClass(this.properties.iconClass);
             }
 
-            this.$setTop();
-
             this.$scrollable = this.$getContent();
-
-            this.title.setParent(this);
         }
 
         /**
          * 윈도우의 하위 컴포넌트를 정의한다.
          */
         initItems(): void {
+            console.log('menu iniItems');
             if (this.items === null) {
                 this.items = [];
 
@@ -100,6 +134,35 @@ namespace Admin {
         }
 
         /**
+         * 메뉴의 제목을 설정한다.
+         *
+         * @param {string} title - 제목
+         */
+        setTitle(title: string): void {
+            console.log('setTitle', title);
+            if (title === null) {
+                if (this.title !== null) {
+                    this.title.remove();
+                    if (this.isRendered() == true) {
+                        this.$getTop().remove();
+                    }
+                }
+            } else {
+                if (this.title === null) {
+                    this.title = new Admin.Title(title);
+                    this.$setTop();
+                    if (this.isRendered() == true) {
+                        this.$getTop().append(this.title.$getComponent());
+                        this.title.render();
+                    }
+                } else {
+                    this.title.setTitle(title);
+                }
+                this.title.setParent(this);
+            }
+        }
+
+        /**
          * 메뉴의 제목 객체를 가져온다.
          *
          * @return {Admin.Title} title
@@ -109,27 +172,48 @@ namespace Admin {
         }
 
         /**
-         * 기존에 존재하던 포인터 이벤트를 이용하여 메뉴를 출력한다.
+         * 메뉴에 아이템을 추가한다.
+         *
+         * @param {Admin.Menu.Item|Admin.Menu.Item.Properties} item
          */
-        show(): void {
-            if (Admin.Menu.pointerEvent !== null) {
-                this.showAt(Admin.Menu.pointerEvent);
+        add(item: Admin.Menu.Item | Admin.Menu.Item.Properties): void {
+            if (item instanceof Admin.Menu.Item) {
+                this.append(item);
+            } else {
+                this.append(new Admin.Menu.Item(item));
             }
         }
 
         /**
-         * 메뉴를 출력한다.
+         * 컴포넌트 기본 show() 메소드를 비활성화 시킨다.
          */
-        showAt(e: PointerEvent): void {
+        show(): void {}
+
+        /**
+         * 특정 DOM 위치에 의해 메뉴를 출력한다.
+         *
+         * @param {Dom|PointerEvent} dom - 메뉴를 출력할 기준이 되는 DOM 객체 또는 기준이 되는 포인터위치
+         * @param {'x'|'y'} direction - 메뉴를 출력할 축
+         */
+        showAt(dom: Dom | PointerEvent, direction: 'x' | 'y'): void {
+            this.$getComponent().removeAttr('style');
+
             this.$getMenu().show();
-            this.$getMenu().append(this.$component);
+            this.$getMenu().append(this.$getComponent());
             this.render();
 
-            this.$getComponent().setStyle('left', e.clientX + 'px');
-            this.$getComponent().setStyle('top', e.clientY + 'px');
+            const minWidth = dom instanceof Dom ? dom.getOuterWidth() : 150;
+
+            if (direction == 'y') {
+                this.$getComponent().setStyle('min-width', minWidth + 'px');
+            }
+
+            const position = Admin.Absolute.getPosition(dom, this.$getComponent(), 'y');
+            for (const key in position) {
+                this.$getComponent().setStyle(key, position[key] + 'px');
+            }
 
             super.show();
-
             this.$getComponent().focus();
 
             Admin.Menu.menu = this;
@@ -148,7 +232,11 @@ namespace Admin {
          */
         close(): void {
             Admin.Menu.menu = null;
-            this.remove();
+            if (this.once == true) {
+                this.remove();
+            } else {
+                Admin.Menu.$menu.empty();
+            }
             Admin.Menu.$menu.hide();
             Admin.Menu.disconnect();
         }
@@ -218,27 +306,6 @@ namespace Admin {
         }
 
         /**
-         * 윈도우 레이아웃을 랜더링한다.
-         */
-        render(): void {
-            super.render();
-            /*
-            if (this.resizable == false || this.resizer !== undefined) return;
-
-            this.resizer = new Admin.Resizer(this.$component, this.$getWindows(), {
-                directions: [true, true, true, true],
-                listeners: {
-                    end: (_$target: Dom, rect: DOMRect) => {
-                        this.setPosition(rect.x, rect.y);
-                        this.setWidth(rect.width);
-                        this.setHeight(rect.height);
-                    },
-                },
-            });
-            */
-        }
-
-        /**
          * 그리드패널이 화면상에 출력되었을 때 이벤트를 처리한다.
          */
         onRender(): void {
@@ -259,6 +326,25 @@ namespace Admin {
     }
 
     export namespace Menu {
+        export namespace Item {
+            export interface Properties extends Admin.Component.Properties {
+                /**
+                 * @type {string} text - 메뉴명
+                 */
+                text?: string;
+
+                /**
+                 * @type {string} iconClass - 메뉴 아이콘 스타일시트 클래스
+                 */
+                iconClass?: string;
+
+                /**
+                 * @type {Function} handler - 메뉴 클릭 핸들러
+                 */
+                handler?: (item: Admin.Menu.Item) => void;
+            }
+        }
+
         export class Item extends Admin.Component {
             type: string = 'menu';
             role: string = 'item';
@@ -273,7 +359,7 @@ namespace Admin {
              *
              * @param {Object} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Menu.Item.Properties = null) {
                 super(properties);
 
                 this.text = this.properties.text ?? '';
