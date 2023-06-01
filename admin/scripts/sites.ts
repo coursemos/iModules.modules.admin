@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/sites.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 4. 3.
+ * @modified 2023. 6. 1.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.AdminAdmin;
@@ -15,14 +15,13 @@ Admin.ready(async () => {
         border: false,
         layout: 'column',
         iconClass: 'mi mi-home',
-        title: (await me.getText('admin/sites/title')) as string,
+        title: (await me.getText('admin.sites.title')) as string,
         scrollable: true,
         items: [
             new Admin.Grid.Panel({
                 id: 'domains',
                 border: [false, true, false, false],
-                flex: 1,
-                minWidth: 200,
+                width: 240,
                 columnResizable: false,
                 selectionMode: 'SINGLE',
                 topbar: [
@@ -33,7 +32,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin/sites/domains/add')) as string,
+                        text: (await me.getText('admin.sites.domains.add')) as string,
                         handler: () => {
                             me.addDomain();
                         },
@@ -50,7 +49,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await me.getText('admin/sites/domains/host')) as string,
+                        text: (await me.getText('admin.sites.domains.host')) as string,
                         dataIndex: 'host',
                     },
                 ],
@@ -59,7 +58,7 @@ Admin.ready(async () => {
                     primaryKeys: ['host'],
                 }),
                 listeners: {
-                    update: (grid: Admin.Grid.Panel, store: Admin.Store) => {
+                    update: (grid, store) => {
                         if (Admin.getContextSubTree().at(0) !== undefined && grid.getSelections().length == 0) {
                             const index = store.findIndex('host', Admin.getContextSubTree().at(0));
                             if (index !== null) {
@@ -67,24 +66,21 @@ Admin.ready(async () => {
                             }
                         }
                     },
-                    openItem: (record: Admin.Data.Record) => {
-                        me.addDomain(record.data.host);
+                    openItem: (record) => {
+                        me.addDomain(record.get('host'));
                     },
-                    openMenu: (record: Admin.Data.Record) => {
-                        new Admin.Menu({
-                            title: record.data.host,
-                            items: [
-                                {
-                                    text: me.printText('admin/sites/domains/edit'),
-                                    iconClass: 'xi xi-form-checkout',
-                                    handler: () => {
-                                        me.addDomain(record.data.host);
-                                    },
-                                },
-                            ],
-                        }).show();
+                    openMenu: (menu, record) => {
+                        menu.setTitle(record.get('host'));
+
+                        menu.add({
+                            text: me.printText('admin.sites.domains.edit'),
+                            iconClass: 'xi xi-form-checkout',
+                            handler: () => {
+                                me.addSite(record.get('host'));
+                            },
+                        });
                     },
-                    selectionChange: (selections: Admin.Data.Record[]) => {
+                    selectionChange: (selections) => {
                         const sites = Admin.getComponent('sites') as Admin.Grid.Panel;
                         if (selections.length == 1) {
                             const store = sites.getStore() as Admin.Store.Ajax;
@@ -92,7 +88,9 @@ Admin.ready(async () => {
                             store.reload();
                             sites.enable();
 
-                            Admin.setContextUrl(Admin.getContextUrl('/' + selections[0].get('host')));
+                            if (Admin.getContextSubTree().at(0) !== selections[0].get('host')) {
+                                Admin.setContextUrl(Admin.getContextUrl('/' + selections[0].get('host')));
+                            }
                         } else {
                             sites.disable();
                         }
@@ -102,8 +100,7 @@ Admin.ready(async () => {
             new Admin.Grid.Panel({
                 id: 'sites',
                 border: [false, true, false, true],
-                flex: 1,
-                minWidth: 200,
+                width: 260,
                 columnResizable: false,
                 selectionMode: 'SINGLE',
                 disabled: true,
@@ -116,7 +113,7 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin/sites/sites/add')) as string,
+                        text: (await me.getText('admin.sites.sites.add')) as string,
                         handler: () => {
                             me.addSite();
                         },
@@ -133,15 +130,16 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await me.getText('admin/sites/sites/title')) as string,
+                        text: (await me.getText('admin.sites.sites.title')) as string,
                         dataIndex: 'title',
                     },
                 ],
                 store: new Admin.Store.Ajax({
                     url: me.getProcessUrl('sites'),
+                    primaryKeys: ['host', 'language'],
                 }),
                 listeners: {
-                    update: (grid: Admin.Grid.Panel, store: Admin.Store) => {
+                    update: (grid, store) => {
                         if (Admin.getContextSubTree().at(1) !== undefined && grid.getSelections().length == 0) {
                             const index = store.findIndex('language', Admin.getContextSubTree().at(1));
                             if (index !== null) {
@@ -149,46 +147,49 @@ Admin.ready(async () => {
                             }
                         }
                     },
-                    openItem: (record: Admin.Data.Record) => {
-                        me.addSite(record.data.language);
+                    openItem: (record) => {
+                        me.addSite(record.get('language'));
                     },
-                    openMenu: (record: Admin.Data.Record) => {
-                        new Admin.Menu({
-                            title: record.data.host,
-                            items: [
-                                {
-                                    text: me.printText('admin/sites/domains/edit'),
-                                    iconClass: 'xi xi-form-checkout',
-                                    handler: () => {
-                                        me.addDomain(record.data.host);
-                                    },
-                                },
-                            ],
-                        }).show();
+                    openMenu: (menu, record) => {
+                        menu.setTitle(record.get('title'));
+
+                        menu.add({
+                            text: me.printText('admin.sites.sites.edit'),
+                            iconClass: 'xi xi-form-checkout',
+                            handler: () => {
+                                me.addSite(record.get('language'));
+                            },
+                        });
                     },
-                    selectionChange: (selections: Admin.Data.Record[]) => {
-                        const sitemap = Admin.getComponent('sitemap') as Admin.Grid.Panel;
+                    selectionChange: (selections) => {
+                        const contexts = Admin.getComponent('contexts') as Admin.Grid.Panel;
                         if (selections.length == 1) {
-                            const store = sitemap.getStore() as Admin.Store.Ajax;
+                            const store = contexts.getStore() as Admin.Store.Ajax;
                             store.setParams({
                                 host: selections[0].get('host'),
                                 language: selections[0].get('language'),
                             });
                             store.reload();
-                            sitemap.enable();
-                            Admin.setContextUrl(
-                                Admin.getContextUrl(
-                                    '/' + selections[0].get('host') + '/' + selections[0].get('language')
-                                )
-                            );
+                            contexts.enable();
+
+                            if (
+                                Admin.getContextSubTree().at(0) !== selections[0].get('host') ||
+                                Admin.getContextSubTree().at(1) !== selections[0].get('language')
+                            ) {
+                                Admin.setContextUrl(
+                                    Admin.getContextUrl(
+                                        '/' + selections[0].get('host') + '/' + selections[0].get('language')
+                                    )
+                                );
+                            }
                         } else {
-                            sitemap.disable();
+                            contexts.disable();
                         }
                     },
                 },
             }),
             new Admin.Grid.Panel({
-                id: 'sitemap',
+                id: 'contexts',
                 border: [false, false, false, true],
                 flex: 2,
                 minWidth: 400,
@@ -204,13 +205,36 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin/sites/sitemap/add')) as string,
+                        text: (await me.getText('admin.sites.contexts.add')) as string,
                         handler: () => {
-                            me.addSitemap();
+                            me.addContext();
                         },
                     }),
                 ],
                 bottombar: [
+                    new Admin.Button({
+                        iconClass: 'mi mi-up',
+                        handler: (button: Admin.Button) => {
+                            const grid = button.getParent().getParent() as Admin.Grid.Panel;
+                            const selections = grid.getSelections();
+                            if (selections.length == 0) {
+                                return;
+                            }
+                            //
+                        },
+                    }),
+                    new Admin.Button({
+                        iconClass: 'mi mi-down',
+                        handler: (button: Admin.Button) => {
+                            const grid = button.getParent().getParent() as Admin.Grid.Panel;
+                            const selections = grid.getSelections();
+                            if (selections.length == 0) {
+                                return;
+                            }
+                            //
+                        },
+                    }),
+                    '|',
                     new Admin.Button({
                         iconClass: 'mi mi-refresh',
                         handler: (button: Admin.Button) => {
@@ -221,14 +245,41 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await me.getText('admin/sites/sitemap/path')) as string,
+                        text: (await me.getText('admin.sites.contexts.path')) as string,
                         dataIndex: 'path',
+                    },
+                    {
+                        dataIndex: 'sort',
+                        width: 80,
                     },
                 ],
                 store: new Admin.Store.Ajax({
-                    url: me.getProcessUrl('sites'),
+                    url: me.getProcessUrl('contexts'),
+                    primaryKeys: ['host', 'language', 'path'],
+                    sorters: [{ field: 'sort', direction: 'ASC' }],
                 }),
+                listeners: {
+                    openItem: (record) => {
+                        me.addContext(record.get('path'));
+                    },
+                    openMenu: (menu, record) => {
+                        menu.setTitle(record.get('title'));
+
+                        menu.add({
+                            text: me.printText('admin.sites.contexts.edit'),
+                            iconClass: 'xi xi-form-checkout',
+                            handler: () => {
+                                me.addSite(record.get('path'));
+                            },
+                        });
+                    },
+                },
             }),
         ],
+        listeners: {
+            render: () => {
+                me.addSite();
+            },
+        },
     });
 });
