@@ -6,13 +6,13 @@
  * @file /modules/admin/scripts/Admin.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 6. 1.
  */
 namespace Admin {
     export class Data {
         originRecoreds: Admin.Data.Record[] = [];
         records: Admin.Data.Record[] = [];
-        types: { [key: string]: string } = {};
+        fields: { [key: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' } = {};
         sorting: boolean;
         sorters: { field: string; direction: string }[];
         filtering: boolean;
@@ -21,21 +21,30 @@ namespace Admin {
         /**
          * 데이터셋을 생성한다.
          *
-         * @param {Object} datas - 데이터 [{key:value}]
-         * @param {Object} types - 데이터유형 [{key:type}]
+         * @param {Object} records - 데이터
+         * @param {Object} fields - 필드명
          */
-        constructor(datas: { [key: string]: any }[], types: { [key: string]: string } = {}) {
-            this.types = types;
+        constructor(
+            records: { [key: string]: any }[],
+            fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[] = []
+        ) {
+            this.fields = {};
+            for (const field of fields) {
+                if (typeof field == 'string') {
+                    this.fields[field] = 'string';
+                } else {
+                    this.fields[field.name] = field.type;
+                }
+            }
 
-            for (const data of datas) {
-                for (const key in data) {
-                    if (types[key] !== undefined) {
+            for (const record of records) {
+                for (const key in record) {
+                    if (this.fields[key] !== undefined) {
+                        record[key] = this.setType(record[key], this.fields[key]);
                     }
-
-                    data[key] = data[key];
                 }
 
-                this.records.push(new Admin.Data.Record(data));
+                this.records.push(new Admin.Data.Record(record));
             }
 
             this.originRecoreds = this.records;
@@ -43,6 +52,35 @@ namespace Admin {
             this.sorters = [];
             this.filtering = false;
             this.filters = {};
+        }
+
+        /**
+         * 데이터를 타입을 지정하여 반환한다.
+         *
+         * @param {any} value - 데이터
+         * @param {'int'|'float'|'string'|'boolean'|'object'} type - 타입
+         * @return {any} value - 타입지정된 데이터
+         */
+        setType(value: any, type: 'int' | 'float' | 'string' | 'boolean' | 'object'): any {
+            switch (type) {
+                case 'int':
+                    value = parseInt(value, 10);
+                    break;
+
+                case 'float':
+                    value = parseFloat(value);
+                    break;
+
+                case 'boolean':
+                    value = value == 'true' || value == 'TRUE' || value === true || value === 1;
+                    break;
+
+                case 'string':
+                    value = value.toString();
+                    break;
+            }
+
+            return value;
         }
 
         /**
@@ -57,18 +95,17 @@ namespace Admin {
         /**
          * 데이터를 추가한다.
          *
-         * @param {Object[]} items
+         * @param {Object[]} records
          */
-        add(items: { [key: string]: any }[]): void {
-            for (const item of items) {
-                for (const key in item) {
-                    if (this.types[key] !== undefined) {
+        add(records: { [key: string]: any }[]): void {
+            for (const record of records) {
+                for (const key in record) {
+                    if (this.fields[key] !== undefined) {
+                        record[key] = this.setType(record[key], this.fields[key]);
                     }
-
-                    item[key] = item[key];
                 }
 
-                this.records.push(new Admin.Data.Record(item));
+                this.records.push(new Admin.Data.Record(record));
             }
         }
 

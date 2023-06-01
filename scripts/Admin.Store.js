@@ -6,13 +6,14 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 1.
  */
 var Admin;
 (function (Admin) {
     class Store extends Admin.Base {
         primaryKeys;
-        fieldTypes;
+        fields;
+        params;
         sorters;
         remoteSort = false;
         filters;
@@ -30,7 +31,8 @@ var Admin;
         constructor(properties = null) {
             super(properties);
             this.primaryKeys = this.properties.primaryKeys ?? [];
-            this.fieldTypes = this.properties.fieldTypes ?? {};
+            this.fields = this.properties.fields ?? [];
+            this.params = this.properties.params ?? null;
             this.sorters = this.properties.sorters ?? [];
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? {};
@@ -62,6 +64,43 @@ var Admin;
          */
         getCount() {
             return this.count ?? 0;
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 설정한다.
+         *
+         * @param {Object} params - 매개변수
+         */
+        setParams(params) {
+            for (const key in params) {
+                this.setParam(key, params[key]);
+            }
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 설정한다.
+         *
+         * @param {string} key - 매개변수명
+         * @param {any} value - 매개변수값
+         */
+        setParam(key, value) {
+            this.params ??= {};
+            this.params[key] = value;
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @return {Object} params - 매개변수
+         */
+        getParams() {
+            return this.params ?? {};
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @param {string} key - 매개변수명
+         * @return {any} value - 매개변수값
+         */
+        getParam(key) {
+            return this.getParams()[key] ?? null;
         }
         /**
          * 데이터를 가져온다.
@@ -272,7 +311,6 @@ var Admin;
     Admin.Store = Store;
     (function (Store) {
         class Array extends Admin.Store {
-            fields;
             records;
             /**
              * Array 스토어를 생성한다.
@@ -281,7 +319,6 @@ var Admin;
              */
             constructor(properties = null) {
                 super(properties);
-                this.fields = this.properties.fields ?? [];
                 this.records = this.properties.records ?? [];
                 this.remoteSort = false;
                 this.load();
@@ -298,13 +335,18 @@ var Admin;
                 const records = [];
                 this.records.forEach((item) => {
                     const record = {};
-                    this.fields.forEach((name, index) => {
-                        record[name] = item[index];
+                    this.fields.forEach((field, index) => {
+                        if (typeof field == 'string') {
+                            record[field] = item[index];
+                        }
+                        else {
+                            record[field.name] = item[index];
+                        }
                     });
                     records.push(record);
                 });
                 this.loaded = true;
-                this.data = new Admin.Data(records, this.fieldTypes);
+                this.data = new Admin.Data(records, this.fields);
                 this.count = records.length;
                 this.total = this.count;
                 this.onLoad();
@@ -321,7 +363,6 @@ var Admin;
         class Ajax extends Admin.Store {
             method;
             url;
-            params;
             limit;
             page;
             recordsField;
@@ -334,49 +375,11 @@ var Admin;
             constructor(properties = null) {
                 super(properties);
                 this.url = this.properties?.url ?? null;
-                this.params = this.properties.params ?? null;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
                 this.recordsField = this.properties.recordsField ?? 'records';
                 this.totalField = this.properties.totalField ?? 'total';
-            }
-            /**
-             * 데이터를 불러오기 위한 매개변수를 설정한다.
-             *
-             * @param {Object} params - 매개변수
-             */
-            setParams(params) {
-                for (const key in params) {
-                    this.setParam(key, params[key]);
-                }
-            }
-            /**
-             * 데이터를 불러오기 위한 매개변수를 설정한다.
-             *
-             * @param {string} key - 매개변수명
-             * @param {any} value - 매개변수값
-             */
-            setParam(key, value) {
-                this.params ??= {};
-                this.params[key] = value;
-            }
-            /**
-             * 데이터를 불러오기 위한 매개변수를 가져온다.
-             *
-             * @return {Object} params - 매개변수
-             */
-            getParams() {
-                return this.params ?? {};
-            }
-            /**
-             * 데이터를 불러오기 위한 매개변수를 가져온다.
-             *
-             * @param {string} key - 매개변수명
-             * @return {any} value - 매개변수값
-             */
-            getParam(key) {
-                return this.getParams()[key] ?? null;
             }
             /**
              * 데이터를 가져온다.
@@ -395,7 +398,7 @@ var Admin;
                     .then((results) => {
                     if (results.success == true) {
                         this.loaded = true;
-                        this.data = new Admin.Data(results[this.recordsField] ?? [], this.fieldTypes);
+                        this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields);
                         this.count = results.records.length;
                         this.total = results[this.totalField] ?? 0;
                         this.onLoad();

@@ -11,7 +11,7 @@
 namespace Admin {
     export namespace Ajax {
         export interface Params {
-            [key: string]: string;
+            [key: string]: string | number;
         }
 
         export interface Data {

@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 1.
  */
 namespace Admin {
     export namespace Store {
@@ -34,9 +34,14 @@ namespace Admin {
             primaryKeys?: string[];
 
             /**
-             * @type {Object} fieldTypes - 필드값의 타입을 정의한다.
+             * @type {(string|Object)[]} fields - 필드값의 타입을 정의한다.
              */
-            fieldTypes?: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
+            fields?: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[];
+
+            /**
+             * @type {Object} params - 데이터를 가져올때 사용할 매개변수
+             */
+            params?: { [key: string]: any };
 
             /**
              * @type {Object} sorters - 데이터 정렬방식
@@ -67,7 +72,8 @@ namespace Admin {
 
     export class Store extends Admin.Base {
         primaryKeys: string[];
-        fieldTypes: { [field: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' };
+        fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[];
+        params: { [key: string]: any };
         sorters: { field: string; direction: string }[];
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
@@ -87,7 +93,8 @@ namespace Admin {
             super(properties);
 
             this.primaryKeys = this.properties.primaryKeys ?? [];
-            this.fieldTypes = this.properties.fieldTypes ?? {};
+            this.fields = this.properties.fields ?? [];
+            this.params = this.properties.params ?? null;
             this.sorters = this.properties.sorters ?? [];
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? {};
@@ -123,6 +130,47 @@ namespace Admin {
          */
         getCount(): number {
             return this.count ?? 0;
+        }
+
+        /**
+         * 데이터를 불러오기 위한 매개변수를 설정한다.
+         *
+         * @param {Object} params - 매개변수
+         */
+        setParams(params: { [key: string]: any }): void {
+            for (const key in params) {
+                this.setParam(key, params[key]);
+            }
+        }
+
+        /**
+         * 데이터를 불러오기 위한 매개변수를 설정한다.
+         *
+         * @param {string} key - 매개변수명
+         * @param {any} value - 매개변수값
+         */
+        setParam(key: string, value: any) {
+            this.params ??= {};
+            this.params[key] = value;
+        }
+
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @return {Object} params - 매개변수
+         */
+        getParams(): { [key: string]: any } {
+            return this.params ?? {};
+        }
+
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @param {string} key - 매개변수명
+         * @return {any} value - 매개변수값
+         */
+        getParam(key: string): any {
+            return this.getParams()[key] ?? null;
         }
 
         /**
@@ -351,11 +399,6 @@ namespace Admin {
         export namespace Array {
             export interface Properties extends Admin.Store.Properties {
                 /**
-                 * @type {string[]} fields - 데이터 필드
-                 */
-                fields: string[];
-
-                /**
                  * @type {string[][]} records - 데이터
                  */
                 records?: any[][];
@@ -363,7 +406,6 @@ namespace Admin {
         }
 
         export class Array extends Admin.Store {
-            fields: string[];
             records: any[][];
 
             /**
@@ -374,7 +416,6 @@ namespace Admin {
             constructor(properties: Admin.Store.Array.Properties = null) {
                 super(properties);
 
-                this.fields = this.properties.fields ?? [];
                 this.records = this.properties.records ?? [];
                 this.remoteSort = false;
                 this.load();
@@ -394,13 +435,17 @@ namespace Admin {
                 const records = [];
                 this.records.forEach((item) => {
                     const record: { [key: string]: any } = {};
-                    this.fields.forEach((name, index) => {
-                        record[name] = item[index];
+                    this.fields.forEach((field, index) => {
+                        if (typeof field == 'string') {
+                            record[field] = item[index];
+                        } else {
+                            record[field.name] = item[index];
+                        }
                     });
                     records.push(record);
                 });
                 this.loaded = true;
-                this.data = new Admin.Data(records, this.fieldTypes);
+                this.data = new Admin.Data(records, this.fields);
                 this.count = records.length;
                 this.total = this.count;
 
@@ -429,11 +474,6 @@ namespace Admin {
                 url: string;
 
                 /**
-                 * @type {Object} params - 데이터를 가져올때 사용할 매개변수
-                 */
-                params?: { [key: string]: any };
-
-                /**
                  * @type {number} limit - 페이지당 가져올 갯수
                  */
                 limit?: number;
@@ -458,7 +498,6 @@ namespace Admin {
         export class Ajax extends Admin.Store {
             method: string;
             url: string;
-            params: { [key: string]: any };
             limit: number;
             page: number;
             recordsField: string;
@@ -473,53 +512,11 @@ namespace Admin {
                 super(properties);
 
                 this.url = this.properties?.url ?? null;
-                this.params = this.properties.params ?? null;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
                 this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
                 this.recordsField = this.properties.recordsField ?? 'records';
                 this.totalField = this.properties.totalField ?? 'total';
-            }
-
-            /**
-             * 데이터를 불러오기 위한 매개변수를 설정한다.
-             *
-             * @param {Object} params - 매개변수
-             */
-            setParams(params: { [key: string]: any }): void {
-                for (const key in params) {
-                    this.setParam(key, params[key]);
-                }
-            }
-
-            /**
-             * 데이터를 불러오기 위한 매개변수를 설정한다.
-             *
-             * @param {string} key - 매개변수명
-             * @param {any} value - 매개변수값
-             */
-            setParam(key: string, value: any) {
-                this.params ??= {};
-                this.params[key] = value;
-            }
-
-            /**
-             * 데이터를 불러오기 위한 매개변수를 가져온다.
-             *
-             * @return {Object} params - 매개변수
-             */
-            getParams(): { [key: string]: any } {
-                return this.params ?? {};
-            }
-
-            /**
-             * 데이터를 불러오기 위한 매개변수를 가져온다.
-             *
-             * @param {string} key - 매개변수명
-             * @return {any} value - 매개변수값
-             */
-            getParam(key: string): any {
-                return this.getParams()[key] ?? null;
             }
 
             /**
@@ -543,7 +540,7 @@ namespace Admin {
                     .then((results: Admin.Ajax.Results) => {
                         if (results.success == true) {
                             this.loaded = true;
-                            this.data = new Admin.Data(results[this.recordsField] ?? [], this.fieldTypes);
+                            this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields);
                             this.count = results.records.length;
                             this.total = results[this.totalField] ?? 0;
 
