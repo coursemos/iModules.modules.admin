@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Viewport.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 5.
+ * @modified 2023. 6. 1.
  */
 var Admin;
 (function (Admin) {
@@ -165,7 +165,7 @@ var Admin;
                         handler: async () => {
                             new Admin.Window({
                                 id: this.id + '-Folder-Window',
-                                title: Admin.printText('admin/navigation/folder/add'),
+                                title: Admin.printText('admin.navigation.folder.add'),
                                 width: 400,
                                 resizable: false,
                                 items: [
@@ -180,7 +180,7 @@ var Admin;
                                                         name: 'icon',
                                                         store: new Admin.Store.Array({
                                                             fields: ['value'],
-                                                            datas: [
+                                                            records: [
                                                                 ['xi xi-folder'],
                                                                 ['xi xi-home'],
                                                                 ['xi xi-archive'],
@@ -211,7 +211,7 @@ var Admin;
                                                         displayField: 'value',
                                                         valueField: 'value',
                                                         value: 'xi xi-folder',
-                                                        displayRenderer: (display) => {
+                                                        renderer: (display) => {
                                                             return '<i class="' + display + '"></i>';
                                                         },
                                                         listRenderer: (display) => {
@@ -223,7 +223,7 @@ var Admin;
                                                         name: 'title',
                                                         flex: true,
                                                         allowBlank: false,
-                                                        emptyText: Admin.printText('admin/navigation/folder/title'),
+                                                        emptyText: Admin.printText('admin.navigation.folder.title'),
                                                     }),
                                                 ],
                                             }),
@@ -231,11 +231,11 @@ var Admin;
                                                 name: 'smart',
                                                 store: new Admin.Store.Array({
                                                     fields: ['display', 'value'],
-                                                    datas: [],
+                                                    records: [],
                                                     listeners: {
                                                         load: async (store) => {
                                                             const records = [];
-                                                            const smarts = (await Admin.getText('admin/navigation/smart'));
+                                                            const smarts = (await Admin.getText('admin.navigation.smart'));
                                                             for (const value in smarts) {
                                                                 const record = { display: smarts[value], value: value };
                                                                 records.push(record);
@@ -251,13 +251,13 @@ var Admin;
                                 ],
                                 buttons: [
                                     new Admin.Button({
-                                        text: Admin.printText('buttons/cancel'),
-                                        handler: function (button) {
+                                        text: Admin.printText('buttons.cancel'),
+                                        handler: (button) => {
                                             button.getParent().close();
                                         },
                                     }),
                                     new Admin.Button({
-                                        text: Admin.printText('buttons/ok'),
+                                        text: Admin.printText('buttons.ok'),
                                         buttonClass: 'confirm',
                                         handler: async (button) => {
                                             const form = button.getParent().getItemAt(0);
@@ -268,7 +268,7 @@ var Admin;
                                                 for (const $folder of $folders) {
                                                     const properties = $folder.getData('properties');
                                                     if (properties.title == values.title) {
-                                                        form.getField('title').setError(true, (await Admin.getText('admin/navigation/folder/duplicated')));
+                                                        form.getField('title').setError(true, (await Admin.getText('admin.navigation.folder.duplicated')));
                                                         return;
                                                     }
                                                 }

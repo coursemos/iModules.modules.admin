@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Viewport.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 5.
+ * @modified 2023. 6. 1.
  */
 namespace Admin {
     export namespace Viewport {
@@ -190,7 +190,7 @@ namespace Admin {
                         handler: async () => {
                             new Admin.Window({
                                 id: this.id + '-Folder-Window',
-                                title: Admin.printText('admin/navigation/folder/add'),
+                                title: Admin.printText('admin.navigation.folder.add'),
                                 width: 400,
                                 resizable: false,
                                 items: [
@@ -205,7 +205,7 @@ namespace Admin {
                                                         name: 'icon',
                                                         store: new Admin.Store.Array({
                                                             fields: ['value'],
-                                                            datas: [
+                                                            records: [
                                                                 ['xi xi-folder'],
                                                                 ['xi xi-home'],
                                                                 ['xi xi-archive'],
@@ -236,10 +236,10 @@ namespace Admin {
                                                         displayField: 'value',
                                                         valueField: 'value',
                                                         value: 'xi xi-folder',
-                                                        displayRenderer: (display: string) => {
+                                                        renderer: (display) => {
                                                             return '<i class="' + display + '"></i>';
                                                         },
-                                                        listRenderer: (display: string) => {
+                                                        listRenderer: (display) => {
                                                             return '<i class="' + display + '"></i>';
                                                         },
                                                         width: 60,
@@ -248,7 +248,7 @@ namespace Admin {
                                                         name: 'title',
                                                         flex: true,
                                                         allowBlank: false,
-                                                        emptyText: Admin.printText('admin/navigation/folder/title'),
+                                                        emptyText: Admin.printText('admin.navigation.folder.title'),
                                                     }),
                                                 ],
                                             }),
@@ -256,12 +256,12 @@ namespace Admin {
                                                 name: 'smart',
                                                 store: new Admin.Store.Array({
                                                     fields: ['display', 'value'],
-                                                    datas: [],
+                                                    records: [],
                                                     listeners: {
-                                                        load: async (store: Admin.Store.Array) => {
+                                                        load: async (store) => {
                                                             const records: { [key: string]: string }[] = [];
                                                             const smarts = (await Admin.getText(
-                                                                'admin/navigation/smart'
+                                                                'admin.navigation.smart'
                                                             )) as { [key: string]: string };
                                                             for (const value in smarts) {
                                                                 const record = { display: smarts[value], value: value };
@@ -279,15 +279,15 @@ namespace Admin {
                                 ],
                                 buttons: [
                                     new Admin.Button({
-                                        text: Admin.printText('buttons/cancel'),
-                                        handler: function (button: Admin.Button) {
+                                        text: Admin.printText('buttons.cancel'),
+                                        handler: (button) => {
                                             (button.getParent() as Admin.Window).close();
                                         },
                                     }),
                                     new Admin.Button({
-                                        text: Admin.printText('buttons/ok'),
+                                        text: Admin.printText('buttons.ok'),
                                         buttonClass: 'confirm',
-                                        handler: async (button: Admin.Button) => {
+                                        handler: async (button) => {
                                             const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
                                             const isValid = await form.isValid();
                                             if (isValid == true) {
@@ -302,7 +302,7 @@ namespace Admin {
                                                         form.getField('title').setError(
                                                             true,
                                                             (await Admin.getText(
-                                                                'admin/navigation/folder/duplicated'
+                                                                'admin.navigation.folder.duplicated'
                                                             )) as string
                                                         );
                                                         return;
@@ -340,7 +340,7 @@ namespace Admin {
                         iconClass: 'mi mi-config-o',
                         toggle: true,
                         listeners: {
-                            toggle: (button: Admin.Button, pressed: boolean) => {
+                            toggle: (button, pressed) => {
                                 if (pressed == true) {
                                     Admin.getComponent(this.id + '-Folder').show();
                                     Admin.getComponent(this.id + '-Toggle').hide();
@@ -424,14 +424,6 @@ namespace Admin {
                         return false;
                     }
                 }
-
-                /*
-                onRender(): void {
-                    super.onRender();
-                    console.log(Admin.getComponent(this.id + '-Folder'));
-                    Admin.getComponent(this.id + '-Folder').triggerEvent('click');
-                }
-                */
             }
 
             export class Context extends Admin.Component {
