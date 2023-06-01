@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 1.
  */
 var Admin;
 (function (Admin) {
@@ -26,7 +26,7 @@ var Admin;
                     requestUrl.searchParams.delete(name);
                 }
                 else {
-                    requestUrl.searchParams.append(name, params[name]);
+                    requestUrl.searchParams.append(name, params[name].toString());
                 }
             }
             url = requestUrl.toString();
@@ -100,7 +100,7 @@ var Admin;
                     requestUrl.searchParams.delete(name);
                 }
                 else {
-                    requestUrl.searchParams.append(name, params[name]);
+                    requestUrl.searchParams.append(name, params[name].toString());
                 }
             }
             url = requestUrl.toString();

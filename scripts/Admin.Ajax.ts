@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 1.
  */
 namespace Admin {
     export namespace Ajax {
@@ -47,7 +47,7 @@ namespace Admin {
                 if (params[name] === null) {
                     requestUrl.searchParams.delete(name);
                 } else {
-                    requestUrl.searchParams.append(name, params[name]);
+                    requestUrl.searchParams.append(name, params[name].toString());
                 }
             }
             url = requestUrl.toString();
@@ -130,7 +130,7 @@ namespace Admin {
                 if (params[name] === null) {
                     requestUrl.searchParams.delete(name);
                 } else {
-                    requestUrl.searchParams.append(name, params[name]);
+                    requestUrl.searchParams.append(name, params[name].toString());
                 }
             }
             url = requestUrl.toString();
