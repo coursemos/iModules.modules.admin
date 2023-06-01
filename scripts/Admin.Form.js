@@ -178,6 +178,7 @@ var Admin;
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
+                        console.log('field', name, this.getField(name));
                         this.getField(name)?.setValue(response.data[name], true);
                     }
                 }
@@ -277,13 +278,14 @@ var Admin;
              * @return {Admin.Form.Panel} form
              */
             getForm() {
-                const $form = this.$getComponent().getParents('div[data-component][data-type=panel][data-role=form]');
-                if ($form?.getData('component')) {
-                    return Admin.getComponent($form.getData('component'));
+                let parent = this.getParent();
+                while (parent !== null) {
+                    if (parent instanceof Admin.Form.Panel) {
+                        return parent;
+                    }
+                    parent = parent.getParent();
                 }
-                else {
-                    return null;
-                }
+                return null;
             }
             /**
              * 필드셋에 속한 필드를 가져온다.
@@ -490,13 +492,14 @@ var Admin;
                  * @return {Admin.Form.Panel} form
                  */
                 getForm() {
-                    const $form = this.$getComponent().getParents('div[data-component][data-type=panel][data-role=form]');
-                    if ($form?.getData('component')) {
-                        return Admin.getComponent($form.getData('component'));
+                    let parent = this.getParent();
+                    while (parent !== null) {
+                        if (parent instanceof Admin.Form.Panel) {
+                            return parent;
+                        }
+                        parent = parent.getParent();
                     }
-                    else {
-                        return null;
-                    }
+                    return null;
                 }
                 /**
                  * 필드 라벨 위치를 가져온다.
@@ -899,13 +902,14 @@ var Admin;
                  * @return {Admin.Form.Panel} form
                  */
                 getForm() {
-                    const $form = this.$getComponent().getParents('div[data-component][data-type=panel][data-role=form]');
-                    if ($form?.getData('component')) {
-                        return Admin.getComponent($form.getData('component'));
+                    let parent = this.getParent();
+                    while (parent !== null) {
+                        if (parent instanceof Admin.Form.Panel) {
+                            return parent;
+                        }
+                        parent = parent.getParent();
                     }
-                    else {
-                        return null;
-                    }
+                    return null;
                 }
                 /**
                  * 필드 라벨 위치를 가져온다.

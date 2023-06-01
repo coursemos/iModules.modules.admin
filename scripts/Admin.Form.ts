@@ -233,6 +233,7 @@ namespace Admin {
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
+                        console.log('field', name, this.getField(name));
                         this.getField(name)?.setValue(response.data[name], true);
                     }
                 }
@@ -402,12 +403,16 @@ namespace Admin {
              * @return {Admin.Form.Panel} form
              */
             getForm(): Admin.Form.Panel {
-                const $form = this.$getComponent().getParents('div[data-component][data-type=panel][data-role=form]');
-                if ($form?.getData('component')) {
-                    return Admin.getComponent($form.getData('component')) as Admin.Form.Panel;
-                } else {
-                    return null;
+                let parent = this.getParent();
+                while (parent !== null) {
+                    if (parent instanceof Admin.Form.Panel) {
+                        return parent;
+                    }
+
+                    parent = parent.getParent();
                 }
+
+                return null;
             }
 
             /**
@@ -745,14 +750,16 @@ namespace Admin {
                  * @return {Admin.Form.Panel} form
                  */
                 getForm(): Admin.Form.Panel {
-                    const $form = this.$getComponent().getParents(
-                        'div[data-component][data-type=panel][data-role=form]'
-                    );
-                    if ($form?.getData('component')) {
-                        return Admin.getComponent($form.getData('component')) as Admin.Form.Panel;
-                    } else {
-                        return null;
+                    let parent = this.getParent();
+                    while (parent !== null) {
+                        if (parent instanceof Admin.Form.Panel) {
+                            return parent;
+                        }
+
+                        parent = parent.getParent();
                     }
+
+                    return null;
                 }
 
                 /**
@@ -1231,14 +1238,16 @@ namespace Admin {
                  * @return {Admin.Form.Panel} form
                  */
                 getForm(): Admin.Form.Panel {
-                    const $form = this.$getComponent().getParents(
-                        'div[data-component][data-type=panel][data-role=form]'
-                    );
-                    if ($form?.getData('component')) {
-                        return Admin.getComponent($form.getData('component')) as Admin.Form.Panel;
-                    } else {
-                        return null;
+                    let parent = this.getParent();
+                    while (parent !== null) {
+                        if (parent instanceof Admin.Form.Panel) {
+                            return parent;
+                        }
+
+                        parent = parent.getParent();
                     }
+
+                    return null;
                 }
 
                 /**
