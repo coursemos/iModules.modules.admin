@@ -6,9 +6,23 @@
  * @file /modules/admin/scripts/Admin.Toolbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 12.
+ * @modified 2023. 6. 1.
  */
 namespace Admin {
+    export namespace Toolbar {
+        export interface Properties extends Admin.Component.Properties {
+            /**
+             * @type {'top'|'bottom'} position - 툴바표시 위치
+             */
+            position?: 'top' | 'bottom';
+
+            /**
+             * @type {boolean} border - 테두리표시여부
+             */
+            border?: boolean;
+        }
+    }
+
     export class Toolbar extends Admin.Component {
         type: string = 'toolbar';
         role: string = 'bar';
@@ -18,18 +32,18 @@ namespace Admin {
         /**
          * 툴바를 생성한다.
          *
-         * @param {Object|Admin.Component[]} properties - 객체설정
+         * @param {Admin.Toolbar.Properties|Admin.Component[]} properties - 객체설정
          */
-        constructor(properties: { [key: string]: any } | Admin.Component[]) {
+        constructor(properties: Admin.Toolbar.Properties | Admin.Component[] = null) {
             if (properties?.constructor.name == 'Array') {
-                const items = properties;
+                const items = properties as Admin.Component[];
                 properties = { items: items };
             }
             super(properties);
 
             this.position = this.properties.position ?? 'top';
             this.border = this.properties.border ?? true;
-            this.scrollable = this.properties.scrollable ?? 'X';
+            this.scrollable = 'x';
 
             this.$setTop();
             this.$setBottom();
@@ -80,14 +94,23 @@ namespace Admin {
         /**
          * 툴바위치를 지정한다.
          *
-         * @param {string} position (top / bottom)
+         * @param {'top'|'bottom'} position - 툴바위치
          */
-        setPosition(position: string): void {
+        setPosition(position: 'top' | 'bottom'): void {
             this.position = position;
         }
     }
 
     export namespace Toolbar {
+        export namespace Item {
+            export interface Properties extends Admin.Component.Properties {
+                /**
+                 * @type {string} text - 텍스트
+                 */
+                text?: string;
+            }
+        }
+
         /**
          * 툴바아이템 클래스를 정의한다.툴바아이템 객체를 생성한다.
          */
@@ -101,9 +124,9 @@ namespace Admin {
             /**
              * 툴바아이템을 생성한다.
              *
-             * @param {Object|string} properties - 객체설정
+             * @param {Admin.Toolbar.Item.Properties|string} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } | string) {
+            constructor(properties: Admin.Toolbar.Item.Properties | string = null) {
                 if (typeof properties == 'string') {
                     const text = properties;
                     properties = { text: text };
@@ -133,7 +156,6 @@ namespace Admin {
              */
             render(): void {
                 super.render();
-
                 this.$getComponent().setAttr('data-tool', this.tool);
             }
         }

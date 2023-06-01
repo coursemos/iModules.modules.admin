@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Toolbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 12.
+ * @modified 2023. 6. 1.
  */
 var Admin;
 (function (Admin) {
@@ -18,9 +18,9 @@ var Admin;
         /**
          * 툴바를 생성한다.
          *
-         * @param {Object|Admin.Component[]} properties - 객체설정
+         * @param {Admin.Toolbar.Properties|Admin.Component[]} properties - 객체설정
          */
-        constructor(properties) {
+        constructor(properties = null) {
             if (properties?.constructor.name == 'Array') {
                 const items = properties;
                 properties = { items: items };
@@ -28,7 +28,7 @@ var Admin;
             super(properties);
             this.position = this.properties.position ?? 'top';
             this.border = this.properties.border ?? true;
-            this.scrollable = this.properties.scrollable ?? 'X';
+            this.scrollable = 'x';
             this.$setTop();
             this.$setBottom();
         }
@@ -71,7 +71,7 @@ var Admin;
         /**
          * 툴바위치를 지정한다.
          *
-         * @param {string} position (top / bottom)
+         * @param {'top'|'bottom'} position - 툴바위치
          */
         setPosition(position) {
             this.position = position;
@@ -91,9 +91,9 @@ var Admin;
             /**
              * 툴바아이템을 생성한다.
              *
-             * @param {Object|string} properties - 객체설정
+             * @param {Admin.Toolbar.Item.Properties|string} properties - 객체설정
              */
-            constructor(properties) {
+            constructor(properties = null) {
                 if (typeof properties == 'string') {
                     const text = properties;
                     properties = { text: text };
