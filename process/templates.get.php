@@ -58,7 +58,7 @@ foreach ($themes as $name) {
 
 $modules = Modules::all();
 foreach ($modules as $module) {
-    if ($module->isTheme() == true) {
+    if ($module->hasPackageProperty('THEME') == true) {
         $themes = File::getDirectoryItems($module->getPath() . '/themes', 'directory', false);
         foreach ($themes as $name) {
             $theme = basename($name);
