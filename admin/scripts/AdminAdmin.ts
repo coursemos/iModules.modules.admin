@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/AdminAdmin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 3.
+ * @modified 2023. 6. 1.
  */
 namespace modules {
     export namespace admin {
@@ -18,7 +18,7 @@ namespace modules {
              */
             addDomain(host: string = null): void {
                 new Admin.Window({
-                    title: this.printText('admin/sites/domains/' + (host === null ? 'add' : 'edit')),
+                    title: this.printText('admin.sites.domains.' + (host === null ? 'add' : 'edit')),
                     width: 500,
                     modal: true,
                     resizable: false,
@@ -28,7 +28,7 @@ namespace modules {
                             layout: 'fit',
                             items: [
                                 new Admin.Form.FieldSet({
-                                    title: this.printText('admin/sites/domains/host'),
+                                    title: this.printText('admin.sites.domains.host'),
                                     items: [
                                         new Admin.Form.Field.Container({
                                             direction: 'row',
@@ -38,59 +38,57 @@ namespace modules {
                                                     value: 'TRUE',
                                                     store: new Admin.Store.Array({
                                                         fields: ['display', 'value'],
-                                                        datas: [
+                                                        records: [
                                                             ['https://', 'TRUE'],
                                                             ['http://', 'FALSE'],
                                                         ],
                                                     }),
-                                                    displayField: 'display',
-                                                    valueField: 'value',
                                                     width: 100,
                                                 }),
                                                 new Admin.Form.Field.Text({
                                                     name: 'host',
                                                     flex: 1,
                                                     allowBlank: false,
-                                                    emptyText: this.printText('admin/sites/domains/host'),
+                                                    emptyText: this.printText('admin.sites.domains.host'),
                                                 }),
                                             ],
                                         }),
                                         new Admin.Form.Field.TextArea({
                                             name: 'alias',
                                             rows: 3,
-                                            emptyText: this.printText('admin/sites/domains/alias'),
+                                            emptyText: this.printText('admin.sites.domains.alias'),
                                         }),
                                     ],
                                 }),
                                 new Admin.Form.FieldSet({
-                                    title: this.printText('admin/sites/domains/options/title'),
+                                    title: this.printText('admin.sites.domains.options.title'),
                                     items: [
                                         new Admin.Form.Field.Check({
                                             name: 'is_rewrite',
-                                            boxLabel: this.printText('admin/sites/domains/options/is_rewrite'),
+                                            boxLabel: this.printText('admin.sites.domains.options.is_rewrite'),
                                             onValue: 'TRUE',
                                             checked: Admin.isRewrite(),
                                         }),
                                         new Admin.Form.Field.Check({
                                             name: 'is_internationalization',
                                             boxLabel: this.printText(
-                                                'admin/sites/domains/options/is_internationalization'
+                                                'admin.sites.domains.options.is_internationalization'
                                             ),
                                             onValue: 'TRUE',
                                         }),
                                     ],
                                 }),
                                 new Admin.Form.FieldSet({
-                                    title: this.printText('admin/sites/domains/membership/title'),
+                                    title: this.printText('admin.sites.domains.membership.title'),
                                     items: [
                                         new Admin.Form.Field.RadioGroup({
                                             name: 'membership',
                                             options: {
                                                 'DEPENDENCE': this.printText(
-                                                    'admin/sites/domains/membership/DEPENDENCE'
+                                                    'admin.sites.domains.membership.DEPENDENCE'
                                                 ),
                                                 'INDEPENDENCE': this.printText(
-                                                    'admin/sites/domains/membership/INDEPENDENCE'
+                                                    'admin.sites.domains.membership.INDEPENDENCE'
                                                 ),
                                             },
                                             value: 'DEPENDENCE',
@@ -102,7 +100,7 @@ namespace modules {
                     ],
                     buttons: [
                         new Admin.Button({
-                            text: this.printText('buttons/cancel'),
+                            text: this.printText('buttons.cancel'),
                             tabIndex: -1,
                             handler: (button: Admin.Button) => {
                                 const window = button.getParent() as Admin.Window;
@@ -110,20 +108,20 @@ namespace modules {
                             },
                         }),
                         new Admin.Button({
-                            text: this.printText('buttons/ok'),
+                            text: this.printText('buttons.ok'),
                             buttonClass: 'confirm',
                             handler: async (button: Admin.Button) => {
                                 const window = button.getParent() as Admin.Window;
                                 const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.submit({
                                     url: this.getProcessUrl('domain'),
-                                    params: { origin: host ?? null },
+                                    params: { host: host },
                                 });
 
                                 if (results.success == true) {
                                     Admin.Message.show({
                                         title: (await Admin.getText('info')) as string,
-                                        message: (await Admin.getText('actions/saved')) as string,
+                                        message: (await Admin.getText('actions.saved')) as string,
                                         icon: Admin.Message.INFO,
                                         buttons: Admin.Message.OK,
                                         handler: () => {
@@ -164,33 +162,34 @@ namespace modules {
              * @param {string} language - 사이트정보를 수정할 경우 수정할 host 명
              */
             addSite(language: string = null): void {
-                const host = null;
+                const domains: Admin.Grid.Panel = Admin.getComponent('domains') as Admin.Grid.Panel;
+                const host = domains.getSelections().length == 1 ? domains.getSelections()[0].get('host') : null;
+                if (host === null) {
+                    return;
+                }
 
                 new Admin.Window({
-                    title: this.printText('admin/sites/sites/' + (language === null ? 'add' : 'edit')),
-                    width: 600,
+                    title: this.printText('admin.sites.sites.' + (language === null ? 'add' : 'edit')),
+                    width: 700,
                     modal: true,
                     resizable: false,
                     items: [
                         new Admin.Form.Panel({
-                            id: 'test',
                             border: false,
                             layout: 'fit',
                             fieldDefaults: { labelWidth: 100, labelAlign: 'right' },
                             items: [
-                                new Admin.Form.Field.Hidden({
-                                    name: 'host',
-                                    value: host,
-                                }),
                                 new Admin.Form.FieldSet({
-                                    title: this.printText('admin/sites/sites/default'),
+                                    title: this.printText('admin.sites.sites.default'),
                                     items: [
                                         new Admin.Form.Field.Text({
                                             name: 'title',
-                                            label: this.printText('admin/sites/sites/title'),
+                                            allowBlank: false,
+                                            label: this.printText('admin.sites.sites.title'),
                                         }),
                                         new Admin.Form.Field.Container({
-                                            label: this.printText('admin/sites/sites/language'),
+                                            label: this.printText('admin.sites.sites.language'),
+                                            allowBlank: false,
                                             items: [
                                                 new Admin.Form.Field.Select({
                                                     name: 'language',
@@ -204,28 +203,80 @@ namespace modules {
                                                 }),
                                                 new Admin.Form.Field.Check({
                                                     name: 'is_default',
-                                                    boxLabel: this.printText('admin/sites/sites/default_language'),
+                                                    boxLabel: this.printText('admin.sites.sites.default_language'),
                                                     flex: true,
                                                 }),
                                             ],
                                         }),
                                         new Admin.Form.Field.TextArea({
                                             name: 'description',
-                                            label: this.printText('admin/sites/sites/description'),
+                                            label: this.printText('admin.sites.sites.description'),
                                             rows: 3,
-                                        }),
-                                        new Admin.Form.Field.Theme({
-                                            name: 'theme',
-                                            label: '테마', //this.printText('admin/sites/sites/theme'),
                                         }),
                                     ],
                                 }),
                                 new Admin.Form.FieldSet({
-                                    title: '사이트이미지',
+                                    title: this.printText('admin.sites.sites.design'),
                                     items: [
-                                        new Admin.Form.Field.File({
-                                            id: 'file',
-                                            fieldLabel: '로고이미지',
+                                        new Admin.Form.Field.Theme({
+                                            name: 'theme',
+                                            label: this.printText('admin.sites.sites.theme'),
+                                            listeners: {
+                                                configs: (
+                                                    field: Admin.Form.Field.Theme,
+                                                    configs: { [key: string]: any }
+                                                ) => {
+                                                    if (configs.logo !== null) {
+                                                        const logo = field
+                                                            .getForm()
+                                                            .getField('logo') as Admin.Form.Field.Image;
+                                                        logo.setImageSize(configs.logo.width, configs.logo.height);
+                                                        logo.setHelpText(configs.logo.message ?? null);
+                                                    }
+                                                },
+                                            },
+                                        }),
+                                        new Admin.Form.Field.Include({
+                                            name: 'header',
+                                            label: this.printText('admin.sites.sites.header'),
+                                        }),
+                                        new Admin.Form.Field.Include({
+                                            name: 'footer',
+                                            label: this.printText('admin.sites.sites.footer'),
+                                        }),
+                                    ],
+                                }),
+                                new Admin.Form.FieldSet({
+                                    title: this.printText('admin.sites.sites.images'),
+                                    items: [
+                                        new Admin.Form.Field.Image({
+                                            name: 'logo',
+                                            label: this.printText('admin.sites.sites.logo'),
+                                            showSize: true,
+                                            imageWidth: 200,
+                                            imageHeight: 50,
+                                        }),
+                                        new Admin.Form.Field.Image({
+                                            name: 'emblem',
+                                            label: this.printText('admin.sites.sites.emblem'),
+                                            helpText: this.printText('admin.sites.sites.emblem_help'),
+                                            imageWidth: 144,
+                                            imageHeight: 144,
+                                        }),
+                                        new Admin.Form.Field.Image({
+                                            name: 'favicon',
+                                            label: this.printText('admin.sites.sites.favicon'),
+                                            helpText: this.printText('admin.sites.sites.favicon_help'),
+                                            accept: 'image/x-icon',
+                                            imageWidth: 32,
+                                            imageHeight: 32,
+                                        }),
+                                        new Admin.Form.Field.Image({
+                                            name: 'image',
+                                            label: this.printText('admin.sites.sites.image'),
+                                            helpText: this.printText('admin.sites.sites.image_help'),
+                                            imageWidth: 1200,
+                                            imageHeight: 630,
                                         }),
                                     ],
                                 }),
@@ -234,7 +285,7 @@ namespace modules {
                     ],
                     buttons: [
                         new Admin.Button({
-                            text: this.printText('buttons/cancel'),
+                            text: this.printText('buttons.cancel'),
                             tabIndex: -1,
                             handler: (button: Admin.Button) => {
                                 const window = button.getParent() as Admin.Window;
@@ -242,28 +293,31 @@ namespace modules {
                             },
                         }),
                         new Admin.Button({
-                            text: this.printText('buttons/ok'),
+                            text: this.printText('buttons.ok'),
                             buttonClass: 'confirm',
                             handler: async (button: Admin.Button) => {
                                 const window = button.getParent() as Admin.Window;
                                 const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.submit({
-                                    url: this.getProcessUrl('domain'),
-                                    params: { origin: host ?? null },
+                                    url: this.getProcessUrl('site'),
+                                    params: { host: host, language: language },
                                 });
 
                                 if (results.success == true) {
                                     Admin.Message.show({
                                         title: (await Admin.getText('info')) as string,
-                                        message: (await Admin.getText('actions/saved')) as string,
+                                        message: (await Admin.getText('actions.saved')) as string,
                                         icon: Admin.Message.INFO,
                                         buttons: Admin.Message.OK,
                                         handler: () => {
-                                            const domains = Admin.getComponent('domains') as Admin.Grid.Panel;
-                                            domains.selections = [
-                                                new Admin.Data.Record({ host: form.getField('host').getValue() }),
+                                            const sites = Admin.getComponent('sites') as Admin.Grid.Panel;
+                                            sites.selections = [
+                                                new Admin.Data.Record({
+                                                    host: host,
+                                                    language: form.getField('language').getValue(),
+                                                }),
                                             ];
-                                            domains.getStore().reload();
+                                            sites.getStore().reload();
                                             window.close();
                                             Admin.Message.close();
                                         },
@@ -274,11 +328,11 @@ namespace modules {
                     ],
                     listeners: {
                         show: async (window: Admin.Window) => {
-                            if (host !== null) {
+                            if (language !== null) {
                                 const form = window.getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.load({
-                                    url: this.getProcessUrl('domain'),
-                                    params: { host: host },
+                                    url: this.getProcessUrl('site'),
+                                    params: { host: host, language: language },
                                 });
 
                                 if (results.success == false) {
@@ -291,9 +345,337 @@ namespace modules {
             }
 
             /**
-             * 사이트맵을 추가한다.
+             * 컨텍스트 종류를 가져온다.
+             *
+             * @return {string[]} types - 컨텍스트타입
              */
-            addSitemap(): void {}
+            getContextTypes(): string[] {
+                return ['EMPTY', 'CHILD', 'PAGE', 'MODULE', 'HTML', 'LINK'];
+            }
+
+            /**
+             * 컨텍스트 종류 아이콘을 가져온다.
+             *
+             * @param {string} type - 컨텍스트타입
+             * @return {string} icon - 아이콘
+             */
+            getContextTypeIcon(type: string): string {
+                const icons = {
+                    'EMPTY': 'xi xi-marquee-add',
+                    'CHILD': 'xi xi-sitemap',
+                    'PAGE': 'xi xi-paper',
+                    'MODULE': 'xi xi-box',
+                    'HTML': 'xi xi-code',
+                    'LINK': 'xi xi-external-link',
+                };
+                return '<i class="icon ' + (icons[type] ?? '') + '"></i>';
+            }
+
+            /**
+             * 컨텍스트를 추가한다.
+             *
+             * @param {string} path - 수정할 경로 또는 추가될 포함될 상위 부모폴더
+             */
+            addContext(path: string = null): void {
+                const domains: Admin.Grid.Panel = Admin.getComponent('domains') as Admin.Grid.Panel;
+                const host = domains.getSelections().length == 1 ? domains.getSelections()[0].get('host') : null;
+                if (host === null) {
+                    return;
+                }
+
+                const sites: Admin.Grid.Panel = Admin.getComponent('sites') as Admin.Grid.Panel;
+                const language = sites.getSelections().length == 1 ? sites.getSelections()[0].get('language') : null;
+                if (language === null) {
+                    return;
+                }
+
+                if (path === null) {
+                    // @todo 하위메뉴 선택창
+                    return;
+                }
+
+                const paths = path.split('/');
+                path = paths.pop();
+                const parent = paths.join('/');
+                path = path == '@' ? null : path;
+
+                new Admin.Window({
+                    title: this.printText('admin.sites.contexts.' + (path === null ? 'add' : 'edit')),
+                    width: 700,
+                    modal: true,
+                    resizable: false,
+                    items: [
+                        new Admin.Form.Panel({
+                            border: false,
+                            layout: 'fit',
+                            items: [
+                                new Admin.Form.FieldSet({
+                                    title: this.printText('admin.sites.contexts.default'),
+                                    items: [
+                                        new Admin.Form.Field.Container({
+                                            label: this.printText('admin.sites.contexts.path'),
+                                            direction: 'row',
+                                            gap: 0,
+                                            items: [
+                                                new Admin.Form.Field.Display({
+                                                    name: 'parent',
+                                                    value: parent,
+                                                    renderer: (value) => {
+                                                        return value == '/' ? value : value + '/';
+                                                    },
+                                                }),
+                                                new Admin.Form.Field.Text({
+                                                    name: 'path',
+                                                    flex: 1,
+                                                    allowBlank: false,
+                                                    hidden: path === '',
+                                                    disabled: path === '',
+                                                }),
+                                            ],
+                                            helpText: this.printText('admin.sites.contexts.path_help'),
+                                        }),
+                                        new Admin.Form.Field.Icon({
+                                            name: 'icon',
+                                            label: this.printText('admin.sites.contexts.icon'),
+                                        }),
+                                        new Admin.Form.Field.Text({
+                                            name: 'title',
+                                            label: this.printText('admin.sites.contexts.title'),
+                                            allowBlank: false,
+                                        }),
+                                        new Admin.Form.Field.Text({
+                                            name: 'description',
+                                            label: this.printText('admin.sites.contexts.description'),
+                                        }),
+                                        new Admin.Form.Field.Image({
+                                            name: 'image',
+                                            label: this.printText('admin.sites.contexts.image'),
+                                            helpText: this.printText('admin.sites.contexts.image_help'),
+                                            imageWidth: 1200,
+                                            imageHeight: 630,
+                                        }),
+                                        new Admin.Form.Field.RadioGroup({
+                                            name: 'type',
+                                            label: this.printText('admin.sites.contexts.type'),
+                                            displayType: 'box',
+                                            inputClass: 'context_type',
+                                            columns: 6,
+                                            options: (() => {
+                                                const options = {};
+                                                for (const type of this.getContextTypes()) {
+                                                    options[type] =
+                                                        this.getContextTypeIcon(type) +
+                                                        '<span>' +
+                                                        this.printText('admin.sites.contexts.types.' + type) +
+                                                        '</span>';
+                                                }
+                                                return options;
+                                            })(),
+                                            listeners: {
+                                                change: (field: Admin.Form.Field.RadioGroup, value: string) => {
+                                                    const form = field.getForm();
+                                                    const details = Admin.getComponent(
+                                                        'details'
+                                                    ) as Admin.Form.FieldSet;
+
+                                                    for (const item of details.getItems()) {
+                                                        item.hide();
+                                                        item.disable();
+                                                    }
+
+                                                    switch (value) {
+                                                        case 'CHILD':
+                                                            form.getField('child').show();
+                                                            form.getField('child').enable();
+                                                            break;
+
+                                                        case 'PAGE':
+                                                            form.getField('page').show();
+                                                            form.getField('page').enable();
+                                                            form.getField('is_routing').show();
+                                                            form.getField('is_routing').enable();
+                                                            break;
+
+                                                        case 'MODULE':
+                                                            form.getField('module').show();
+                                                            form.getField('module').enable();
+                                                            break;
+                                                    }
+
+                                                    if (value === 'EMPTY') {
+                                                        details.hide();
+                                                    } else {
+                                                        details.show();
+                                                    }
+
+                                                    const design = Admin.getComponent('design') as Admin.Form.FieldSet;
+                                                    if (value == 'CHILD' || value == 'LINK') {
+                                                        design.hide();
+                                                        design.disable();
+                                                    } else {
+                                                        design.show();
+                                                        design.enable();
+                                                    }
+                                                },
+                                            },
+                                        }),
+                                    ],
+                                }),
+                                new Admin.Form.FieldSet({
+                                    id: 'details',
+                                    title: this.printText('admin.sites.contexts.details'),
+                                    items: [
+                                        new Admin.Form.Field.Display({
+                                            name: 'child',
+                                            label: this.printText('admin.sites.contexts.child'),
+                                            value: null,
+                                            renderer: () => {
+                                                return this.printText('admin.sites.contexts.child_help');
+                                            },
+                                        }),
+                                        new Admin.Form.Field.Page({
+                                            name: 'page',
+                                            label: this.printText('admin.sites.contexts.page'),
+                                            helpText: this.printText('admin.sites.contexts.page_help'),
+                                            allowBlank: false,
+                                            host: host,
+                                            language: language,
+                                        }),
+                                        new Admin.Form.Field.Check({
+                                            name: 'is_routing',
+                                            label: this.printText('admin.sites.contexts.is_routing'),
+                                            boxLabel: this.printText('admin.sites.contexts.is_routing_help'),
+                                        }),
+
+                                        new Admin.Form.Field.Context({
+                                            name: 'module',
+                                            label: this.printText('admin.sites.contexts.module'),
+                                            allowBlank: false,
+                                            path: path !== null ? parent + '/' + path : null,
+                                        }),
+                                    ],
+                                }),
+                                new Admin.Form.FieldSet({
+                                    id: 'design',
+                                    title: this.printText('admin.sites.contexts.design'),
+                                    items: [
+                                        new Admin.Form.Field.Select({
+                                            name: 'layout',
+                                            label: this.printText('admin.sites.contexts.layout'),
+                                            valueField: 'name',
+                                            displayField: 'title',
+                                            allowBlank: false,
+                                            store: new Admin.Store.Ajax({
+                                                url: this.getProcessUrl('layouts'),
+                                                autoLoad: false,
+                                                params: { host: host, language: language },
+                                            }),
+                                        }),
+                                        new Admin.Form.Field.Include({
+                                            label: this.printText('admin.sites.contexts.header'),
+                                            name: 'header',
+                                        }),
+                                        new Admin.Form.Field.Include({
+                                            label: this.printText('admin.sites.contexts.footer'),
+                                            name: 'footer',
+                                        }),
+                                    ],
+                                }),
+                                new Admin.Form.FieldSet({
+                                    title: this.printText('admin.sites.contexts.visibility'),
+                                    items: [
+                                        new Admin.Form.Field.Check({
+                                            name: 'is_sitemap',
+                                            label: this.printText('admin.sites.contexts.is_sitemap'),
+                                            boxLabel: this.printText('admin.sites.contexts.is_sitemap_help'),
+                                            checked: true,
+                                        }),
+                                        new Admin.Form.Field.Check({
+                                            name: 'is_footer_menu',
+                                            label: this.printText('admin.sites.contexts.is_footer_menu'),
+                                            boxLabel: this.printText('admin.sites.contexts.is_footer_menu_help'),
+                                        }),
+
+                                        new Admin.Form.Field.Permission({
+                                            name: 'permission',
+                                            label: this.printText('admin.sites.contexts.permission'),
+                                            boxLabel: this.printText('admin.sites.contexts.permission_help'),
+                                            value: 'true',
+                                        }),
+                                    ],
+                                }),
+                            ],
+                        }),
+                    ],
+                    buttons: [
+                        new Admin.Button({
+                            text: this.printText('buttons.cancel'),
+                            tabIndex: -1,
+                            handler: (button: Admin.Button) => {
+                                const window = button.getParent() as Admin.Window;
+                                window.close();
+                            },
+                        }),
+                        new Admin.Button({
+                            text: this.printText('buttons.ok'),
+                            buttonClass: 'confirm',
+                            handler: async (button: Admin.Button) => {
+                                const window = button.getParent() as Admin.Window;
+                                const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
+                                const results = await form.submit({
+                                    url: this.getProcessUrl('context'),
+                                    params: {
+                                        host: host,
+                                        language: language,
+                                        path: path !== null ? parent + '/' + path : null,
+                                    },
+                                });
+
+                                if (results.success == true) {
+                                    Admin.Message.show({
+                                        title: (await Admin.getText('info')) as string,
+                                        message: (await Admin.getText('actions.saved')) as string,
+                                        icon: Admin.Message.INFO,
+                                        buttons: Admin.Message.OK,
+                                        handler: () => {
+                                            const contexts = Admin.getComponent('contexts') as Admin.Grid.Panel;
+                                            contexts.selections = [
+                                                new Admin.Data.Record({
+                                                    host: host,
+                                                    language: language,
+                                                    path:
+                                                        form.getField('parent').getValue() +
+                                                        (form.getField('path').getValue()
+                                                            ? '/' + form.getField('path').getValue()
+                                                            : ''),
+                                                }),
+                                            ];
+                                            contexts.getStore().reload();
+                                            window.close();
+                                            Admin.Message.close();
+                                        },
+                                    });
+                                }
+                            },
+                        }),
+                    ],
+                    listeners: {
+                        show: async (window: Admin.Window) => {
+                            if (path !== null) {
+                                const form = window.getItemAt(0) as Admin.Form.Panel;
+                                const results = await form.load({
+                                    url: this.getProcessUrl('context'),
+                                    params: { host: host, language: language, path: parent + '/' + path },
+                                });
+
+                                if (results.success == false) {
+                                    window.close();
+                                }
+                            }
+                        },
+                    },
+                }).show();
+            }
 
             /**
              * 모듈정보를 확인한다.
@@ -313,7 +695,7 @@ namespace modules {
                             fieldDefaults: { labelWidth: 100, labelAlign: 'right' },
                             items: [
                                 new Admin.Form.FieldSet({
-                                    title: this.printText('admin/modules/modules/show/defaults'),
+                                    title: this.printText('admin.modules.modules.show.defaults'),
                                     items: [
                                         new Admin.Form.Field.Container({
                                             direction: 'row',
@@ -325,60 +707,54 @@ namespace modules {
                                                         new Admin.Form.Field.Display({
                                                             name: 'icon',
                                                             renderer: (value: string) => {
-                                                                const box: HTMLElement = document.createElement('div');
-                                                                box.style.setProperty(
+                                                                const $box = Html.create('div');
+                                                                $box.setStyle(
                                                                     'margin',
                                                                     'calc(var(--padding-default) * -1)'
                                                                 );
-                                                                box.style.setProperty('width', '100px');
-                                                                box.style.setProperty('height', '100px');
-                                                                box.style.setProperty(
-                                                                    'border',
-                                                                    '1px solid transparent'
-                                                                );
-                                                                box.style.setProperty(
+                                                                $box.setStyle('width', '100px');
+                                                                $box.setStyle('height', '100px');
+                                                                $box.setStyle('border', '1px solid transparent');
+                                                                $box.setStyle(
                                                                     'border-color',
                                                                     'var(--input-border-color-default)'
                                                                 );
-                                                                box.style.setProperty('border-radius', '5px');
-                                                                box.style.setProperty('padding', '20px');
-                                                                box.style.setProperty('box-sizing', 'border-box');
-                                                                box.innerHTML = value ? value : '<i class="icon"></i>';
+                                                                $box.setStyle('border-radius', '5px');
+                                                                $box.setStyle('padding', '20px');
+                                                                $box.setStyle('box-sizing', 'border-box');
 
-                                                                const icon = box.firstChild as HTMLElement;
-                                                                icon.style.setProperty('width', '58px');
-                                                                icon.style.setProperty('height', '58px');
-                                                                icon.style.setProperty('line-height', '58px');
-                                                                icon.style.setProperty('text-align', 'center');
-                                                                icon.style.setProperty('font-size', '32px');
+                                                                const $icon = Html.html(value);
+                                                                $icon.setStyle('width', '58px');
+                                                                $icon.setStyle('height', '58px');
+                                                                $icon.setStyle('line-height', '58px');
+                                                                $icon.setStyle('text-align', 'center');
+                                                                $icon.setStyle('font-size', '32px');
 
-                                                                return box.outerHTML;
+                                                                $box.append($icon);
+
+                                                                return $box.toHtml();
                                                             },
                                                         }),
                                                         new Admin.Form.Field.Display({
                                                             name: 'version',
                                                             renderer: (value: string) => {
-                                                                const box: HTMLElement = document.createElement('div');
-                                                                box.style.setProperty(
+                                                                const $box = Html.create('div', null, value);
+                                                                $box.setStyle(
                                                                     'margin',
                                                                     'calc(var(--padding-default) * -1)'
                                                                 );
-                                                                box.style.setProperty('width', '100px');
-                                                                box.style.setProperty('height', '30px');
-                                                                box.style.setProperty(
+                                                                $box.setStyle('width', '100px');
+                                                                $box.setStyle('height', '30px');
+                                                                $box.setStyle(
                                                                     'background',
                                                                     'var(--input-background-select)'
                                                                 );
-                                                                box.style.setProperty('border-radius', '5px');
-                                                                box.style.setProperty('line-height', '30px');
-                                                                box.style.setProperty('text-align', 'center');
-                                                                box.style.setProperty(
-                                                                    'color',
-                                                                    'var(--input-color-select)'
-                                                                );
-                                                                box.innerHTML = value;
+                                                                $box.setStyle('border-radius', '5px');
+                                                                $box.setStyle('line-height', '30px');
+                                                                $box.setStyle('text-align', 'center');
+                                                                $box.setStyle('color', 'var(--input-color-select)');
 
-                                                                return box.outerHTML;
+                                                                return $box.toHtml();
                                                             },
                                                         }),
                                                     ],
@@ -388,19 +764,19 @@ namespace modules {
                                                     direction: 'column',
                                                     items: [
                                                         new Admin.Form.Field.Display({
-                                                            label: this.printText('admin/modules/modules/author'),
+                                                            label: this.printText('admin.modules.modules.author'),
                                                             name: 'author',
                                                         }),
                                                         new Admin.Form.Field.Display({
-                                                            label: this.printText('admin/modules/modules/homepage'),
+                                                            label: this.printText('admin.modules.modules.homepage'),
                                                             name: 'homepage',
                                                         }),
                                                         new Admin.Form.Field.Display({
-                                                            label: this.printText('admin/modules/modules/language'),
+                                                            label: this.printText('admin.modules.modules.language'),
                                                             name: 'language',
                                                         }),
                                                         new Admin.Form.Field.Display({
-                                                            label: this.printText('admin/modules/modules/hash'),
+                                                            label: this.printText('admin.modules.modules.hash'),
                                                             name: 'hash',
                                                         }),
                                                     ],
@@ -410,7 +786,7 @@ namespace modules {
                                     ],
                                 }),
                                 new Admin.Form.FieldSet({
-                                    title: this.printText('admin/modules/modules/show/details'),
+                                    title: this.printText('admin.modules.modules.show.details'),
                                     items: [
                                         new Admin.Form.Field.Display({
                                             name: 'description',
@@ -418,23 +794,23 @@ namespace modules {
                                     ],
                                 }),
                                 new Admin.Form.FieldSet({
-                                    title: this.printText('admin/modules/modules/show/properties/title'),
+                                    title: this.printText('admin.modules.modules.show.properties.title'),
                                     items: [
                                         new Admin.Form.Field.CheckGroup({
                                             name: 'properties',
                                             readonly: true,
                                             columns: 4,
                                             options: {
-                                                GLOBAL: this.printText('admin/modules/modules/show/properties/GLOBAL'),
-                                                ADMIN: this.printText('admin/modules/modules/show/properties/ADMIN'),
+                                                GLOBAL: this.printText('admin.modules.modules.show.properties.GLOBAL'),
+                                                ADMIN: this.printText('admin.modules.modules.show.properties.ADMIN'),
                                                 CONTEXT: this.printText(
-                                                    'admin/modules/modules/show/properties/CONTEXT'
+                                                    'admin.modules.modules.show.properties.CONTEXT'
                                                 ),
-                                                WIDGET: this.printText('admin/modules/modules/show/properties/WIDGET'),
-                                                THEME: this.printText('admin/modules/modules/show/properties/THEME'),
-                                                CRON: this.printText('admin/modules/modules/show/properties/CRON'),
+                                                WIDGET: this.printText('admin.modules.modules.show.properties.WIDGET'),
+                                                THEME: this.printText('admin.modules.modules.show.properties.THEME'),
+                                                CRON: this.printText('admin.modules.modules.show.properties.CRON'),
                                                 CONFIGS: this.printText(
-                                                    'admin/modules/modules/show/properties/CONFIGS'
+                                                    'admin.modules.modules.show.properties.CONFIGS'
                                                 ),
                                             },
                                         }),
@@ -445,7 +821,7 @@ namespace modules {
                     ],
                     buttons: [
                         new Admin.Button({
-                            text: this.printText('buttons/configs'),
+                            text: this.printText('buttons.configs'),
                             tabIndex: -1,
                             hidden: true,
                             handler: (button) => {
@@ -453,7 +829,7 @@ namespace modules {
                             },
                         }),
                         new Admin.Button({
-                            text: this.printText('buttons/close'),
+                            text: this.printText('buttons.close'),
                             buttonClass: 'confirm',
                             handler: (button: Admin.Button) => {
                                 const window = button.getParent() as Admin.Window;
@@ -480,10 +856,10 @@ namespace modules {
                                         button.show();
                                     }
                                 } else if (results.data.status == 'NEED_UPDATE') {
-                                    button.setText((await this.getText('buttons/update')) as string);
+                                    button.setText((await this.getText('buttons.update')) as string);
                                     button.show();
                                 } else {
-                                    button.setText((await this.getText('buttons/install')) as string);
+                                    button.setText((await this.getText('buttons.install')) as string);
                                     button.show();
                                 }
                             } else {
@@ -536,7 +912,7 @@ namespace modules {
                         items: [form],
                         buttons: [
                             new Admin.Button({
-                                text: this.printText('buttons/cancel'),
+                                text: this.printText('buttons.cancel'),
                                 tabIndex: -1,
                                 handler: (button: Admin.Button) => {
                                     const window = button.getParent() as Admin.Window;
@@ -544,7 +920,7 @@ namespace modules {
                                 },
                             }),
                             new Admin.Button({
-                                text: this.printText('buttons/ok'),
+                                text: this.printText('buttons.ok'),
                                 buttonClass: 'confirm',
                                 handler: async (button: Admin.Button) => {
                                     const window = button.getParent() as Admin.Window;
@@ -566,7 +942,6 @@ namespace modules {
                             show: (window: Admin.Window) => {
                                 const form = window.getItemAt(0) as Admin.Form.Panel;
                                 for (const field in response.configs ?? {}) {
-                                    console.log(field, form.getField(field));
                                     form.getField(field)?.setValue(response.configs[field]);
                                 }
                             },
@@ -595,12 +970,17 @@ namespace modules {
                 }
 
                 Admin.Message.loading(
-                    (await Admin.getText('actions/installing_status')) as string,
-                    (await Admin.getText('actions/installing')) as string,
+                    (await Admin.getText('actions.installing_status')) as string,
+                    (await Admin.getText('actions.installing')) as string,
                     'atom'
                 );
 
-                const results = await Admin.Ajax.post(this.getProcessUrl('module'), { name: name, configs: configs });
+                const results = await Admin.Ajax.post(
+                    this.getProcessUrl('module'),
+                    { name: name, configs: configs },
+                    {},
+                    false
+                );
                 if (results.success == true) {
                     Admin.Message.close();
                     (Admin.getComponent('modules') as Admin.Grid.Panel)?.getStore().reload();
