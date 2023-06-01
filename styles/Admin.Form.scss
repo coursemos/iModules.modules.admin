@@ -178,6 +178,7 @@ div[data-component][data-type='form'][data-role='field'] {
 
             &.column {
                 flex-direction: column;
+                align-items: stretch;
 
                 > div[data-component] {
                     &.flex {
@@ -248,6 +249,73 @@ div[data-component][data-type='form'][data-role='field'] {
         }
     }
 
+    > div[data-role='container'] > div[data-role='content'][data-field='date'] {
+        position: relative;
+        background: var(--input-background-default);
+        z-index: 0;
+        border: 1px solid var(--input-border-color-default);
+
+        &:has(input:focus) {
+            background: var(--input-background-focus);
+            border-color: var(--input-border-color-focus);
+        }
+
+        &.error {
+            background: var(--input-background-error);
+            border-color: var(--input-border-color-error) !important;
+        }
+
+        > input {
+            outline: none;
+            width: calc(100% - var(--text-height) - 1px);
+            height: calc(var(--text-height) - 2px);
+            box-sizing: border-box;
+            background: transparent;
+            padding: var(--padding-default);
+            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
+            font-size: var(--font-size-default);
+            font-family: var(--font-family-default);
+            color: var(--input-color-default);
+            border: 0;
+
+            &[disabled] {
+                cursor: not-allowed;
+                background-color: var(--input-background-disabled);
+            }
+        }
+
+        > button {
+            width: calc(var(--text-height) + 1px);
+            height: calc(var(--text-height) - 2px);
+            font-size: var(--font-size-default);
+            border: 0;
+            background: var(--button-background-default);
+            cursor: pointer;
+            border-left: 1px solid var(--input-border-color-default);
+
+            &:hover {
+                background: var(--button-background-hover);
+            }
+        }
+
+        > div[data-role='empty'] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100%;
+            height: var(--text-height);
+            border: 1px solid transparent;
+            box-sizing: border-box;
+            padding: var(--padding-default);
+            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
+            font-size: var(--font-size-default);
+            font-family: var(--font-family-default);
+            color: var(--input-color-help);
+            overflow: hidden;
+        }
+    }
+
     > div[data-role='container'] > div[data-role='content'][data-field='display'] {
         position: relative;
         background: var(--input-background-default);
@@ -263,6 +331,32 @@ div[data-component][data-type='form'][data-role='field'] {
             font-size: var(--font-size-default);
             font-family: var(--font-family-default);
             color: var(--input-color-default);
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='blocks'] {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        > div[data-component][data-type='form'][data-role='field'] {
+            > div[data-role='container'] {
+                > div[data-role='content'] {
+                    > div[data-role='fields'] {
+                        > div[data-component][data-type='form'][data-role='field'] {
+                            > div[data-role='container'] {
+                                > div[data-role='content'] {
+                                    > div[data-role='fields'] {
+                                        > div[data-component][data-type='form'][data-role='field'] {
+                                            flex: 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -1277,6 +1371,148 @@ div[data-component][data-type='list'][data-role='panel'].template {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+div[data-component][data-type='form'][data-role='calendar'] {
+    > div[data-role='container'] {
+        width: 320px;
+        border: 1px solid var(--input-border-color-default);
+        background: var(--input-background-default);
+        font-family: var(--font-family-default);
+        font-size: var(--font-size-default);
+
+        > div[data-role='top'] {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: stretch;
+            height: var(--title-height);
+            background: var(--title-background);
+
+            > button {
+                background: transparent;
+                border: 0;
+                cursor: pointer;
+                color: var(--title-color);
+                font-size: var(--font-size-default);
+
+                &[data-action='prev'],
+                &[data-action='next'] {
+                    width: var(--title-height);
+                    font-family: moimz;
+                    font-size: var(--font-size-large);
+                }
+
+                &[data-action='prev']::before {
+                    content: '\e908';
+                }
+
+                &[data-action='next']::before {
+                    content: '\e911';
+                }
+
+                &[data-action='month']::after {
+                    display: inline-block;
+                    padding-left: 8px;
+                    content: '\e910';
+                    font-family: moimz;
+                    font-size: var(--font-size-large);
+                }
+            }
+        }
+
+        > div[data-role='content'] {
+            > ul[data-role='days'] {
+                background: #d9d9d9;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+                list-style: none;
+                gap: 1px;
+                border-bottom: 1px solid #d9d9d9;
+
+                > li {
+                    flex-basis: 0;
+                    flex-grow: 1;
+                    height: 32px;
+                    line-height: 32px;
+                    text-align: center;
+                    background: #ececec;
+
+                    &[data-day='Su'] {
+                        color: #dc3535;
+                    }
+
+                    &[data-day='Sa'] {
+                        color: #0075f8;
+                    }
+                }
+            }
+
+            > ul[data-role='dates'] {
+                background: var(--input-border-color-default);
+                gap: 1px;
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                list-style: none;
+
+                > li {
+                    height: 32px;
+                    line-height: 32px;
+                    background: var(--input-background-default);
+                    text-align: center;
+                    cursor: pointer;
+
+                    &[data-day='Su'] {
+                        color: #dc3535;
+                    }
+
+                    &[data-day='Sa'] {
+                        color: #0075f8;
+                    }
+
+                    &:hover {
+                        background: var(--button-background-hover);
+                    }
+
+                    &.today {
+                        background: #bfdaf1;
+
+                        &:hover {
+                            background: var(--input-background-select);
+                            color: var(--input-color-select);
+                        }
+                    }
+
+                    &.selected {
+                        background: var(--input-background-select);
+                        color: var(--input-color-select);
+                    }
+
+                    &.disabled {
+                        color: var(--input-color-disabled);
+                    }
+                }
+            }
+        }
+
+        > div[data-role='bottom'] {
+            border-top: 1px solid var(--input-border-color-default);
+            padding: 8px 0px;
+
+            > button {
+                display: block;
+                background: var(--input-background-select);
+                color: var(--input-color-select);
+                height: var(--text-height);
+                margin: 0 auto;
+                font-size: var(--font-size-default);
+                border: 0;
+                padding: 0px 8px;
+                cursor: pointer;
             }
         }
     }

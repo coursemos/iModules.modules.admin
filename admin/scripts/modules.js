@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 21.
+ * @modified 2023. 6. 1.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -109,43 +109,39 @@ Admin.ready(async () => {
             openItem: (record) => {
                 me.showModule(record.data.name);
             },
-            openMenu: (record) => {
-                new Admin.Menu({
-                    title: record.data.title,
-                    items: [
-                        {
-                            text: me.printText('admin.modules.modules.show.title'),
-                            iconClass: 'xi xi-form-checkout',
-                            handler: () => {
-                                me.showModule(record.data.name);
-                            },
-                        },
-                        {
-                            text: me.printText('buttons.configs'),
-                            iconClass: 'xi xi-cog',
-                            hidden: record.data.properties.includes('CONFIGS') === false,
-                            handler: () => {
-                                me.setModuleConfigs(record.data.name);
-                            },
-                        },
-                        {
-                            text: me.printText('buttons.install'),
-                            iconClass: 'xi xi-new',
-                            hidden: record.data.status !== 'NOT_INSTALLED',
-                            handler: () => {
-                                me.installModule(record.data.name);
-                            },
-                        },
-                        {
-                            text: me.printText('buttons.update'),
-                            iconClass: 'xi xi-update',
-                            hidden: record.data.status !== 'NEED_UPDATE',
-                            handler: () => {
-                                me.installModule(record.data.name);
-                            },
-                        },
-                    ],
-                }).show();
+            openMenu: (menu, record) => {
+                menu.setTitle(record.get('title'));
+                menu.add({
+                    text: me.printText('admin.modules.modules.show.title'),
+                    iconClass: 'xi xi-form-checkout',
+                    handler: () => {
+                        me.showModule(record.data.name);
+                    },
+                });
+                menu.add({
+                    text: me.printText('buttons.configs'),
+                    iconClass: 'xi xi-cog',
+                    hidden: record.data.properties.includes('CONFIGS') === false,
+                    handler: () => {
+                        me.setModuleConfigs(record.data.name);
+                    },
+                });
+                menu.add({
+                    text: me.printText('buttons.install'),
+                    iconClass: 'xi xi-new',
+                    hidden: record.data.status !== 'NOT_INSTALLED',
+                    handler: () => {
+                        me.installModule(record.data.name);
+                    },
+                });
+                menu.add({
+                    text: me.printText('buttons.update'),
+                    iconClass: 'xi xi-update',
+                    hidden: record.data.status !== 'NEED_UPDATE',
+                    handler: () => {
+                        me.installModule(record.data.name);
+                    },
+                });
             },
         },
     });
