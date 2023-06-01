@@ -6,10 +6,22 @@
  * @file /modules/admin/scripts/Admin.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 namespace Admin {
     export namespace Button {
+        export interface Listeners extends Admin.Component.Listeners {
+            /**
+             * @type {Function} toggle - 버튼의 토글상태가 변경되었을 때
+             */
+            toggle?: (button: Admin.Button, pressed: boolean) => void;
+
+            /**
+             * @type {Function} click - 버튼이 클릭되었을 때
+             */
+            click?: (button: Admin.Button) => void;
+        }
+
         export interface Properties extends Admin.Component.Properties {
             /**
              * @type {string} text - 버튼텍스트
@@ -55,6 +67,21 @@ namespace Admin {
              * @type {Function} handler - 버튼 클릭 핸들러
              */
             handler?: (button: Admin.Button) => void;
+
+            /**
+             * @type {Admin.Menu} menu - 버튼메뉴
+             */
+            menu?: Admin.Menu;
+
+            /**
+             * @type {(Admin.Menu.Item|Admin.Menu.Item.Properties)[]} menus - 버튼메뉴
+             */
+            menus?: (Admin.Menu.Item | Admin.Menu.Item.Properties)[];
+
+            /**
+             * @type {Admin.Button.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.Button.Listeners;
         }
     }
 
@@ -70,6 +97,8 @@ namespace Admin {
         pressed: boolean;
         value: string | number;
         handler: Function;
+
+        menu: Admin.Menu;
 
         $button: Dom;
 
@@ -90,6 +119,23 @@ namespace Admin {
             this.pressed = this.properties.pressed === true;
             this.value = this.properties.value ?? null;
             this.handler = this.properties.handler ?? null;
+
+            if (this.properties.menu instanceof Admin.Menu) {
+                this.menu = this.properties.menu;
+            } else if (Array.isArray(this.properties.menus ?? null) == true && this.properties.menus.length > 0) {
+                this.menu = new Admin.Menu(this.properties.menus);
+            } else {
+                this.menu = null;
+            }
+
+            if (this.menu !== null) {
+                this.menu.addEvent('show', () => {
+                    this.$getButton().addClass('opened');
+                });
+                this.menu.addEvent('hide', () => {
+                    this.$getButton().removeClass('opened');
+                });
+            }
         }
 
         /**
@@ -104,6 +150,9 @@ namespace Admin {
                 if (this.tabIndex !== null) this.$button.setAttr('tabindex', this.tabIndex.toString());
                 if (this.buttonClass !== null) {
                     this.$button.addClass(...this.buttonClass.split(' '));
+                }
+                if (this.menu !== null) {
+                    this.$button.addClass('menu');
                 }
             }
 
@@ -245,12 +294,16 @@ namespace Admin {
          * 버튼 클릭이벤트를 처리한다.
          */
         onClick(): void {
-            if (this.toggle == true) {
-                this.setPressed(!this.pressed);
-            }
+            if (this.menu === null) {
+                if (this.toggle == true) {
+                    this.setPressed(!this.pressed);
+                }
 
-            if (this.handler !== null) {
-                this.handler(this);
+                if (this.handler !== null) {
+                    this.handler(this);
+                }
+            } else {
+                this.menu.showAt(this.$getButton(), 'y');
             }
 
             this.fireEvent('click', [this]);
@@ -258,6 +311,13 @@ namespace Admin {
     }
 
     export namespace SegmentedButton {
+        export interface Listeners extends Admin.Component.Listeners {
+            /**
+             * @type {Function} change - 분할버튼의 선택값이 변경되었을 때
+             */
+            change?: (button: Admin.SegmentedButton, value: any) => void;
+        }
+
         export interface Properties extends Admin.Component.Properties {
             /**
              * @type {'row'|'column'} direction - 선택버튼 방향
@@ -278,6 +338,11 @@ namespace Admin {
              * @type {boolean} value - 선택된 값
              */
             value?: string | number;
+
+            /**
+             * @type {Admin.SegmentedButton.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.SegmentedButton.Listeners;
         }
     }
 
@@ -323,7 +388,6 @@ namespace Admin {
 
                     item.addEvent('click', (button: Admin.Button) => {
                         if (button.isPressed() == true && this.toggle == false) {
-                            console.log('취소불가');
                             button.setPressed(true);
                             return;
                         }

@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 var Admin;
 (function (Admin) {
@@ -22,6 +22,7 @@ var Admin;
         pressed;
         value;
         handler;
+        menu;
         $button;
         /**
          * 버튼을 생성한다.
@@ -39,6 +40,23 @@ var Admin;
             this.pressed = this.properties.pressed === true;
             this.value = this.properties.value ?? null;
             this.handler = this.properties.handler ?? null;
+            if (this.properties.menu instanceof Admin.Menu) {
+                this.menu = this.properties.menu;
+            }
+            else if (Array.isArray(this.properties.menus ?? null) == true && this.properties.menus.length > 0) {
+                this.menu = new Admin.Menu(this.properties.menus);
+            }
+            else {
+                this.menu = null;
+            }
+            if (this.menu !== null) {
+                this.menu.addEvent('show', () => {
+                    this.$getButton().addClass('opened');
+                });
+                this.menu.addEvent('hide', () => {
+                    this.$getButton().removeClass('opened');
+                });
+            }
         }
         /**
          * 버튼 DOM 을 가져온다.
@@ -53,6 +71,9 @@ var Admin;
                     this.$button.setAttr('tabindex', this.tabIndex.toString());
                 if (this.buttonClass !== null) {
                     this.$button.addClass(...this.buttonClass.split(' '));
+                }
+                if (this.menu !== null) {
+                    this.$button.addClass('menu');
                 }
             }
             return this.$button;
@@ -181,11 +202,16 @@ var Admin;
          * 버튼 클릭이벤트를 처리한다.
          */
         onClick() {
-            if (this.toggle == true) {
-                this.setPressed(!this.pressed);
+            if (this.menu === null) {
+                if (this.toggle == true) {
+                    this.setPressed(!this.pressed);
+                }
+                if (this.handler !== null) {
+                    this.handler(this);
+                }
             }
-            if (this.handler !== null) {
-                this.handler(this);
+            else {
+                this.menu.showAt(this.$getButton(), 'y');
             }
             this.fireEvent('click', [this]);
         }
@@ -228,7 +254,6 @@ var Admin;
                     }
                     item.addEvent('click', (button) => {
                         if (button.isPressed() == true && this.toggle == false) {
-                            console.log('취소불가');
                             button.setPressed(true);
                             return;
                         }

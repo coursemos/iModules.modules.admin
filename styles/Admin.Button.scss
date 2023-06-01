@@ -6,7 +6,7 @@
  * @file /styles/Admin.Button.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 5. 30.
  */
 div[data-component][data-type='button'][data-role='button'] {
     > div[data-role='container'] {
@@ -117,6 +117,33 @@ div[data-component][data-type='button'][data-role='button'] {
                     &:focus {
                         &::before {
                             border-color: var(--button-border-color-focus-inset);
+                        }
+                    }
+                }
+
+                &.menu {
+                    > span {
+                        padding-right: 0;
+                    }
+
+                    &::after {
+                        display: inline-block;
+                        font-style: normal;
+                        width: calc(var(--text-height) - 2px);
+                        height: calc(var(--text-height) - 2px);
+                        line-height: calc(var(--text-height) - 2px - 1px);
+                        vertical-align: middle;
+                        text-align: center;
+                        font-size: inherit;
+                        color: inherit;
+                        text-align: center;
+                        content: '\e906';
+                        font-family: moimz;
+                    }
+
+                    &.opened {
+                        &::after {
+                            content: '\e905';
                         }
                     }
                 }
