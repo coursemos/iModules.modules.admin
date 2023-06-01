@@ -6,10 +6,27 @@
  * @file /modules/admin/scripts/Admin.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 6. 1.
  */
 namespace Admin {
     export namespace Window {
+        export interface Listeners extends Admin.Component.Listeners {
+            /**
+             * @var {Function} show - 윈도우가 보여질 떄
+             */
+            show?: (window: Admin.Window) => void;
+
+            /**
+             * @var {Function} hide - 윈도우가 숨겨질 떄
+             */
+            hide?: (window: Admin.Window) => void;
+
+            /**
+             * @var {Function} hide - 윈도우가 닫힐 떄
+             */
+            close?: (window: Admin.Window) => void;
+        }
+
         export interface Properties extends Admin.Component.Properties {
             /**
              * @type {boolean} modal - 모달창 여부
@@ -85,6 +102,11 @@ namespace Admin {
              * @type {Admin.Button[]} buttons - 버튼목록
              */
             buttons?: Admin.Button[];
+
+            /**
+             * @type {Admin.Component.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Admin.Window.Listeners;
         }
     }
     export class Window extends Admin.Component {
