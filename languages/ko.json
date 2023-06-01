@@ -34,7 +34,14 @@
             },
             "context_configs": "컨텍스트 설정",
             "theme_configs": "테마 설정",
-            "template_configs": "템플릿 설정"
+            "template_configs": "템플릿 설정",
+            "blocks": {
+                "add": "블럭추가",
+                "text": "텍스트블록"
+            },
+            "calendar": {
+                "today": "오늘"
+            }
         }
     },
     "admin": {

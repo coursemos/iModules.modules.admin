@@ -1,13 +1,3 @@
-/**
- * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
- *
- * 폼 클래스를 정의한다.
- *
- * @file /modules/admin/scripts/Admin.Form.ts
- * @author Arzz <arzz@arzz.com>
- * @license MIT License
- * @modified 2023. 5. 26.
- */
 var Admin;
 (function (Admin) {
     let Form;
@@ -339,6 +329,7 @@ var Admin;
                 for (const item of this.items) {
                     item.setDisabled(disabled);
                 }
+                super.setDisabled(disabled);
                 return this;
             }
             /**
@@ -819,6 +810,7 @@ var Admin;
                 errors = new Map();
                 direction = 'row';
                 gap;
+                $fields;
                 /**
                  * 필드 컨테이너를 생성한다.
                  *
@@ -866,6 +858,19 @@ var Admin;
                         }
                     }
                     super.initItems();
+                }
+                /**
+                 * 하위필드가 위치하는 DOM 객체를 가져온다.
+                 *
+                 * @return {Dom} $fields
+                 */
+                $getFields() {
+                    if (this.$fields === undefined) {
+                        this.$fields = Html.create('div', { 'data-role': 'fields' });
+                        this.$fields.addClass(this.direction);
+                        this.$fields.setStyle('gap', this.gap + 'px');
+                    }
+                    return this.$fields;
                 }
                 /**
                  * 필드 기본값을 적용한다.
@@ -1000,6 +1005,33 @@ var Admin;
                     return fields;
                 }
                 /**
+                 * 자식 컴포넌트를 추가한다.
+                 *
+                 * @param {Admin.Component} item - 추가할 컴포넌트
+                 * @param {number} position - 추가할 위치 (NULL 인 경우 제일 마지막 위치)
+                 */
+                append(item, position = null) {
+                    if (this.items === null) {
+                        this.items = [];
+                    }
+                    item.setParent(this);
+                    if (position === null || position >= (this.items.length ?? 0)) {
+                        this.items.push(item);
+                    }
+                    else if (position < 0 && Math.abs(position) >= (this.items.length ?? 0)) {
+                        this.items.unshift(item);
+                    }
+                    else {
+                        this.items.splice(position, 0, item);
+                    }
+                    if (this.isRendered() == true) {
+                        this.$getFields().append(item.$getComponent(), position);
+                        if (item.isRenderable() == true) {
+                            item.render();
+                        }
+                    }
+                }
+                /**
                  * 필드 라벨을 랜더링한다.
                  */
                 renderTop() {
@@ -1015,9 +1047,7 @@ var Admin;
                  * 필드 컨테이너에 속한 필드를 랜더링한다.
                  */
                 renderContent() {
-                    const $fields = Html.create('div', { 'data-role': 'fields' });
-                    $fields.addClass(this.direction);
-                    $fields.setStyle('gap', this.gap + 'px');
+                    const $fields = this.$getFields();
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
                         if (item.properties.flex !== undefined) {
@@ -1203,6 +1233,7 @@ var Admin;
                     else {
                         this.$getInput().removeAttr('disabled');
                     }
+                    super.setDisabled(disabled);
                     return this;
                 }
                 /**
@@ -1247,6 +1278,424 @@ var Admin;
                 }
             }
             Field.Text = Text;
+            class Date extends Admin.Form.Field.Base {
+                field = 'date';
+                emptyText;
+                format;
+                displayFormat;
+                absolute;
+                calendar;
+                $input;
+                $button;
+                $emptyText;
+                /**
+                 * 텍스트필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Text.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.emptyText = this.properties.emptyText ?? '';
+                    this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+                    this.format = this.properties.format ?? 'YYYY-MM-DD';
+                    this.displayFormat = this.properties.displayFormat ?? 'YYYY-MM-DD';
+                }
+                /**
+                 * 절대위치 목록 컴포넌트를 가져온다.
+                 *
+                 * @return {Admin.Absolute} absolute
+                 */
+                getAbsolute() {
+                    if (this.absolute === undefined) {
+                        this.absolute = new Admin.Absolute({
+                            $target: this.$getContent(),
+                            items: [this.getCalendar()],
+                            width: '100%',
+                            hideOnClick: true,
+                            listeners: {
+                                show: (absolute) => {
+                                    const rect = absolute.getRect();
+                                    const height = Html.get('body').getHeight();
+                                    if (rect.top - 100 > height - rect.bottom) {
+                                        absolute.setPosition(null, null, 'calc(100% - 1px)', 0);
+                                        //this.getList().setMaxHeight(rect.top - 10);
+                                    }
+                                    else {
+                                        absolute.setPosition('calc(100% - 1px)', null, null, 0);
+                                        //this.getList().setMaxHeight(height - rect.bottom - 10);
+                                    }
+                                    this.$getContent().addClass('expand');
+                                },
+                                hide: () => {
+                                    this.$getContent().removeClass('expand');
+                                },
+                            },
+                        });
+                    }
+                    return this.absolute;
+                }
+                /**
+                 * 달력 컴포넌트를 가져온다.
+                 *
+                 * @return {Admin.Form.Field.Date.Calendar} calendar
+                 */
+                getCalendar() {
+                    if (this.calendar === undefined) {
+                        this.calendar = new Admin.Form.Field.Date.Calendar({
+                            listeners: {
+                                change: (value) => {
+                                    this.setValue(value);
+                                    this.collapse();
+                                },
+                            },
+                        });
+                    }
+                    return this.calendar;
+                }
+                /**
+                 * INPUT 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput() {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('input', {
+                            type: 'text',
+                            name: this.inputName,
+                        });
+                        this.$input.on('input', () => {
+                            const value = this.$input.getValue();
+                            if (value.length == 0) {
+                                this.$getEmptyText().show();
+                            }
+                            else {
+                                this.$getEmptyText().hide();
+                                if (value.search(/^[0-9]{4}(\.|\-)?[0-9]{2}(\.|\-)?[0-9]{2}$/) === 0 &&
+                                    moment(value).isValid() == true) {
+                                    this.setValue(moment(value));
+                                    this.setError(false);
+                                }
+                                else {
+                                    this.setError(true, null);
+                                }
+                            }
+                        });
+                    }
+                    return this.$input;
+                }
+                /**
+                 * placeHolder DOM 객체를 가져온다.
+                 *
+                 * @return {Dom} $emptyText
+                 */
+                $getEmptyText() {
+                    if (this.$emptyText === undefined) {
+                        this.$emptyText = Html.create('div', { 'data-role': 'empty' });
+                    }
+                    return this.$emptyText;
+                }
+                /**
+                 * 버튼 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $button
+                 */
+                $getButton() {
+                    if (this.$button === undefined) {
+                        this.$button = Html.create('button', {
+                            type: 'button',
+                            class: 'mi mi-calendar',
+                        });
+                        this.$button.on('click', () => {
+                            this.expand();
+                        });
+                    }
+                    return this.$button;
+                }
+                /**
+                 * placeHolder 문자열을 설정한다.
+                 *
+                 * @param {string} emptyText - placeHolder (NULL 인 경우 표시하지 않음)
+                 */
+                setEmptyText(emptyText = null) {
+                    this.emptyText = emptyText === null || emptyText.length == 0 ? null : emptyText;
+                    if (this.isRendered() == true) {
+                        this.updateLayout();
+                    }
+                }
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성여부
+                 * @return {Admin.Form.Field.TextArea} this
+                 */
+                setDisabled(disabled) {
+                    if (disabled == true) {
+                        this.$getInput().setAttr('disabled', 'disabled');
+                        this.$getButton().setAttr('disabled', 'disabled');
+                    }
+                    else {
+                        this.$getInput().removeAttr('disabled');
+                        this.$getButton().removeAttr('disabled');
+                    }
+                    super.setDisabled(disabled);
+                    return this;
+                }
+                /**
+                 * 캘린더를 표시한다.
+                 */
+                expand() {
+                    this.getCalendar().setValue(this.value);
+                    this.getAbsolute().show();
+                }
+                /**
+                 * 캘린더를 숨긴다.
+                 */
+                collapse() {
+                    this.getAbsolute().hide();
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    if (typeof value == 'string') {
+                        if (moment(value).isValid() == true) {
+                            this.value = moment(value);
+                        }
+                        else {
+                            this.value = null;
+                        }
+                    }
+                    else if (value instanceof moment) {
+                        this.value = value;
+                    }
+                    if (this.value === null) {
+                        this.$getInput().setValue('');
+                        this.$getEmptyText().show();
+                    }
+                    else {
+                        this.$getInput().setValue(this.value.format(this.displayFormat));
+                        this.$getEmptyText().hide();
+                    }
+                    this.setError(false);
+                    super.setValue(this.value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {string} value
+                 */
+                getValue() {
+                    if (this.value instanceof moment) {
+                        return this.value.format(this.format);
+                    }
+                    return null;
+                }
+                /**
+                 * INPUT 태그를 랜더링한다.
+                 */
+                renderContent() {
+                    const $input = this.$getInput();
+                    this.$getContent().append($input);
+                    const $button = this.$getButton();
+                    this.$getContent().append($button);
+                }
+                /**
+                 * 필드 레이아웃을 업데이트한다.
+                 */
+                updateLayout() {
+                    super.updateLayout();
+                    if (this.properties.emptyText !== null) {
+                        const $emptyText = this.$getEmptyText();
+                        $emptyText.html(this.emptyText);
+                        this.$getContent().append($emptyText);
+                    }
+                    else {
+                        this.$getEmptyText().remove();
+                    }
+                }
+            }
+            Field.Date = Date;
+            (function (Date) {
+                class Calendar extends Admin.Component {
+                    type = 'form';
+                    role = 'calendar';
+                    $month;
+                    current;
+                    /**
+                     * 캘린더를 생성한다.
+                     *
+                     * @param {Admin.Form.Field.Date.Calendar.Properties} properties - 객체설정
+                     */
+                    constructor(properties = null) {
+                        super(properties);
+                        this.current = this.properties.current ?? moment().format('YYYY-MM-DD');
+                        this.$setTop();
+                        this.$setBottom();
+                    }
+                    /**
+                     * 설정된 현재 날짜를 moment 객체로 변경한다.
+                     *
+                     * @return {any} date
+                     */
+                    getCurrent() {
+                        return moment(this.current);
+                    }
+                    /**
+                     * 현재 월 버튼 DOM 을 가져온다.
+                     *
+                     * @return {Dom} $month
+                     */
+                    $getMonth() {
+                        if (this.$month === undefined) {
+                            this.$month = Html.create('button', { type: 'button', 'data-action': 'month' }, this.getCurrent().format('YYYY.MM'));
+                        }
+                        return this.$month;
+                    }
+                    /**
+                     * 이전달로 이동한다.
+                     */
+                    prevMonth() {
+                        const month = moment(this.$getContent().getData('month'));
+                        const prev = month.add(-1, 'month');
+                        this.$getMonth().html(prev.format('YYYY.MM'));
+                        this.renderCalendar(prev);
+                    }
+                    /**
+                     * 다음달로 이동한다.
+                     */
+                    nextMonth() {
+                        const month = moment(this.$getContent().getData('month'));
+                        const next = month.add(1, 'month');
+                        this.$getMonth().html(next.format('YYYY.MM'));
+                        this.renderCalendar(next);
+                    }
+                    /**
+                     * 날짜를 선택한다.
+                     *
+                     * @param {any} date
+                     */
+                    setValue(date) {
+                        if (typeof date == 'string' && moment(date).isValid() == true) {
+                            date = moment(date);
+                        }
+                        else if (date instanceof moment) {
+                        }
+                        else {
+                            date = moment();
+                        }
+                        if (this.current !== date.format('YYYY-MM-DD')) {
+                            this.fireEvent('change', [date]);
+                        }
+                        this.current = date.format('YYYY-MM-DD');
+                        this.renderContent();
+                    }
+                    /**
+                     * 년월 선택영역을 랜더링한다.
+                     */
+                    renderTop() {
+                        const $prev = Html.create('button', { type: 'button', 'data-action': 'prev' });
+                        this.$getTop().append($prev);
+                        $prev.on('mousedown', () => {
+                            this.prevMonth();
+                            $prev.setData('interval', setInterval(() => {
+                                this.prevMonth();
+                            }, 200), false);
+                        });
+                        $prev.on('mouseup', () => {
+                            if ($prev.getData('interval')) {
+                                clearInterval($prev.getData('interval'));
+                            }
+                        });
+                        $prev.on('mouseout', () => {
+                            if ($prev.getData('interval')) {
+                                clearInterval($prev.getData('interval'));
+                            }
+                        });
+                        const $month = this.$getMonth();
+                        this.$getTop().append($month);
+                        const $next = Html.create('button', { type: 'button', 'data-action': 'next' });
+                        $next.on('mousedown', () => {
+                            this.nextMonth();
+                            $next.setData('interval', setInterval(() => {
+                                this.nextMonth();
+                            }, 200), false);
+                        });
+                        $next.on('mouseup', () => {
+                            if ($next.getData('interval')) {
+                                clearInterval($next.getData('interval'));
+                            }
+                        });
+                        $next.on('mouseout', () => {
+                            if ($next.getData('interval')) {
+                                clearInterval($next.getData('interval'));
+                            }
+                        });
+                        this.$getTop().append($next);
+                    }
+                    /**
+                     * 캘린더를 랜더링한다.
+                     */
+                    renderContent() {
+                        this.renderCalendar();
+                    }
+                    /**
+                     * 오늘 선택버튼을 랜더링한다.
+                     */
+                    renderBottom() {
+                        const $button = Html.create('button', { type: 'button' });
+                        this.$getBottom().append($button);
+                        $button.html(Admin.printText('components.form.calendar.today'));
+                        $button.on('click', () => {
+                            const today = moment();
+                            this.$getMonth().html(today.format('YYYY.MM'));
+                            this.renderCalendar(today);
+                        });
+                    }
+                    /**
+                     * 캘린더를 랜더링한다.
+                     */
+                    renderCalendar(month = null) {
+                        month ??= this.getCurrent();
+                        this.$getContent().setData('month', month.format('YYYY-MM-DD'), false);
+                        this.$getContent().empty();
+                        const $days = Html.create('ul', { 'data-role': 'days' });
+                        const firstDate = month.set('date', 1);
+                        const startDay = firstDate.format('e');
+                        const startDate = firstDate.clone().add(startDay * -1, 'd');
+                        for (let i = 0; i < 7; i++) {
+                            const date = startDate.clone().add(i, 'd');
+                            const $day = Html.create('li', { 'data-day': date.format('dd') });
+                            $day.html(date.locale(Admin.getLanguage()).format('dd'));
+                            $days.append($day);
+                        }
+                        this.$getContent().append($days);
+                        const $dates = Html.create('ul', { 'data-role': 'dates' });
+                        for (let i = 0; i < 42; i++) {
+                            const date = startDate.clone().add(i, 'd');
+                            const $date = Html.create('li', { 'data-day': date.format('dd') });
+                            if (date.month() != firstDate.month()) {
+                                $date.addClass('disabled');
+                            }
+                            if (date.format('YYYY-MM-DD') == moment().format('YYYY-MM-DD')) {
+                                $date.addClass('today');
+                            }
+                            if (this.getCurrent().format('YYYY-MM-DD') == date.format('YYYY-MM-DD')) {
+                                $date.addClass('selected');
+                            }
+                            $date.html(date.format('D'));
+                            $date.on('click', () => {
+                                this.setValue(date);
+                            });
+                            $dates.append($date);
+                        }
+                        this.$getContent().append($dates);
+                    }
+                }
+                Date.Calendar = Calendar;
+            })(Date = Field.Date || (Field.Date = {}));
             class Password extends Admin.Form.Field.Text {
                 inputType = 'password';
             }
@@ -1308,6 +1757,145 @@ var Admin;
                 }
             }
             Field.Display = Display;
+            class Blocks extends Admin.Form.Field.Base {
+                field = 'blocks';
+                button;
+                blocks;
+                fieldContainer;
+                /**
+                 * 블럭 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Blocks.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.blocks = this.properties.blocks ?? {
+                        text: {
+                            text: Admin.printText('components.form.blocks.text'),
+                            iconClass: 'xi xi-caps',
+                            field: () => {
+                                return new Admin.Form.Field.Text({
+                                    name: 'text',
+                                });
+                            },
+                        },
+                    };
+                }
+                /**
+                 * 폼 패널의 하위 컴포넌트를 정의한다.
+                 */
+                initItems() {
+                    if (this.items === null) {
+                        this.items = [];
+                        this.items.push(this.getFieldContainer());
+                        this.items.push(this.getButton());
+                    }
+                    super.initItems();
+                }
+                /**
+                 * 블럭 추가 버튼을 가져온다.
+                 *
+                 * @return {Admin.Button} button
+                 */
+                getButton() {
+                    if (this.button === undefined) {
+                        this.button = new Admin.Button({
+                            iconClass: 'mi mi-plus',
+                            text: Admin.printText('components.form.blocks.add'),
+                            buttonClass: 'confirm',
+                            menu: new Admin.Menu({
+                                items: ((blocks) => {
+                                    const items = [];
+                                    for (const type in blocks) {
+                                        const block = blocks[type];
+                                        items.push(new Admin.Menu.Item({
+                                            text: block.text,
+                                            iconClass: block.iconClass ?? null,
+                                            handler: () => {
+                                                this.addBlock(type, block.field());
+                                            },
+                                        }));
+                                    }
+                                    return items;
+                                })(this.blocks),
+                            }),
+                        });
+                    }
+                    return this.button;
+                }
+                /**
+                 * 블럭에 추가된 필드를 구현할 컨테이너를 가져온다.
+                 *
+                 * @return {Admin.Button} button
+                 */
+                getFieldContainer() {
+                    if (this.fieldContainer === undefined) {
+                        this.fieldContainer = new Admin.Form.Field.Container({
+                            direction: 'column',
+                            items: [],
+                            gap: 5,
+                            hidden: true,
+                        });
+                    }
+                    return this.fieldContainer;
+                }
+                /**
+                 * 블럭 콘텐츠 데이터를 업데이트한다.
+                 */
+                updateValue() {
+                    const blocks = [];
+                    for (const block of this.getFieldContainer().getItems()) {
+                        const field = block.getItemAt(0);
+                        const data = {
+                            type: block.properties.blockType,
+                            value: field.getValue(),
+                        };
+                        blocks.push(data);
+                    }
+                    if (blocks.length == 0) {
+                        super.setValue(null);
+                    }
+                    else {
+                        super.setValue(blocks);
+                    }
+                }
+                /**
+                 * 블럭을 추가한다.
+                 *
+                 * @param {string} type - 블럭타입
+                 * @param {Admin.Form.Field.Base} field - 추가할 필드
+                 */
+                addBlock(type, field) {
+                    field.addEvent('change', () => {
+                        this.updateValue();
+                    });
+                    const block = new Admin.Form.Field.Container({
+                        blockType: type,
+                        items: [
+                            field,
+                            new Admin.Button({
+                                iconClass: 'mi mi-up',
+                            }),
+                            new Admin.Button({
+                                iconClass: 'mi mi-down',
+                            }),
+                            new Admin.Button({
+                                iconClass: 'mi mi-trash',
+                                buttonClass: 'danger',
+                                handler: (button) => {
+                                    console.log(button, button.getParent(), button.getParent().getParent());
+                                },
+                            }),
+                        ],
+                    });
+                    block.setParent(this);
+                    this.getFieldContainer().append(block);
+                    if (this.getFieldContainer().getItems().length > 0) {
+                        this.getFieldContainer().show();
+                    }
+                }
+            }
+            Field.Blocks = Blocks;
             class File extends Admin.Form.Field.Base {
                 type = 'form';
                 role = 'field';
@@ -1448,7 +2036,7 @@ var Admin;
                 /**
                  * 템플릿필드 클래스 생성한다.
                  *
-                 * @param {Admin.Form.Field.Theme.Properties} properties - 객체설정
+                 * @param {Admin.Form.Field.Image.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1567,7 +2155,7 @@ var Admin;
                  * @return {any} value - 값
                  */
                 getValue() {
-                    if (this.value === null || this.value.length !== 1) {
+                    if (this.value === null || this.value?.length !== 1) {
                         return null;
                     }
                     return this.value[0];
@@ -2176,6 +2764,7 @@ var Admin;
                     else {
                         this.$getInput().removeAttr('disabled');
                     }
+                    super.setDisabled(disabled);
                     return this;
                 }
                 /**
@@ -2412,7 +3001,7 @@ var Admin;
                 /**
                  * 페이지목록이 보일 DOM 을 가져온다.
                  *
-                 * @returns {Dom} $pages
+                 * @return {Dom} $pages
                  */
                 $getPages() {
                     if (this.$pages === undefined) {
