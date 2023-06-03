@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2023. 6. 3.
  */
 var Admin;
 (function (Admin) {
@@ -29,9 +29,7 @@ var Admin;
         collapsed;
         collapseDirection;
         minWidth;
-        maxWidth;
         minHeight;
-        maxHeight;
         left;
         right;
         top;
@@ -50,10 +48,10 @@ var Admin;
             this.resizable = this.properties.resizable ?? true;
             this.closable = this.properties.closable ?? true;
             this.movable = this.properties.movable ?? true;
+            this.maxWidth = this.properties.maxWidth ?? Html.get('body').getWidth();
+            this.maxHeight = this.properties.maxHeight ?? Html.get('body').getHeight();
             this.minWidth = this.properties.minWidth ?? null;
-            this.maxWidth = this.properties.maxWidth ?? null;
             this.minHeight = this.properties.minHeight ?? null;
-            this.maxHeight = this.properties.maxHeight ?? null;
             this.scrollable = this.properties.scrollable ?? 'Y';
             if (this.properties.title instanceof Admin.Title) {
                 this.title = this.properties.title;
@@ -135,31 +133,33 @@ var Admin;
         /**
          * 윈도우 최대너비를 설정한다.
          *
-         * @param {number} maxWidth - 최대너비
+         * @param {string|number} maxWidth - 최대너비
          */
         setMaxWidth(maxWidth) {
-            this.maxWidth = maxWidth;
             const bodyWidth = Html.get('body').getWidth();
-            maxWidth = Math.min(bodyWidth, maxWidth ?? bodyWidth);
-            if (maxWidth == null) {
-                this.$component.setStyle('maxWidth', 'auto');
+            maxWidth = maxWidth ?? bodyWidth;
+            if (typeof maxWidth == 'string') {
+                const rate = parseInt(maxWidth.replace('%', ''), 10);
+                maxWidth = Math.round((bodyWidth * rate) / 100);
             }
-            else {
-                this.$component.setStyle('maxWidth', maxWidth + 'px');
-            }
+            maxWidth = Math.min(bodyWidth, maxWidth);
+            super.setMaxWidth(maxWidth);
             this.resizer?.setMaxWidth(maxWidth);
         }
         /**
          * 윈도우 최대높이를 설정한다.
          *
-         * @param {number} maxHeight - 최대높이
+         * @param {string|number} maxHeight - 최대높이
          */
         setMaxHeight(maxHeight) {
-            this.maxHeight = maxHeight;
             const bodyHeight = Html.get('body').getHeight();
-            maxHeight = Math.min(bodyHeight, maxHeight ?? bodyHeight);
-            this.$component.setStyle('maxHeight', maxHeight + 'px');
-            this.$container.setStyle('maxHeight', maxHeight + 'px');
+            maxHeight = maxHeight ?? bodyHeight;
+            if (typeof maxHeight == 'string') {
+                const rate = parseInt(maxHeight.replace('%', ''), 10);
+                maxHeight = Math.round((bodyHeight * rate) / 100);
+            }
+            maxHeight = Math.min(bodyHeight, maxHeight);
+            super.setMaxHeight(maxHeight);
             this.resizer?.setMaxHeight(maxHeight);
         }
         /**
@@ -260,10 +260,10 @@ var Admin;
                 return;
             this.$getWindows().append(this.$component);
             this.render();
-            this.setWidth(this.width);
-            this.setMaxWidth(this.maxWidth);
-            this.setHeight(this.height);
-            this.setMaxHeight(this.maxHeight);
+            //this.setWidth(this.width);
+            //this.setMaxWidth(this.maxWidth);
+            //this.setHeight(this.height);
+            //this.setMaxHeight(this.maxHeight);
             this.setPosition(this.top, this.left);
             this.setFront();
             super.show();
