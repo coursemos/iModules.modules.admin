@@ -54,6 +54,10 @@ namespace Admin {
 
         type: string = 'menu';
         role: string = 'menu';
+
+        $target: Dom | PointerEvent = null;
+        direction: string = null;
+
         x: number;
         y: number;
 
@@ -73,7 +77,7 @@ namespace Admin {
             super(properties);
 
             this.once = this.properties.once === true;
-            this.scrollable = 'Y';
+            this.scrollable = 'y';
 
             if (this.properties.title instanceof Admin.Title) {
                 this.title = this.properties.title;
@@ -143,6 +147,107 @@ namespace Admin {
         }
 
         /**
+         * 절대위치의 대상 DOM 의 위치를 가져온다.
+         *
+         * @return {Object} rect
+         */
+        getTargetRect(): { top: number; bottom: number; left: number; right: number } {
+            const targetRect: {
+                top: number;
+                bottom: number;
+                left: number;
+                right: number;
+            } = { top: 0, bottom: 0, left: 0, right: 0 };
+
+            if (this.$target instanceof Dom) {
+                const rect = this.$target.getEl()?.getBoundingClientRect() ?? null;
+                if (rect !== null) {
+                    targetRect.top = rect.top;
+                    targetRect.bottom = rect.bottom;
+                    targetRect.left = rect.left;
+                    targetRect.right = rect.right;
+                }
+            } else if (this.$target instanceof Event) {
+                targetRect.top = targetRect.bottom = this.$target.y;
+                targetRect.left = targetRect.right = this.$target.x;
+            }
+
+            return targetRect;
+        }
+
+        /**
+         * 메뉴 DOM 의 크기를 가져온다.
+         *
+         * @return {Object} rect
+         */
+        getMenuRect(): { width: number; height: number } {
+            const absoluteRect: {
+                width: number;
+                height: number;
+            } = { width: 0, height: 0 };
+
+            const rect = this.$getComponent().getEl()?.getBoundingClientRect() ?? null;
+            if (rect !== null) {
+                absoluteRect.width = rect.width;
+                absoluteRect.height = rect.height;
+            }
+
+            return absoluteRect;
+        }
+
+        /**
+         * 절대위치 기준점을 대상의 위치에 따라 적절하게 가져온다.
+         *
+         * @return {Object} position
+         */
+        getPosition(): {
+            top?: number;
+            bottom?: number;
+            left?: number;
+            right?: number;
+            maxWidth?: number;
+            maxHeight?: number;
+        } {
+            const position: {
+                top?: number;
+                bottom?: number;
+                left?: number;
+                right?: number;
+                maxWidth?: number;
+                maxHeight?: number;
+            } = {};
+            const targetRect = this.getTargetRect();
+            const absoluteRect = this.getMenuRect();
+            const windowRect = { width: window.innerWidth, height: window.innerHeight };
+
+            /**
+             * 대상의 DOM 을 기준으로 상/하 위치에 보여줄 경우
+             */
+            if (this.direction == 'y') {
+                if (
+                    targetRect.bottom > windowRect.height / 2 &&
+                    absoluteRect.height > windowRect.height - targetRect.bottom
+                ) {
+                    position.bottom = windowRect.height - targetRect.top;
+                    position.maxHeight = windowRect.height - position.bottom - 10;
+                } else {
+                    position.top = targetRect.bottom;
+                    position.maxHeight = windowRect.height - position.top - 10;
+                }
+
+                if (targetRect.left + absoluteRect.width > windowRect.width) {
+                    position.right = windowRect.width - targetRect.right;
+                    position.maxWidth = windowRect.width - position.right - 10;
+                } else {
+                    position.left = targetRect.left;
+                    position.maxWidth = windowRect.width - position.left - 10;
+                }
+            }
+
+            return position;
+        }
+
+        /**
          * 메뉴의 제목을 설정한다.
          *
          * @param {string} title - 제목
@@ -195,10 +300,10 @@ namespace Admin {
         /**
          * 특정 DOM 위치에 의해 메뉴를 출력한다.
          *
-         * @param {Dom|PointerEvent} dom - 메뉴를 출력할 기준이 되는 DOM 객체 또는 기준이 되는 포인터위치
+         * @param {Dom|PointerEvent} $target - 메뉴를 출력할 기준이 되는 DOM 객체 또는 기준이 되는 포인터위치
          * @param {'x'|'y'} direction - 메뉴를 출력할 축
          */
-        showAt(dom: Dom | PointerEvent, direction: 'x' | 'y'): void {
+        showAt($target: Dom | PointerEvent, direction: 'x' | 'y'): void {
             this.$getComponent().removeAttr('style');
             this.setHidden(false);
 
@@ -206,13 +311,15 @@ namespace Admin {
             this.$getMenu().append(this.$getComponent());
             this.render();
 
-            const minWidth = dom instanceof Dom ? dom.getOuterWidth() : 150;
+            const minWidth = $target instanceof Dom ? $target.getOuterWidth() : 150;
 
             if (direction == 'y') {
                 this.$getComponent().setStyle('min-width', minWidth + 'px');
             }
 
-            const position = Admin.Absolute.getPosition(dom, this.$getComponent(), 'y');
+            this.$target = $target;
+            this.direction = direction;
+            const position = this.getPosition();
             for (const key in position) {
                 this.$getComponent().setStyle(key, position[key] + 'px');
             }
