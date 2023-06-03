@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 3.
+ * @modified 2023. 6. 4.
  */
 var Admin;
 (function (Admin) {
@@ -110,8 +110,9 @@ var Admin;
              * @param {('up'|'down')} direction - 방향
              */
             moveFocusedRow(direction) {
-                const $items = Html.all('> li', this.$getList());
-                if ($items.getList().length == 0) {
+                const $list = this.$getList();
+                const $items = Html.all('> li', $list);
+                if ($items.getCount() == 0) {
                     return;
                 }
                 let index = this.getFocusedRowIndex();
@@ -122,6 +123,17 @@ var Admin;
                 if (!~index)
                     index = 0;
                 this.focusRow(index);
+                const $focused = Html.get('> li.focused', $list);
+                if ($focused.getEl() !== null) {
+                    const position = $focused.getPosition();
+                    if (position.top < 0) {
+                        this.getScrollbar().movePosition(0, position.top);
+                    }
+                    if (position.top + $focused.getOuterHeight() > this.getScrollbar().getTargetSize('y')) {
+                        this.getScrollbar().movePosition(0, position.top + $focused.getOuterHeight() - this.getScrollbar().getTargetSize('y'));
+                    }
+                }
+                this.fireEvent('move', [$focused.getData('record'), index, this]);
             }
             /**
              * 현재 포커스가 존재하는 라인의 인덱스를 가져온다.

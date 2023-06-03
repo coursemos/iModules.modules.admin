@@ -6,11 +6,28 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 3.
+ * @modified 2023. 6. 4.
  */
 namespace Admin {
     export namespace List {
         export namespace Panel {
+            export interface Listeners extends Admin.Component.Listeners {
+                /**
+                 * @type {Function} move - 포커스가 키보드를 통해 이동되었을 때
+                 */
+                move?: (record: Admin.Data.Record, index: number, list: Admin.List.Panel) => void;
+
+                /**
+                 * @type {Function} selectionChange - 선택사항이 변경되었을 때
+                 */
+                selectionChange?: (selections: Admin.Data.Record[], list: Admin.List.Panel) => void;
+
+                /**
+                 * @type {Function} selectionComplete - 선택이 종료되었을 때
+                 */
+                selectionComplete?: (selections: Admin.Data.Record[], list: Admin.List.Panel) => void;
+            }
+
             export interface Properties extends Admin.Base.Properties {
                 /**
                  * @type {Admin.Store} store - 목록 store
@@ -71,6 +88,11 @@ namespace Admin {
                  * @type {boolean} hideOnEmpty - 선택값이 없을 경우 숨김여부
                  */
                 hideOnEmpty?: boolean;
+
+                /**
+                 * @type {Admin.List.Panel.Listeners} listeners - 이벤트리스너
+                 */
+                listeners?: Admin.List.Panel.Listeners;
             }
         }
 
@@ -192,8 +214,9 @@ namespace Admin {
              * @param {('up'|'down')} direction - 방향
              */
             moveFocusedRow(direction: 'up' | 'down'): void {
-                const $items = Html.all('> li', this.$getList());
-                if ($items.getList().length == 0) {
+                const $list = this.$getList();
+                const $items = Html.all('> li', $list);
+                if ($items.getCount() == 0) {
                     return;
                 }
 
@@ -203,6 +226,23 @@ namespace Admin {
                 if (!~index) index = 0;
 
                 this.focusRow(index);
+
+                const $focused = Html.get('> li.focused', $list);
+                if ($focused.getEl() !== null) {
+                    const position = $focused.getPosition();
+                    if (position.top < 0) {
+                        this.getScrollbar().movePosition(0, position.top);
+                    }
+
+                    if (position.top + $focused.getOuterHeight() > this.getScrollbar().getTargetSize('y')) {
+                        this.getScrollbar().movePosition(
+                            0,
+                            position.top + $focused.getOuterHeight() - this.getScrollbar().getTargetSize('y')
+                        );
+                    }
+                }
+
+                this.fireEvent('move', [$focused.getData('record'), index, this]);
             }
 
             /**
