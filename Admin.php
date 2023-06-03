@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 3.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -532,6 +532,7 @@ class Admin extends \Module
                 $theme = $site->getTheme();
                 $theme->assign('site', $site);
                 $theme->assign('route', \Router::get('/'));
+                $theme->assign('context', \Contexts::get(\Router::get('/')));
                 return $theme->getLayout('NONE', $theme->getPage($page));
             }
         } else {
