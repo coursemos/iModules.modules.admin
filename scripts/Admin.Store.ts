@@ -541,8 +541,8 @@ namespace Admin {
                         if (results.success == true) {
                             this.loaded = true;
                             this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields);
-                            this.count = results.records.length;
-                            this.total = results[this.totalField] ?? 0;
+                            this.count = results[this.recordsField].length;
+                            this.total = results[this.totalField] ?? this.count;
 
                             this.onLoad();
                         }
