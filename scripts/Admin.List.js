@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 27.
+ * @modified 2023. 6. 3.
  */
 var Admin;
 (function (Admin) {
@@ -23,7 +23,6 @@ var Admin;
             displayField;
             valueField;
             renderer;
-            maxHeight;
             hideOnEmpty;
             loading;
             $list;
@@ -61,15 +60,6 @@ var Admin;
                     direction: 'column',
                     text: this.properties.loadingText ?? null,
                 });
-            }
-            /**
-             * 목록의 최대높이를 설정한다.
-             *
-             * @param {number} maxHeight - 최대높이
-             */
-            setMaxHeight(maxHeight) {
-                this.maxHeight = maxHeight;
-                this.$getContent().setStyle('max-height', this.maxHeight === null ? this.maxHeight : this.maxHeight + 'px');
             }
             /**
              * 데이터스토어를 가져온다.

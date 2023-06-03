@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.List.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 27.
+ * @modified 2023. 6. 3.
  */
 namespace Admin {
     export namespace List {
@@ -53,11 +53,6 @@ namespace Admin {
                 listField?: string;
 
                 /**
-                 * @type {number} maxHeight - 목록 최대높이
-                 */
-                maxHeight?: number;
-
-                /**
                  * @type {Function} renderer - 선택된 항목을 보일 때 사용할 렌더링 함수
                  */
                 renderer?: (display: string, record: Admin.Data.Record, $dom: Dom, list: Admin.List.Panel) => string;
@@ -93,7 +88,6 @@ namespace Admin {
             valueField: string;
             renderer: (display: string, record: Admin.Data.Record, $dom: Dom, list: Admin.List.Panel) => string;
 
-            maxHeight: number;
             hideOnEmpty: boolean;
 
             loading: Admin.Loading;
@@ -140,20 +134,6 @@ namespace Admin {
                     direction: 'column',
                     text: this.properties.loadingText ?? null,
                 });
-            }
-
-            /**
-             * 목록의 최대높이를 설정한다.
-             *
-             * @param {number} maxHeight - 최대높이
-             */
-            setMaxHeight(maxHeight: number): void {
-                this.maxHeight = maxHeight;
-
-                this.$getContent().setStyle(
-                    'max-height',
-                    this.maxHeight === null ? this.maxHeight : this.maxHeight + 'px'
-                );
             }
 
             /**
