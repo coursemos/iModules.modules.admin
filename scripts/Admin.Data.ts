@@ -14,7 +14,7 @@ namespace Admin {
         records: Admin.Data.Record[] = [];
         fields: { [key: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' } = {};
         sorting: boolean;
-        sorters: { field: string; direction: string }[];
+        sorters: { [field: string]: 'ASC' | 'DESC' };
         filtering: boolean;
         filters: { [field: string]: { value: any; operator: string } };
 
@@ -49,9 +49,9 @@ namespace Admin {
 
             this.originRecoreds = this.records;
             this.sorting = false;
-            this.sorters = [];
+            this.sorters = null;
             this.filtering = false;
-            this.filters = {};
+            this.filters = null;
         }
 
         /**
@@ -113,23 +113,34 @@ namespace Admin {
          * 데이터를 정렬한다.
          *
          * @param {Object} sorters - 정렬기준
+         * @param {boolean} execute - 실제 정렬을 할지 여부
          */
-        async sort(sorters: { field: string; direction: string }[]): Promise<void> {
+        async sort(sorters: { [field: string]: 'ASC' | 'DESC' }, execute: boolean = true): Promise<void> {
+            if (execute === false) {
+                this.sorters = sorters;
+                return;
+            }
+
             if (this.sorting == true) {
+                return;
+            }
+
+            if (sorters === null) {
+                this.sorters = null;
                 return;
             }
 
             this.sorting = true;
             this.records.sort((left: Admin.Data.Record, right: Admin.Data.Record) => {
-                for (const sorter of sorters) {
-                    sorter.direction = sorter.direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
-                    const leftValue = left.get(sorter.field);
-                    const rightValue = right.get(sorter.field);
+                for (const field in sorters) {
+                    const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                    const leftValue = left.get(field);
+                    const rightValue = right.get(field);
 
                     if (leftValue < rightValue) {
-                        return sorter.direction == 'DESC' ? 1 : -1;
+                        return direction == 'DESC' ? 1 : -1;
                     } else if (leftValue > rightValue) {
-                        return sorter.direction == 'ASC' ? 1 : -1;
+                        return direction == 'ASC' ? 1 : -1;
                     }
                 }
 
@@ -143,9 +154,23 @@ namespace Admin {
          * 데이터를 필터링한다.
          *
          * @param {Object} filters - 필터기준
+         * @param {boolean} execute - 실제 필터링을 할지 여부
          */
-        async filter(filters: { [field: string]: { value: any; operator: string } }): Promise<void> {
+        async filter(
+            filters: { [field: string]: { value: any; operator: string } },
+            execute: boolean = true
+        ): Promise<void> {
+            if (execute === false) {
+                this.filters = filters;
+                return;
+            }
+
             if (this.filtering == true) {
+                return;
+            }
+
+            if (filters === null) {
+                this.filters = null;
                 return;
             }
 

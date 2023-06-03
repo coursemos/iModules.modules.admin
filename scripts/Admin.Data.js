@@ -44,9 +44,9 @@ var Admin;
             }
             this.originRecoreds = this.records;
             this.sorting = false;
-            this.sorters = [];
+            this.sorters = null;
             this.filtering = false;
-            this.filters = {};
+            this.filters = null;
         }
         /**
          * 데이터를 타입을 지정하여 반환한다.
@@ -99,22 +99,31 @@ var Admin;
          * 데이터를 정렬한다.
          *
          * @param {Object} sorters - 정렬기준
+         * @param {boolean} execute - 실제 정렬을 할지 여부
          */
-        async sort(sorters) {
+        async sort(sorters, execute = true) {
+            if (execute === false) {
+                this.sorters = sorters;
+                return;
+            }
             if (this.sorting == true) {
+                return;
+            }
+            if (sorters === null) {
+                this.sorters = null;
                 return;
             }
             this.sorting = true;
             this.records.sort((left, right) => {
-                for (const sorter of sorters) {
-                    sorter.direction = sorter.direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
-                    const leftValue = left.get(sorter.field);
-                    const rightValue = right.get(sorter.field);
+                for (const field in sorters) {
+                    const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                    const leftValue = left.get(field);
+                    const rightValue = right.get(field);
                     if (leftValue < rightValue) {
-                        return sorter.direction == 'DESC' ? 1 : -1;
+                        return direction == 'DESC' ? 1 : -1;
                     }
                     else if (leftValue > rightValue) {
-                        return sorter.direction == 'ASC' ? 1 : -1;
+                        return direction == 'ASC' ? 1 : -1;
                     }
                 }
                 return 0;
@@ -126,9 +135,18 @@ var Admin;
          * 데이터를 필터링한다.
          *
          * @param {Object} filters - 필터기준
+         * @param {boolean} execute - 실제 필터링을 할지 여부
          */
-        async filter(filters) {
+        async filter(filters, execute = true) {
+            if (execute === false) {
+                this.filters = filters;
+                return;
+            }
             if (this.filtering == true) {
+                return;
+            }
+            if (filters === null) {
+                this.filters = null;
                 return;
             }
             this.filtering = true;

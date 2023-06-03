@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2023. 6. 4.
  */
 var Admin;
 (function (Admin) {
@@ -33,13 +33,10 @@ var Admin;
             this.primaryKeys = this.properties.primaryKeys ?? [];
             this.fields = this.properties.fields ?? [];
             this.params = this.properties.params ?? null;
-            this.sorters = this.properties.sorters ?? [];
+            this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
-            this.filters = this.properties.filters ?? {};
+            this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
-            if (this.properties.sorter) {
-                this.sorters.push({ field: this.properties.sorter[0], direction: this.properties.sorter[1] });
-            }
         }
         /**
          * 데이터가 로딩되었는지 확인한다.
@@ -208,12 +205,14 @@ var Admin;
          * @param {string} direction - 정렬방향 (asc, desc)
          */
         sort(field, direction) {
-            this.multiSort([{ field: field, direction: direction }]);
+            let sorters = {};
+            sorters[field] = direction;
+            this.multiSort(sorters);
         }
         /**
          * 데이터를 다중 정렬기준에 따라 정렬한다.
          *
-         * @param {Object} sorters - 정렬기준 [{field:string, direction:(ASC|DESC)}, ...]
+         * @param {Object} sorters - 정렬기준
          */
         async multiSort(sorters) {
             this.sorters = sorters;
@@ -234,6 +233,7 @@ var Admin;
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
         setFilter(field, value, operator = '=') {
+            this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
             this.filter();
         }
@@ -250,7 +250,7 @@ var Admin;
          * 모든 필터를 초기화한다.
          */
         resetFilter() {
-            this.filters = {};
+            this.filters = null;
             this.filter();
         }
         /**
@@ -294,7 +294,7 @@ var Admin;
                 }
             }
             else if (Format.isEqual(this.data?.filters, this.filters) == false) {
-                if (this.remoteSort == true) {
+                if (this.remoteFilter == true) {
                     this.reload();
                 }
                 else {
@@ -394,6 +394,14 @@ var Admin;
                     return;
                 }
                 this.loading = true;
+                if (this.remoteSort == true && this.sorters !== null) {
+                    this.params ??= {};
+                    this.params.sorters = JSON.stringify(this.sorters);
+                }
+                if (this.remoteFilter == true && this.filters !== null) {
+                    this.params ??= {};
+                    this.params.filters = JSON.stringify(this.filters);
+                }
                 Admin.Ajax.get(this.url, this.params)
                     .then((results) => {
                     if (results.success == true) {
@@ -401,6 +409,19 @@ var Admin;
                         this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields);
                         this.count = results[this.recordsField].length;
                         this.total = results[this.totalField] ?? this.count;
+                        if (this.remoteSort == true) {
+                            const sorters = this.params?.sorters ? JSON.parse(this.params.sorters) : null;
+                            if (sorters !== null) {
+                                this.data.sort(sorters, false);
+                            }
+                        }
+                        if (this.remoteFilter == true) {
+                            const filters = this.params?.filters ? JSON.parse(this.params.filters) : null;
+                            if (filters !== null) {
+                                this.data.filter(filters, false);
+                            }
+                        }
+                        this.loading = false;
                         this.onLoad();
                     }
                     this.loading = false;
