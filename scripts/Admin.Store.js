@@ -394,13 +394,23 @@ var Admin;
                     return;
                 }
                 this.loading = true;
-                if (this.remoteSort == true && this.sorters !== null) {
+                if (this.remoteSort == true) {
                     this.params ??= {};
-                    this.params.sorters = JSON.stringify(this.sorters);
+                    if (this.sorters === null) {
+                        this.params.sorters = null;
+                    }
+                    else {
+                        this.params.sorters = JSON.stringify(this.sorters);
+                    }
                 }
-                if (this.remoteFilter == true && this.filters !== null) {
+                if (this.remoteFilter == true) {
                     this.params ??= {};
-                    this.params.filters = JSON.stringify(this.filters);
+                    if (this.filters === null) {
+                        this.params.filters = null;
+                    }
+                    else {
+                        this.params.filters = JSON.stringify(this.filters);
+                    }
                 }
                 Admin.Ajax.get(this.url, this.params)
                     .then((results) => {
@@ -411,15 +421,11 @@ var Admin;
                         this.total = results[this.totalField] ?? this.count;
                         if (this.remoteSort == true) {
                             const sorters = this.params?.sorters ? JSON.parse(this.params.sorters) : null;
-                            if (sorters !== null) {
-                                this.data.sort(sorters, false);
-                            }
+                            this.data.sort(sorters, false);
                         }
                         if (this.remoteFilter == true) {
                             const filters = this.params?.filters ? JSON.parse(this.params.filters) : null;
-                            if (filters !== null) {
-                                this.data.filter(filters, false);
-                            }
+                            this.data.filter(filters, false);
                         }
                         this.loading = false;
                         this.onLoad();
