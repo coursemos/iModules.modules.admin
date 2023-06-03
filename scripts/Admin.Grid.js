@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 3.
  */
 var Admin;
 (function (Admin) {
@@ -1028,7 +1028,7 @@ var Admin;
                     $group.setData('role', 'group');
                     const $text = Html.create('div').setData('role', 'text');
                     $text.addClass(this.headerAlign);
-                    $text.text(this.text);
+                    $text.html(this.text);
                     $group.append($text);
                     let $children = Html.create('div').setData('role', 'columns');
                     for (let child of this.getChildren()) {
@@ -1052,7 +1052,7 @@ var Admin;
                     $header.addClass(this.headerVerticalAlign);
                     const $label = Html.create('label');
                     $label.addClass(this.headerAlign);
-                    $label.text(this.text);
+                    $label.html(this.text);
                     $header.append($label);
                     const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
                     $header.append($button);
