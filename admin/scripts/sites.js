@@ -247,7 +247,7 @@ Admin.ready(async () => {
                 store: new Admin.Store.Ajax({
                     url: me.getProcessUrl('contexts'),
                     primaryKeys: ['host', 'language', 'path'],
-                    sorters: [{ field: 'sort', direction: 'ASC' }],
+                    sorters: { sort: 'ASC' },
                 }),
                 listeners: {
                     openItem: (record) => {
