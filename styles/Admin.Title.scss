@@ -6,7 +6,7 @@
  * @file /styles/Admin.Title.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2022. 12. 7.
+ * @modified 2023. 6. 2.
  */
 div[data-component][data-type='title'][data-role='title'] {
     > div[data-role='container'] {
@@ -46,16 +46,19 @@ div[data-component][data-type='title'][data-role='title'] {
                 display: inline-block;
                 vertical-align: top;
                 font-size: var(--font-size-default);
-                width: calc(100% - 34px);
+                width: 100%;
                 height: calc(var(--title-height) - var(--padding-large) * 2);
                 line-height: calc(var(--title-height) - var(--padding-large) * 2);
                 font-family: var(--font-family-default);
                 padding-left: var(--padding-default);
                 box-sizing: border-box;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
 
             > i + span {
                 padding-left: 0;
+                width: calc(100% - 34px);
             }
 
             &.movable {
