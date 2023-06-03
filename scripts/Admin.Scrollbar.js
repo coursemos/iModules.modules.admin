@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Scrollbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 6. 3.
  */
 var Admin;
 (function (Admin) {
@@ -134,6 +134,20 @@ var Admin;
             return this.$scrollbar[direction];
         }
         /**
+         * 스크롤되는 영역의 크기를 가져온다.
+         *
+         * @param {'x'|'y'} direction - 스크롤 영역을 가져올 스크롤롤축
+         * @return {number} offset
+         */
+        getTargetSize(direction) {
+            if (direction == 'x') {
+                return this.$target.getOuterWidth();
+            }
+            else {
+                return this.$target.getOuterHeight();
+            }
+        }
+        /**
          * 스크롤 가능영역을 가져온다.
          *
          * @param {'x'|'y'} direction - 스크롤 영역을 가져올 스크롤롤축
@@ -141,10 +155,10 @@ var Admin;
          */
         getScrollOffset(direction) {
             if (direction == 'x') {
-                return this.$target.getScrollWidth() - this.$target.getOuterWidth();
+                return this.$target.getScrollWidth() - this.getTargetSize(direction);
             }
             else {
-                return this.$target.getScrollHeight() - this.$target.getOuterHeight();
+                return this.$target.getScrollHeight() - this.getTargetSize(direction);
             }
         }
         /**
