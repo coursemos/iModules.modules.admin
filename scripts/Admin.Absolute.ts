@@ -9,6 +9,20 @@
  * @modified 2023. 5. 30.
  */
 namespace Admin {
+    export namespace Absolute {
+        export interface Properties extends Admin.Component.Properties {
+            /**
+             * @type {Dom|PointerEvent} $target - 절대위치객체를 출력하기 위한 기준 대상의 객체
+             */
+            $target: Dom | PointerEvent;
+
+            /**
+             * @type {'x'|'y'} direction - 대상위치에서 절대위치객체를 출력할 축
+             */
+            direction: 'x' | 'y';
+        }
+    }
+
     export class Absolute extends Admin.Component {
         static $absolutes: Dom;
         static $absolute: Map<string, Dom> = new Map();
@@ -18,14 +32,13 @@ namespace Admin {
         type: string = 'absolute';
         role: string = 'absolute';
 
-        $target: Dom;
-
-        top: number | string;
-        bottom: number | string;
-        left: number | string;
-        right: number | string;
+        $target: Dom | PointerEvent;
+        direction: string;
 
         hideOnClick: boolean;
+
+        latestTargetRect: { top: number; bottom: number; left: number; right: number };
+        latestAbsoluteRect: { width: number; height: number };
 
         /**
          * 버튼을 생성한다.
@@ -35,11 +48,8 @@ namespace Admin {
         constructor(properties: { [key: string]: any } = null) {
             super(properties);
 
-            this.$target = this.properties.$target ?? Html.get('body');
-            this.top = this.properties.top ?? null;
-            this.bottom = this.properties.bottom ?? null;
-            this.left = this.properties.left ?? null;
-            this.right = this.properties.right ?? null;
+            this.$target = this.properties.$target ?? null;
+            this.direction = this.properties.direction ?? 'y';
             this.hideOnClick = this.properties.hideOnClick === true;
         }
 
@@ -66,65 +76,140 @@ namespace Admin {
         /**
          * 절대위치의 대상 DOM 의 위치를 가져온다.
          *
-         * @return {Object} position
+         * @return {Object} rect
          */
-        getRect(): DOMRect {
-            return this.$target.getEl().getBoundingClientRect();
-        }
+        getTargetRect(): { top: number; bottom: number; left: number; right: number } {
+            const targetRect: {
+                top: number;
+                bottom: number;
+                left: number;
+                right: number;
+            } = { top: 0, bottom: 0, left: 0, right: 0 };
 
-        /**
-         * 절대위치의 대상 DOM 위치를 추적하여 컴포넌트의 위치를 조절한다.
-         */
-        setRect(): void {
-            if (Admin.has(this.getId()) == false) {
-                cancelAnimationFrame(this.animationFrame);
-                return;
+            if (this.$target instanceof Dom) {
+                const rect = this.$target.getEl()?.getBoundingClientRect() ?? null;
+                if (rect !== null) {
+                    targetRect.top = rect.top;
+                    targetRect.bottom = rect.bottom;
+                    targetRect.left = rect.left;
+                    targetRect.right = rect.right;
+                }
+            } else if (this.$target instanceof Event) {
+                targetRect.top = targetRect.bottom = this.$target.y;
+                targetRect.left = targetRect.right = this.$target.x;
             }
 
-            const rect = this.getRect();
-            this.$getComponent().setStyle('top', rect.top + 'px');
-            this.$getComponent().setStyle('left', rect.left + 'px');
-            this.$getComponent().setStyle('width', rect.width + 'px');
-            this.$getComponent().setStyle('height', rect.height + 'px');
-
-            this.animationFrame = requestAnimationFrame(this.setRect.bind(this));
+            return targetRect;
         }
 
         /**
-         * 절대위치 DOM 으로 부터 상대위치를 가질 콘텐츠의 위치를 지정한다.
+         * 절대위치 DOM 의 크기를 가져온다.
          *
-         * @param {number|string} top
-         * @param {number|string} right
-         * @param {number|string} bottom
-         * @param {number|string} left
+         * @return {Object} rect
          */
-        setPosition(
-            top: number | string,
-            right: number | string,
-            bottom: number | string,
-            left: number | string
-        ): void {
-            this.top = typeof top == 'number' ? top + 'px' : top;
-            this.right = typeof right == 'number' ? right + 'px' : right;
-            this.bottom = typeof bottom == 'number' ? bottom + 'px' : bottom;
-            this.left = typeof left == 'number' ? left + 'px' : left;
+        getAbsoluteRect(): { width: number; height: number } {
+            const absoluteRect: {
+                width: number;
+                height: number;
+            } = { width: 0, height: 0 };
 
-            this.updatePosition();
+            const rect = this.$getComponent().getEl()?.getBoundingClientRect() ?? null;
+            if (rect !== null) {
+                absoluteRect.width = rect.width;
+                absoluteRect.height = rect.height;
+            }
+
+            return absoluteRect;
+        }
+
+        /**
+         * 절대위치 기준점을 대상의 위치에 따라 적절하게 가져온다.
+         *
+         * @return {Object} position
+         */
+        getPosition(): {
+            top?: number;
+            bottom?: number;
+            left?: number;
+            right?: number;
+            maxWidth?: number;
+            maxHeight?: number;
+        } {
+            const position: {
+                top?: number;
+                bottom?: number;
+                left?: number;
+                right?: number;
+                maxWidth?: number;
+                maxHeight?: number;
+            } = {};
+            const targetRect = this.getTargetRect();
+            const absoluteRect = this.getAbsoluteRect();
+            const windowRect = { width: window.innerWidth, height: window.innerHeight };
+
+            /**
+             * 대상의 DOM 을 기준으로 상/하 위치에 보여줄 경우
+             */
+            if (this.direction == 'y') {
+                if (
+                    targetRect.bottom > windowRect.height / 2 &&
+                    absoluteRect.height > windowRect.height - targetRect.bottom
+                ) {
+                    position.bottom = windowRect.height - targetRect.top;
+                    position.maxHeight = windowRect.height - position.bottom - 10;
+                } else {
+                    position.top = targetRect.bottom;
+                    position.maxHeight = windowRect.height - position.top - 10;
+                }
+
+                if (targetRect.left + absoluteRect.width > windowRect.width) {
+                    position.right = windowRect.width - targetRect.right;
+                    position.maxWidth = windowRect.width - position.right - 10;
+                } else {
+                    position.left = targetRect.left;
+                    position.maxWidth = windowRect.width - position.left - 10;
+                }
+            }
+
+            return position;
         }
 
         /**
          * 절대위치 DOM 으로 부터 상대위치를 가질 콘텐츠의 위치를 업데이트한다.
          */
         updatePosition(): void {
-            const $content = this.$getContent();
+            if (
+                Format.isEqual(this.latestTargetRect, this.getTargetRect()) == false ||
+                Format.isEqual(this.latestAbsoluteRect, this.getAbsoluteRect()) == false
+            ) {
+                this.latestTargetRect = this.getTargetRect();
+                this.latestAbsoluteRect = this.getAbsoluteRect();
 
-            $content.setStyle('top', this.top);
-            $content.setStyle('bottom', this.bottom);
-            $content.setStyle('left', this.left);
-            $content.setStyle('right', this.right);
+                this.$getComponent().setStyle('top', null);
+                this.$getComponent().setStyle('bottom', null);
+                this.$getComponent().setStyle('left', null);
+                this.$getComponent().setStyle('right', null);
+                this.$getComponent().setStyle('max-width', null);
+                this.$getComponent().setStyle('max-height', null);
+                const minWidth = this.$target instanceof Dom ? this.$target.getOuterWidth() : 150;
 
-            $content.setStyle('width', this.width);
-            $content.setStyle('height', this.height);
+                if (this.direction == 'y') {
+                    this.$getComponent().setStyle('min-width', minWidth + 'px');
+                }
+
+                const position = this.getPosition();
+                for (const key in position) {
+                    this.$getComponent().setStyle(key, position[key] + 'px');
+                }
+
+                if (position.bottom !== undefined) {
+                    this.$getContainer().addClass('bottom');
+                } else {
+                    this.$getContainer().addClass('top');
+                }
+            }
+
+            this.animationFrame = requestAnimationFrame(this.updatePosition.bind(this));
         }
 
         /**
@@ -142,11 +227,9 @@ namespace Admin {
 
             this.$getAbsolutes().append(this.$getComponent());
             this.render();
-            this.setRect();
+            super.show();
 
             this.updatePosition();
-
-            super.show();
 
             if (this.hideOnClick === true) {
                 Admin.Absolute.$absolute.set(this.getId(), this.$getComponent());
@@ -157,6 +240,7 @@ namespace Admin {
          * 절대위치 컴포넌트를 숨긴다.
          */
         hide() {
+            console.log('hide');
             const isHide = this.fireEvent('beforeHide', [this]);
             if (isHide === false) return;
 
@@ -205,75 +289,6 @@ namespace Admin {
                 cancelAnimationFrame(this.animationFrame);
             }
             super.remove();
-        }
-
-        /**
-         * 절대위치 기준점을 대상의 위치에 따라 적절하게 가져온다.
-         *
-         * @param {Dom|PointerEvent} target - 대상 DOM 객체 또는 포인터이벤트
-         * @param {Dom} absolute - 절대위치 DOM
-         * @param {('x'|'y')} direction - 방향
-         */
-        static getPosition(
-            target: Dom | PointerEvent,
-            absolute: Dom,
-            direction: 'x' | 'y'
-        ): { top?: number; bottom?: number; left?: number; right?: number; width?: number; height?: number } {
-            const position: {
-                top?: number;
-                bottom?: number;
-                left?: number;
-                right?: number;
-                width?: number;
-                height?: number;
-            } = {};
-            const targetRect = { top: 0, bottom: 0, left: 0, right: 0 };
-            if (target instanceof Dom) {
-                const rect = target.getEl()?.getBoundingClientRect() ?? null;
-                if (rect === null) {
-                    return position;
-                }
-
-                targetRect.top = rect.top;
-                targetRect.bottom = rect.bottom;
-                targetRect.left = rect.left;
-                targetRect.right = rect.right;
-            } else {
-                targetRect.top = targetRect.bottom = target.y;
-                targetRect.left = targetRect.right = target.x;
-            }
-            const absoluteRect = absolute.getEl()?.getBoundingClientRect() ?? null;
-            if (absoluteRect === null) {
-                return position;
-            }
-            const windowRect = { width: window.innerWidth, height: window.innerHeight };
-
-            /**
-             * 대상의 DOM 을 기준으로 상/하 위치에 보여줄 경우
-             */
-            if (direction == 'y') {
-                if (
-                    targetRect.bottom > windowRect.height / 2 &&
-                    absoluteRect.height > windowRect.height - targetRect.bottom
-                ) {
-                    position.bottom = windowRect.height - targetRect.top;
-
-                    position.height = Math.min(absoluteRect.height, windowRect.height - position.bottom - 10);
-                } else {
-                    position.top = targetRect.bottom;
-                    position.height = Math.min(absoluteRect.height, windowRect.height - position.top - 10);
-                }
-
-                if (targetRect.left + absoluteRect.width > windowRect.width) {
-                    position.right = windowRect.width - targetRect.right;
-                    position.width = Math.min(absoluteRect.width, windowRect.width - position.right - 10);
-                } else {
-                    position.left = targetRect.left;
-                    position.width = Math.min(absoluteRect.width, windowRect.width - position.left - 10);
-                }
-            }
-
-            return position;
         }
     }
 }
