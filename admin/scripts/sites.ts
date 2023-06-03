@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/sites.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2023. 6. 2.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.AdminAdmin;
@@ -269,7 +269,7 @@ Admin.ready(async () => {
                             text: me.printText('admin.sites.contexts.edit'),
                             iconClass: 'xi xi-form-checkout',
                             handler: () => {
-                                me.addSite(record.get('path'));
+                                me.addContext(record.get('path'));
                             },
                         });
                     },
