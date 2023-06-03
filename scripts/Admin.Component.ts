@@ -49,6 +49,16 @@ namespace Admin {
             height?: string | number;
 
             /**
+             * @type {number} maxWidth - 컴포넌트 최대너비
+             */
+            maxWidth?: string | number;
+
+            /**
+             * @type {number} maxHeight - 컴포넌트 최대높이
+             */
+            maxHeight?: string | number;
+
+            /**
              * @type {string|number} padding - 컴포넌트 내부 여백
              */
             padding?: string | number;
@@ -110,6 +120,8 @@ namespace Admin {
         layout: string;
         width: string | number;
         height: string | number;
+        maxWidth: string | number;
+        maxHeight: string | number;
         padding: string | number;
         margin: string | number;
         style: string;
@@ -135,6 +147,8 @@ namespace Admin {
             this.layout = this.properties.layout ?? 'auto';
             this.width = this.properties.width ?? null;
             this.height = this.properties.height ?? null;
+            this.maxWidth = this.properties.maxWidth ?? null;
+            this.maxHeight = this.properties.maxHeight ?? null;
             this.padding = this.properties.padding ?? null;
             this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
@@ -268,6 +282,38 @@ namespace Admin {
 
             this.height = typeof height == 'number' ? height + 'px' : height;
             this.$component.setStyle('height', this.height);
+        }
+
+        /**
+         * 컴포넌트 최대너비를 설정한다.
+         *
+         * @param {string|number} maxWidth - 최대너비
+         */
+        setMaxWidth(maxWidth: string | number): void {
+            if (maxWidth === null) {
+                this.maxWidth = null;
+                this.$component.setStyle('max-width', 'auto');
+                return;
+            }
+
+            this.maxWidth = typeof maxWidth == 'number' ? maxWidth + 'px' : maxWidth;
+            this.$component.setStyle('max-width', this.maxWidth);
+        }
+
+        /**
+         * 컴포넌트 최대높이를 설정한다.
+         *
+         * @param {string|number} maxHeight - 최대높이
+         */
+        setMaxHeight(maxHeight: string | number): void {
+            if (maxHeight === null) {
+                this.maxHeight = null;
+                this.$component.setStyle('max-height', null);
+                return;
+            }
+
+            this.maxHeight = typeof maxHeight == 'number' ? maxHeight + 'px' : maxHeight;
+            this.$component.setStyle('max-height', this.maxHeight);
         }
 
         /**
@@ -639,6 +685,14 @@ namespace Admin {
 
             if (this.height !== null) {
                 this.setHeight(this.height);
+            }
+
+            if (this.maxWidth !== null) {
+                this.setMaxWidth(this.maxWidth);
+            }
+
+            if (this.maxHeight !== null) {
+                this.setMaxHeight(this.maxHeight);
             }
 
             if (this.hidden == true) {

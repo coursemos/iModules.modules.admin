@@ -23,6 +23,8 @@ var Admin;
         layout;
         width;
         height;
+        maxWidth;
+        maxHeight;
         padding;
         margin;
         style;
@@ -45,6 +47,8 @@ var Admin;
             this.layout = this.properties.layout ?? 'auto';
             this.width = this.properties.width ?? null;
             this.height = this.properties.height ?? null;
+            this.maxWidth = this.properties.maxWidth ?? null;
+            this.maxHeight = this.properties.maxHeight ?? null;
             this.padding = this.properties.padding ?? null;
             this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
@@ -165,6 +169,34 @@ var Admin;
             }
             this.height = typeof height == 'number' ? height + 'px' : height;
             this.$component.setStyle('height', this.height);
+        }
+        /**
+         * 컴포넌트 최대너비를 설정한다.
+         *
+         * @param {string|number} maxWidth - 최대너비
+         */
+        setMaxWidth(maxWidth) {
+            if (maxWidth === null) {
+                this.maxWidth = null;
+                this.$component.setStyle('max-width', 'auto');
+                return;
+            }
+            this.maxWidth = typeof maxWidth == 'number' ? maxWidth + 'px' : maxWidth;
+            this.$component.setStyle('max-width', this.maxWidth);
+        }
+        /**
+         * 컴포넌트 최대높이를 설정한다.
+         *
+         * @param {string|number} maxHeight - 최대높이
+         */
+        setMaxHeight(maxHeight) {
+            if (maxHeight === null) {
+                this.maxHeight = null;
+                this.$component.setStyle('max-height', null);
+                return;
+            }
+            this.maxHeight = typeof maxHeight == 'number' ? maxHeight + 'px' : maxHeight;
+            this.$component.setStyle('max-height', this.maxHeight);
         }
         /**
          * 컴포넌트 객체의 최상위 DOM 을 가져온다.
@@ -491,6 +523,12 @@ var Admin;
             }
             if (this.height !== null) {
                 this.setHeight(this.height);
+            }
+            if (this.maxWidth !== null) {
+                this.setMaxWidth(this.maxWidth);
+            }
+            if (this.maxHeight !== null) {
+                this.setMaxHeight(this.maxHeight);
             }
             if (this.hidden == true) {
                 this.$getComponent().hide();
