@@ -367,6 +367,20 @@ var Admin;
             return items;
         }
         /**
+         * 아이템 인덱스를 가지고 온다.
+         *
+         * @param {Admin.Component} item - 인덱스를 가지고 올 아이템
+         * @return {number} index - 인덱스
+         */
+        getItemIndex(item) {
+            for (const index in this.items ?? []) {
+                if (this.items[index].id == item.id) {
+                    return parseInt(index, 10);
+                }
+            }
+            return -1;
+        }
+        /**
          * 특정 인덱스의 하위 컴포넌트를 가져온다.
          *
          * @return {Admin.Component} item - 하위요소
@@ -597,13 +611,18 @@ var Admin;
          * 컴포넌트를 제거한다.
          */
         remove() {
-            if (Array.isArray(this.items) == true) {
-                this.items.forEach((item) => {
-                    item.remove();
-                });
+            if (this.getParent()?.getItemIndex(this) > -1) {
+                this.getParent().removeItem(this.getParent().getItemIndex(this));
             }
-            this.scrollbar?.remove();
-            this.$component.remove();
+            else {
+                if (Array.isArray(this.items) == true) {
+                    this.items.forEach((item) => {
+                        item.remove();
+                    });
+                }
+                this.scrollbar?.remove();
+                this.$component.remove();
+            }
             super.remove();
         }
         /**
@@ -611,8 +630,8 @@ var Admin;
          */
         removeItem(index) {
             if (this.getItemAt(index) !== null) {
-                this.getItemAt(index).remove();
-                this.items = this.items.splice(index, 1);
+                const item = this.items.splice(index, 1);
+                item[0].remove();
             }
         }
         /**

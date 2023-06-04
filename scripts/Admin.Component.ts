@@ -508,6 +508,22 @@ namespace Admin {
         }
 
         /**
+         * 아이템 인덱스를 가지고 온다.
+         *
+         * @param {Admin.Component} item - 인덱스를 가지고 올 아이템
+         * @return {number} index - 인덱스
+         */
+        getItemIndex(item: Admin.Component): number {
+            for (const index in this.items ?? []) {
+                if (this.items[index].id == item.id) {
+                    return parseInt(index, 10);
+                }
+            }
+
+            return -1;
+        }
+
+        /**
          * 특정 인덱스의 하위 컴포넌트를 가져온다.
          *
          * @return {Admin.Component} item - 하위요소
@@ -775,13 +791,18 @@ namespace Admin {
          * 컴포넌트를 제거한다.
          */
         remove(): void {
-            if (Array.isArray(this.items) == true) {
-                this.items.forEach((item: Admin.Component) => {
-                    item.remove();
-                });
+            if (this.getParent()?.getItemIndex(this) > -1) {
+                this.getParent().removeItem(this.getParent().getItemIndex(this));
+            } else {
+                if (Array.isArray(this.items) == true) {
+                    this.items.forEach((item: Admin.Component) => {
+                        item.remove();
+                    });
+                }
+                this.scrollbar?.remove();
+                this.$component.remove();
             }
-            this.scrollbar?.remove();
-            this.$component.remove();
+
             super.remove();
         }
 
@@ -790,8 +811,8 @@ namespace Admin {
          */
         removeItem(index: number): void {
             if (this.getItemAt(index) !== null) {
-                this.getItemAt(index).remove();
-                this.items = this.items.splice(index, 1);
+                const item = this.items.splice(index, 1);
+                item[0].remove();
             }
         }
 
