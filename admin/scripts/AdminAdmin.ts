@@ -102,7 +102,7 @@ namespace modules {
                         new Admin.Button({
                             text: this.printText('buttons.cancel'),
                             tabIndex: -1,
-                            handler: (button: Admin.Button) => {
+                            handler: (button) => {
                                 const window = button.getParent() as Admin.Window;
                                 window.close();
                             },
@@ -110,7 +110,7 @@ namespace modules {
                         new Admin.Button({
                             text: this.printText('buttons.ok'),
                             buttonClass: 'confirm',
-                            handler: async (button: Admin.Button) => {
+                            handler: async (button) => {
                                 const window = button.getParent() as Admin.Window;
                                 const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.submit({
@@ -139,7 +139,7 @@ namespace modules {
                         }),
                     ],
                     listeners: {
-                        show: async (window: Admin.Window) => {
+                        show: async (window) => {
                             if (host !== null) {
                                 const form = window.getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.load({
@@ -287,7 +287,7 @@ namespace modules {
                         new Admin.Button({
                             text: this.printText('buttons.cancel'),
                             tabIndex: -1,
-                            handler: (button: Admin.Button) => {
+                            handler: (button) => {
                                 const window = button.getParent() as Admin.Window;
                                 window.close();
                             },
@@ -295,7 +295,7 @@ namespace modules {
                         new Admin.Button({
                             text: this.printText('buttons.ok'),
                             buttonClass: 'confirm',
-                            handler: async (button: Admin.Button) => {
+                            handler: async (button) => {
                                 const window = button.getParent() as Admin.Window;
                                 const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.submit({
@@ -327,7 +327,7 @@ namespace modules {
                         }),
                     ],
                     listeners: {
-                        show: async (window: Admin.Window) => {
+                        show: async (window) => {
                             if (language !== null) {
                                 const form = window.getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.load({
@@ -611,7 +611,7 @@ namespace modules {
                         new Admin.Button({
                             text: this.printText('buttons.cancel'),
                             tabIndex: -1,
-                            handler: (button: Admin.Button) => {
+                            handler: (button) => {
                                 const window = button.getParent() as Admin.Window;
                                 window.close();
                             },
@@ -619,7 +619,7 @@ namespace modules {
                         new Admin.Button({
                             text: this.printText('buttons.ok'),
                             buttonClass: 'confirm',
-                            handler: async (button: Admin.Button) => {
+                            handler: async (button) => {
                                 const window = button.getParent() as Admin.Window;
                                 const form = button.getParent().getItemAt(0) as Admin.Form.Panel;
                                 const results = await form.submit({
@@ -831,14 +831,14 @@ namespace modules {
                         new Admin.Button({
                             text: this.printText('buttons.close'),
                             buttonClass: 'confirm',
-                            handler: (button: Admin.Button) => {
+                            handler: (button) => {
                                 const window = button.getParent() as Admin.Window;
                                 window.close();
                             },
                         }),
                     ],
                     listeners: {
-                        show: async (window: Admin.Window) => {
+                        show: async (window) => {
                             const form = window.getItemAt(0) as Admin.Form.Panel;
                             const results = await form.load({
                                 url: this.getProcessUrl('module'),
@@ -914,7 +914,7 @@ namespace modules {
                             new Admin.Button({
                                 text: this.printText('buttons.cancel'),
                                 tabIndex: -1,
-                                handler: (button: Admin.Button) => {
+                                handler: (button) => {
                                     const window = button.getParent() as Admin.Window;
                                     window.close();
                                 },
@@ -922,7 +922,7 @@ namespace modules {
                             new Admin.Button({
                                 text: this.printText('buttons.ok'),
                                 buttonClass: 'confirm',
-                                handler: async (button: Admin.Button) => {
+                                handler: async (button) => {
                                     const window = button.getParent() as Admin.Window;
                                     const form = window.getItemAt(0) as Admin.Form.Panel;
 
@@ -939,7 +939,7 @@ namespace modules {
                             }),
                         ],
                         listeners: {
-                            show: (window: Admin.Window) => {
+                            show: (window) => {
                                 const form = window.getItemAt(0) as Admin.Form.Panel;
                                 for (const field in response.configs ?? {}) {
                                     form.getField(field)?.setValue(response.configs[field]);
