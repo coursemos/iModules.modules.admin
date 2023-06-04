@@ -175,7 +175,6 @@ var Admin;
          * 절대위치 컴포넌트를 숨긴다.
          */
         hide() {
-            console.log('hide');
             const isHide = this.fireEvent('beforeHide', [this]);
             if (isHide === false)
                 return;
