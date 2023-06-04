@@ -255,16 +255,6 @@ div[data-component][data-type='form'][data-role='field'] {
         z-index: 0;
         border: 1px solid var(--input-border-color-default);
 
-        &:has(input:focus) {
-            background: var(--input-background-focus);
-            border-color: var(--input-border-color-focus);
-        }
-
-        &.error {
-            background: var(--input-background-error);
-            border-color: var(--input-border-color-error) !important;
-        }
-
         > input {
             outline: none;
             width: calc(100% - var(--text-height) - 1px);
@@ -314,6 +304,25 @@ div[data-component][data-type='form'][data-role='field'] {
             color: var(--input-color-help);
             overflow: hidden;
         }
+
+        &:has(input:focus) {
+            background: var(--input-background-focus);
+            border-color: var(--input-border-color-focus);
+        }
+
+        &.error {
+            background: var(--input-background-error);
+            border-color: var(--input-border-color-error) !important;
+        }
+
+        &.expand {
+            border-color: var(--input-border-color-focus);
+
+            > button {
+                background: var(--input-background-select);
+                color: var(--input-color-select);
+            }
+        }
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='display'] {
@@ -334,21 +343,108 @@ div[data-component][data-type='form'][data-role='field'] {
         }
     }
 
-    > div[data-role='container'] > div[data-role='content'][data-field='blocks'] {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
+    > div[data-role='container'] > div[data-role='content'][data-field='tags'] {
+        > div[data-role='tags'] {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: stretch;
+            gap: 5px;
 
-        > div[data-component][data-type='form'][data-role='field'] {
-            > div[data-role='container'] {
-                > div[data-role='content'] {
-                    > div[data-role='fields'] {
-                        > div[data-component][data-type='form'][data-role='field'] {
-                            > div[data-role='container'] {
-                                > div[data-role='content'] {
-                                    > div[data-role='fields'] {
-                                        > div[data-component][data-type='form'][data-role='field'] {
-                                            flex: 1;
+            > div[data-role='tag'] {
+                background: var(--input-background-disabled);
+                height: var(--text-height);
+                position: relative;
+
+                > span {
+                    display: inline-block;
+                    vertical-align: middle;
+                    max-width: 140px;
+                    font-size: var(--font-size-default);
+                    font-family: var(--font-family-default);
+                    height: var(--text-height);
+                    line-height: var(--text-height);
+                    padding-left: var(--padding-large);
+                    padding-right: var(--padding-large);
+                    cursor: pointer;
+                }
+
+                > button {
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: var(--text-height);
+                    height: var(--text-height);
+                    border: 0;
+                    background: transparent;
+                    font-size: var(--font-size-default);
+                    line-height: var(--text-height);
+                    cursor: pointer;
+
+                    &::before {
+                        font-family: moimz;
+                        content: '\eb04';
+                        color: var(--input-color-error);
+                    }
+                }
+
+                > input {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    z-index: 1;
+                }
+
+                &:has(input) {
+                    width: 140px;
+                }
+            }
+
+            div[data-component][data-type='form'][data-role='field'] {
+                width: 140px;
+            }
+
+            input {
+                outline: none;
+                width: 140px;
+                height: var(--text-height);
+                box-sizing: border-box;
+                background: var(--input-background-default);
+                border: 1px solid var(--input-border-color-default);
+                padding: var(--padding-default);
+                line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
+                font-size: var(--font-size-default);
+                font-family: var(--font-family-default);
+                color: var(--input-color-default);
+
+                &:focus {
+                    border-color: var(--input-border-color-focus);
+                }
+
+                &[disabled] {
+                    cursor: not-allowed;
+                    background-color: var(--input-background-disabled);
+                }
+            }
+        }
+    }
+
+    > div[data-role='container'] > div[data-role='content'][data-field='blocks'] {
+        > div[data-role='blocks'] {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+
+            > div[data-component][data-type='form'][data-role='field'] {
+                > div[data-role='container'] {
+                    > div[data-role='content'] {
+                        > div[data-role='fields'] {
+                            > div[data-component][data-type='form'][data-role='field'] {
+                                > div[data-role='container'] {
+                                    > div[data-role='content'] {
+                                        > div[data-role='fields'] {
+                                            > div[data-component][data-type='form'][data-role='field'] {
+                                                flex: 1;
+                                            }
                                         }
                                     }
                                 }
@@ -1291,6 +1387,18 @@ div[data-component][data-type='form'][data-role='field'] {
 
             > div[data-component] {
                 width: 100%;
+            }
+        }
+    }
+}
+
+div[data-component][data-type='list'][data-role='panel'].tags {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            > ul {
+                > li {
+                    padding-left: var(--padding-default);
+                }
             }
         }
     }

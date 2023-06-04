@@ -178,7 +178,6 @@ var Admin;
                 const response = await Admin.Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
-                        console.log('field', name, this.getField(name));
                         this.getField(name)?.setValue(response.data[name], true);
                     }
                 }
@@ -1009,6 +1008,30 @@ var Admin;
                     return fields;
                 }
                 /**
+                 * 필드 컨테이너에 속한 모든 필드의 값을 가져온다.
+                 *
+                 * @return {Object} values
+                 */
+                getValues() {
+                    const values = {};
+                    this.getFields().forEach((field) => {
+                        Object.assign(values, field.getValues());
+                    });
+                    return values;
+                }
+                /**
+                 * 필드 컨테이너에 속한 모든 필드의 값을 가져온다.
+                 *
+                 * @param {Object} values
+                 */
+                setValues(values) {
+                    this.getFields().forEach((field) => {
+                        if (field.inputName !== undefined && values[field.inputName] !== undefined) {
+                            field.setValue(values[field.inputName]);
+                        }
+                    });
+                }
+                /**
                  * 자식 컴포넌트를 추가한다.
                  *
                  * @param {Admin.Component} item - 추가할 컴포넌트
@@ -1314,20 +1337,21 @@ var Admin;
                         this.absolute = new Admin.Absolute({
                             $target: this.$getContent(),
                             items: [this.getCalendar()],
-                            width: '100%',
                             hideOnClick: true,
                             listeners: {
                                 show: (absolute) => {
+                                    /*
                                     const rect = absolute.getRect();
                                     const height = Html.get('body').getHeight();
+
                                     if (rect.top - 100 > height - rect.bottom) {
                                         absolute.setPosition(null, null, 'calc(100% - 1px)', 0);
                                         //this.getList().setMaxHeight(rect.top - 10);
-                                    }
-                                    else {
+                                    } else {
                                         absolute.setPosition('calc(100% - 1px)', null, null, 0);
                                         //this.getList().setMaxHeight(height - rect.bottom - 10);
                                     }
+*/
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -1409,8 +1433,14 @@ var Admin;
                             type: 'button',
                             class: 'mi mi-calendar',
                         });
-                        this.$button.on('click', () => {
-                            this.expand();
+                        this.$button.on('mousedown', (e) => {
+                            if (this.isExpand() == true) {
+                                this.collapse();
+                            }
+                            else {
+                                this.expand();
+                            }
+                            e.stopImmediatePropagation();
                         });
                     }
                     return this.$button;
@@ -1456,6 +1486,14 @@ var Admin;
                  */
                 collapse() {
                     this.getAbsolute().hide();
+                }
+                /**
+                 * 캘린더가 보이는 상태인지 확인한다.
+                 *
+                 * @return {boolean} isExpand
+                 */
+                isExpand() {
+                    return this.getAbsolute().isShow();
                 }
                 /**
                  * 필드값을 지정한다.
@@ -1761,6 +1799,288 @@ var Admin;
                 }
             }
             Field.Display = Display;
+            class Tags extends Admin.Form.Field.Base {
+                field = 'tags';
+                absolute;
+                list;
+                store;
+                tagField;
+                url;
+                $tags;
+                $input;
+                /**
+                 * 태그 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Tags.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.store = this.properties.store ?? null;
+                    this.tagField = this.properties.tagField ?? 'tag';
+                }
+                /**
+                 * 절대위치 목록 컴포넌트를 가져온다.
+                 *
+                 * @return {Admin.Absolute} absolute
+                 */
+                getAbsolute() {
+                    if (this.store === null) {
+                        return null;
+                    }
+                    if (this.absolute === undefined) {
+                        this.absolute = new Admin.Absolute({
+                            $target: this.$getInput(),
+                            items: [this.getList()],
+                            direction: 'y',
+                            hideOnClick: true,
+                            listeners: {
+                                show: (absolute) => {
+                                    this.getList().setMaxHeight(absolute.getPosition().maxHeight);
+                                    this.$getContent().addClass('expand');
+                                },
+                                hide: () => {
+                                    this.$getContent().removeClass('expand');
+                                },
+                            },
+                        });
+                    }
+                    return this.absolute;
+                }
+                /**
+                 * 목록 컴포넌트를 가져온다.
+                 *
+                 * @return {Admin.List.Panel} list
+                 */
+                getList() {
+                    if (this.store === null) {
+                        return null;
+                    }
+                    if (this.list === undefined) {
+                        this.list = new Admin.List.Panel({
+                            store: this.properties.store,
+                            renderer: this.properties.listRenderer,
+                            displayField: this.tagField,
+                            valueField: this.tagField,
+                            class: 'tags',
+                            hideOnEmpty: true,
+                            listeners: {
+                                update: () => {
+                                    this.getList().setMaxHeight(null);
+                                    this.getAbsolute().updatePosition();
+                                    this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight);
+                                },
+                                move: (record) => {
+                                    this.$getInput().setValue(record.get(this.tagField));
+                                },
+                            },
+                        });
+                    }
+                    return this.list;
+                }
+                /**
+                 * 데이터스토어를 가져온다.
+                 *
+                 * @return {Admin.Store} store
+                 */
+                getStore() {
+                    return this.getList()?.getStore() ?? null;
+                }
+                /**
+                 * 태그 입력 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $tags
+                 */
+                $getTags() {
+                    if (this.$tags === undefined) {
+                        this.$tags = Html.create('div', { 'data-role': 'tags' });
+                    }
+                    return this.$tags;
+                }
+                /**
+                 * 태그 DOM 을 가져온다.
+                 *
+                 * @param {string} tag - 태그
+                 * @return {Dom} $tag
+                 */
+                $getTag(tag) {
+                    const $tag = Html.create('div', { 'data-role': 'tag' });
+                    $tag.setData('tag', tag, false);
+                    const $span = Html.create('span').html(tag);
+                    $span.on('click', () => {
+                        $tag.append(this.$getInput());
+                        this.$getInput().setValue($tag.getData('tag'));
+                        this.$getInput().focus();
+                    });
+                    $tag.append($span);
+                    const $button = Html.create('button', { type: 'button' });
+                    $tag.append($button);
+                    return $tag;
+                }
+                /**
+                 * 태그 INPUT DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput() {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('input', { type: 'text' });
+                        this.$input.on('keydown', (e) => {
+                            if (e.key == ' ' || e.key == '#') {
+                                e.preventDefault();
+                            }
+                            if (e.key == 'Tab' || e.key == ',' || e.key == 'Enter') {
+                                this.collapse();
+                                const value = this.$input.getValue();
+                                if (value.length > 0) {
+                                    const $parent = this.$input.getParent();
+                                    if ($parent.getAttr('data-role') == 'tags') {
+                                        this.addTag(value);
+                                    }
+                                    else {
+                                        this.setTag($parent, value, 'next');
+                                    }
+                                    this.$input.setValue('');
+                                    this.$input.focus();
+                                    e.preventDefault();
+                                }
+                                if (e.key == ',') {
+                                    e.preventDefault();
+                                }
+                            }
+                            if (e.key == 'ArrowDown' || e.key == 'ArrowUp') {
+                                if (this.isExpand() == false) {
+                                    this.expand();
+                                }
+                                this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
+                                e.stopPropagation();
+                            }
+                            if (e.key == 'Escape') {
+                                this.collapse();
+                                e.stopPropagation();
+                            }
+                        });
+                        this.$input.on('input', () => {
+                            if (this.getAbsolute()?.isShow() === false) {
+                                this.expand();
+                            }
+                            this.getStore().setFilter(this.tagField, this.$getInput().getValue(), 'likecode');
+                        });
+                        this.$input.on('blur', () => {
+                            this.collapse();
+                            const value = this.$input.getValue();
+                            if (value.length > 0) {
+                                const $parent = this.$input.getParent();
+                                if ($parent.getAttr('data-role') == 'tags') {
+                                    this.addTag(value);
+                                }
+                                else {
+                                    this.setTag($parent, value, 'last');
+                                }
+                                this.$input.setValue('');
+                            }
+                            if (this.$getTags().getChildren().length - 1 != this.$input.getIndex()) {
+                                this.$getTags().append(this.$input);
+                                this.$input.focus();
+                            }
+                        });
+                    }
+                    return this.$input;
+                }
+                /**
+                 * 태그를 추가한다.
+                 *
+                 * @param {string} tag - 추가할 태그
+                 */
+                addTag(tag) {
+                    const index = this.$getInput().getIndex();
+                    const $tag = this.$getTag(tag);
+                    this.$getTags().append($tag, index);
+                    this.updateValue();
+                }
+                /**
+                 * 기존 태그를 수정한다.
+                 *
+                 * @param {Dom} $dom - 수정할 태그 DOM 객체
+                 * @param {string} tag - 태그명
+                 * @param {'last'|'next'} position - 수정 후 INPUT 위치
+                 */
+                setTag($dom, tag, position = 'last') {
+                    const index = $dom.getIndex();
+                    if (position == 'last') {
+                        this.$getTags().append(this.$getInput());
+                    }
+                    else {
+                        this.$getTags().append(this.$getInput(), index + 1);
+                    }
+                    $dom.replaceWith(this.$getTag(tag));
+                    this.updateValue();
+                }
+                /**
+                 * 선택목록을 확장한다.
+                 */
+                expand() {
+                    this.getAbsolute()?.show();
+                }
+                /**
+                 * 선택목록을 최소화한다.
+                 */
+                collapse() {
+                    this.getList()?.deselectAll();
+                    this.getStore().resetFilter();
+                    this.getAbsolute()?.hide();
+                }
+                /**
+                 * 선택목록이 확장되어 있는지 확인한다.
+                 *
+                 * @return {boolean} isExpand
+                 */
+                isExpand() {
+                    return this.getAbsolute()?.isShow() ?? false;
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {string[]} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    if (Array.isArray(value) == false) {
+                        value = null;
+                    }
+                    for (const tag of value) {
+                        this.addTag(tag);
+                    }
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    const value = [];
+                    Html.all('div[data-role=tag]', this.$getTags()).forEach(($tag) => {
+                        value.push($tag.getData('tag'));
+                    });
+                    return value.length > 0 ? value : null;
+                }
+                /**
+                 * 필드값을 갱신한다.
+                 */
+                updateValue() {
+                    super.setValue(this.getValue());
+                }
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                renderContent() {
+                    const $tags = this.$getTags();
+                    const $input = this.$getInput();
+                    $tags.append($input);
+                    this.$getContent().append($tags);
+                }
+            }
+            Field.Tags = Tags;
             class Blocks extends Admin.Form.Field.Base {
                 field = 'blocks';
                 button;
@@ -1784,17 +2104,6 @@ var Admin;
                             },
                         },
                     };
-                }
-                /**
-                 * 폼 패널의 하위 컴포넌트를 정의한다.
-                 */
-                initItems() {
-                    if (this.items === null) {
-                        this.items = [];
-                        this.items.push(this.getFieldContainer());
-                        this.items.push(this.getButton());
-                    }
-                    super.initItems();
                 }
                 /**
                  * 블럭 추가 버튼을 가져온다.
@@ -1844,15 +2153,59 @@ var Admin;
                     return this.fieldContainer;
                 }
                 /**
+                 * 블럭 데이터를 지정한다.
+                 *
+                 * @param {Object[]} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    if (Array.isArray(value) == true) {
+                        this.getFieldContainer().empty();
+                        for (const block of value) {
+                            if (this.blocks[block.type] !== undefined) {
+                                this.addBlock(block.type, this.blocks[block.type].field(), block.value);
+                            }
+                        }
+                    }
+                    else {
+                        value = null;
+                    }
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다..
+                 *
+                 * @return {Object[]} value - 값
+                 */
+                getValue() {
+                    const blocks = [];
+                    for (const block of this.getFieldContainer().getItems()) {
+                        const field = block.getItemAt(0);
+                        const value = field instanceof Admin.Form.Field.Container ? field.getValues() : field.getValue();
+                        const data = {
+                            type: block.properties.blockType,
+                            value: value,
+                        };
+                        blocks.push(data);
+                    }
+                    if (blocks.length == 0) {
+                        return null;
+                    }
+                    else {
+                        return blocks;
+                    }
+                }
+                /**
                  * 블럭 콘텐츠 데이터를 업데이트한다.
                  */
                 updateValue() {
                     const blocks = [];
                     for (const block of this.getFieldContainer().getItems()) {
                         const field = block.getItemAt(0);
+                        const value = field instanceof Admin.Form.Field.Container ? field.getValues() : field.getValue();
                         const data = {
                             type: block.properties.blockType,
-                            value: field.getValue(),
+                            value: value,
                         };
                         blocks.push(data);
                     }
@@ -1867,36 +2220,82 @@ var Admin;
                  * 블럭을 추가한다.
                  *
                  * @param {string} type - 블럭타입
-                 * @param {Admin.Form.Field.Base} field - 추가할 필드
+                 * @param {Admin.Form.Field.Base|Admin.Form.Field.Container} field - 추가할 필드
+                 * @param {any} value - 필드값
                  */
-                addBlock(type, field) {
+                addBlock(type, field, value = null) {
                     field.addEvent('change', () => {
                         this.updateValue();
                     });
                     const block = new Admin.Form.Field.Container({
                         blockType: type,
-                        items: [
-                            field,
-                            new Admin.Button({
-                                iconClass: 'mi mi-up',
-                            }),
-                            new Admin.Button({
-                                iconClass: 'mi mi-down',
-                            }),
-                            new Admin.Button({
-                                iconClass: 'mi mi-trash',
-                                buttonClass: 'danger',
-                                handler: (button) => {
-                                    console.log(button, button.getParent(), button.getParent().getParent());
-                                },
-                            }),
-                        ],
+                        items: [],
                     });
+                    field.setParent(block);
+                    block.append(field);
+                    block.append(new Admin.Button({
+                        iconClass: 'mi mi-up',
+                        handler: (button) => {
+                            const item = button.getParent();
+                            const container = item.getParent();
+                            const index = container.getItemIndex(item);
+                            if (index > 0) {
+                                const swap = container.getItemAt(index - 1);
+                                container.items[index - 1] = item;
+                                container.items[index] = swap;
+                                const $parent = item.$getComponent().getParent();
+                                $parent.append(item.$getComponent(), index - 1);
+                            }
+                        },
+                    }));
+                    block.append(new Admin.Button({
+                        iconClass: 'mi mi-down',
+                        handler: (button) => {
+                            const item = button.getParent();
+                            const container = item.getParent();
+                            const index = container.getItemIndex(item);
+                            console.log(index, container.getItems().length);
+                            if (index < container.getItems().length - 1) {
+                                const swap = container.getItemAt(index + 1);
+                                container.items[index + 1] = item;
+                                container.items[index] = swap;
+                                const $parent = item.$getComponent().getParent();
+                                $parent.append(swap.$getComponent(), index);
+                            }
+                        },
+                    }));
+                    block.append(new Admin.Button({
+                        iconClass: 'mi mi-trash',
+                        buttonClass: 'danger',
+                        handler: (button) => {
+                            const item = button.getParent();
+                            item.remove();
+                        },
+                    }));
                     block.setParent(this);
                     this.getFieldContainer().append(block);
                     if (this.getFieldContainer().getItems().length > 0) {
                         this.getFieldContainer().show();
                     }
+                    if (value !== null) {
+                        if (field instanceof Admin.Form.Field.Base) {
+                            field.setValue(value);
+                        }
+                        else {
+                            field.setValues(value);
+                        }
+                    }
+                }
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                renderContent() {
+                    const $blocks = Html.create('div', { 'data-role': 'blocks' });
+                    $blocks.append(this.getFieldContainer().$getComponent());
+                    this.getFieldContainer().render();
+                    $blocks.append(this.getButton().$getComponent());
+                    this.getButton().render();
+                    this.$getContent().append($blocks);
                 }
             }
             Field.Blocks = Blocks;
@@ -2304,20 +2703,11 @@ var Admin;
                         this.absolute = new Admin.Absolute({
                             $target: this.$getContent(),
                             items: [this.getList()],
-                            width: '100%',
+                            direction: 'y',
                             hideOnClick: true,
                             listeners: {
                                 show: (absolute) => {
-                                    const rect = absolute.getRect();
-                                    const height = Html.get('body').getHeight();
-                                    if (rect.top - 100 > height - rect.bottom) {
-                                        absolute.setPosition(null, null, 'calc(100% - 1px)', 0);
-                                        this.getList().setMaxHeight(rect.top - 10);
-                                    }
-                                    else {
-                                        absolute.setPosition('calc(100% - 1px)', null, null, 0);
-                                        this.getList().setMaxHeight(height - rect.bottom - 10);
-                                    }
+                                    this.getList().setMaxHeight(absolute.getPosition().maxHeight);
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -2352,6 +2742,9 @@ var Admin;
                                     this.onLoad();
                                 },
                                 update: () => {
+                                    this.getList().setMaxHeight(null);
+                                    this.getAbsolute().updatePosition();
+                                    this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight);
                                     this.onUpdate();
                                 },
                                 selectionChange: (selections) => {
@@ -2403,6 +2796,9 @@ var Admin;
                             e.preventDefault();
                             e.stopImmediatePropagation();
                             $button.getEl().focus();
+                        });
+                        this.$button.on('blur', () => {
+                            this.collapse();
                         });
                         this.setKeyboardEvent(this.$button);
                         const $display = this.$getDisplay();
@@ -2783,10 +3179,10 @@ var Admin;
                         this.$getInput().setValue(value);
                     }
                     if (value.length > 0) {
-                        this.$emptyText.hide();
+                        this.$getEmptyText().hide();
                     }
                     else {
-                        this.$emptyText.show();
+                        this.$getEmptyText().show();
                     }
                     super.setValue(value, is_origin);
                 }
@@ -3174,7 +3570,7 @@ var Admin;
                                         operator: 'inset',
                                     },
                                 },
-                                sorters: [{ field: 'title', direction: 'ASC' }],
+                                sorters: { title: 'ASC' },
                             }),
                             valueField: 'name',
                             displayField: 'title',
