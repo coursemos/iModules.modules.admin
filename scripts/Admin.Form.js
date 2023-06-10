@@ -14,7 +14,7 @@ var Admin;
             constructor(properties = null) {
                 super(properties);
                 this.role = 'form';
-                this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 100 };
+                this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 110 };
                 this.padding = this.properties.padding ?? 10;
                 this.loading = new Admin.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
@@ -182,6 +182,7 @@ var Admin;
                     }
                 }
                 this.setLoading(this, false);
+                this.fireEvent('load', [this, response]);
                 return response;
             }
             /**
@@ -215,6 +216,7 @@ var Admin;
                     this.scrollToErrorField();
                 }
                 this.setLoading(this, false);
+                this.fireEvent('submit', [this, response]);
                 return response;
             }
         }
@@ -683,8 +685,11 @@ var Admin;
                         this.validation = true;
                     }
                     if (this.getParent() instanceof Admin.Form.Field.Container) {
-                        this.getParent().setError(this.getId(), is_error, message);
-                        return;
+                        const container = this.getParent();
+                        if (container.label !== null) {
+                            container.setError(this.getId(), is_error, message);
+                            return;
+                        }
                     }
                     if (message === null) {
                         this.setHelpText(this.helpText);
@@ -708,9 +713,11 @@ var Admin;
                  */
                 setDisabled(disabled) {
                     if (disabled == true) {
+                        this.$getContainer().addClass('disabled');
                         this.$getContent().addClass('disabled');
                     }
                     else {
+                        this.$getContainer().removeClass('disabled');
                         this.$getContent().removeClass('disabled');
                     }
                     super.setDisabled(disabled);
@@ -1075,6 +1082,7 @@ var Admin;
                  */
                 renderContent() {
                     const $fields = this.$getFields();
+                    this.$getContent().append($fields);
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
                         if (item.properties.flex !== undefined) {
@@ -1085,7 +1093,6 @@ var Admin;
                             item.render();
                         }
                     }
-                    this.$getContent().append($fields);
                 }
                 /**
                  * 도움말 텍스트를 랜더링한다.
@@ -1338,20 +1345,9 @@ var Admin;
                             $target: this.$getContent(),
                             items: [this.getCalendar()],
                             hideOnClick: true,
+                            parent: this,
                             listeners: {
-                                show: (absolute) => {
-                                    /*
-                                    const rect = absolute.getRect();
-                                    const height = Html.get('body').getHeight();
-
-                                    if (rect.top - 100 > height - rect.bottom) {
-                                        absolute.setPosition(null, null, 'calc(100% - 1px)', 0);
-                                        //this.getList().setMaxHeight(rect.top - 10);
-                                    } else {
-                                        absolute.setPosition('calc(100% - 1px)', null, null, 0);
-                                        //this.getList().setMaxHeight(height - rect.bottom - 10);
-                                    }
-*/
+                                show: () => {
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -1370,6 +1366,7 @@ var Admin;
                 getCalendar() {
                     if (this.calendar === undefined) {
                         this.calendar = new Admin.Form.Field.Date.Calendar({
+                            parent: this,
                             listeners: {
                                 change: (value) => {
                                     this.setValue(value);
@@ -1833,6 +1830,7 @@ var Admin;
                             items: [this.getList()],
                             direction: 'y',
                             hideOnClick: true,
+                            parent: this,
                             listeners: {
                                 show: (absolute) => {
                                     this.getList().setMaxHeight(absolute.getPosition().maxHeight);
@@ -1863,6 +1861,7 @@ var Admin;
                             valueField: this.tagField,
                             class: 'tags',
                             hideOnEmpty: true,
+                            parent: this,
                             listeners: {
                                 update: () => {
                                     this.getList().setMaxHeight(null);
@@ -1939,7 +1938,6 @@ var Admin;
                                     else {
                                         this.setTag($parent, value, 'next');
                                     }
-                                    this.$input.setValue('');
                                     this.$input.focus();
                                     e.preventDefault();
                                 }
@@ -1976,7 +1974,6 @@ var Admin;
                                 else {
                                     this.setTag($parent, value, 'last');
                                 }
-                                this.$input.setValue('');
                             }
                             if (this.$getTags().getChildren().length - 1 != this.$input.getIndex()) {
                                 this.$getTags().append(this.$input);
@@ -1994,6 +1991,7 @@ var Admin;
                 addTag(tag) {
                     const index = this.$getInput().getIndex();
                     const $tag = this.$getTag(tag);
+                    this.$getInput().setValue('');
                     this.$getTags().append($tag, index);
                     this.updateValue();
                 }
@@ -2006,6 +2004,7 @@ var Admin;
                  */
                 setTag($dom, tag, position = 'last') {
                     const index = $dom.getIndex();
+                    this.$getInput().setValue('');
                     if (position == 'last') {
                         this.$getTags().append(this.$getInput());
                     }
@@ -2116,6 +2115,7 @@ var Admin;
                             iconClass: 'mi mi-plus',
                             text: Admin.printText('components.form.blocks.add'),
                             buttonClass: 'confirm',
+                            parent: this,
                             menu: new Admin.Menu({
                                 items: ((blocks) => {
                                     const items = [];
@@ -2148,6 +2148,7 @@ var Admin;
                             items: [],
                             gap: 5,
                             hidden: true,
+                            parent: this,
                         });
                     }
                     return this.fieldContainer;
@@ -2230,9 +2231,10 @@ var Admin;
                     const block = new Admin.Form.Field.Container({
                         blockType: type,
                         items: [],
+                        parent: this,
                     });
-                    field.setParent(block);
                     block.append(field);
+                    field.setParent(block);
                     block.append(new Admin.Button({
                         iconClass: 'mi mi-up',
                         handler: (button) => {
@@ -2254,7 +2256,6 @@ var Admin;
                             const item = button.getParent();
                             const container = item.getParent();
                             const index = container.getItemIndex(item);
-                            console.log(index, container.getItems().length);
                             if (index < container.getItems().length - 1) {
                                 const swap = container.getItemAt(index + 1);
                                 container.items[index + 1] = item;
@@ -2272,7 +2273,6 @@ var Admin;
                             item.remove();
                         },
                     }));
-                    block.setParent(this);
                     this.getFieldContainer().append(block);
                     if (this.getFieldContainer().getItems().length > 0) {
                         this.getFieldContainer().show();
@@ -2329,6 +2329,7 @@ var Admin;
                         this.button = new Admin.Button({
                             iconClass: this.properties.buttonIconClass ?? 'mi mi-upload',
                             text: this.properties.buttonText ?? Admin.printText('buttons.file_select'),
+                            parent: this,
                             handler: () => {
                                 this.select();
                             },
@@ -2462,6 +2463,7 @@ var Admin;
                         this.reset = new Admin.Button({
                             iconClass: 'mi mi-trash',
                             buttonClass: 'danger',
+                            parent: this,
                             text: Admin.printText('buttons.delete'),
                             handler: () => {
                                 this.uploader.setValue([]);
@@ -2597,6 +2599,7 @@ var Admin;
                 renderContent() {
                     this.$getContent().append(this.$getPreview());
                     const $components = Html.create('div', { 'data-role': 'components' });
+                    this.$getContent().append($components);
                     const $buttons = Html.create('div', { 'data-role': 'buttons' });
                     $buttons.append(this.getButton().$getComponent());
                     this.getButton().render();
@@ -2605,7 +2608,6 @@ var Admin;
                     $components.append($buttons);
                     $components.append(this.$getEmptyText());
                     $components.append(this.$getDisplay());
-                    this.$getContent().append($components);
                 }
                 /**
                  * 필드 레이아웃을 업데이트한다.
@@ -2705,6 +2707,7 @@ var Admin;
                             items: [this.getList()],
                             direction: 'y',
                             hideOnClick: true,
+                            parent: this,
                             listeners: {
                                 show: (absolute) => {
                                     this.getList().setMaxHeight(absolute.getPosition().maxHeight);
@@ -2734,6 +2737,7 @@ var Admin;
                             wrap: this.properties.listWrap === true,
                             class: this.properties.listClass ?? null,
                             hideOnEmpty: true,
+                            parent: this,
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
@@ -2798,7 +2802,9 @@ var Admin;
                             $button.getEl().focus();
                         });
                         this.$button.on('blur', () => {
-                            this.collapse();
+                            setTimeout(() => {
+                                this.collapse();
+                            }, 100);
                         });
                         this.setKeyboardEvent(this.$button);
                         const $display = this.$getDisplay();
@@ -3803,6 +3809,7 @@ var Admin;
                  */
                 renderContent() {
                     const $fields = Html.create('div', { 'data-role': 'fields' });
+                    this.$getContent().append($fields);
                     $fields.setStyle('row-gap', '5px');
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
@@ -3810,7 +3817,6 @@ var Admin;
                             item.render();
                         }
                     }
-                    this.$getContent().append($fields);
                 }
             }
             Field.Context = Context;

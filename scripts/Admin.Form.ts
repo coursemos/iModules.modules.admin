@@ -6,14 +6,29 @@
  * @file /modules/admin/scripts/Admin.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 31.
+ * @modified 2023. 6. 10.
  */
 declare var moment: any;
 
 namespace Admin {
     export namespace Form {
         export namespace Panel {
-            export interface Listeners extends Admin.Panel.Listeners {}
+            export interface Listeners extends Admin.Panel.Listeners {
+                /**
+                 * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+                 */
+                render?: (panel: Admin.Form.Panel) => void;
+
+                /**
+                 * @var {Function} load - 폼 데이터가 로딩되었을 때
+                 */
+                load?: (panel: Admin.Form.Panel, response: Admin.Ajax.Results) => void;
+
+                /**
+                 * @var {Function} submit - 폼 데이터가 전송되었을 때
+                 */
+                submit?: (panel: Admin.Form.Panel, response: Admin.Ajax.Results) => void;
+            }
 
             export interface Properties extends Admin.Panel.Properties {
                 /**
@@ -30,6 +45,11 @@ namespace Admin {
                  * @type {string} loadingText - 로딩메시지
                  */
                 loadingText?: string;
+
+                /**
+                 * @type {Admin.Form.Panel.Listeners} listeners - 이벤트리스너
+                 */
+                listeners?: Admin.Form.Panel.Listeners;
             }
         }
 
@@ -47,7 +67,7 @@ namespace Admin {
                 super(properties);
 
                 this.role = 'form';
-                this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 100 };
+                this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 110 };
                 this.padding = this.properties.padding ?? 10;
 
                 this.loading = new Admin.Loading(this, {
@@ -238,6 +258,7 @@ namespace Admin {
                 }
 
                 this.setLoading(this, false);
+                this.fireEvent('load', [this, response]);
 
                 return response;
             }
@@ -277,6 +298,7 @@ namespace Admin {
                 }
 
                 this.setLoading(this, false);
+                this.fireEvent('submit', [this, response]);
 
                 return response;
             }
@@ -968,8 +990,11 @@ namespace Admin {
                     }
 
                     if (this.getParent() instanceof Admin.Form.Field.Container) {
-                        (this.getParent() as Admin.Form.Field.Container).setError(this.getId(), is_error, message);
-                        return;
+                        const container = this.getParent() as Admin.Form.Field.Container;
+                        if (container.label !== null) {
+                            container.setError(this.getId(), is_error, message);
+                            return;
+                        }
                     }
 
                     if (message === null) {
@@ -995,8 +1020,10 @@ namespace Admin {
                  */
                 setDisabled(disabled: boolean): this {
                     if (disabled == true) {
+                        this.$getContainer().addClass('disabled');
                         this.$getContent().addClass('disabled');
                     } else {
+                        this.$getContainer().removeClass('disabled');
                         this.$getContent().removeClass('disabled');
                     }
 
@@ -1431,6 +1458,7 @@ namespace Admin {
                  */
                 renderContent(): void {
                     const $fields = this.$getFields();
+                    this.$getContent().append($fields);
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
 
@@ -1446,7 +1474,6 @@ namespace Admin {
                             item.render();
                         }
                     }
-                    this.$getContent().append($fields);
                 }
 
                 /**
@@ -1763,20 +1790,9 @@ namespace Admin {
                             $target: this.$getContent(),
                             items: [this.getCalendar()],
                             hideOnClick: true,
+                            parent: this,
                             listeners: {
-                                show: (absolute: Admin.Absolute) => {
-                                    /*
-                                    const rect = absolute.getRect();
-                                    const height = Html.get('body').getHeight();
-
-                                    if (rect.top - 100 > height - rect.bottom) {
-                                        absolute.setPosition(null, null, 'calc(100% - 1px)', 0);
-                                        //this.getList().setMaxHeight(rect.top - 10);
-                                    } else {
-                                        absolute.setPosition('calc(100% - 1px)', null, null, 0);
-                                        //this.getList().setMaxHeight(height - rect.bottom - 10);
-                                    }
-*/
+                                show: () => {
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -1797,6 +1813,7 @@ namespace Admin {
                 getCalendar(): Admin.Form.Field.Date.Calendar {
                     if (this.calendar === undefined) {
                         this.calendar = new Admin.Form.Field.Date.Calendar({
+                            parent: this,
                             listeners: {
                                 change: (value) => {
                                     this.setValue(value);
@@ -2367,6 +2384,7 @@ namespace Admin {
                             items: [this.getList()],
                             direction: 'y',
                             hideOnClick: true,
+                            parent: this,
                             listeners: {
                                 show: (absolute: Admin.Absolute) => {
                                     this.getList().setMaxHeight(absolute.getPosition().maxHeight);
@@ -2400,6 +2418,7 @@ namespace Admin {
                             valueField: this.tagField,
                             class: 'tags',
                             hideOnEmpty: true,
+                            parent: this,
                             listeners: {
                                 update: () => {
                                     this.getList().setMaxHeight(null);
@@ -2483,8 +2502,6 @@ namespace Admin {
                                     } else {
                                         this.setTag($parent, value, 'next');
                                     }
-
-                                    this.$input.setValue('');
                                     this.$input.focus();
 
                                     e.preventDefault();
@@ -2527,8 +2544,6 @@ namespace Admin {
                                 } else {
                                     this.setTag($parent, value, 'last');
                                 }
-
-                                this.$input.setValue('');
                             }
 
                             if (this.$getTags().getChildren().length - 1 != this.$input.getIndex()) {
@@ -2549,6 +2564,7 @@ namespace Admin {
                 addTag(tag: string): void {
                     const index = this.$getInput().getIndex();
                     const $tag = this.$getTag(tag);
+                    this.$getInput().setValue('');
                     this.$getTags().append($tag, index);
                     this.updateValue();
                 }
@@ -2562,6 +2578,7 @@ namespace Admin {
                  */
                 setTag($dom: Dom, tag: string, position: 'last' | 'next' = 'last'): void {
                     const index = $dom.getIndex();
+                    this.$getInput().setValue('');
 
                     if (position == 'last') {
                         this.$getTags().append(this.$getInput());
@@ -2712,6 +2729,7 @@ namespace Admin {
                             iconClass: 'mi mi-plus',
                             text: Admin.printText('components.form.blocks.add'),
                             buttonClass: 'confirm',
+                            parent: this,
                             menu: new Admin.Menu({
                                 items: ((blocks: { [type: string]: Admin.Form.Field.Blocks.Block }) => {
                                     const items = [];
@@ -2749,6 +2767,7 @@ namespace Admin {
                             items: [],
                             gap: 5,
                             hidden: true,
+                            parent: this,
                         });
                     }
 
@@ -2843,9 +2862,10 @@ namespace Admin {
                     const block = new Admin.Form.Field.Container({
                         blockType: type,
                         items: [],
+                        parent: this,
                     });
-                    field.setParent(block);
                     block.append(field);
+                    field.setParent(block);
                     block.append(
                         new Admin.Button({
                             iconClass: 'mi mi-up',
@@ -2871,7 +2891,6 @@ namespace Admin {
                                 const item = button.getParent();
                                 const container = item.getParent() as Admin.Form.Field.Container;
                                 const index = container.getItemIndex(item);
-                                console.log(index, container.getItems().length);
                                 if (index < container.getItems().length - 1) {
                                     const swap = container.getItemAt(index + 1);
                                     container.items[index + 1] = item;
@@ -2893,7 +2912,6 @@ namespace Admin {
                             },
                         })
                     );
-                    block.setParent(this);
 
                     this.getFieldContainer().append(block);
                     if (this.getFieldContainer().getItems().length > 0) {
@@ -2983,6 +3001,7 @@ namespace Admin {
                         this.button = new Admin.Button({
                             iconClass: this.properties.buttonIconClass ?? 'mi mi-upload',
                             text: this.properties.buttonText ?? Admin.printText('buttons.file_select'),
+                            parent: this,
                             handler: () => {
                                 this.select();
                             },
@@ -3163,6 +3182,7 @@ namespace Admin {
                         this.reset = new Admin.Button({
                             iconClass: 'mi mi-trash',
                             buttonClass: 'danger',
+                            parent: this,
                             text: Admin.printText('buttons.delete'),
                             handler: () => {
                                 this.uploader.setValue([]);
@@ -3317,6 +3337,8 @@ namespace Admin {
                     this.$getContent().append(this.$getPreview());
 
                     const $components = Html.create('div', { 'data-role': 'components' });
+                    this.$getContent().append($components);
+
                     const $buttons = Html.create('div', { 'data-role': 'buttons' });
                     $buttons.append(this.getButton().$getComponent());
                     this.getButton().render();
@@ -3326,8 +3348,6 @@ namespace Admin {
 
                     $components.append(this.$getEmptyText());
                     $components.append(this.$getDisplay());
-
-                    this.$getContent().append($components);
                 }
 
                 /**
@@ -3561,6 +3581,7 @@ namespace Admin {
                             items: [this.getList()],
                             direction: 'y',
                             hideOnClick: true,
+                            parent: this,
                             listeners: {
                                 show: (absolute: Admin.Absolute) => {
                                     this.getList().setMaxHeight(absolute.getPosition().maxHeight);
@@ -3592,6 +3613,7 @@ namespace Admin {
                             wrap: this.properties.listWrap === true,
                             class: this.properties.listClass ?? null,
                             hideOnEmpty: true,
+                            parent: this,
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
@@ -3656,7 +3678,9 @@ namespace Admin {
                             $button.getEl().focus();
                         });
                         this.$button.on('blur', () => {
-                            this.collapse();
+                            setTimeout(() => {
+                                this.collapse();
+                            }, 100);
                         });
                         this.setKeyboardEvent(this.$button);
 
@@ -4834,6 +4858,7 @@ namespace Admin {
                  */
                 renderContent(): void {
                     const $fields = Html.create('div', { 'data-role': 'fields' });
+                    this.$getContent().append($fields);
                     $fields.setStyle('row-gap', '5px');
                     for (let item of this.getItems()) {
                         $fields.append(item.$getComponent());
@@ -4841,7 +4866,6 @@ namespace Admin {
                             item.render();
                         }
                     }
-                    this.$getContent().append($fields);
                 }
             }
 
