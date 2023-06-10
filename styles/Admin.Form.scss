@@ -6,7 +6,7 @@
  * @file /styles/Admin.Form.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2023. 6. 5.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
@@ -71,7 +71,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 width: fit-content;
                 height: var(--text-height);
                 line-height: var(--text-height);
-                font-size: var(--font-size-default);
+                font-size: calc(var(--font-size-default) * 0.9);
                 font-family: var(--font-family-default);
                 color: var(--input-color-default);
                 white-space: nowrap;
@@ -106,6 +106,17 @@ div[data-component][data-type='form'][data-role='field'] {
                         color: var(--input-color-required);
                         vertical-align: super;
                         line-height: 0;
+                    }
+                }
+            }
+        }
+
+        &.disabled {
+            > div[data-role='top'] {
+                > label {
+                    color: var(--input-color-disabled);
+                    &::before {
+                        display: none;
                     }
                 }
             }
@@ -355,6 +366,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 background: var(--input-background-disabled);
                 height: var(--text-height);
                 position: relative;
+                white-space: nowrap;
 
                 > span {
                     display: inline-block;
