@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 5.
  */
 namespace Admin {
     export namespace Component {
@@ -28,6 +28,11 @@ namespace Admin {
         }
 
         export interface Properties extends Admin.Base.Properties {
+            /**
+             * @type {Admin.Component} parent - 부모객체
+             */
+            parent?: Admin.Component;
+
             /**
              * @type {(Admin.Component|any)[]} items - 컴포넌트의 하위 컴포넌트
              */
@@ -140,7 +145,7 @@ namespace Admin {
         constructor(properties: Admin.Component.Properties = null) {
             super(properties);
 
-            this.parent = null;
+            this.parent = this.properties.parent ?? null;
             this.role = null;
             this.items = null;
 

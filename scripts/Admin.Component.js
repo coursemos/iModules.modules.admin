@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 5.
  */
 var Admin;
 (function (Admin) {
@@ -41,7 +41,7 @@ var Admin;
          */
         constructor(properties = null) {
             super(properties);
-            this.parent = null;
+            this.parent = this.properties.parent ?? null;
             this.role = null;
             this.items = null;
             this.layout = this.properties.layout ?? 'auto';
