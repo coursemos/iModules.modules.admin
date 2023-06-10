@@ -685,7 +685,7 @@ namespace modules {
             showModule(name: string): void {
                 new Admin.Window({
                     title: 'Loading...',
-                    width: 600,
+                    width: 680,
                     modal: true,
                     resizable: false,
                     items: [
@@ -906,7 +906,7 @@ namespace modules {
 
                     new Admin.Window({
                         title: response.data.title,
-                        width: 600,
+                        width: 680,
                         modal: true,
                         resizable: false,
                         items: [form],
@@ -944,6 +944,7 @@ namespace modules {
                                 for (const field in response.configs ?? {}) {
                                     form.getField(field)?.setValue(response.configs[field]);
                                 }
+                                form.fireEvent('load', [form, { data: response.configs }]);
                             },
                         },
                     }).show();
