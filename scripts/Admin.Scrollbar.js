@@ -37,7 +37,7 @@ var Admin;
                 this.scrollable.x = scrollable == true || scrollable.toLowerCase() == 'x';
                 this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
             }
-            Admin.Scrollbar.scrollbars.set(this.$target, this);
+            Admin.Scrollbar.scrollbars.set(this.$target.getEl(), this);
         }
         /**
          * 스크롤바 이벤트 대상의 스크롤바 클래스 객체를 가져온다.
@@ -47,8 +47,8 @@ var Admin;
          * @return {Admin.Scrollbar} scrollbar
          */
         static get($target, scrollable = false) {
-            if (Admin.Scrollbar.scrollbars.has($target) == true) {
-                return Admin.Scrollbar.scrollbars.get($target);
+            if (Admin.Scrollbar.scrollbars.has($target.getEl()) == true) {
+                return Admin.Scrollbar.scrollbars.get($target.getEl());
             }
             else {
                 return new Admin.Scrollbar($target, scrollable);

@@ -10,7 +10,7 @@
  */
 namespace Admin {
     export class Scrollbar extends Admin.Base {
-        static scrollbars: WeakMap<Dom, Admin.Scrollbar> = new WeakMap();
+        static scrollbars: WeakMap<HTMLElement, Admin.Scrollbar> = new WeakMap();
 
         $component: Dom;
         $target: Dom;
@@ -41,7 +41,7 @@ namespace Admin {
                 this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
             }
 
-            Admin.Scrollbar.scrollbars.set(this.$target, this);
+            Admin.Scrollbar.scrollbars.set(this.$target.getEl(), this);
         }
 
         /**
@@ -52,8 +52,8 @@ namespace Admin {
          * @return {Admin.Scrollbar} scrollbar
          */
         static get($target: Dom, scrollable: boolean | string = false): Admin.Scrollbar {
-            if (Admin.Scrollbar.scrollbars.has($target) == true) {
-                return Admin.Scrollbar.scrollbars.get($target);
+            if (Admin.Scrollbar.scrollbars.has($target.getEl()) == true) {
+                return Admin.Scrollbar.scrollbars.get($target.getEl());
             } else {
                 return new Admin.Scrollbar($target, scrollable);
             }
