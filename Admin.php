@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 3.
+ * @modified 2023. 6. 10.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -417,7 +417,7 @@ class Admin extends \Module
         \Html::script(\Cache::script('admin'), 10);
 
         \Cache::script('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.js');
-        foreach (\Modules::all() as $module) {
+        foreach (\Modules::all(false) as $module) {
             if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . 'Admin.js') == true) {
                 \Cache::script(
                     'admin.interfaces',
