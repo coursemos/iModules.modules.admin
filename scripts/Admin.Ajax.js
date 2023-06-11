@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2023. 6. 11.
  */
 var Admin;
 (function (Admin) {
@@ -48,8 +48,8 @@ var Admin;
                     else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('errors.TITLE'),
-                            message: Admin.printText('errors.CONNECT_ERROR'),
+                            title: Admin.printErrorText('TITLE'),
+                            message: Admin.printErrorText('CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
                         console.error(error);
@@ -60,7 +60,7 @@ var Admin;
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
+                        title: Admin.printErrorText('TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -74,8 +74,8 @@ var Admin;
                 else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
-                        message: Admin.printText('errors.CONNECT_ERROR'),
+                        title: Admin.printErrorText('TITLE'),
+                        message: Admin.printErrorText('CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
                     console.error(e);
@@ -123,8 +123,8 @@ var Admin;
                     else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('errors.TITLE'),
-                            message: Admin.printText('errors.CONNECT_ERROR'),
+                            title: Admin.printErrorText('TITLE'),
+                            message: Admin.printErrorText('CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
                         console.error(error);
@@ -135,7 +135,7 @@ var Admin;
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
+                        title: Admin.printErrorText('TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -149,8 +149,8 @@ var Admin;
                 else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
-                        message: Admin.printText('errors.CONNECT_ERROR'),
+                        title: Admin.printErrorText('TITLE'),
+                        message: Admin.printErrorText('CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
                     console.error(e);

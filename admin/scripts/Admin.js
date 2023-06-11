@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 2. 14.
+ * @modified 2023. 6. 11.
  */
 var Admin;
 (function (Admin) {
@@ -72,9 +72,9 @@ var Admin;
         /**
          * 언어팩을 불러온다.
          *
-         * @param string $text 언어팩코드
-         * @param ?array $placeHolder 치환자
-         * @return array|string|null $message 치환된 메시지
+         * @param {string} text - 언어팩코드
+         * @param {Object} placeHolder - 치환자
+         * @return {string|Object} message 치환된 메시지
          */
         async getText(text, placeHolder = null) {
             const paths = ['/' + this.type + 's/' + this.name];
@@ -85,11 +85,27 @@ var Admin;
             return Language.getText(text, placeHolder, paths);
         }
         /**
-         * 언어팩 문자열이 위치할 DOM 을 반환하고, 언어팩이 비동기적으로 로딩되면 언어팩 내용으로 변환한다.
+         * 에러메시지를 불러온다.
          *
-         * @param string $text 언어팩코드
-         * @param ?array $placeHolder 치환자
-         * @return array|string|null $message 치환된 메시지
+         * @param {string} error - 에러코드
+         * @param {Object} placeHolder - 치환자
+         * @return {string} message 치환된 메시지
+         */
+        async getErrorText(error, placeHolder = null) {
+            const paths = ['/' + this.type + 's/' + this.name];
+            if (this.type != 'module' || this.name != 'admin') {
+                paths.push('/modules/admin');
+            }
+            paths.push('/');
+            return Language.getErrorText(error, placeHolder, paths);
+        }
+        /**
+         * 언어팩을 출력한다.
+         * 언어팩을 비동기방식으로 가져오기때문에 치환자를 먼저 반환하고, 언어팩이 로딩완료되면 언어팩으로 대치한다.
+         *
+         * @param {string} text - 언어팩코드
+         * @param {Object} placeHolder - 치환자
+         * @return {string} message - 치환된 메시지
          */
         printText(text, placeHolder = null) {
             const paths = ['/' + this.type + 's/' + this.name];
@@ -98,6 +114,22 @@ var Admin;
             }
             paths.push('/');
             return Language.printText(text, placeHolder, paths);
+        }
+        /**
+         * 에러메시지를 출력한다.
+         * 언어팩을 비동기방식으로 가져오기때문에 치환자를 먼저 반환하고, 언어팩이 로딩완료되면 언어팩으로 대치한다.
+         *
+         * @param {string} error - 에러코드
+         * @param {Object} placeHolder - 치환자
+         * @return {string} message - 치환된 메시지
+         */
+        printErrorText(error, placeHolder = null) {
+            const paths = ['/' + this.type + 's/' + this.name];
+            if (this.type != 'module' || this.name != 'admin') {
+                paths.push('/modules/admin');
+            }
+            paths.push('/');
+            return Language.printErrorText(error, placeHolder, paths);
         }
         /**
          * 관리자 인터페이스를 구성하는 요소의 기본 상대경로를 가져온다.

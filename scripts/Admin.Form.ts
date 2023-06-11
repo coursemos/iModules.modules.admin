@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 10.
+ * @modified 2023. 6. 11.
  */
 declare var moment: any;
 
@@ -932,7 +932,7 @@ namespace Admin {
                  */
                 async validate(): Promise<boolean | string> {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return (await Admin.getText('errors.REQUIRED')) as string;
+                        return await Admin.getErrorText('REQUIRED');
                     }
 
                     if (typeof this.validator == 'function') {
@@ -4806,7 +4806,7 @@ namespace Admin {
                  */
                 async validate(): Promise<boolean | string> {
                     if (this.allowBlank == false && this.isBlank() == true) {
-                        return (await Admin.getText('errors.REQUIRED')) as string;
+                        return await Admin.getErrorText('REQUIRED');
                     }
 
                     let valid = true;
@@ -5967,7 +5967,7 @@ namespace Admin {
                  */
                 async validate(): Promise<boolean | string> {
                     if (this.allowBlank == false && this.isBlank() == true) {
-                        return (await Admin.getText('errors.REQUIRED')) as string;
+                        return await Admin.getErrorText('REQUIRED');
                     }
 
                     let valid = true;

@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 20.
+ * @modified 2023. 6. 11.
  */
 var Admin;
 (function (Admin) {
@@ -80,25 +80,49 @@ var Admin;
     /**
      * 언어팩을 불러온다.
      *
-     * @param string $text 언어팩코드
-     * @param ?array $placeHolder 치환자
-     * @return array|string|null $message 치환된 메시지
+     * @param {string} text - 언어팩코드
+     * @param {Object} placeHolder - 치환자
+     * @return {string|Object} message - 치환된 메시지
      */
     async function getText(text, placeHolder = null) {
         return Language.getText(text, placeHolder, ['/modules/admin', '/']);
     }
     Admin.getText = getText;
     /**
-     * 언어팩 문자열이 위치할 DOM 을 반환하고, 언어팩이 비동기적으로 로딩되면 언어팩 내용으로 변환한다.
+     * 에러메시지를 불러온다.
      *
-     * @param string $text 언어팩코드
-     * @param ?array $placeHolder 치환자
-     * @return array|string|null $message 치환된 메시지
+     * @param {string} error - 에러코드
+     * @param {Object} placeHolder - 치환자
+     * @return {string} message - 치환된 메시지
+     */
+    async function getErrorText(error, placeHolder = null) {
+        return Language.getErrorText(error, placeHolder, ['/modules/admin', '/']);
+    }
+    Admin.getErrorText = getErrorText;
+    /**
+     * 언어팩을 출력한다.
+     * 언어팩을 비동기방식으로 가져오기때문에 치환자를 먼저 반환하고, 언어팩이 로딩완료되면 언어팩으로 대치한다.
+     *
+     * @param {string} text - 언어팩코드
+     * @param {Object} placeHolder - 치환자
+     * @return {string|Object} message - 치환된 메시지
      */
     function printText(text, placeHolder = null) {
         return Language.printText(text, placeHolder, ['/modules/admin', '/']);
     }
     Admin.printText = printText;
+    /**
+     * 에러메시지를 출력한다.
+     * 언어팩을 비동기방식으로 가져오기때문에 치환자를 먼저 반환하고, 언어팩이 로딩완료되면 언어팩으로 대치한다.
+     *
+     * @param {string} error - 에러코드
+     * @param {Object} placeHolder - 치환자
+     * @return {string|Object} message - 치환된 메시지
+     */
+    function printErrorText(error, placeHolder = null) {
+        return Language.printErrorText(error, placeHolder, ['/modules/admin', '/']);
+    }
+    Admin.printErrorText = printErrorText;
     /**
      * REWRITE 를 사용중인지 확인한다.
      *

@@ -635,7 +635,7 @@ var Admin;
                  */
                 async validate() {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return (await Admin.getText('errors.REQUIRED'));
+                        return await Admin.getErrorText('REQUIRED');
                     }
                     if (typeof this.validator == 'function') {
                         return await this.validator(this.getValue(), this);
@@ -3764,7 +3764,7 @@ var Admin;
                  */
                 async validate() {
                     if (this.allowBlank == false && this.isBlank() == true) {
-                        return (await Admin.getText('errors.REQUIRED'));
+                        return await Admin.getErrorText('REQUIRED');
                     }
                     let valid = true;
                     for (const item of this.getFieldSet().getFields()) {
@@ -4634,7 +4634,7 @@ var Admin;
                  */
                 async validate() {
                     if (this.allowBlank == false && this.isBlank() == true) {
-                        return (await Admin.getText('errors.REQUIRED'));
+                        return await Admin.getErrorText('REQUIRED');
                     }
                     let valid = true;
                     for (const item of this.getFieldSet().getFields()) {

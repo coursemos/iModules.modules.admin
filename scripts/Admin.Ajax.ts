@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2023. 6. 11.
  */
 namespace Admin {
     export namespace Ajax {
@@ -69,8 +69,8 @@ namespace Admin {
                     } else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('errors.TITLE'),
-                            message: Admin.printText('errors.CONNECT_ERROR'),
+                            title: Admin.printErrorText('TITLE'),
+                            message: Admin.printErrorText('CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
 
@@ -84,7 +84,7 @@ namespace Admin {
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
+                        title: Admin.printErrorText('TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -97,8 +97,8 @@ namespace Admin {
                 } else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
-                        message: Admin.printText('errors.CONNECT_ERROR'),
+                        title: Admin.printErrorText('TITLE'),
+                        message: Admin.printErrorText('CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
 
@@ -153,8 +153,8 @@ namespace Admin {
                     } else {
                         Admin.Message.show({
                             icon: Admin.Message.ERROR,
-                            title: Admin.printText('errors.TITLE'),
-                            message: Admin.printText('errors.CONNECT_ERROR'),
+                            title: Admin.printErrorText('TITLE'),
+                            message: Admin.printErrorText('CONNECT_ERROR'),
                             buttons: Admin.Message.OK,
                         });
 
@@ -168,7 +168,7 @@ namespace Admin {
                 if (results.success == false && results.message !== undefined) {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
+                        title: Admin.printErrorText('TITLE'),
                         message: results.message,
                         buttons: Admin.Message.OK,
                     });
@@ -181,8 +181,8 @@ namespace Admin {
                 } else {
                     Admin.Message.show({
                         icon: Admin.Message.ERROR,
-                        title: Admin.printText('errors.TITLE'),
-                        message: Admin.printText('errors.CONNECT_ERROR'),
+                        title: Admin.printErrorText('TITLE'),
+                        message: Admin.printErrorText('CONNECT_ERROR'),
                         buttons: Admin.Message.OK,
                     });
 
