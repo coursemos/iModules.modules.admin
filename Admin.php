@@ -500,6 +500,7 @@ class Admin extends \Module
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));
 
+        \Html::body('data-type', 'admin');
         \Html::body('data-context-url', $context->getPath());
 
         return $theme->getLayout();
