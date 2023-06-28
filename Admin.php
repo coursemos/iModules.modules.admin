@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 10.
+ * @modified 2023. 6. 28.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -34,6 +34,11 @@ class Admin extends \Module
     private static $_member;
 
     /**
+     * @var array $_permissions 회원별 관리자 권한
+     */
+    private static $_permissions = [];
+
+    /**
      * 모듈 설정을 초기화한다.
      */
     public function init(): void
@@ -54,8 +59,9 @@ class Admin extends \Module
     public function initContexts(): void
     {
         if (isset(self::$_contexts) === false) {
+            self::$_contexts = [];
             foreach (\Modules::all() as $module) {
-                $this->getAdminClass('module', $module->getName())?->init();
+                $this->getAdminClass($module)?->init();
             }
 
             uksort(self::$_contexts, function ($left, $right) {
@@ -84,15 +90,16 @@ class Admin extends \Module
     /**
      * 관리자 개인화 설정을 가져온다.
      *
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
      * @return object $member
      */
-    public function getMember(): object
+    public function getMember(?int $member_id = null): object
     {
         /**
          * @var \modules\member\Member $mMember
          */
         $mMember = \Modules::get('member');
-        $member_id = $mMember->getLogged();
+        $member_id ??= $mMember->getLogged();
 
         if (isset(self::$_member) == true && self::$_member->member_id == $member_id) {
             return self::$_member;
@@ -147,7 +154,7 @@ class Admin extends \Module
          * 메뉴설정이 없다면 기본메뉴 설정을 생성한다.
          */
         if ($contexts == null) {
-            $tree = ['/', '/modules', '/plugins'];
+            $tree = ['/', '/members', '/modules', '/plugins'];
 
             $modules = new \stdClass();
             $modules->title = '@modules';
@@ -163,13 +170,8 @@ class Admin extends \Module
             $plugins->children = [];
             $tree[] = $plugins;
 
-            $sites = new \stdClass();
-            $sites->title = '@sites';
-            $sites->icon = 'xi xi-home';
-            $sites->smart = 'none';
-            $sites->children = ['/sites', '/sitemap'];
-            $tree[] = $sites;
-
+            $tree[] = '/sites';
+            $tree[] = '/administrators';
             $tree[] = '/database';
         } else {
             $tree = $contexts;
@@ -221,13 +223,21 @@ class Admin extends \Module
         $contexts = [];
         foreach ($tree as $item) {
             if (is_string($item) == true) {
-                if ($this->checkPermission($item) !== false) {
+                if (isset(self::$_contexts[$item]) == false) {
+                    continue;
+                }
+
+                if (self::$_contexts[$item]->hasPermission() !== false) {
                     $contexts[] = self::$_contexts[$item];
                 }
             } else {
                 $children = [];
                 foreach ($item->children as $child) {
-                    if ($this->checkPermission($child) !== false) {
+                    if (isset(self::$_contexts[$child]) == false) {
+                        continue;
+                    }
+
+                    if (self::$_contexts[$child]->hasPermission() !== false) {
                         $children[] = self::$_contexts[$child];
                     }
                 }
@@ -240,11 +250,7 @@ class Admin extends \Module
                     $item->title = $this->getText('admin.navigation.folder.preset.' . substr($item->title, 1));
                 }
 
-                $folder = new \modules\admin\dto\Context(
-                    $this->getAdminClass('module', 'admin'),
-                    $item->title,
-                    $item->icon
-                );
+                $folder = new \modules\admin\dto\Context($this->getAdminClass($this), $item->title, $item->icon);
                 $folder->setFolder($children, $item->smart);
 
                 $contexts[] = $folder;
@@ -295,7 +301,7 @@ class Admin extends \Module
                 }
             }
 
-            return self::$_contexts['/dashboard'];
+            return self::$_contexts['/'];
         }
 
         /**
@@ -317,16 +323,15 @@ class Admin extends \Module
     /**
      * 각 컴포넌트의 관리자 클래스를 가져온다.
      *
+     * @param \Component $component 컴포넌트객체
      * @return ?\modules\admin\admin\Admin $admin
      */
-    public function getAdminClass(string $type, string $name): ?\modules\admin\admin\Admin
+    public function getAdminClass(\Component $component): ?\modules\admin\admin\Admin
     {
-        if (in_array($type, ['module', 'plugin', 'widget']) == false) {
-            return null;
-        }
-        $classPaths = explode('/', $name);
+        $classPaths = explode('/', $component->getName());
         $className = ucfirst(end($classPaths));
-        $className = '\\' . $type . 's\\' . implode('\\', $classPaths) . '\\admin\\' . $className . 'Admin';
+        $className =
+            '\\' . $component->getType() . 's\\' . implode('\\', $classPaths) . '\\admin\\' . $className . 'Admin';
         if (class_exists($className) == false) {
             return null;
         }
@@ -340,30 +345,66 @@ class Admin extends \Module
     }
 
     /**
-     * 관리자 권한이 있는지 사용자인지 확인한다.
+     * 사용자의 전체 관리자 권한을 가져온다.
      *
-     * @return bool $is_admin
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return array $permissions 권한
      */
-    public function hasPermission(): bool
+    public function getPermissions(?int $member_id): array
     {
-        return true;
+        /**
+         * @var \modules\member\Member $mMember
+         */
+        $mMember = \Modules::get('member');
+        $member_id ??= $mMember->getLogged();
+
+        if (isset(self::$_permissions[$member_id]) == false) {
+            self::$_permissions[$member_id] = [];
+            $permissions = $this->db()
+                ->select()
+                ->from($this->table('permissions'))
+                ->where('member_id', $member_id)
+                ->get();
+            foreach ($permissions as $permission) {
+                $component = $permission->component_type . '/' . $permission->component_name;
+                if (isset(self::$_permissions[$member_id][$component]) == false) {
+                    self::$_permissions[$member_id][$component] = [];
+                }
+
+                if ($permission->permissions == '*') {
+                    $permission->permissions = true;
+                } else {
+                    $permission->permissions = json_decode($permission->permissions) ?? false;
+                }
+
+                self::$_permissions[$member_id][$component][$permission->permission_type] = $permission->permissions;
+            }
+        }
+
+        return self::$_permissions[$member_id];
     }
 
     /**
-     * 특정경로의 관리자 권한을 확인한다.
+     * 관리자 권한이 있는지 사용자인지 확인한다.
      *
-     * @param string $path
-     * @return bool|string $permission
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool $is_admin
      */
-    public function checkPermission(string $path): bool|string
+    public function hasPermission(?int $member_id = null): bool
     {
-        $this->initContexts();
-        $context = self::$_contexts[$path] ?? null;
-        if ($context == null) {
-            return false;
-        }
+        return count($this->getPermissions($member_id)) > 0;
+    }
 
-        return true;
+    /**
+     * 최고관리자인지 확인한다.
+     *
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool $is_master 최고관리자 여부
+     */
+    public function isMaster(?int $member_id = null): bool
+    {
+        $permissions = $this->getPermissions($member_id);
+        return isset($permissions['*/*']) == true;
     }
 
     /**
@@ -373,16 +414,63 @@ class Admin extends \Module
      */
     public function doRoute(\Route $route): string
     {
+        /**
+         * 아이모듈 관리자 테마를 설정한다.
+         */
+        $theme = new \Theme($this->getConfigs('theme'));
+
+        /**
+         * 현재 접속한 유저의 정보를 가져온다.
+         * @var \modules\member\Member $mMember
+         */
+        $mMember = \Modules::get('member');
+        $member = $mMember->getMember();
+
+        /**
+         * 웹폰트를 불러온다.
+         */
+        \Html::font('XEIcon');
+        \Html::font('FontAwesome');
+
+        /**
+         * 관리자 기본 리소스를 불러온다.
+         */
+        \Html::script($this->getBase() . '/scripts/script.js');
+        \Html::style($this->getBase() . '/styles/styles.scss');
+
+        /**
+         * 관리자 권한이 존재하지 않는다면 로그인 레이아웃을 출력한다.
+         */
+        if ($this->hasPermission() == false) {
+            /**
+             * BODY 타입을 지정한다.
+             */
+            \Html::body('data-type', 'login');
+
+            return $theme->getLayout('login');
+        }
+
+        /**
+         * BODY 타입을 지정한다.
+         */
+        \Html::body('data-type', 'admin');
+
+        $theme->assign('mMember', $mMember);
+        $theme->assign('member', $member);
+
         $context = $this->getAdminContext($route);
         if ($context === null) {
             \ErrorHandler::print('NOT_FOUND_URL');
         }
 
-        if (preg_match('/^' . \Format::reg($context->getPath()) . '/', $route->getSubPath()) == false) {
+        if (
+            $context->getPath() != '/' &&
+            preg_match('/^' . \Format::reg($context->getPath()) . '/', $route->getSubPath()) == false
+        ) {
             \Header::location($route->getUrl() . $context->getPath());
         }
 
-        if ($this->checkPermission($context->getPath()) === false) {
+        if ($context->hasPermission() === false) {
             \ErrorHandler::print('FORBIDDEN');
         }
 
@@ -425,7 +513,7 @@ class Admin extends \Module
                 );
             }
 
-            $scripts = $this->getAdminClass('module', $module->getName())?->scripts() ?? [];
+            $scripts = $this->getAdminClass($module)?->scripts() ?? [];
             foreach ($scripts as $script) {
                 \Cache::script('admin.interfaces', $script);
             }
@@ -470,40 +558,19 @@ class Admin extends \Module
                 );
             }
 
-            $styles = $this->getAdminClass('module', $module->getName())?->styles() ?? [];
+            $styles = $this->getAdminClass($module)?->styles() ?? [];
             foreach ($styles as $style) {
                 \Cache::style('admin.interfaces', $style);
             }
         }
         \Html::style(\Cache::style('admin.interfaces'), 15);
 
-        /**
-         * 웹폰트를 불러온다.
-         */
-        \Html::font('XEIcon');
-        \Html::font('FontAwesome');
-
-        /**
-         * 현재 접속한 유저의 정보를 가져온다.
-         * @var \modules\member\Member $mMember
-         */
-        $mMember = \Modules::get('member');
-        $member = $mMember->getMember();
-
-        /**
-         * 아이모듈 관리자 테마를 설정한다.
-         */
-        $theme = new \Theme($this->getConfigs('theme'));
-        $theme->assign('mMember', $mMember);
-        $theme->assign('member', $member);
-
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));
 
-        \Html::body('data-type', 'admin');
         \Html::body('data-context-url', $context->getPath());
 
-        return $theme->getLayout();
+        return $theme->getLayout('admin');
     }
 
     /**
@@ -608,7 +675,7 @@ class Admin extends \Module
     }
 
     /**
-     * 관리자모듈이 설치된 이후 관리자 메뉴를 업데이트한다.
+     * 관리자모듈이 설치된 이후 최고관리자(회원고유값=1) 권한을 설정한다.
      *
      * @param string $previous 이전설치버전 (NULL 인 경우 신규설치)
      * @param object $configs 모듈설정
@@ -618,10 +685,15 @@ class Admin extends \Module
     {
         $success = parent::install($previous);
         if ($success == true) {
-            /**
-             * @var \modules\admin\Admin $mAdmin
-             */
-            //$mAdmin = \Modules::get('admin');
+            $this->db()
+                ->replace($this->table('permissions'), [
+                    'member_id' => 1,
+                    'component_type' => '*',
+                    'component_name' => '*',
+                    'permission_type' => '*',
+                    'permissions' => '*',
+                ])
+                ->execute();
         }
 
         return $success;

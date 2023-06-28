@@ -16,15 +16,6 @@ if (defined('__IM_PROCESS__') == false) {
     exit();
 }
 
-/**
- * 관리자권한이 존재하는지 확인한다.
- */
-if ($me->isAdmin('modules') == false) {
-    $results->success = false;
-    $results->message = $me->getErrorText('FORBIDDEN');
-    return;
-}
-
 $errors = [];
 $name = $input->get('name', $errors);
 $module = Modules::get($name);
@@ -33,6 +24,27 @@ if ($module === null) {
     $results->message = $me->getErrorText('NOT_FOUND_MODULE', ['module' => $name]);
     return;
 }
+
+if ($module->isInstalled() == true) {
+    /**
+     * 관리자권한이 존재하는지 확인한다.
+     */
+    if ($me->getAdmin()->checkPermission('modules', 'config') == false) {
+        $results->success = false;
+        $results->message = $me->getErrorText('FORBIDDEN');
+        return;
+    }
+} else {
+    /**
+     * 관리자권한이 존재하는지 확인한다.
+     */
+    if ($me->getAdmin()->checkPermission('modules', 'install') == false) {
+        $results->success = false;
+        $results->message = $me->getErrorText('FORBIDDEN');
+        return;
+    }
+}
+
 $configs = $input->get('configs') ? $module->getPackage()->getConfigs($input->get('configs')) : null;
 
 $installable = Modules::installable($name);

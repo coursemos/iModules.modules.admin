@@ -7,30 +7,33 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2023. 6. 28.
  */
 namespace modules\admin\admin;
-class Admin
+abstract class Admin
 {
     /**
-     * @var \modules\admin\Admin $_admin 관리자모듈
+     * @var \modules\admin\Admin $_mAdmin 관리자모듈
      */
-    private static \modules\admin\Admin $_admin;
+    private static \modules\admin\Admin $_mAdmin;
+
+    /**
+     * @var array $_permissions 사용자별 현재 모듈의 관리자 권한
+     */
+    private static $_permissions = [];
 
     /**
      * 관리자 클래스를 정의한다.
      */
-    public function __construct(\modules\admin\Admin $admin)
+    final public function __construct(\modules\admin\Admin $admin)
     {
-        self::$_admin = $admin;
+        self::$_mAdmin = $admin;
     }
 
     /**
      * 관리자 컨텍스트를 초기화한다.
      */
-    public function init(): void
-    {
-    }
+    abstract public function init(): void;
 
     /**
      * 언어팩 코드 문자열을 가져온다.
@@ -39,13 +42,13 @@ class Admin
      * @param ?array $placeHolder 치환자
      * @return string|array $message 치환된 메시지
      */
-    public function getText(string $text, ?array $placeHolder = null): string|array
+    final public function getText(string $text, ?array $placeHolder = null): string|array
     {
         return \Language::getText(
             $text,
             $placeHolder,
             ['/' . $this->getComponent()->getType() . 's/' . $this->getComponent()->getName(), '/'],
-            [self::$_admin->getLanguage()]
+            [self::$_mAdmin->getLanguage()]
         );
     }
 
@@ -56,7 +59,7 @@ class Admin
      * @param ?array $placeHolder 치환자
      * @return string $message 치환된 메시지
      */
-    public function getErrorText(string $code, ?array $placeHolder = null): string
+    final public function getErrorText(string $code, ?array $placeHolder = null): string
     {
         return self::getText('errors/' . $code, $placeHolder);
     }
@@ -68,12 +71,12 @@ class Admin
      * @param string $title 컨텍스트명
      * @param ?string $icon 컨텍스트아이콘
      */
-    public function addContext(string $path, string $title, string $icon = '', bool $is_root = false): void
+    final public function addContext(string $path, string $title, string $icon = '', bool $is_root = false): void
     {
         $context = new \modules\admin\dto\Context($this, $title, $icon);
         $context->setContext($path, $is_root);
 
-        self::$_admin->addContext($context);
+        self::$_mAdmin->addContext($context);
     }
 
     /**
@@ -84,11 +87,11 @@ class Admin
      * @param string $target 링크대상 (_self : 현재창, _blank : 새창)
      * @param ?string $icon 컨텍스트아이콘
      */
-    public function addLink(string $url, string $title, string $target = '_self', string $icon = ''): void
+    final public function addLink(string $url, string $title, string $target = '_self', string $icon = ''): void
     {
         $context = new \modules\admin\dto\Context($this, $title, $icon);
         $context->setLink($url, $target);
-        self::$_admin->addContext($context);
+        self::$_mAdmin->addContext($context);
     }
 
     /**
@@ -96,7 +99,7 @@ class Admin
      *
      * @return \Component $component
      */
-    public function getComponent(): \Component
+    final public function getComponent(): \Component
     {
         $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)Admin$/';
         if (preg_match($regExp, get_called_class(), $match) == true) {
@@ -116,7 +119,7 @@ class Admin
      *
      * @return string $base
      */
-    public function getBase(): string
+    final public function getBase(): string
     {
         return $this->getComponent()->getBase() . '/admin';
     }
@@ -126,7 +129,7 @@ class Admin
      *
      * @return string $dir
      */
-    public function getDir(): string
+    final public function getDir(): string
     {
         return $this->getComponent()->getDir() . '/admin';
     }
@@ -136,7 +139,7 @@ class Admin
      *
      * @return string $path
      */
-    public function getPath(): string
+    final public function getPath(): string
     {
         return $this->getComponent()->getPath() . '/admin';
     }
@@ -164,13 +167,94 @@ class Admin
     }
 
     /**
+     * 현재 모듈의 모든 관리자 권한을 가져온다.
+     *
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return array $permissions 권한
+     */
+    final public function getPermissions(?int $member_id = null): array
+    {
+        /**
+         * @var \modules\member\Member $mMember
+         */
+        $mMember = \Modules::get('member');
+        $member_id ??= $mMember->getLogged();
+
+        if (isset(self::$_permissions[$member_id]) == true) {
+            return self::$_permissions[$member_id];
+        }
+
+        $permissions = self::$_mAdmin->getPermissions($member_id);
+        $component = $this->getComponent()->getType() . '/' . $this->getComponent()->getName();
+        self::$_permissions = isset($permissions[$component]) == true ? $permissions[$component] : [];
+
+        return self::$_permissions;
+    }
+
+    /**
+     * 권한종류에 따른 권한을 가져온다.
+     *
+     * @param string $permission_type 권한종류
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool|array $permission
+     */
+    final public function getPermission(string $permission_type, ?int $member_id = null): bool|array
+    {
+        if ($this->isMaster($member_id) == true) {
+            return true;
+        }
+
+        $permissions = $this->getPermissions($member_id);
+        if (isset($permissions[$permission_type]) == false) {
+            return false;
+        }
+
+        return $permissions[$permission_type];
+    }
+
+    /**
+     * 특정 권한종류에 특정 권한이 존재하는지 확인한다.
+     *
+     * @param string $permission_type 권한종류
+     * @param ?string $check 권한이 존재하는지 확인할 권한 (NULL 인 경우 어떤 권한이라도 존재하는지 확인)
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool $has_permission
+     */
+    final public function checkPermission(string $permission_type, ?string $check = null, ?int $member_id = null): bool
+    {
+        $permission = $this->getPermission($permission_type, $member_id);
+        if (is_bool($permission) == true) {
+            return $permission;
+        } else {
+            return $check === null ? count($permission) > 0 : in_array($check, $permission) === true;
+        }
+    }
+
+    /**
+     * 최고관리자인지 확인한다.
+     *
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool $is_master 최고관리자 여부
+     */
+    final public function isMaster(?int $member_id = null): bool
+    {
+        return self::$_mAdmin->isMaster($member_id);
+    }
+
+    /**
+     * 관리자 컨텍스트의 접근권한을 확인한다.
+     *
+     * @param string $path 컨텍스트경로
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool $has_permission
+     */
+    abstract public function hasContextPermission(string $path, ?int $member_id = null): bool;
+
+    /**
      * 각 컨텍스트의 콘텐츠를 가져온다.
      *
      * @param string $path 컨텍스트 경로
      * @param ?string $subPath 컨텍스트 하위경로
      */
-    public function getContent(string $path, ?string $subPath = null): string
-    {
-        return '';
-    }
+    abstract public function getContent(string $path, ?string $subPath = null): string;
 }

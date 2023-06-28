@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Viewport.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2023. 6. 27.
  */
 var Admin;
 (function (Admin) {
@@ -98,7 +98,7 @@ var Admin;
              * 뷰포트를 관리자영역에 출력한다.
              */
             doLayout() {
-                Html.get('main[data-role=admin]').append(this.$component);
+                Html.get('section[data-role=admin]').append(this.$component);
                 this.render();
             }
         }
@@ -426,7 +426,7 @@ var Admin;
                         }
                     });
                     if (this.contextType == 'CONTEXT') {
-                        $context.setAttr('href', Admin.getUrl() + this.path);
+                        $context.setAttr('href', Admin.getUrl() + (this.path == '/' ? '' : this.path));
                         $context.setAttr('target', this.target);
                     }
                     else if (this.contextType == 'LINK') {

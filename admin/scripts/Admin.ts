@@ -192,7 +192,7 @@ namespace Admin {
     }
 }
 
-window.onload = () => {
+Html.ready(() => {
     new Admin.Viewport.Panel({
         id: 'Admin-Viewport',
         navigation: new Admin.Viewport.Navigation.Panel({
@@ -201,4 +201,15 @@ window.onload = () => {
             saveUrl: Admin.getProcessUrl('module', 'admin', 'navigation'),
         }),
     }).doLayout();
-};
+
+    const $header = Html.get('section[data-role=header]');
+    const $logout = Html.get('button[data-action=logout]', $header);
+    $logout.on('click', async () => {
+        $logout.disable(true);
+        const mMember = Modules.get('member') as modules.member.Member;
+        const success = await mMember.logout();
+        if (success == true) {
+            location.replace(Admin.getUrl());
+        }
+    });
+});

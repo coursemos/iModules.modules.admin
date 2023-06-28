@@ -1,0 +1,33 @@
+<?php
+/**
+ * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
+ *
+ * 관리자 기본테마 - 로그인 레이아웃
+ *
+ * @file /modules/admin/templates/default/layouts/login.html
+ * @author Arzz (arzz@arzz.com)
+ * @license MIT License
+ * @modified 2023. 6. 24.
+ *
+ * @var Theme $theme 현재 테마 클래스
+ */
+if (defined('__IM__') == false) {
+    exit();
+}
+?>
+<main data-role="layout" data-layout="login">
+    <section>
+        <h1><i class="mi mi-lock"></i> Login to control panel</h1>
+
+        <form>
+            <div data-role="fieldset">
+                <?php Form::input('email', 'email')->placeholder('E-mail')->doLayout(); ?>
+                <?php Form::input('password', 'password')->placeholder('Password')->doLayout(); ?>
+
+                <button type="submit"><i class="mi mi-go"></i></button>
+            </div>
+
+            <?php Form::check('auto_login', 'true', 'Keep me signed in')->doLayout(); ?>
+        </form>
+    </section>
+</main>

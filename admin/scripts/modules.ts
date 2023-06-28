@@ -76,7 +76,7 @@ Admin.ready(async () => {
                     } else if (value == 'NOT_INSTALLED') {
                         $dom.setStyle('color', 'var(--color-gray-800)');
                     } else {
-                        $dom.setStyle('color', 'var(--color-danger)');
+                        $dom.setStyle('color', 'var(--color-danger-500)');
                     }
                     return me.printText('admin.modules.modules.status.' + value);
                 },

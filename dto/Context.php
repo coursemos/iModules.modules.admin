@@ -60,7 +60,7 @@ class Context
     /**
      * 관리자 컨텍스트 구조체를 정의한다.
      *
-     * @param \modules\admin\admin\Admin $admin 관리자클래스
+     * @param \modules\admin\admin\Admin $admin 컨텍스트의 관리자클래스
      * @param string $title 컨텍스트명
      * @param string $icon 컨텍스트 아이콘
      */
@@ -233,5 +233,16 @@ class Context
     public function getContent(string $subPath = null): string
     {
         return $this->_admin->getContent($this->_path, $subPath);
+    }
+
+    /**
+     * 컨텍스트 접근권한이 존재하는지 확인한다.
+     *
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool $has_permission
+     */
+    public function hasPermission(?int $member_id = null): bool
+    {
+        return $this->_admin->isMaster() == true || $this->_admin->hasContextPermission($this->_path, $member_id);
     }
 }
