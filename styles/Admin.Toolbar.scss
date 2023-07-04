@@ -6,7 +6,7 @@
  * @file /styles/Admin.Toolbar.scss
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 3. 11.
+ * @modified 2023. 7. 3.
  */
 div[data-component][data-type='toolbar'][data-role='bar'] {
     --button-background-default: var(--toolbar-button-background-default);
@@ -91,9 +91,9 @@ div[data-component][data-type='toolbar'][data-role='item'] {
             display: block;
             position: absolute;
             width: 1px;
-            height: calc(var(--text-height) - var(--padding-default) * 2);
-            background: var(--border-color-default);
-            top: var(--padding-default);
+            height: calc(var(--text-height) - var(--padding-default) * 3);
+            background: var(--toolbar-border-color);
+            top: calc(var(--padding-default) * 1.5);
             left: 50%;
             content: ' ';
         }
