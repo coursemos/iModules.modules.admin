@@ -21,6 +21,8 @@ var Admin;
         loading = false;
         loaded = false;
         data;
+        limit;
+        page;
         count = 0;
         total = 0;
         /**
@@ -37,6 +39,8 @@ var Admin;
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
+            this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 0;
+            this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 1;
         }
         /**
          * 데이터가 로딩되었는지 확인한다.
@@ -53,6 +57,31 @@ var Admin;
          */
         getData() {
             return this.data;
+        }
+        /**
+         * 현재페이지를 가져온다.
+         *
+         * @return {number} page
+         */
+        getPage() {
+            return this.page;
+        }
+        /**
+         * 전체페이지를 가져온다.
+         *
+         * @returns {number} totalPage
+         */
+        getTotalPage() {
+            return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+        }
+        /**
+         * 특정페이지를 로딩한다.
+         *
+         * @return {number} totalPage
+         */
+        loadPage(page) {
+            this.page = page;
+            this.reload();
         }
         /**
          * 데이터 갯수를 가져온다.
@@ -363,8 +392,6 @@ var Admin;
         class Ajax extends Admin.Store {
             method;
             url;
-            limit;
-            page;
             recordsField;
             totalField;
             /**
@@ -376,8 +403,6 @@ var Admin;
                 super(properties);
                 this.url = this.properties?.url ?? null;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
-                this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
-                this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
                 this.recordsField = this.properties.recordsField ?? 'records';
                 this.totalField = this.properties.totalField ?? 'total';
             }
@@ -394,8 +419,24 @@ var Admin;
                     return;
                 }
                 this.loading = true;
+                this.params ??= {};
+                if (this.fields.length > 0) {
+                    const fields = [];
+                    for (const field of this.fields) {
+                        if (typeof field == 'string') {
+                            fields.push(field);
+                        }
+                        else if (field?.name !== undefined) {
+                            fields.push(field.name);
+                        }
+                    }
+                    this.params.fields = fields.join(',');
+                }
+                if (this.limit > 0) {
+                    this.params.start = (this.page - 1) * this.limit;
+                    this.params.limit = this.limit;
+                }
                 if (this.remoteSort == true) {
-                    this.params ??= {};
                     if (this.sorters === null) {
                         this.params.sorters = null;
                     }
@@ -404,7 +445,6 @@ var Admin;
                     }
                 }
                 if (this.remoteFilter == true) {
-                    this.params ??= {};
                     if (this.filters === null) {
                         this.params.filters = null;
                     }

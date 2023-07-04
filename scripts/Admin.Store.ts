@@ -81,6 +81,8 @@ namespace Admin {
         loading: boolean = false;
         loaded: boolean = false;
         data: Admin.Data;
+        limit: number;
+        page: number;
         count: number = 0;
         total: number = 0;
 
@@ -99,6 +101,8 @@ namespace Admin {
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
+            this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 0;
+            this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 1;
         }
 
         /**
@@ -117,6 +121,34 @@ namespace Admin {
          */
         getData(): Admin.Data {
             return this.data;
+        }
+
+        /**
+         * 현재페이지를 가져온다.
+         *
+         * @return {number} page
+         */
+        getPage(): number {
+            return this.page;
+        }
+
+        /**
+         * 전체페이지를 가져온다.
+         *
+         * @returns {number} totalPage
+         */
+        getTotalPage(): number {
+            return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+        }
+
+        /**
+         * 특정페이지를 로딩한다.
+         *
+         * @return {number} totalPage
+         */
+        loadPage(page: number): void {
+            this.page = page;
+            this.reload();
         }
 
         /**
@@ -497,8 +529,6 @@ namespace Admin {
         export class Ajax extends Admin.Store {
             method: string;
             url: string;
-            limit: number;
-            page: number;
             recordsField: string;
             totalField: string;
 
@@ -512,8 +542,6 @@ namespace Admin {
 
                 this.url = this.properties?.url ?? null;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
-                this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 50;
-                this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 50;
                 this.recordsField = this.properties.recordsField ?? 'records';
                 this.totalField = this.properties.totalField ?? 'total';
             }
@@ -535,8 +563,26 @@ namespace Admin {
 
                 this.loading = true;
 
+                this.params ??= {};
+
+                if (this.fields.length > 0) {
+                    const fields = [];
+                    for (const field of this.fields) {
+                        if (typeof field == 'string') {
+                            fields.push(field);
+                        } else if (field?.name !== undefined) {
+                            fields.push(field.name);
+                        }
+                    }
+                    this.params.fields = fields.join(',');
+                }
+
+                if (this.limit > 0) {
+                    this.params.start = (this.page - 1) * this.limit;
+                    this.params.limit = this.limit;
+                }
+
                 if (this.remoteSort == true) {
-                    this.params ??= {};
                     if (this.sorters === null) {
                         this.params.sorters = null;
                     } else {
@@ -545,7 +591,6 @@ namespace Admin {
                 }
 
                 if (this.remoteFilter == true) {
-                    this.params ??= {};
                     if (this.filters === null) {
                         this.params.filters = null;
                     } else {
