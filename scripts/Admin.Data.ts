@@ -62,6 +62,10 @@ namespace Admin {
          * @return {any} value - 타입지정된 데이터
          */
         setType(value: any, type: 'int' | 'float' | 'string' | 'boolean' | 'object'): any {
+            if (value === null || value === undefined) {
+                return null;
+            }
+
             switch (type) {
                 case 'int':
                     value = parseInt(value, 10);

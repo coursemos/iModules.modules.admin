@@ -56,6 +56,9 @@ var Admin;
          * @return {any} value - 타입지정된 데이터
          */
         setType(value, type) {
+            if (value === null || value === undefined) {
+                return null;
+            }
             switch (type) {
                 case 'int':
                     value = parseInt(value, 10);
