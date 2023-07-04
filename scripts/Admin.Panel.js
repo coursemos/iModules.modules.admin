@@ -59,8 +59,8 @@ var Admin;
                 this.$setTop();
             }
             if (this.properties.bottombar) {
-                if (this.properties.topbar instanceof Admin.Toolbar) {
-                    this.bottombar = new Admin.Toolbar(this.properties.bottombar);
+                if (this.properties.bottombar instanceof Admin.Toolbar) {
+                    this.bottombar = this.properties.bottombar;
                 }
                 else {
                     this.bottombar = new Admin.Toolbar(this.properties.bottombar);
