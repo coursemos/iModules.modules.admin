@@ -520,6 +520,7 @@ var Admin;
                     this.setMomentum(nextX.momentum, nextY.momentum);
                     this.setPosition(nextX.position, nextY.position, true);
                 }
+                this.updatePosition();
                 this.updateTrack('x');
                 this.updateTrack('y');
             }

@@ -613,6 +613,7 @@ namespace Admin {
                     this.setPosition(nextX.position, nextY.position, true);
                 }
 
+                this.updatePosition();
                 this.updateTrack('x');
                 this.updateTrack('y');
             }
