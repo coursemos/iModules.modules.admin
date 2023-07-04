@@ -24,7 +24,12 @@ div[data-component][data-type='viewport'][data-role='panel'] {
             flex-grow: 0;
             flex-basis: var(--navigation-width);
             transition: ease-in 0.2s flex-basis;
+            z-index: 10;
             overflow: hidden;
+
+            &.sorting {
+                overflow: visible;
+            }
 
             &.collapsed {
                 flex-basis: var(--navigation-collapsed-width);
@@ -132,7 +137,6 @@ div[data-component][data-type='viewport'][data-role='context'] {
                 text-decoration: none;
                 color: var(--navigation-color-default);
                 white-space: nowrap;
-                overflow: hidden;
 
                 > i {
                     display: inline-block;
@@ -146,6 +150,7 @@ div[data-component][data-type='viewport'][data-role='context'] {
                 }
 
                 > span {
+                    overflow: hidden;
                     display: inline-block;
                     vertical-align: top;
                     width: calc(100% - var(--navigation-collapsed-width));
@@ -189,6 +194,26 @@ div[data-component][data-type='viewport'][data-role='context'] {
 
                     > button {
                         display: inline-block;
+                    }
+                }
+            }
+
+            &.selected {
+                > a:not([disabled]) {
+                    color: var(--navigation-color-focus);
+
+                    > i {
+                        position: relative;
+
+                        &::after {
+                            position: absolute;
+                            border-left: 8px solid var(--navigation-item-border-color-selected);
+                            border-top: 8px solid transparent;
+                            border-bottom: 8px solid transparent;
+                            top: calc(50% - 8px);
+                            left: 0;
+                            content: ' ';
+                        }
                     }
                 }
             }
@@ -267,9 +292,31 @@ div[data-component][data-type='viewport'][data-role='context'] {
         position: fixed;
         z-index: 10000000;
         left: 300px;
-        opacity: 0.6;
+        opacity: 1; //0.6;
+
+        &::after {
+            position: absolute;
+            z-index: 1;
+            top: 1px;
+            left: 1px;
+            width: calc(100% - 2px);
+            height: calc(100% - 2px);
+            box-sizing: border-box;
+            border: 2px solid var(--navigation-item-border-color-drag);
+            content: ' ';
+        }
 
         > div[data-role='container'] {
+            > div[data-role='content'] {
+                > a {
+                    > i {
+                        &::after {
+                            display: none;
+                        }
+                    }
+                }
+            }
+
             > div[data-role='bottom'] {
                 display: none;
             }
@@ -278,6 +325,18 @@ div[data-component][data-type='viewport'][data-role='context'] {
 
     &[data-drag='origin'] {
         opacity: 0.4;
+
+        &::after {
+            position: absolute;
+            z-index: 1;
+            top: 1px;
+            left: 1px;
+            width: calc(100% - 2px);
+            height: calc(100% - 2px);
+            box-sizing: border-box;
+            border: 2px dashed var(--navigation-item-border-color-drag);
+            content: ' ';
+        }
     }
 
     &[data-drag='drop'],
@@ -296,12 +355,6 @@ div[data-component][data-type='viewport'][data-role='context'] {
             border: 2px solid var(--navigation-item-border-color-drop);
             content: ' ';
         }
-
-        > div[data-role='container'] {
-            > div[data-role='bottom'] {
-                //height: auto !important;
-            }
-        }
     }
 
     &[data-drag='drop'] {
@@ -319,7 +372,7 @@ div[data-component][data-type='viewport'][data-role='panel'] {
             > div[data-role='container'] > div[data-role='top'] {
                 > div[data-component]:first-child {
                     button > i::before {
-                        content: '\e708';
+                        content: '\e919';
                     }
                 }
             }

@@ -165,7 +165,7 @@ namespace Admin {
 
                     const toggle = new Admin.Button({
                         id: this.id + '-Toggle',
-                        iconClass: 'xi xi-fast-backward',
+                        iconClass: 'mi mi-double-start',
                         handler: () => {
                             this.getViewport().toggle();
                         },
@@ -342,11 +342,13 @@ namespace Admin {
                         listeners: {
                             toggle: (button, pressed) => {
                                 if (pressed == true) {
+                                    this.getParent().$getTop().addClass('sorting');
                                     Admin.getComponent(this.id + '-Folder').show();
                                     Admin.getComponent(this.id + '-Toggle').hide();
                                     button.setIconClass('mi mi-check');
                                     Html.all('a', this.$getContent()).setAttr('disabled', 'disabled');
                                 } else {
+                                    this.getParent().$getTop().removeClass('sorting');
                                     Admin.getComponent(this.id + '-Folder').hide();
                                     Admin.getComponent(this.id + '-Toggle').show();
                                     button.setIconClass('mi mi-loading');
@@ -479,8 +481,12 @@ namespace Admin {
                     });
 
                     if (this.contextType == 'CONTEXT') {
-                        $context.setAttr('href', Admin.getUrl() + (this.path == '/' ? '' : this.path));
+                        const url = Admin.getUrl() + this.path;
+                        $context.setAttr('href', url);
                         $context.setAttr('target', this.target);
+                        if (Admin.getContextUrl() == url) {
+                            $content.addClass('selected');
+                        }
                     } else if (this.contextType == 'LINK') {
                         $context.setAttr('href', this.path);
                         $context.setAttr('target', this.target);
