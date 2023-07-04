@@ -380,6 +380,18 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                 vertical-align: top;
                                 font-size: var(--font-size-default);
                             }
+
+                            i.photo {
+                                display: inline-block;
+                                width: 24px;
+                                height: 24px;
+                                margin-top: calc((var(--text-height) - var(--padding-default) * 2 - 24px) * 0.5);
+                                margin-bottom: calc((var(--text-height) - var(--padding-default) * 2 - 24px) * 0.5);
+                                margin-right: 5px;
+                                line-height: 24px;
+                                vertical-align: top;
+                                font-size: var(--font-size-default);
+                            }
                         }
                     }
 
