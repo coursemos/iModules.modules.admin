@@ -93,6 +93,9 @@ div[data-component][data-type='button'][data-role='button'] {
                 }
 
                 &[disabled] {
+                    background: var(--button-background-hover);
+                    border-color: var(--button-border-color-hover);
+                    color: var(--button-color-hover);
                     cursor: not-allowed;
                     opacity: 0.7;
                 }
