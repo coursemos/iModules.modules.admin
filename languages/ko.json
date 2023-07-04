@@ -1,4 +1,7 @@
 {
+    "texts": {
+        "page": "페이지"
+    },
     "errors": {
         "DUPLICATED_ADMIN_CONTEXT_PATH": "추가하고자 하는 관리자 경로 ${path} 가 이미 ${name}(${component})에서 사용중입니다."
     },

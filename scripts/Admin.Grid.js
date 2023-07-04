@@ -88,7 +88,7 @@ var Admin;
              * @return {Admin.Store} store
              */
             getStore() {
-                return this.store;
+                return this.store ?? this.properties.store ?? new Admin.Store();
             }
             /**
              * 그리드패널의 헤더 Dom 을 가져온다.
@@ -1166,5 +1166,269 @@ var Admin;
             }
         }
         Grid.Column = Column;
+        class Renderer {
+            static Date(format = 'YYYY.MM.DD(dd)') {
+                return (value) => {
+                    return value === null
+                        ? ''
+                        : '<time>' + moment.unix(value).locale(Admin.getLanguage()).format(format) + '</time>';
+                };
+            }
+            static DateTime(format = 'YYYY.MM.DD(dd) HH:mm') {
+                return Admin.Grid.Renderer.Date(format);
+            }
+        }
+        Grid.Renderer = Renderer;
+        class Pagination extends Admin.Toolbar {
+            grid = null;
+            store = null;
+            firstButton;
+            prevButton;
+            nextButton;
+            lastButton;
+            pageInput;
+            pageDisplay;
+            /**
+             * 페이징 툴바를 생성한다.
+             *
+             * @param {Admin.Component[]} items - 추가 툴바 아이템
+             */
+            constructor(items = []) {
+                super(items);
+            }
+            /**
+             * 부모객체를 지정한다.
+             *
+             * @param {Admin.Grid.Panel} grid - 그리드패널
+             * @return {Admin.Grid.Pagination} this
+             */
+            setParent(grid) {
+                if (grid instanceof Admin.Grid.Panel) {
+                    super.setParent(grid);
+                    this.grid = grid;
+                    this.store = this.grid.getStore();
+                    this.store.addEvent('beforeLoad', () => {
+                        this.setDisabled(true);
+                    });
+                    this.store.addEvent('update', () => {
+                        this.onUpdate();
+                    });
+                }
+                return this;
+            }
+            /**
+             * 처음으로 이동하는 버튼을 가져온다.
+             *
+             * @return {Admin.Button} firstButton
+             */
+            getFirstButton() {
+                if (this.firstButton === undefined) {
+                    this.firstButton = new Admin.Button({
+                        iconClass: 'mi mi-angle-start',
+                        disabled: true,
+                        handler: () => {
+                            this.movePage('FIRST');
+                        },
+                    });
+                }
+                return this.firstButton;
+            }
+            /**
+             * 이전으로 이동하는 버튼을 가져온다.
+             *
+             * @return {Admin.Button} prevButton
+             */
+            getPrevButton() {
+                if (this.prevButton === undefined) {
+                    this.prevButton = new Admin.Button({
+                        iconClass: 'mi mi-angle-left',
+                        disabled: true,
+                        handler: () => {
+                            this.movePage('PREV');
+                        },
+                    });
+                }
+                return this.prevButton;
+            }
+            /**
+             * 다음으로 이동하는 버튼을 가져온다.
+             *
+             * @return {Admin.Button} nextButton
+             */
+            getNextButton() {
+                if (this.nextButton === undefined) {
+                    this.nextButton = new Admin.Button({
+                        iconClass: 'mi mi-angle-right',
+                        disabled: true,
+                        handler: () => {
+                            this.movePage('NEXT');
+                        },
+                    });
+                }
+                return this.nextButton;
+            }
+            /**
+             * 마지막으로 이동하는 버튼을 가져온다.
+             *
+             * @return {Admin.Button} lastButton
+             */
+            getLastButton() {
+                if (this.lastButton === undefined) {
+                    this.lastButton = new Admin.Button({
+                        iconClass: 'mi mi-angle-end',
+                        disabled: true,
+                        handler: () => {
+                            this.movePage('LAST');
+                        },
+                    });
+                }
+                return this.lastButton;
+            }
+            /**
+             * 페이지 입력폼을 가져온다.
+             *
+             * @return {Admin.Form.Field.Number} pageInput
+             */
+            getPageInput() {
+                if (this.pageInput === undefined) {
+                    this.pageInput = new Admin.Form.Field.Number({
+                        minValue: 1,
+                        width: 60,
+                    });
+                }
+                return this.pageInput;
+            }
+            /**
+             * 페이지 입력폼을 가져온다.
+             *
+             * @return {Admin.Form.Field.Display} pageDisplay
+             */
+            getPageDisplay() {
+                if (this.pageDisplay === undefined) {
+                    this.pageDisplay = new Admin.Form.Field.Display({
+                        value: '1',
+                        renderer: (value) => {
+                            return '/ ' + Format.number(value) + ' ' + Admin.printText('texts.page');
+                        },
+                    });
+                }
+                return this.pageDisplay;
+            }
+            /**
+             * 툴바의 하위 컴포넌트를 초기화한다.
+             */
+            initItems() {
+                if (this.items === null) {
+                    this.items = [];
+                    if (this.grid !== null) {
+                        this.items.push(this.getFirstButton());
+                        this.items.push(this.getPrevButton());
+                        this.items.push(new Admin.Toolbar.Item('-'));
+                        this.items.push(this.getPageInput());
+                        this.items.push(this.getPageDisplay());
+                        this.items.push(new Admin.Toolbar.Item('-'));
+                        this.items.push(this.getNextButton());
+                        this.items.push(this.getLastButton());
+                        if (this.properties.items.length > 0) {
+                            this.items.push(new Admin.Toolbar.Item('-'));
+                        }
+                    }
+                    for (const item of this.properties.items ?? []) {
+                        if (item instanceof Admin.Component) {
+                            item.setLayoutType('column-item');
+                            this.items.push(item);
+                        }
+                        else if (typeof item == 'string') {
+                            this.items.push(new Admin.Toolbar.Item(item));
+                        }
+                    }
+                }
+                super.initItems();
+            }
+            /**
+             * 페이지를 이동한다.
+             *
+             * @param {'FIRST'|'PREV'|'NEXT'|'END'} position - 이동할위치
+             */
+            movePage(position) {
+                console.log('movePage', position);
+                const page = this.store?.getPage() ?? 1;
+                const totalPage = this.store?.getTotalPage() ?? 1;
+                let move = null;
+                switch (position) {
+                    case 'FIRST':
+                        if (page > 1) {
+                            move = 1;
+                        }
+                        break;
+                    case 'PREV':
+                        if (page > 1) {
+                            move = page - 1;
+                        }
+                        break;
+                    case 'NEXT':
+                        if (page < totalPage) {
+                            move = page + 1;
+                        }
+                        break;
+                    case 'LAST':
+                        if (page < totalPage) {
+                            move = totalPage;
+                        }
+                        break;
+                }
+                if (move !== null) {
+                    this.store.loadPage(move);
+                }
+                //
+            }
+            /**
+             * 툴바를 랜더링한다.
+             */
+            render() {
+                super.render();
+                if (this.store.isLoaded() == true) {
+                    this.onUpdate();
+                }
+            }
+            /**
+             * 페이징 처리 UI 의 비활성화 여부를 설정한다.
+             *
+             * @param {boolean} disabled - 비활성화여부
+             * @return {this}
+             */
+            setDisabled(disabled) {
+                this.getFirstButton().setDisabled(disabled);
+                this.getPrevButton().setDisabled(disabled);
+                this.getNextButton().setDisabled(disabled);
+                this.getLastButton().setDisabled(disabled);
+                this.getPageInput().setDisabled(disabled);
+                this.getPageDisplay().setDisabled(disabled);
+                return this;
+            }
+            /**
+             * 데이터스토어가 업데이트되었을 때 UI 를 업데이트한다.
+             */
+            onUpdate() {
+                console.log('store update', this.store.isLoaded());
+                if (this.store.isLoaded() === true) {
+                    this.enable();
+                    if (this.store.getPage() == 1) {
+                        this.getFirstButton().setDisabled(true);
+                        this.getPrevButton().setDisabled(true);
+                    }
+                    if (this.store.getPage() == this.store.getTotalPage()) {
+                        this.getNextButton().setDisabled(true);
+                        this.getLastButton().setDisabled(true);
+                    }
+                    this.getPageInput().setValue(this.store.getPage());
+                    this.getPageDisplay().setValue(this.store.getTotalPage());
+                }
+                else {
+                    this.disable();
+                }
+            }
+        }
+        Grid.Pagination = Pagination;
     })(Grid = Admin.Grid || (Admin.Grid = {}));
 })(Admin || (Admin = {}));
