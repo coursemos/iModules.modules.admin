@@ -12,13 +12,28 @@ section[data-role='admin'],
 main[data-role='admin'] {
     z-index: 0;
 
-    i.icon {
+    i.icon,
+    i.photo {
         font-style: normal;
         font-weight: 400;
         display: inline-block;
         background-size: contain;
         background-repeat: no-repeat;
         background-position: 50% 50%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    i.photo {
+        border-radius: 50%;
+        border: 1px solid #ccc;
+    }
+
+    time {
+        display: inline-block;
+        width: 100%;
+        font-size: 90%;
+        font-variant-numeric: tabular-nums;
         text-align: center;
     }
 
