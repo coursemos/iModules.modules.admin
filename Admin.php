@@ -154,7 +154,7 @@ class Admin extends \Module
          * 메뉴설정이 없다면 기본메뉴 설정을 생성한다.
          */
         if ($contexts == null) {
-            $tree = ['/', '/members', '/modules', '/plugins'];
+            $tree = ['/dashboard', '/members', '/modules', '/plugins'];
 
             $modules = new \stdClass();
             $modules->title = '@modules';
@@ -301,7 +301,7 @@ class Admin extends \Module
                 }
             }
 
-            return self::$_contexts['/'];
+            return self::$_contexts['/dashboard'];
         }
 
         /**
