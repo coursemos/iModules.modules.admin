@@ -48,8 +48,18 @@ abstract class Admin
             $text,
             $placeHolder,
             ['/' . $this->getComponent()->getType() . 's/' . $this->getComponent()->getName(), '/'],
-            [self::$_mAdmin->getLanguage()]
+            [$this->getAdmin()->getLanguage()]
         );
+    }
+
+    /**
+     * 관리자모듈 클래스를 가져온다.
+     *
+     * @return \modules\admin\Admin $mAdmin
+     */
+    final public function getAdmin(): \modules\admin\Admin
+    {
+        return self::$_mAdmin;
     }
 
     /**
@@ -76,7 +86,7 @@ abstract class Admin
         $context = new \modules\admin\dto\Context($this, $title, $icon);
         $context->setContext($path, $is_root);
 
-        self::$_mAdmin->addContext($context);
+        $this->getAdmin()->addContext($context);
     }
 
     /**
@@ -91,7 +101,7 @@ abstract class Admin
     {
         $context = new \modules\admin\dto\Context($this, $title, $icon);
         $context->setLink($url, $target);
-        self::$_mAdmin->addContext($context);
+        $this->getAdmin()->addContext($context);
     }
 
     /**
