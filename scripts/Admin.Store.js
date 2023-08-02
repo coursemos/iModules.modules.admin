@@ -39,6 +39,16 @@ var Admin;
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
+            if (this.filters !== null) {
+                for (const field in this.filters) {
+                    if (typeof this.filters[field] == 'string') {
+                        this.filters[field] = { value: this.filters[field], operator: '=' };
+                    }
+                    else {
+                        this.filters[field].operator ??= '=';
+                    }
+                }
+            }
             this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 0;
             this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 1;
         }
@@ -163,11 +173,15 @@ var Admin;
         /**
          * 데이터를 가져온다.
          */
-        load() { }
+        async load() {
+            return this;
+        }
         /**
          * 현재 데이터를 새로고침한다.
          */
-        reload() { }
+        async reload() {
+            return this;
+        }
         /**
          * 특정 필드의 특정값을 가진 레코드를 찾는다.
          *
@@ -203,29 +217,34 @@ var Admin;
         /**
          * 데이터와 일치하는 레코드의 인덱스를 찾는다.
          *
-         * @param {Admin.Data.Record} matcher - 찾을 레코드
-         * @param {string[]} fields - PRIMARY 필드 (NULL 인 경우 matcher 의 전체 필드가 일치하는 레코드를, 설정된 경우 해당 필드만 검색한다.)
+         * @param {Admin.Data.Record|Object} matcher - 찾을 레코드
          * @return {number} index - 검색된 데이터의 인덱스
          */
-        matchIndex(matcher, fields = null) {
-            if (fields === null || fields.length == 0) {
-                fields = matcher.getKeys();
-            }
-            for (const key in this.getRecords()) {
-                const index = parseInt(key, 10);
-                const record = this.getRecords().at(index);
-                let isMatched = true;
-                for (const field of fields) {
-                    if (matcher.get(field) !== record.get(field)) {
-                        isMatched = false;
-                        continue;
-                    }
+        match(matcher) {
+            let matched = null;
+            this.getRecords().some((record) => {
+                if (record.isEqual(matcher) === true) {
+                    matched = record;
+                    return true;
                 }
-                if (isMatched === true) {
-                    return index;
+            });
+            return matched;
+        }
+        /**
+         * 데이터와 일치하는 레코드의 인덱스를 찾는다.
+         *
+         * @param {Admin.Data.Record|Object} matcher - 찾을 레코드
+         * @return {number} index - 검색된 데이터의 인덱스
+         */
+        matchIndex(matcher) {
+            let matched = null;
+            this.getRecords().some((record, index) => {
+                if (record.isEqual(matcher) === true) {
+                    matched = index;
+                    return true;
                 }
-            }
-            return null;
+            });
+            return matched;
         }
         /**
          * 데이터를 정렬한다.
@@ -253,6 +272,14 @@ var Admin;
                     this.onUpdate();
                 });
             }
+        }
+        /**
+         * 현재 정렬기준을 가져온다.
+         *
+         * @return {Object} sorters
+         */
+        getSorters() {
+            return this.data?.sorters ?? this.sorters;
         }
         /**
          * 필터를 설정한다.
@@ -355,11 +382,11 @@ var Admin;
             /**
              * 데이터를 가져온다.
              */
-            load() {
+            async load() {
                 this.onBeforeLoad();
                 if (this.loaded == true) {
                     this.onLoad();
-                    return;
+                    return this;
                 }
                 const records = [];
                 this.records.forEach((item) => {
@@ -375,17 +402,18 @@ var Admin;
                     records.push(record);
                 });
                 this.loaded = true;
-                this.data = new Admin.Data(records, this.fields);
+                this.data = new Admin.Data(records, this.fields, this.primaryKeys);
                 this.count = records.length;
                 this.total = this.count;
                 this.onLoad();
+                return this;
             }
             /**
              * 현재 데이터를 새로고침한다.
              */
-            reload() {
+            async reload() {
                 this.loaded = false;
-                this.load();
+                return await this.load();
             }
         }
         Store.Array = Array;
@@ -409,7 +437,7 @@ var Admin;
             /**
              * 데이터를 가져온다.
              */
-            load() {
+            async load() {
                 this.onBeforeLoad();
                 if (this.loaded == true) {
                     this.onLoad();
@@ -456,7 +484,7 @@ var Admin;
                     .then((results) => {
                     if (results.success == true) {
                         this.loaded = true;
-                        this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields);
+                        this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
                         this.count = results[this.recordsField].length;
                         this.total = results[this.totalField] ?? this.count;
                         if (this.remoteSort == true) {
@@ -471,19 +499,21 @@ var Admin;
                         this.onLoad();
                     }
                     this.loading = false;
+                    return this;
                 })
                     .catch((e) => {
                     console.error(e);
                     this.loading = false;
                     this.loaded = false;
+                    return this;
                 });
             }
             /**
              * 현재 데이터를 새로고침한다.
              */
-            reload() {
+            async reload() {
                 this.loaded = false;
-                this.load();
+                return await this.load();
             }
         }
         Store.Ajax = Ajax;

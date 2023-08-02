@@ -56,7 +56,7 @@ namespace Admin {
             /**
              * @type {Object} filters - 데이터 필터
              */
-            filters?: { [field: string]: { value: any; operator: string } };
+            filters?: { [field: string]: { value: any; operator?: string } | string };
 
             /**
              * @type {boolean} remoteFilter - store 외부에서 데이터를 필터링할지 여부
@@ -101,6 +101,17 @@ namespace Admin {
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
+
+            if (this.filters !== null) {
+                for (const field in this.filters) {
+                    if (typeof this.filters[field] == 'string') {
+                        this.filters[field] = { value: this.filters[field], operator: '=' };
+                    } else {
+                        this.filters[field].operator ??= '=';
+                    }
+                }
+            }
+
             this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 0;
             this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 1;
         }
@@ -238,12 +249,16 @@ namespace Admin {
         /**
          * 데이터를 가져온다.
          */
-        load(): void {}
+        async load(): Promise<Admin.Store> {
+            return this;
+        }
 
         /**
          * 현재 데이터를 새로고침한다.
          */
-        reload(): void {}
+        async reload(): Promise<Admin.Store> {
+            return this;
+        }
 
         /**
          * 특정 필드의 특정값을 가진 레코드를 찾는다.
@@ -284,33 +299,37 @@ namespace Admin {
         /**
          * 데이터와 일치하는 레코드의 인덱스를 찾는다.
          *
-         * @param {Admin.Data.Record} matcher - 찾을 레코드
-         * @param {string[]} fields - PRIMARY 필드 (NULL 인 경우 matcher 의 전체 필드가 일치하는 레코드를, 설정된 경우 해당 필드만 검색한다.)
+         * @param {Admin.Data.Record|Object} matcher - 찾을 레코드
          * @return {number} index - 검색된 데이터의 인덱스
          */
-        matchIndex(matcher: Admin.Data.Record, fields: string[] = null): number {
-            if (fields === null || fields.length == 0) {
-                fields = matcher.getKeys();
-            }
-
-            for (const key in this.getRecords()) {
-                const index = parseInt(key, 10);
-                const record = this.getRecords().at(index);
-
-                let isMatched = true;
-                for (const field of fields) {
-                    if (matcher.get(field) !== record.get(field)) {
-                        isMatched = false;
-                        continue;
-                    }
+        match(matcher: Admin.Data.Record | { [key: string]: any }): Admin.Data.Record {
+            let matched: Admin.Data.Record = null;
+            this.getRecords().some((record) => {
+                if (record.isEqual(matcher) === true) {
+                    matched = record;
+                    return true;
                 }
+            });
 
-                if (isMatched === true) {
-                    return index;
+            return matched;
+        }
+
+        /**
+         * 데이터와 일치하는 레코드의 인덱스를 찾는다.
+         *
+         * @param {Admin.Data.Record|Object} matcher - 찾을 레코드
+         * @return {number} index - 검색된 데이터의 인덱스
+         */
+        matchIndex(matcher: Admin.Data.Record | { [key: string]: any }): number {
+            let matched = null;
+            this.getRecords().some((record, index) => {
+                if (record.isEqual(matcher) === true) {
+                    matched = index;
+                    return true;
                 }
-            }
+            });
 
-            return null;
+            return matched;
         }
 
         /**
@@ -339,6 +358,15 @@ namespace Admin {
                     this.onUpdate();
                 });
             }
+        }
+
+        /**
+         * 현재 정렬기준을 가져온다.
+         *
+         * @return {Object} sorters
+         */
+        getSorters(): { [field: string]: 'ASC' | 'DESC' } {
+            return this.data?.sorters ?? this.sorters;
         }
 
         /**
@@ -455,12 +483,12 @@ namespace Admin {
             /**
              * 데이터를 가져온다.
              */
-            load(): void {
+            async load(): Promise<Admin.Store.Array> {
                 this.onBeforeLoad();
 
                 if (this.loaded == true) {
                     this.onLoad();
-                    return;
+                    return this;
                 }
 
                 const records = [];
@@ -476,19 +504,21 @@ namespace Admin {
                     records.push(record);
                 });
                 this.loaded = true;
-                this.data = new Admin.Data(records, this.fields);
+                this.data = new Admin.Data(records, this.fields, this.primaryKeys);
                 this.count = records.length;
                 this.total = this.count;
 
                 this.onLoad();
+
+                return this;
             }
 
             /**
              * 현재 데이터를 새로고침한다.
              */
-            reload(): void {
+            async reload(): Promise<Admin.Store.Array> {
                 this.loaded = false;
-                this.load();
+                return await this.load();
             }
         }
 
@@ -549,7 +579,7 @@ namespace Admin {
             /**
              * 데이터를 가져온다.
              */
-            load(): void {
+            async load(): Promise<Admin.Store.Ajax> {
                 this.onBeforeLoad();
 
                 if (this.loaded == true) {
@@ -602,7 +632,7 @@ namespace Admin {
                     .then((results: Admin.Ajax.Results) => {
                         if (results.success == true) {
                             this.loaded = true;
-                            this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields);
+                            this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
                             this.count = results[this.recordsField].length;
                             this.total = results[this.totalField] ?? this.count;
 
@@ -622,20 +652,24 @@ namespace Admin {
                         }
 
                         this.loading = false;
+
+                        return this;
                     })
                     .catch((e) => {
                         console.error(e);
                         this.loading = false;
                         this.loaded = false;
+
+                        return this;
                     });
             }
 
             /**
              * 현재 데이터를 새로고침한다.
              */
-            reload(): void {
+            async reload(): Promise<Admin.Store.Ajax> {
                 this.loaded = false;
-                this.load();
+                return await this.load();
             }
         }
     }
