@@ -13,6 +13,7 @@ namespace Admin {
         originRecoreds: Admin.Data.Record[] = [];
         records: Admin.Data.Record[] = [];
         fields: { [key: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' } = {};
+        primaryKeys: string[] = [];
         sorting: boolean;
         sorters: { [field: string]: 'ASC' | 'DESC' };
         filtering: boolean;
@@ -26,7 +27,8 @@ namespace Admin {
          */
         constructor(
             records: { [key: string]: any }[],
-            fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[] = []
+            fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[] = [],
+            primaryKeys: string[] = []
         ) {
             this.fields = {};
             for (const field of fields) {
@@ -37,6 +39,8 @@ namespace Admin {
                 }
             }
 
+            this.primaryKeys = primaryKeys;
+
             for (const record of records) {
                 for (const key in record) {
                     if (this.fields[key] !== undefined) {
@@ -44,7 +48,7 @@ namespace Admin {
                     }
                 }
 
-                this.records.push(new Admin.Data.Record(record));
+                this.records.push(new Admin.Data.Record(record, this.primaryKeys));
             }
 
             this.originRecoreds = this.records;
@@ -285,15 +289,19 @@ namespace Admin {
 
     export namespace Data {
         export class Record {
+            primaryKeys: string[] = [];
+            hash: string;
             data: { [key: string]: any };
 
             /**
              * 데이터 레코드를 생성한다.
              *
              * @param {Object} data - 데이터
+             * @param {string[]} primaryKeys - 고유값
              */
-            constructor(data: { [key: string]: any }) {
+            constructor(data: { [key: string]: any }, primaryKeys: string[] = []) {
                 this.data = data;
+                this.primaryKeys = primaryKeys;
             }
 
             /**
@@ -313,6 +321,57 @@ namespace Admin {
              */
             getKeys(): string[] {
                 return Object.keys(this.data);
+            }
+
+            /**
+             * 데이터의 고유값 해시(SHA1)를 가져온다.
+             *
+             * @returns {string} hash
+             */
+            getHash(): string {
+                if (this.hash === undefined) {
+                    let primaryKeys = {};
+                    let keys = this.primaryKeys;
+                    if (keys.length == 0) {
+                        keys = this.getKeys();
+                    }
+
+                    for (const key of keys) {
+                        primaryKeys[key] = this.data[key] ?? null;
+                    }
+
+                    this.hash = Format.sha1(JSON.stringify(primaryKeys));
+                }
+
+                return this.hash;
+            }
+
+            /**
+             * 현재 레코드가 특정 데이터와 일치하는지 확인한다.
+             *
+             * @param {Admin.Data.Record|Object} matcher - 일치여부를 확인할 레코드 또는 데이터
+             * @return {boolean} is_equal - 일치여부
+             */
+            isEqual(matcher: Admin.Data.Record | { [key: string]: any }): boolean {
+                let data: { [key: string]: any } = null;
+                if (matcher instanceof Admin.Data.Record) {
+                    data = matcher.data;
+                } else {
+                    data = matcher;
+                }
+
+                let keys = this.primaryKeys;
+                if (keys.length == 0) {
+                    keys = this.getKeys();
+                }
+
+                for (const key of keys) {
+                    if (data[key] === undefined || data[key] !== this.data[key]) {
+                        return false;
+                    }
+                }
+
+                return true;
             }
         }
     }

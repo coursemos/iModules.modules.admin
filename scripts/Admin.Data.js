@@ -14,6 +14,7 @@ var Admin;
         originRecoreds = [];
         records = [];
         fields = {};
+        primaryKeys = [];
         sorting;
         sorters;
         filtering;
@@ -24,7 +25,7 @@ var Admin;
          * @param {Object} records - 데이터
          * @param {Object} fields - 필드명
          */
-        constructor(records, fields = []) {
+        constructor(records, fields = [], primaryKeys = []) {
             this.fields = {};
             for (const field of fields) {
                 if (typeof field == 'string') {
@@ -34,13 +35,14 @@ var Admin;
                     this.fields[field.name] = field.type;
                 }
             }
+            this.primaryKeys = primaryKeys;
             for (const record of records) {
                 for (const key in record) {
                     if (this.fields[key] !== undefined) {
                         record[key] = this.setType(record[key], this.fields[key]);
                     }
                 }
-                this.records.push(new Admin.Data.Record(record));
+                this.records.push(new Admin.Data.Record(record, this.primaryKeys));
             }
             this.originRecoreds = this.records;
             this.sorting = false;
@@ -240,14 +242,18 @@ var Admin;
     Admin.Data = Data;
     (function (Data) {
         class Record {
+            primaryKeys = [];
+            hash;
             data;
             /**
              * 데이터 레코드를 생성한다.
              *
              * @param {Object} data - 데이터
+             * @param {string[]} primaryKeys - 고유값
              */
-            constructor(data) {
+            constructor(data, primaryKeys = []) {
                 this.data = data;
+                this.primaryKeys = primaryKeys;
             }
             /**
              * 데이터를 가져온다.
@@ -265,6 +271,50 @@ var Admin;
              */
             getKeys() {
                 return Object.keys(this.data);
+            }
+            /**
+             * 데이터의 고유값 해시(SHA1)를 가져온다.
+             *
+             * @returns {string} hash
+             */
+            getHash() {
+                if (this.hash === undefined) {
+                    let primaryKeys = {};
+                    let keys = this.primaryKeys;
+                    if (keys.length == 0) {
+                        keys = this.getKeys();
+                    }
+                    for (const key of keys) {
+                        primaryKeys[key] = this.data[key] ?? null;
+                    }
+                    this.hash = Format.sha1(JSON.stringify(primaryKeys));
+                }
+                return this.hash;
+            }
+            /**
+             * 현재 레코드가 특정 데이터와 일치하는지 확인한다.
+             *
+             * @param {Admin.Data.Record|Object} matcher - 일치여부를 확인할 레코드 또는 데이터
+             * @return {boolean} is_equal - 일치여부
+             */
+            isEqual(matcher) {
+                let data = null;
+                if (matcher instanceof Admin.Data.Record) {
+                    data = matcher.data;
+                }
+                else {
+                    data = matcher;
+                }
+                let keys = this.primaryKeys;
+                if (keys.length == 0) {
+                    keys = this.getKeys();
+                }
+                for (const key of keys) {
+                    if (data[key] === undefined || data[key] !== this.data[key]) {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
         Data.Record = Record;
