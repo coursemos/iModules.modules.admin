@@ -9,7 +9,9 @@
  * @license MIT License
  * @modified 2023. 6. 28.
  */
+
 namespace modules\admin\admin;
+
 class AdminAdmin extends \modules\admin\admin\Admin
 {
     /**
@@ -21,11 +23,68 @@ class AdminAdmin extends \modules\admin\admin\Admin
          * 관리자 메뉴를 추가한다.
          */
         $this->addContext('/dashboard', $this->getText('admin.contexts.dashboard'), 'xi xi-presentation', true);
-        $this->addContext('/modules', $this->getText('admin.contexts.modules'), 'xi xi-box', true);
-        $this->addContext('/plugins', $this->getText('admin.contexts.plugins'), 'xi xi-plug', true);
-        $this->addContext('/sites', $this->getText('admin.contexts.sites'), 'xi xi xi-sitemap', true);
-        $this->addContext('/administrators', $this->getText('admin.contexts.administrators'), 'xi xi-user-lock', true);
-        $this->addContext('/database', $this->getText('admin.contexts.database'), 'xi xi-db-full', true);
+
+        if ($this->checkPermission('modules') == true) {
+            $this->addContext('/modules', $this->getText('admin.contexts.modules'), 'xi xi-box', true);
+        }
+        if ($this->checkPermission('plugins') == true) {
+            $this->addContext('/plugins', $this->getText('admin.contexts.plugins'), 'xi xi-plug', true);
+        }
+        if ($this->checkPermission('sitemap') == true) {
+            $this->addContext('/sitemap', $this->getText('admin.contexts.sitemap'), 'xi xi xi-sitemap', true);
+        }
+        if ($this->checkPermission('administrators') == true) {
+            $this->addContext(
+                '/administrators',
+                $this->getText('admin.contexts.administrators'),
+                'xi xi-user-lock',
+                true
+            );
+        }
+        if ($this->checkPermission('database') == true) {
+            $this->addContext('/database', $this->getText('admin.contexts.database'), 'xi xi-db-full', true);
+        }
+    }
+
+    /**
+     * 현재 모듈의 관리자 권한종류를 가져온다.
+     *
+     * @return array $permissions 권한
+     */
+    public function getPermissions(): array
+    {
+        return [
+            'modules' => [
+                'label' => $this->getText('admin.permissions.modules.title'),
+                'permissions' => [
+                    'configs' => $this->getText('admin.permissions.modules.configs'),
+                    'install' => $this->getText('admin.permissions.modules.install'),
+                ],
+            ],
+            'plugins' => [
+                'label' => $this->getText('admin.permissions.plugins.title'),
+                'permissions' => [
+                    'configs' => $this->getText('admin.permissions.plugins.configs'),
+                    'install' => $this->getText('admin.permissions.plugins.install'),
+                ],
+            ],
+            'sitemap' => [
+                'label' => $this->getText('admin.permissions.sitemap.title'),
+                'permissions' => [
+                    'domain' => $this->getText('admin.permissions.sitemap.domain'),
+                    'site' => $this->getText('admin.permissions.sitemap.site'),
+                    'context' => $this->getText('admin.permissions.sitemap.context'),
+                ],
+            ],
+            'administrators' => [
+                'label' => $this->getText('admin.permissions.administrators'),
+                'permissions' => [],
+            ],
+            'databases' => [
+                'label' => $this->getText('admin.permissions.databases'),
+                'permissions' => [],
+            ],
+        ];
     }
 
     /**
@@ -45,29 +104,15 @@ class AdminAdmin extends \modules\admin\admin\Admin
                 \Html::script($this->getBase() . '/scripts/modules.js');
                 break;
 
-            case '/sites':
-                \Html::script($this->getBase() . '/scripts/sites.js');
+            case '/sitemap':
+                \Html::script($this->getBase() . '/scripts/sitemap.js');
+                break;
+
+            case '/administrators':
+                \Html::script($this->getBase() . '/scripts/administrators.js');
                 break;
         }
 
         return '';
-    }
-
-    /**
-     * 관리자 컨텍스트의 접근권한을 확인한다.
-     *
-     * @param string $path 컨텍스트경로
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $has_permission
-     */
-    public function hasContextPermission(string $path, ?int $member_id = null): bool
-    {
-        switch ($path) {
-            case '/':
-                return true;
-
-            default:
-                return false;
-        }
     }
 }
