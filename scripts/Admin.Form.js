@@ -219,11 +219,24 @@ var Admin;
                 this.fireEvent('submit', [this, response]);
                 return response;
             }
+            /**
+             * 자식 컴포넌트를 추가한다.
+             *
+             * @param {Admin.Component} item - 추가할 컴포넌트
+             * @param {number} position - 추가할 위치 (NULL 인 경우 제일 마지막 위치)
+             */
+            append(item, position = null) {
+                if (item instanceof Admin.Form.Field.Base || item instanceof Admin.Form.FieldSet) {
+                    item.setDefaults(this.fieldDefaults);
+                }
+                super.append(item, position);
+            }
         }
         Form.Panel = Panel;
         class FieldSet extends Admin.Component {
             title;
             fieldDefaults;
+            helpText;
             /**
              * 기본필드 클래스 생성한다.
              *
@@ -235,8 +248,12 @@ var Admin;
                 this.role = 'fieldset';
                 this.title = this.properties.title ?? null;
                 this.fieldDefaults = this.properties.fieldDefaults ?? null;
+                this.helpText = this.properties.helpText ?? null;
                 this.padding = this.properties.padding ?? '10px';
                 this.$setTop();
+                if (this.helpText !== null) {
+                    this.$setBottom();
+                }
             }
             /**
              * 폼 패널의 하위 컴포넌트를 정의한다.
@@ -323,6 +340,23 @@ var Admin;
                 return fields;
             }
             /**
+             * 도움말을 변경한다.
+             *
+             * @param {string} text - 도움말
+             */
+            setHelpText(text) {
+                this.helpText = text;
+                if (text === null) {
+                    this.$removeBottom();
+                    return;
+                }
+                const $bottom = this.$getBottom() ?? this.$setBottom();
+                $bottom.empty();
+                const $text = Html.create('p');
+                $text.html(text);
+                $bottom.append($text);
+            }
+            /**
              * 필드셋 비활성화여부를 설정한다.
              *
              * @param {boolean} disabled - 비활성화여부
@@ -336,6 +370,18 @@ var Admin;
                 return this;
             }
             /**
+             * 자식 컴포넌트를 추가한다.
+             *
+             * @param {Admin.Component} item - 추가할 컴포넌트
+             * @param {number} position - 추가할 위치 (NULL 인 경우 제일 마지막 위치)
+             */
+            append(item, position = null) {
+                if (item instanceof Admin.Form.Field.Base || item instanceof Admin.Form.FieldSet) {
+                    item.setDefaults(this.fieldDefaults);
+                }
+                super.append(item, position);
+            }
+            /**
              * 필드셋 제목을 랜더링한다.
              */
             renderTop() {
@@ -345,6 +391,17 @@ var Admin;
                     $legend.html(this.title);
                     $top.append($legend);
                 }
+            }
+            /**
+             * 도움말 텍스트를 랜더링한다.
+             */
+            renderBottom() {
+                if (this.helpText === null)
+                    return;
+                const $bottom = this.$getBottom();
+                const $text = Html.create('p');
+                $text.html(this.helpText);
+                $bottom.append($text);
             }
             /**
              * 필드셋을 랜더링한다.
@@ -565,7 +622,7 @@ var Admin;
                  */
                 getValues() {
                     const values = {};
-                    if (this.inputName === null) {
+                    if (this.inputName === null || this.isDisabled() == true) {
                         return values;
                     }
                     if (this.getValue() !== null) {
@@ -719,6 +776,11 @@ var Admin;
                     else {
                         this.$getContainer().removeClass('disabled');
                         this.$getContent().removeClass('disabled');
+                    }
+                    if (this.getParent() instanceof Admin.Form.Field.Base) {
+                    }
+                    else {
+                        this.onChange();
                     }
                     super.setDisabled(disabled);
                     return this;
@@ -1049,6 +1111,9 @@ var Admin;
                         this.items = [];
                     }
                     item.setParent(this);
+                    if (item instanceof Admin.Form.Field.Base || item instanceof Admin.Form.FieldSet) {
+                        item.setDefaults(this.fieldDefaults);
+                    }
                     if (position === null || position >= (this.items.length ?? 0)) {
                         this.items.push(item);
                     }
@@ -1064,6 +1129,20 @@ var Admin;
                             item.render();
                         }
                     }
+                }
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성여부
+                 * @return {Admin.Form.Field.TextArea} this
+                 */
+                setDisabled(disabled) {
+                    const items = this.items ?? [];
+                    for (let i = 0, loop = items.length; i < loop; i++) {
+                        items[i].setDisabled(disabled);
+                    }
+                    super.setDisabled(disabled);
+                    return this;
                 }
                 /**
                  * 필드 라벨을 랜더링한다.
@@ -1148,7 +1227,6 @@ var Admin;
             Field.Container = Container;
             class Hidden extends Admin.Form.Field.Base {
                 field = 'hidden';
-                $input;
                 /**
                  * 기본필드 클래스 생성한다.
                  *
@@ -1158,37 +1236,9 @@ var Admin;
                     super(properties);
                 }
                 /**
-                 * INPUT 필드 DOM 을 가져온다.
-                 *
-                 * @return {Dom} $input
+                 * 숨김필드이므로 콘텐츠를 랜더링하지 않는다.
                  */
-                $getInput() {
-                    if (this.$input === undefined) {
-                        this.$input = Html.create('input', {
-                            type: 'hidden',
-                            name: this.inputName,
-                        });
-                    }
-                    return this.$input;
-                }
-                /**
-                 * 필드값을 지정한다.
-                 *
-                 * @param {any} value - 값
-                 * @param {boolean} is_origin - 원본값 변경여부
-                 */
-                setValue(value, is_origin = false) {
-                    value = value?.toString() ?? '';
-                    this.$getInput().setValue(value);
-                    super.setValue(value, is_origin);
-                }
-                /**
-                 * INPUT 태그를 랜더링한다.
-                 */
-                renderContent() {
-                    const $input = this.$getInput();
-                    this.$getContent().append($input);
-                }
+                renderContent() { }
                 /**
                  * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
                  */
@@ -1563,6 +1613,7 @@ var Admin;
                     role = 'calendar';
                     $month;
                     current;
+                    spinTimeout;
                     /**
                      * 캘린더를 생성한다.
                      *
@@ -1612,6 +1663,31 @@ var Admin;
                         this.renderCalendar(next);
                     }
                     /**
+                     * 달을 이동한다.
+                     *
+                     * @param {string} direction - 이동할 방향
+                     * @param {boolean} is_interval - 지속이동여부
+                     */
+                    startSpin(direction, is_interval = false) {
+                        this.stopSpin();
+                        if (direction == 'prev') {
+                            this.prevMonth();
+                        }
+                        else {
+                            this.nextMonth();
+                        }
+                        this.spinTimeout = setTimeout(this.startSpin.bind(this), is_interval == true ? 100 : 500, direction, true);
+                    }
+                    /**
+                     * 달 이동을 중단한다.
+                     */
+                    stopSpin() {
+                        if (this.spinTimeout) {
+                            clearTimeout(this.spinTimeout);
+                            this.spinTimeout = null;
+                        }
+                    }
+                    /**
                      * 날짜를 선택한다.
                      *
                      * @param {any} date
@@ -1638,39 +1714,25 @@ var Admin;
                         const $prev = Html.create('button', { type: 'button', 'data-action': 'prev' });
                         this.$getTop().append($prev);
                         $prev.on('mousedown', () => {
-                            this.prevMonth();
-                            $prev.setData('interval', setInterval(() => {
-                                this.prevMonth();
-                            }, 200), false);
+                            this.startSpin('prev');
                         });
                         $prev.on('mouseup', () => {
-                            if ($prev.getData('interval')) {
-                                clearInterval($prev.getData('interval'));
-                            }
+                            this.stopSpin();
                         });
                         $prev.on('mouseout', () => {
-                            if ($prev.getData('interval')) {
-                                clearInterval($prev.getData('interval'));
-                            }
+                            this.stopSpin();
                         });
                         const $month = this.$getMonth();
                         this.$getTop().append($month);
                         const $next = Html.create('button', { type: 'button', 'data-action': 'next' });
                         $next.on('mousedown', () => {
-                            this.nextMonth();
-                            $next.setData('interval', setInterval(() => {
-                                this.nextMonth();
-                            }, 200), false);
+                            this.startSpin('next');
                         });
                         $next.on('mouseup', () => {
-                            if ($next.getData('interval')) {
-                                clearInterval($next.getData('interval'));
-                            }
+                            this.stopSpin();
                         });
                         $next.on('mouseout', () => {
-                            if ($next.getData('interval')) {
-                                clearInterval($next.getData('interval'));
-                            }
+                            this.stopSpin();
                         });
                         this.$getTop().append($next);
                     }
@@ -1741,10 +1803,269 @@ var Admin;
             Field.Password = Password;
             class Search extends Admin.Form.Field.Text {
                 inputType = 'search';
+                handler;
+                $button;
+                /**
+                 * 숫자필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Search.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.handler = this.properties.handler ?? null;
+                }
+                /**
+                 * INPUT 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput() {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('input', {
+                            type: this.inputType,
+                            name: this.inputName,
+                        });
+                        this.$input.on('input', (e) => {
+                            const input = e.currentTarget;
+                            this.setValue(input.value);
+                        });
+                        this.$input.on('keydown', (e) => {
+                            if (e.key == 'Enter') {
+                                this.search();
+                                e.preventDefault();
+                                e.stopImmediatePropagation();
+                            }
+                        });
+                    }
+                    return this.$input;
+                }
+                /**
+                 * 검색버튼 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $searchButton
+                 */
+                $getButton() {
+                    if (this.$button === undefined) {
+                        this.$button = Html.create('button', {
+                            type: 'button',
+                            'data-action': 'search',
+                        });
+                        this.$button.html('<i></i>');
+                        this.$button.on('click', (e) => {
+                            this.search();
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        });
+                    }
+                    return this.$button;
+                }
+                /**
+                 * 검색을 시작한다.
+                 */
+                search() {
+                    if (this.handler !== null) {
+                        this.handler(this.getValue(), this);
+                    }
+                }
+                /**
+                 * INPUT 태그를 랜더링한다.
+                 */
+                renderContent() {
+                    const $input = this.$getInput();
+                    this.$getContent().append($input);
+                    const $button = this.$getButton();
+                    this.$getContent().append($button);
+                }
             }
             Field.Search = Search;
             class Number extends Admin.Form.Field.Text {
                 inputType = 'number';
+                step;
+                minValue;
+                maxValue;
+                spinner;
+                $spinner;
+                spinTimeout;
+                /**
+                 * 숫자필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Number.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.spinner = this.properties.spinner !== false;
+                    this.step = this.properties.step ?? 1;
+                    this.minValue = this.properties.minValue ?? null;
+                    this.maxValue = this.properties.maxnValue ?? null;
+                }
+                /**
+                 * INPUT 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput() {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('input', {
+                            type: this.inputType,
+                            name: this.inputName,
+                            step: this.step.toString(),
+                        });
+                        this.$input.on('input', (e) => {
+                            const input = e.currentTarget;
+                            this.setValue(input.value);
+                        });
+                    }
+                    return this.$input;
+                }
+                /**
+                 * 마우스가 활성화된 동안 지속해서 값을 변경한다.
+                 *
+                 * @param {number} step - 변경할 단계
+                 */
+                startSpin(step, is_interval = false) {
+                    this.stopSpin();
+                    this.doStep(step);
+                    this.spinTimeout = setTimeout(this.startSpin.bind(this), is_interval == true ? 100 : 500, step, true);
+                }
+                /**
+                 * 값 변경을 중단한다.
+                 */
+                stopSpin() {
+                    if (this.spinTimeout) {
+                        clearTimeout(this.spinTimeout);
+                        this.spinTimeout = null;
+                    }
+                }
+                /**
+                 * 값을 변경한다.
+                 *
+                 * @param {number} step - 변경할 단계
+                 */
+                doStep(step) {
+                    const value = parseInt(this.$getInput().getValue(), 10);
+                    let change = value + step;
+                    if (this.minValue !== null) {
+                        change = Math.max(this.minValue, change);
+                    }
+                    if (this.maxValue !== null) {
+                        change = Math.min(this.maxValue, change);
+                    }
+                    this.setValue(change);
+                }
+                /**
+                 * 스피너를 가져온다.
+                 *
+                 * @return {Dom} $spinner
+                 */
+                $getSpinner() {
+                    if (this.$spinner === undefined) {
+                        this.$spinner = Html.create('div', { 'data-role': 'spinner' });
+                        const $increase = Html.create('button', {
+                            type: 'button',
+                            'data-direction': 'increase',
+                            'tabindex': '-1',
+                        });
+                        $increase.html('<i></i>');
+                        this.$spinner.append($increase);
+                        $increase.on('mousedown', () => {
+                            this.startSpin(this.step);
+                        });
+                        $increase.on('mouseup', () => {
+                            this.stopSpin();
+                        });
+                        $increase.on('mouseout', () => {
+                            this.stopSpin();
+                        });
+                        const $decrease = Html.create('button', {
+                            type: 'button',
+                            'data-direction': 'decrease',
+                            'tabindex': '-1',
+                        });
+                        $decrease.html('<i></i>');
+                        $decrease.on('mousedown', () => {
+                            this.startSpin(this.step * -1);
+                        });
+                        $decrease.on('mouseup', () => {
+                            this.stopSpin();
+                        });
+                        $decrease.on('mouseout', () => {
+                            this.stopSpin();
+                        });
+                        this.$spinner.append($decrease);
+                    }
+                    return this.$spinner;
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {number|string} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    if (typeof value == 'string') {
+                        value = parseFloat(value);
+                    }
+                    if (typeof value != 'number' || isNaN(value) == true) {
+                        return;
+                    }
+                    if (this.minValue !== null) {
+                        value = Math.max(this.minValue, value);
+                    }
+                    if (this.maxValue !== null) {
+                        value = Math.min(this.maxValue, value);
+                    }
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 최소값을 설정한다.
+                 *
+                 * @param {number} minValue
+                 */
+                setMinValue(minValue) {
+                    this.minValue = minValue;
+                    if (this.minValue === null) {
+                        this.$getInput().removeAttr('min');
+                    }
+                    else {
+                        this.$getInput().setAttr('min', this.minValue.toString());
+                    }
+                }
+                /**
+                 * 최대값을 설정한다.
+                 *
+                 * @param {number} maxValue
+                 */
+                setMaxValue(maxValue) {
+                    this.maxValue = maxValue;
+                    if (this.maxValue === null) {
+                        this.$getInput().removeAttr('max');
+                    }
+                    else {
+                        this.$getInput().setAttr('max', this.maxValue.toString());
+                    }
+                }
+                /**
+                 * INPUT 태그를 랜더링한다.
+                 */
+                renderContent() {
+                    const $input = this.$getInput();
+                    this.$getContent().append($input);
+                    if (this.spinner == true) {
+                        this.$getContent().append(this.$getSpinner());
+                    }
+                }
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                render() {
+                    super.render();
+                    if (this.minValue !== null) {
+                        this.setMinValue(this.minValue);
+                    }
+                    if (this.maxValue !== null) {
+                        this.setMaxValue(this.maxValue);
+                    }
+                }
             }
             Field.Number = Number;
             class Display extends Admin.Form.Field.Base {
@@ -4049,7 +4370,7 @@ var Admin;
                  */
                 getValues() {
                     const values = {};
-                    if (this.inputName === null) {
+                    if (this.inputName === null || this.isDisabled() == true) {
                         return values;
                     }
                     if (this.getRawValue() !== null) {
@@ -4138,14 +4459,16 @@ var Admin;
                     if (typeof value == 'string') {
                         value = [value];
                     }
-                    this.items.forEach((item) => {
-                        if (value.includes(item.onValue) == true && item.getValue() == false) {
-                            item.setValue(true);
-                        }
-                        if (value.includes(item.onValue) == false && item.getValue() == true) {
-                            item.setValue(false);
-                        }
-                    });
+                    if (value !== null) {
+                        this.items.forEach((item) => {
+                            if (value.includes(item.onValue) == true && item.getValue() == false) {
+                                item.setValue(true);
+                            }
+                            if (value.includes(item.onValue) == false && item.getValue() == true) {
+                                item.setValue(false);
+                            }
+                        });
+                    }
                     super.setValue(this.getValue(), is_origin);
                 }
                 /**
@@ -4156,11 +4479,24 @@ var Admin;
                 getValue() {
                     const value = [];
                     this.items.forEach((item) => {
-                        if (item.getRawValue() !== null) {
+                        if (item.isDisabled() == false && item.getRawValue() !== null) {
                             value.push(item.getRawValue());
                         }
                     });
-                    return value;
+                    return value.length == 0 ? null : value;
+                }
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled) {
+                    this.items.forEach((item) => {
+                        item.setDisabled(disabled);
+                    });
+                    super.setDisabled(disabled);
+                    return this;
                 }
                 /**
                  * 필드를 랜더링한다.
@@ -4285,7 +4621,7 @@ var Admin;
                  */
                 getValues() {
                     const values = {};
-                    if (this.inputName === null) {
+                    if (this.inputName === null && this.isDisabled() == true) {
                         return values;
                     }
                     if (this.getRawValue() !== null) {
@@ -4421,7 +4757,7 @@ var Admin;
                  */
                 getValues() {
                     const values = {};
-                    if (this.inputName === null) {
+                    if (this.inputName === null && this.isDisabled() == true) {
                         return values;
                     }
                     if (this.getValue() !== null) {
