@@ -21,8 +21,8 @@ var Admin;
             freezeColumn;
             freezeWidth;
             columnResizable;
-            selections = [];
-            selectionMode;
+            selection;
+            selections = new Map();
             store;
             autoLoad;
             $header;
@@ -41,7 +41,17 @@ var Admin;
                 this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.columnResizable = this.properties.columnResizable !== false;
-                this.selectionMode = this.properties.selectionMode ?? 'NONE';
+                this.selection = this.properties.selection ?? { selectable: false };
+                this.selection.selectable = this.selection.selectable ?? true;
+                this.selection.display = this.selection.display ?? 'row';
+                this.selection.multiple = this.selection.multiple ?? false;
+                this.selection.deselectable = this.selection.deselectable ?? false;
+                this.selection.keepable = this.selection.keepable ?? false;
+                if (this.selection.display == 'check') {
+                    this.selection.multiple = true;
+                    this.selection.deselectable = true;
+                    this.freeze = this.freeze + 1;
+                }
                 this.store = this.properties.store ?? new Admin.Store();
                 this.store.addEvent('beforeLoad', () => {
                     this.onBeforeLoad();
@@ -69,6 +79,14 @@ var Admin;
             initColumns() {
                 this.headers = [];
                 this.columns = [];
+                if (this.selection.display == 'check') {
+                    const check = new Admin.Grid.Check({
+                        dataIndex: '@',
+                    });
+                    check.setGrid(this);
+                    this.headers.push(check);
+                    this.columns.push(check);
+                }
                 for (let column of this.properties.columns ?? []) {
                     if (!(column instanceof Admin.Grid.Column)) {
                         column = new Admin.Grid.Column(column);
@@ -221,14 +239,10 @@ var Admin;
              * @return {Admin.Data.Record[]} selections
              */
             getSelections() {
-                if (this.selectionMode == 'NONE') {
+                if (this.selection.selectable == false) {
                     return [];
                 }
-                const selections = [];
-                Html.all('div[data-role=row].selected', this.$getBody()).forEach(($dom) => {
-                    selections.push($dom.getData('record'));
-                });
-                return selections;
+                return Array.from(this.selections.values());
             }
             /**
              * 그리드 아이템(행)이 선택여부를 확인한다.
@@ -236,8 +250,13 @@ var Admin;
              * @param {number} index - 선택여부를 확인할 아이탬(행) 인덱스
              * @return {boolean} selected
              */
-            isSelected(index) {
-                return Html.all('div[data-role=row]', this.$getBody()).get(index).hasClass('selected') == true;
+            isRowSelected(index) {
+                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
+                if ($row.getEl() === null) {
+                    return false;
+                }
+                const record = $row.getData('record');
+                return $row.hasClass('selected') == true && this.selections.has(record.getHash());
             }
             /**
              * 아이템을 오픈한다.
@@ -245,31 +264,28 @@ var Admin;
              * @param {number} index - 아이탬(행) 인덱스
              */
             openItem(index) {
-                if (this.isSelected(index) == false) {
-                    this.select(index);
-                }
-                const $row = Html.all('div[data-role=row]', this.$getBody()).get(index);
-                if ($row.getEl() == null) {
+                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
+                if ($row.getEl() === null) {
                     return;
                 }
                 const record = $row.getData('record');
+                this.select(record);
                 this.fireEvent('openItem', [record, index, this]);
             }
             /**
              * 아이템 메뉴를 오픈한다.
              *
              * @param {number} index - 아이탬(행) 인덱스
+             * @param {PointerEvent} pointerEvent - 포인트이벤트
              */
             openMenu(index, pointerEvent) {
-                if (this.isSelected(index) == false) {
-                    this.select(index);
-                }
-                const $row = Html.all('div[data-role=row]', this.$getBody()).get(index);
-                if ($row.getEl() == null) {
+                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
+                if ($row.getEl() === null) {
                     return;
                 }
-                const menu = new Admin.Menu();
                 const record = $row.getData('record');
+                this.select(record);
+                const menu = new Admin.Menu();
                 this.fireEvent('openMenu', [menu, record, index, this]);
                 if (menu.getItems()?.length == 0) {
                     menu.remove();
@@ -279,46 +295,130 @@ var Admin;
                 }
             }
             /**
-             * 그리드 아이템(행) 선택한다.
+             * 다중 아이템 메뉴를 오픈한다.
              *
-             * @param {number} index - 아이탬(행) 인덱스
-             * @param {boolean} is_keep - 이전 선택항목을 유지할지 여부
+             * @param {PointerEvent} pointerEvent - 포인트이벤트
              */
-            select(index, is_keep = false) {
-                if (this.selectionMode == 'NONE' || index < 0) {
-                    return;
+            openMenus(pointerEvent) {
+                const menu = new Admin.Menu();
+                this.fireEvent('openMenus', [menu, this.getSelections(), this]);
+                if (menu.getItems()?.length == 0) {
+                    menu.remove();
                 }
-                if (this.selectionMode == 'SIMPLE') {
-                    if (this.isSelected(index) == true) {
-                        this.deselect(index);
-                        return;
-                    }
+                else {
+                    menu.showAt(pointerEvent, 'y');
                 }
-                if (is_keep == false || this.selectionMode == 'SINGLE') {
-                    this.deselectAll(false);
-                }
-                Html.all('div[data-role=row]', this.$getBody()).get(index).addClass('selected');
-                this.onSelectionChange();
             }
             /**
-             * 특정 라인을 선택한다.
+             * 단일 아이템을 항상 선택한다.
              *
-             * @param {number} index - 선택할 라인 인덱스
+             * @param {Admin.Data.Record|Object} record - 선택할 레코드
              */
-            deselect(index) {
-                if (this.isSelected(index) == true) {
-                    Html.all('div[data-role=row]', this.$getBody()).get(index).removeClass('selected');
+            select(record) {
+                const index = this.getStore().matchIndex(record);
+                if (this.isRowSelected(index) == true) {
+                    if (this.selections.size != 1) {
+                        this.deselectAll(false);
+                        this.selectRow(index);
+                    }
+                }
+                else {
+                    this.selectRow(index);
+                }
+            }
+            /**
+             * 아이템을 선택한다.
+             *
+             * @param {number} index - 아이탬(행) 인덱스
+             * @param {boolean} is_multiple - 다중선택여부
+             * @param {boolean} is_event - 이벤트 발생여부
+             */
+            selectRow(index, is_multiple = false, is_event = true) {
+                if (this.selection.selectable == false) {
+                    return;
+                }
+                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
+                if ($row.getEl() === null) {
+                    return;
+                }
+                if (this.isRowSelected(index) == true) {
+                    return;
+                }
+                if (this.selection.multiple == false || is_multiple == false) {
+                    this.deselectAll(false);
+                }
+                const record = $row.getData('record');
+                this.selections.set(record.getHash(), record);
+                $row.addClass('selected');
+                if (is_event == true) {
                     this.onSelectionChange();
                 }
             }
             /**
-             * 선택된 모든 라인을 선택해제한다.
+             * 현재 페이지의 모든 아이템을 선택한다.
+             *
+             * @param {boolean} is_event - 이벤트 발생여부
+             */
+            selectAll(is_event = true) {
+                if (this.selection.multiple == false) {
+                    return;
+                }
+                for (let i = 0, loop = this.getStore().getCount(); i < loop; i++) {
+                    this.selectRow(i, true, false);
+                }
+                if (is_event == true) {
+                    this.onSelectionChange();
+                }
+            }
+            /**
+             * 아이템을 선택해제한다.
+             *
+             * @param {number} index - 아이탬(행) 인덱스
+             * @param {boolean} is_event - 이벤트 발생여부
+             */
+            deselectRow(index, is_event = true) {
+                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
+                if ($row.getEl() === null) {
+                    return;
+                }
+                if (this.isRowSelected(index) == true) {
+                    const record = $row.getData('record');
+                    this.selections.delete(record.getHash());
+                    $row.removeClass('selected');
+                    if (is_event == true) {
+                        this.onSelectionChange();
+                    }
+                }
+            }
+            /**
+             * 현재 페이지의 선택된 모든 아이템을 선택해제한다.
              *
              * @param {boolean} is_event - 이벤트 발생여부
              */
             deselectAll(is_event = true) {
-                if (this.selections.length > 0) {
-                    Html.all('div[data-role=row]', this.$getBody()).removeClass('selected');
+                if (this.selections.size > 0) {
+                    if (this.selection.keepable == true) {
+                        for (let i = 0, loop = this.getStore().getCount(); i < loop; i++) {
+                            this.deselectRow(i, false);
+                        }
+                    }
+                    else {
+                        this.resetSelections(false);
+                    }
+                    if (is_event == true) {
+                        this.onSelectionChange();
+                    }
+                }
+            }
+            /**
+             * 모든 선택사항을 선택해제한다.
+             *
+             * @param {boolean} is_event - 이벤트 발생여부
+             */
+            resetSelections(is_event = true) {
+                if (this.selections.size > 0) {
+                    Html.all('> div[data-role=row]', this.$getBody()).removeClass('selected');
+                    this.selections.clear();
                     if (is_event == true) {
                         this.onSelectionChange();
                     }
@@ -328,49 +428,20 @@ var Admin;
              * 데이터가 변경되거나 다시 로딩되었을 때 이전 선택값이 있다면 복구한다.
              */
             restoreSelections() {
-                if (this.selections.length > 0) {
-                    for (const selection of this.selections) {
-                        const rowIndex = this.getStore().matchIndex(selection, this.getStore().getPrimaryKeys());
+                if (this.selections.size > 0) {
+                    for (const selection of this.selections.values()) {
+                        const rowIndex = this.getStore().matchIndex(selection);
                         if (rowIndex !== null) {
-                            Html.all('div[data-role=row]', this.$getBody()).get(rowIndex).addClass('selected');
+                            Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex).addClass('selected');
                         }
                     }
-                }
-                if (this.getSelections().length == 0) {
-                    this.selections = [];
-                }
-                else {
-                    this.onSelectionChange();
                 }
             }
             /**
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
              */
             onSelectionChange() {
-                const selections = this.getSelections();
-                if (this.isEqual(selections) === false) {
-                    this.selections = selections;
-                    this.fireEvent('selectionChange', [selections, this]);
-                }
-            }
-            /**
-             * 현재 선택항목과 일치하는지 확인한다.
-             *
-             * @param {Admin.Data.Record[]} selections - 확인할 선택항목
-             * @return {boolean} isEqual
-             */
-            isEqual(selections) {
-                if (this.selections === selections)
-                    return true;
-                if (this.selections == null || selections == null)
-                    return false;
-                if (this.selections.length !== selections.length)
-                    return false;
-                for (var i = 0; i < this.selections.length; ++i) {
-                    if (this.selections[i] !== selections[i])
-                        return false;
-                }
-                return true;
+                this.fireEvent('selectionChange', [this.getSelections(), this]);
             }
             /**
              * 컬럼 순서를 업데이트한다.
@@ -540,6 +611,21 @@ var Admin;
                 }
             }
             /**
+             * 그리드패널의 헤더(제목행)을 데이터에 따라 업데이트한다.
+             */
+            updateHeader() {
+                const $labels = Html.all('label', this.$header);
+                Html.all('label > i[data-role=sorter]', this.$header).removeClass('ASC', 'DESC');
+                const sorters = this.getStore().getSorters();
+                $labels.forEach(($label) => {
+                    for (const sorter in sorters) {
+                        if ($label.getData('dataindex') === sorter || $label.getData('sortable') === sorter) {
+                            Html.get('i[data-role=sorter]', $label).addClass(sorters[sorter]);
+                        }
+                    }
+                });
+            }
+            /**
              * 그리드패널의 헤더(제목행)를 랜더링한다.
              */
             renderHeader() {
@@ -593,8 +679,18 @@ var Admin;
                     });
                     $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                     $row.on('click', (e) => {
-                        if (this.selectionMode != 'NONE') {
-                            this.select(rowIndex, e.metaKey == true || e.ctrlKey == true);
+                        if (this.selection.selectable == true) {
+                            if (this.selection.display == 'check') {
+                                this.deselectAll(false);
+                                this.selectRow(rowIndex, false);
+                            }
+                            else if (this.selection.deselectable == true &&
+                                this.isRowSelected(rowIndex) == true) {
+                                this.deselectRow(rowIndex);
+                            }
+                            else {
+                                this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
+                            }
                         }
                     });
                     $row.on('dblclick', (e) => {
@@ -603,7 +699,17 @@ var Admin;
                         }
                     });
                     $row.on('contextmenu', (e) => {
-                        this.openMenu(rowIndex, e);
+                        if (this.isRowSelected(rowIndex) == true) {
+                            if (this.getSelections().length == 1 || this.selection.multiple == false) {
+                                this.openMenu(rowIndex, e);
+                            }
+                            else {
+                                this.openMenus(e);
+                            }
+                        }
+                        else {
+                            this.openMenu(rowIndex, e);
+                        }
                         e.preventDefault();
                     });
                     $row.on('longpress', (e) => {
@@ -634,10 +740,14 @@ var Admin;
              */
             onRender() {
                 super.onRender();
+                this.updateHeader();
                 if (this.autoLoad === true) {
                     this.getStore().load();
                 }
                 this.$getComponent().on('keydown', (e) => {
+                    if (e.target instanceof HTMLInputElement) {
+                        return;
+                    }
                     if (e.key.indexOf('Arrow') === 0) {
                         let rowIndex = 0;
                         let columnIndex = 0;
@@ -671,7 +781,7 @@ var Admin;
                     }
                     if (e.key == ' ' || e.key == 'Enter') {
                         if (this.focusedRow !== null) {
-                            this.select(this.focusedRow);
+                            this.selectRow(this.focusedRow);
                         }
                     }
                 });
@@ -706,7 +816,11 @@ var Admin;
              */
             onBeforeLoad() {
                 this.loading.show();
-                this.fireEvent('selectionChange', [[], this]);
+                if (this.selection.keepable === false) {
+                    this.selections.clear();
+                    this.fireEvent('selectionChange', [[], this]);
+                }
+                this.fireEvent('beforeLoad', [this]);
             }
             /**
              * 데이터가 로딩되었을 때 이벤트를 처리한다.
@@ -724,6 +838,7 @@ var Admin;
                 this.focusedCell = { rowIndex: null, columnIndex: null };
                 this.renderBody();
                 this.restoreSelections();
+                this.updateHeader();
                 this.fireEvent('update', [this, this.getStore()]);
             }
             /**
@@ -1053,6 +1168,25 @@ var Admin;
                     const $label = Html.create('label');
                     $label.addClass(this.headerAlign);
                     $label.html(this.text);
+                    if (this.sortable !== false) {
+                        const $sorter = Html.create('i', { 'data-role': 'sorter' });
+                        $label.prepend($sorter);
+                        $label.on('click', () => {
+                            const field = typeof this.sortable === 'string' ? this.sortable : this.dataIndex;
+                            const sorters = this.getGrid().getStore().getSorters() ?? {};
+                            const direction = (sorters[field] ?? 'DESC') == 'DESC' ? 'ASC' : 'DESC';
+                            if (Object.keys(sorters).length > 1) {
+                                // @todo multisort 여부 확인
+                                sorters[field] = direction;
+                                this.getGrid().getStore().multiSort(sorters);
+                            }
+                            else {
+                                this.getGrid().getStore().sort(field, direction);
+                            }
+                        });
+                    }
+                    $label.setData('sortable', this.sortable);
+                    $label.setData('dataindex', this.dataIndex);
                     $header.append($label);
                     const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
                     $header.append($button);
@@ -1166,6 +1300,151 @@ var Admin;
             }
         }
         Grid.Column = Column;
+        class Check extends Admin.Grid.Column {
+            /**
+             * 그리드패널 컬럼객체를 생성한다.
+             *
+             * @param {Object} properties - 객체설정
+             */
+            constructor(properties = null) {
+                super(properties);
+                if (this.dataIndex == '@') {
+                    this.width = 34;
+                    this.minWidth = null;
+                }
+            }
+            /**
+             * 컬럼의 최소 너비를 가져온다.
+             *
+             * @return {number} minWidth - 최소너비
+             */
+            getMinWidth() {
+                return this.width;
+            }
+            /**
+             * 컬럼너비를 변경한다.
+             *
+             * @param {number} _width - 변경할 너비
+             */
+            setWidth(_width) {
+                return;
+            }
+            /**
+             * 컬럼의 숨김여부를 변경한다.
+             *
+             * @param {boolean} _hidden - 숨김여부
+             */
+            setHidden(_hidden) {
+                return;
+            }
+            /**
+             * 컬럼의 숨김여부를 가져온다.
+             *
+             * @return {boolean} hidden
+             */
+            isHidden() {
+                return false;
+            }
+            /**
+             * 컬럼 크기조절가능여부를 가져온다.
+             *
+             * @return {boolean} resizable
+             */
+            isResizable() {
+                return false;
+            }
+            /**
+             * 컬럼의 헤더컬럼 레이아웃을 가져온다.
+             *
+             * @return {Dom} $layout
+             */
+            $getHeader() {
+                if (this.dataIndex == '@') {
+                    const $header = Html.create('div').setData('component', this.id);
+                    $header.setData('role', 'column');
+                    $header.addClass('check');
+                    $header.setStyle('width', this.width + 'px');
+                    const $label = Html.create('label');
+                    $header.append($label);
+                    $header.on('click', (e) => {
+                        if ($header.hasClass('checked') == true) {
+                            this.getGrid().deselectAll();
+                        }
+                        else {
+                            this.getGrid().selectAll();
+                        }
+                        e.stopImmediatePropagation();
+                    });
+                    this.getGrid().addEvent('update', (grid) => {
+                        const rows = Html.all('> div[data-role=row]', grid.$getBody());
+                        const selected = Html.all('> div[data-role=row].selected', grid.$getBody());
+                        if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
+                            $header.addClass('checked');
+                        }
+                        else {
+                            $header.removeClass('checked');
+                        }
+                    });
+                    this.getGrid().addEvent('selectionChange', (_selections, grid) => {
+                        const rows = Html.all('> div[data-role=row]', grid.$getBody());
+                        const selected = Html.all('> div[data-role=row].selected', grid.$getBody());
+                        if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
+                            $header.addClass('checked');
+                        }
+                        else {
+                            $header.removeClass('checked');
+                        }
+                    });
+                    return $header;
+                }
+                else {
+                    return super.$getHeader();
+                }
+            }
+            /**
+             * 컬럼의 데이터컬럼 레이아웃을 가져온다.
+             *
+             * @param {any} value - 컬럼의 dataIndex 데이터
+             * @param {Admin.Data.Record} record - 컬럼이 속한 행의 모든 데이터셋
+             * @param {number} rowIndex - 행 인덱스
+             * @param {number} columnIndex - 열 인덱스
+             * @return {Dom} $layout
+             */
+            $getBody(value, record, rowIndex, columnIndex) {
+                const $column = Html.create('div')
+                    .setData('role', 'column')
+                    .setData('row', rowIndex)
+                    .setData('column', columnIndex)
+                    .setData('record', record, false)
+                    .setData('value', value, false);
+                $column.addClass('check');
+                if (this.dataIndex == '@') {
+                    $column.addClass('selection');
+                }
+                else {
+                    if (value == true) {
+                        $column.addClass('checked');
+                    }
+                }
+                $column.setStyle('width', this.width + 'px');
+                $column.on('click', (e) => {
+                    if (this.dataIndex == '@') {
+                        if (this.getGrid().isRowSelected(rowIndex) == true) {
+                            this.getGrid().deselectRow(rowIndex);
+                        }
+                        else {
+                            this.getGrid().selectRow(rowIndex, true);
+                        }
+                    }
+                    e.stopImmediatePropagation();
+                });
+                const $label = Html.create('label');
+                $label.addClass(this.headerAlign);
+                $column.append($label);
+                return $column;
+            }
+        }
+        Grid.Check = Check;
         class Renderer {
             static Date(format = 'YYYY.MM.DD(dd)') {
                 return (value) => {
@@ -1176,6 +1455,12 @@ var Admin;
             }
             static DateTime(format = 'YYYY.MM.DD(dd) HH:mm') {
                 return Admin.Grid.Renderer.Date(format);
+            }
+            static Number() {
+                return (value, _record, $dom) => {
+                    $dom.setStyle('text-align', 'right');
+                    return Format.number(value, Admin.getLanguage());
+                };
             }
         }
         Grid.Renderer = Renderer;
@@ -1293,7 +1578,19 @@ var Admin;
                 if (this.pageInput === undefined) {
                     this.pageInput = new Admin.Form.Field.Number({
                         minValue: 1,
-                        width: 60,
+                        width: 50,
+                        spinner: false,
+                    });
+                    this.pageInput.$getInput().on('keydown', (e) => {
+                        if (e.key == 'Enter') {
+                            if (this.store?.getPage() != this.pageInput.getValue()) {
+                                this.store?.loadPage(this.pageInput.getValue());
+                            }
+                            e.preventDefault();
+                        }
+                    });
+                    this.pageInput.$getInput().on('blur', () => {
+                        this.pageInput.setValue(this.store?.getPage() ?? 1);
                     });
                 }
                 return this.pageInput;
@@ -1351,7 +1648,6 @@ var Admin;
              * @param {'FIRST'|'PREV'|'NEXT'|'END'} position - 이동할위치
              */
             movePage(position) {
-                console.log('movePage', position);
                 const page = this.store?.getPage() ?? 1;
                 const totalPage = this.store?.getTotalPage() ?? 1;
                 let move = null;
@@ -1410,7 +1706,6 @@ var Admin;
              * 데이터스토어가 업데이트되었을 때 UI 를 업데이트한다.
              */
             onUpdate() {
-                console.log('store update', this.store.isLoaded());
                 if (this.store.isLoaded() === true) {
                     this.enable();
                     if (this.store.getPage() == 1) {
@@ -1422,6 +1717,7 @@ var Admin;
                         this.getLastButton().setDisabled(true);
                     }
                     this.getPageInput().setValue(this.store.getPage());
+                    this.getPageInput().setMaxValue(this.store.getTotalPage());
                     this.getPageDisplay().setValue(this.store.getTotalPage());
                 }
                 else {
