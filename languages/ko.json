@@ -51,6 +51,34 @@
         "PERMISSION_DENIED": "관리자 권한이 없습니다."
     },
     "admin": {
+        "contexts": {
+            "dashboard": "대시보드",
+            "modules": "모듈관리",
+            "plugins": "플러그인관리",
+            "sitemap": "사이트맵관리",
+            "administrators": "관리자관리",
+            "database": "데이터베이스"
+        },
+        "permissions": {
+            "modules": {
+                "title": "모듈관리",
+                "configs": "모듈설정",
+                "install": "모듈설치"
+            },
+            "plugins": {
+                "title": "플러그인관리",
+                "configs": "플러그인설정",
+                "install": "플러그인설치"
+            },
+            "sitemap": {
+                "title": "사이트맵관리",
+                "domain": "도메인관리",
+                "site": "사이트관리",
+                "context": "컨텍스트관리"
+            },
+            "administrators": "관리자 권한관리",
+            "databases": "데이터베이스관리"
+        },
         "navigation": {
             "folder": {
                 "title": "폴더명",
@@ -69,14 +97,6 @@
                 "modules": "신규 모듈의 관리자메뉴를 자동으로 추가",
                 "plugins": "신규 플러그인의 관리자메뉴를 자동으로 추가"
             }
-        },
-        "contexts": {
-            "dashboard": "대시보드",
-            "modules": "모듈관리",
-            "plugins": "플러그인관리",
-            "sites": "사이트관리",
-            "sitemap": "사이트맵관리",
-            "database": "데이터베이스"
         },
         "modules": {
             "title": "모듈관리",
@@ -114,8 +134,8 @@
                 }
             }
         },
-        "sites": {
-            "title": "사이트관리",
+        "sitemap": {
+            "title": "사이트맵관리",
             "domains": {
                 "add": "도메인추가",
                 "edit": "도메인수정",
@@ -191,6 +211,40 @@
                 "is_footer_menu_help": "해당 컨텍스트를 사이트 하단메뉴에 표시합니다.",
                 "permission": "접근권한",
                 "permission_help": "접근권한이 없는 경우 사이트맵에서 표시되지 않습니다."
+            }
+        },
+        "administrators": {
+            "title": "관리자관리",
+            "add": "관리자추가",
+            "master": "최고관리자",
+            "selected_members": "${count}명 선택됨",
+            "unselected_members": "선택회원 없음",
+            "deselect_all": "전체 선택해제",
+            "component_master": "전체관리자",
+            "permissions": "권한",
+            "permission_sumamry": "${names}외 ${count}개",
+            "type_all": "전체",
+            "add_group": "그룹추가",
+            "add_group_help": "현재 선택된 관리자의 기존 그룹을 유지한채 위에서 선택한 그룹을 추가합니다.",
+            "move_group": "그룹이동",
+            "move_group_help": "현재 선택된 관리자의 기존 그룹을 위에서 선택한 그룹으로 대치합니다.",
+            "edit_permissions": "권한설정",
+            "remove": "관리자에서 제외",
+            "selectedCount": "${count}명 선택됨",
+            "actions": {
+                "unselected_members": "먼저 관리자로 등록할 회원을 선택하여 주십시오.",
+                "unselected_permissions": "권한이 선택되지 않았습니다."
+            },
+            "groups": {
+                "add": "그룹추가",
+                "edit": "그룹수정",
+                "delete": "그룹삭제",
+                "title": "그룹명",
+                "administrators": "인원",
+                "all": "전체그룹",
+                "ungrouped": "그룹없음",
+                "groups": "그룹",
+                "permissions": "그룹권한"
             }
         }
     }
