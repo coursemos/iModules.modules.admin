@@ -3,10 +3,10 @@
  *
  * 사이트관리화면을 구성한다.
  *
- * @file /modules/admin/admin/scripts/sites.ts
+ * @file /modules/admin/admin/scripts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 2.
+ * @modified 2023. 8. 2.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.AdminAdmin;
@@ -14,8 +14,8 @@ Admin.ready(async () => {
     return new Admin.Panel({
         border: false,
         layout: 'column',
-        iconClass: 'mi mi-home',
-        title: (await me.getText('admin.sites.title')) as string,
+        iconClass: 'xi xi xi-sitemap',
+        title: (await me.getText('admin.sitemap.title')) as string,
         scrollable: true,
         items: [
             new Admin.Grid.Panel({
@@ -23,7 +23,7 @@ Admin.ready(async () => {
                 border: [false, true, false, false],
                 width: 240,
                 columnResizable: false,
-                selectionMode: 'SINGLE',
+                selection: { selectable: true },
                 topbar: [
                     new Admin.Form.Field.Text({
                         name: 'keyword',
@@ -32,9 +32,9 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.sites.domains.add')) as string,
+                        text: (await me.getText('admin.sitemap.domains.add')) as string,
                         handler: () => {
-                            me.addDomain();
+                            me.sitemap.domains.add();
                         },
                     }),
                 ],
@@ -49,7 +49,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await me.getText('admin.sites.domains.host')) as string,
+                        text: (await me.getText('admin.sitemap.domains.host')) as string,
                         dataIndex: 'host',
                     },
                 ],
@@ -58,38 +58,35 @@ Admin.ready(async () => {
                     primaryKeys: ['host'],
                 }),
                 listeners: {
-                    update: (grid, store) => {
+                    update: (grid) => {
                         if (Admin.getContextSubTree().at(0) !== undefined && grid.getSelections().length == 0) {
-                            const index = store.findIndex('host', Admin.getContextSubTree().at(0));
-                            if (index !== null) {
-                                grid.select(index);
-                            }
+                            grid.select({ host: Admin.getContextSubTree().at(0) });
                         }
                     },
                     openItem: (record) => {
-                        me.addDomain(record.get('host'));
+                        me.sitemap.domains.add(record.get('host'));
                     },
                     openMenu: (menu, record) => {
                         menu.setTitle(record.get('host'));
 
                         menu.add({
-                            text: me.printText('admin.sites.domains.edit'),
+                            text: me.printText('admin.sitemap.domains.edit'),
                             iconClass: 'xi xi-form-checkout',
                             handler: () => {
-                                me.addSite(record.get('host'));
+                                me.sitemap.sites.add(record.get('host'));
                             },
                         });
                     },
                     selectionChange: (selections) => {
                         const sites = Admin.getComponent('sites') as Admin.Grid.Panel;
                         if (selections.length == 1) {
-                            const store = sites.getStore() as Admin.Store.Ajax;
-                            store.setParams({ host: selections[0].get('host') });
-                            store.reload();
+                            const host = selections[0].get('host');
+                            sites.getStore().setParams({ host: host });
+                            sites.getStore().reload();
                             sites.enable();
 
-                            if (Admin.getContextSubTree().at(0) !== selections[0].get('host')) {
-                                Admin.setContextUrl(Admin.getContextUrl('/' + selections[0].get('host')));
+                            if (Admin.getContextSubTree().at(0) !== host) {
+                                Admin.setContextUrl(Admin.getContextUrl('/' + host));
                             }
                         } else {
                             sites.disable();
@@ -102,7 +99,7 @@ Admin.ready(async () => {
                 border: [false, true, false, true],
                 width: 260,
                 columnResizable: false,
-                selectionMode: 'SINGLE',
+                selection: { selectable: true },
                 disabled: true,
                 autoLoad: false,
                 topbar: [
@@ -113,9 +110,9 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.sites.sites.add')) as string,
+                        text: (await me.getText('admin.sitemap.sites.add')) as string,
                         handler: () => {
-                            me.addSite();
+                            me.sitemap.sites.add();
                         },
                     }),
                 ],
@@ -130,7 +127,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await me.getText('admin.sites.sites.title')) as string,
+                        text: (await me.getText('admin.sitemap.sites.title')) as string,
                         dataIndex: 'title',
                     },
                 ],
@@ -139,48 +136,45 @@ Admin.ready(async () => {
                     primaryKeys: ['host', 'language'],
                 }),
                 listeners: {
-                    update: (grid, store) => {
+                    update: (grid) => {
                         if (Admin.getContextSubTree().at(1) !== undefined && grid.getSelections().length == 0) {
-                            const index = store.findIndex('language', Admin.getContextSubTree().at(1));
-                            if (index !== null) {
-                                grid.select(index);
-                            }
+                            grid.select({
+                                host: Admin.getContextSubTree().at(0),
+                                language: Admin.getContextSubTree().at(1),
+                            });
                         }
                     },
                     openItem: (record) => {
-                        me.addSite(record.get('language'));
+                        me.sitemap.sites.add(record.get('language'));
                     },
                     openMenu: (menu, record) => {
                         menu.setTitle(record.get('title'));
 
                         menu.add({
-                            text: me.printText('admin.sites.sites.edit'),
+                            text: me.printText('admin.sitemap.sites.edit'),
                             iconClass: 'xi xi-form-checkout',
                             handler: () => {
-                                me.addSite(record.get('language'));
+                                me.sitemap.sites.add(record.get('language'));
                             },
                         });
                     },
                     selectionChange: (selections) => {
                         const contexts = Admin.getComponent('contexts') as Admin.Grid.Panel;
                         if (selections.length == 1) {
-                            const store = contexts.getStore() as Admin.Store.Ajax;
-                            store.setParams({
-                                host: selections[0].get('host'),
-                                language: selections[0].get('language'),
+                            const host = selections[0].get('host');
+                            const language = selections[0].get('language');
+                            contexts.getStore().setParams({
+                                host: host,
+                                language: language,
                             });
-                            store.reload();
+                            contexts.getStore().reload();
                             contexts.enable();
 
                             if (
-                                Admin.getContextSubTree().at(0) !== selections[0].get('host') ||
-                                Admin.getContextSubTree().at(1) !== selections[0].get('language')
+                                Admin.getContextSubTree().at(0) !== host ||
+                                Admin.getContextSubTree().at(1) !== language
                             ) {
-                                Admin.setContextUrl(
-                                    Admin.getContextUrl(
-                                        '/' + selections[0].get('host') + '/' + selections[0].get('language')
-                                    )
-                                );
+                                Admin.setContextUrl(Admin.getContextUrl('/' + host + '/' + language));
                             }
                         } else {
                             contexts.disable();
@@ -194,7 +188,7 @@ Admin.ready(async () => {
                 flex: 2,
                 minWidth: 400,
                 columnResizable: false,
-                selectionMode: 'SINGLE',
+                selection: { selectable: true },
                 disabled: true,
                 autoLoad: false,
                 topbar: [
@@ -205,9 +199,9 @@ Admin.ready(async () => {
                     }),
                     new Admin.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.sites.contexts.add')) as string,
+                        text: (await me.getText('admin.sitemap.contexts.add')) as string,
                         handler: () => {
-                            me.addContext();
+                            me.sitemap.contexts.add();
                         },
                     }),
                 ],
@@ -220,7 +214,6 @@ Admin.ready(async () => {
                             if (selections.length == 0) {
                                 return;
                             }
-                            //
                         },
                     }),
                     new Admin.Button({
@@ -231,7 +224,6 @@ Admin.ready(async () => {
                             if (selections.length == 0) {
                                 return;
                             }
-                            //
                         },
                     }),
                     '|',
@@ -245,7 +237,7 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await me.getText('admin.sites.contexts.path')) as string,
+                        text: (await me.getText('admin.sitemap.contexts.path')) as string,
                         dataIndex: 'path',
                     },
                     {
@@ -260,26 +252,21 @@ Admin.ready(async () => {
                 }),
                 listeners: {
                     openItem: (record) => {
-                        me.addContext(record.get('path'));
+                        me.sitemap.contexts.add(record.get('path'));
                     },
                     openMenu: (menu, record) => {
                         menu.setTitle(record.get('title'));
 
                         menu.add({
-                            text: me.printText('admin.sites.contexts.edit'),
+                            text: me.printText('admin.sitemap.contexts.edit'),
                             iconClass: 'xi xi-form-checkout',
                             handler: () => {
-                                me.addContext(record.get('path'));
+                                me.sitemap.contexts.add(record.get('path'));
                             },
                         });
                     },
                 },
             }),
         ],
-        listeners: {
-            render: () => {
-                me.addSite();
-            },
-        },
     });
 });
