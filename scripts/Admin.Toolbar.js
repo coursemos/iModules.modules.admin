@@ -18,7 +18,7 @@ var Admin;
         /**
          * 툴바를 생성한다.
          *
-         * @param {Admin.Toolbar.Properties|Admin.Component[]} properties - 객체설정
+         * @param {Admin.Toolbar.Properties|(Admin.Component|string)[]} properties - 객체설정
          */
         constructor(properties = null) {
             if (properties?.constructor.name == 'Array') {
@@ -104,7 +104,7 @@ var Admin;
                 if (this.text == '->') {
                     this.tool = 'fill';
                 }
-                else if (this.text == '-') {
+                else if (this.text == '-' || this.text == '|') {
                     this.tool = 'separator';
                 }
             }
