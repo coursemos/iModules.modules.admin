@@ -16,7 +16,7 @@ Admin.ready(async () => {
         border: false,
         layout: 'fit',
         title: (await me.getText('admin.modules.title')),
-        selectionMode: 'SINGLE',
+        selection: { selectable: true },
         autoLoad: true,
         topbar: [
             new Admin.Form.Field.Text({
@@ -107,7 +107,7 @@ Admin.ready(async () => {
         }),
         listeners: {
             openItem: (record) => {
-                me.showModule(record.data.name);
+                me.modules.show(record.data.name);
             },
             openMenu: (menu, record) => {
                 menu.setTitle(record.get('title'));
@@ -115,7 +115,7 @@ Admin.ready(async () => {
                     text: me.printText('admin.modules.modules.show.title'),
                     iconClass: 'xi xi-form-checkout',
                     handler: () => {
-                        me.showModule(record.data.name);
+                        me.modules.show(record.data.name);
                     },
                 });
                 menu.add({
@@ -123,7 +123,7 @@ Admin.ready(async () => {
                     iconClass: 'xi xi-cog',
                     hidden: record.data.properties.includes('CONFIGS') === false,
                     handler: () => {
-                        me.setModuleConfigs(record.data.name);
+                        me.modules.setConfigs(record.data.name);
                     },
                 });
                 menu.add({
@@ -131,7 +131,7 @@ Admin.ready(async () => {
                     iconClass: 'xi xi-new',
                     hidden: record.data.status !== 'NOT_INSTALLED',
                     handler: () => {
-                        me.installModule(record.data.name);
+                        me.modules.install(record.data.name);
                     },
                 });
                 menu.add({
@@ -139,7 +139,7 @@ Admin.ready(async () => {
                     iconClass: 'xi xi-update',
                     hidden: record.data.status !== 'NEED_UPDATE',
                     handler: () => {
-                        me.installModule(record.data.name);
+                        me.modules.install(record.data.name);
                     },
                 });
             },
