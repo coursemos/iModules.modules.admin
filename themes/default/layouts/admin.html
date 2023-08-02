@@ -23,7 +23,7 @@ if (defined('__IM__') == false) {
         </h1>
     
         <div>
-            <b><?php echo $member->getDisplayName(); ?></b>
+            <b><?php echo $member->getName(); ?></b>
             <?php echo Html::element('i', ['style'=>'background-image:url('.$member->getPhotoUrl().');'], ''); ?>
             <button type="button" data-action="logout"><?php echo $mMember->getText('buttons.logout'); ?></button>
         </div>
