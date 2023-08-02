@@ -29,9 +29,9 @@ namespace Admin {
             title?: Admin.Title | string;
 
             /**
-             * @type {(Admin.Menu.Item|Admin.Menu.Item.Properties)[]} items - 메뉴아이템
+             * @type {(Admin.Menu.Item|Admin.Menu.Item.Properties|'-')[]} items - 메뉴아이템
              */
-            items?: (Admin.Menu.Item | Admin.Menu.Item.Properties)[];
+            items?: (Admin.Menu.Item | Admin.Menu.Item.Properties | '-')[];
 
             /**
              * @type {boolean} once - 단발성 메뉴인지 여부
@@ -287,9 +287,9 @@ namespace Admin {
         /**
          * 메뉴에 아이템을 추가한다.
          *
-         * @param {Admin.Menu.Item|Admin.Menu.Item.Properties} item
+         * @param {Admin.Menu.Item|Admin.Menu.Item.Properties|'-'} item
          */
-        add(item: Admin.Menu.Item | Admin.Menu.Item.Properties): void {
+        add(item: Admin.Menu.Item | Admin.Menu.Item.Properties | '-'): void {
             if (item instanceof Admin.Menu.Item) {
                 this.append(item);
             } else {
@@ -468,16 +468,17 @@ namespace Admin {
             /**
              * 메뉴아이템을 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Object|'-'} properties - 객체설정
              */
-            constructor(properties: Admin.Menu.Item.Properties = null) {
+            constructor(properties: Admin.Menu.Item.Properties | '-' = null) {
+                if (properties === '-') {
+                    properties = { text: '-' };
+                }
                 super(properties);
 
                 this.text = this.properties.text ?? '';
                 this.iconClass = this.properties.iconClass ?? null;
                 this.handler = this.properties.handler ?? null;
-
-                this.$button = Html.create('button').setAttr('type', 'button');
             }
 
             /**
@@ -490,22 +491,38 @@ namespace Admin {
             }
 
             /**
+             * 메뉴 버튼 DOM 을 가져온다.
+             *
+             * @return {Dom} $button
+             */
+            $getButton(): Dom {
+                if (this.$button === undefined) {
+                    this.$button = Html.create('button').setAttr('type', 'button');
+                    this.$button.on('click', () => {
+                        this.onClick();
+                    });
+                }
+
+                return this.$button;
+            }
+
+            /**
              * 레이아웃을 렌더링한다.
              */
             renderContent(): void {
-                const $icon = Html.create('i').addClass('icon');
-                if (this.iconClass !== null) {
-                    $icon.addClass(...this.iconClass.split(' '));
+                if (this.text == '-') {
+                    this.$getContent().addClass('separator');
+                } else {
+                    const $icon = Html.create('i').addClass('icon');
+                    if (this.iconClass !== null) {
+                        $icon.addClass(...this.iconClass.split(' '));
+                    }
+                    this.$getButton().append($icon);
+
+                    const $text = Html.create('span').html(this.text);
+                    this.$getButton().append($text);
+                    this.$getContent().append(this.$button);
                 }
-                this.$button.append($icon);
-
-                const $text = Html.create('span').html(this.text);
-                this.$button.append($text);
-                this.$button.on('click', () => {
-                    this.onClick();
-                });
-
-                this.$getContent().append(this.$button);
             }
 
             /**
@@ -514,7 +531,7 @@ namespace Admin {
              * @param {string} iconClass - 변경할 아이콘 클래스
              */
             setIconClass(iconClass: string = null): void {
-                const $button = Html.get('> button', this.$getContent());
+                const $button = this.$getButton();
                 const $icon = Html.get('> i.icon', $button);
 
                 if (this.iconClass !== null) {

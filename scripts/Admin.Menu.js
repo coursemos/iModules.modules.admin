@@ -206,7 +206,7 @@ var Admin;
         /**
          * 메뉴에 아이템을 추가한다.
          *
-         * @param {Admin.Menu.Item|Admin.Menu.Item.Properties} item
+         * @param {Admin.Menu.Item|Admin.Menu.Item.Properties|'-'} item
          */
         add(item) {
             if (item instanceof Admin.Menu.Item) {
@@ -345,14 +345,16 @@ var Admin;
             /**
              * 메뉴아이템을 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Object|'-'} properties - 객체설정
              */
             constructor(properties = null) {
+                if (properties === '-') {
+                    properties = { text: '-' };
+                }
                 super(properties);
                 this.text = this.properties.text ?? '';
                 this.iconClass = this.properties.iconClass ?? null;
                 this.handler = this.properties.handler ?? null;
-                this.$button = Html.create('button').setAttr('type', 'button');
             }
             /**
              * 메뉴를 가져온다.
@@ -363,20 +365,36 @@ var Admin;
                 return this.parent;
             }
             /**
+             * 메뉴 버튼 DOM 을 가져온다.
+             *
+             * @return {Dom} $button
+             */
+            $getButton() {
+                if (this.$button === undefined) {
+                    this.$button = Html.create('button').setAttr('type', 'button');
+                    this.$button.on('click', () => {
+                        this.onClick();
+                    });
+                }
+                return this.$button;
+            }
+            /**
              * 레이아웃을 렌더링한다.
              */
             renderContent() {
-                const $icon = Html.create('i').addClass('icon');
-                if (this.iconClass !== null) {
-                    $icon.addClass(...this.iconClass.split(' '));
+                if (this.text == '-') {
+                    this.$getContent().addClass('separator');
                 }
-                this.$button.append($icon);
-                const $text = Html.create('span').html(this.text);
-                this.$button.append($text);
-                this.$button.on('click', () => {
-                    this.onClick();
-                });
-                this.$getContent().append(this.$button);
+                else {
+                    const $icon = Html.create('i').addClass('icon');
+                    if (this.iconClass !== null) {
+                        $icon.addClass(...this.iconClass.split(' '));
+                    }
+                    this.$getButton().append($icon);
+                    const $text = Html.create('span').html(this.text);
+                    this.$getButton().append($text);
+                    this.$getContent().append(this.$button);
+                }
             }
             /**
              * 아이콘 클래스를 변경한다.
@@ -384,7 +402,7 @@ var Admin;
              * @param {string} iconClass - 변경할 아이콘 클래스
              */
             setIconClass(iconClass = null) {
-                const $button = Html.get('> button', this.$getContent());
+                const $button = this.$getButton();
                 const $icon = Html.get('> i.icon', $button);
                 if (this.iconClass !== null) {
                     $icon.removeClass(...this.iconClass.split(' '));
