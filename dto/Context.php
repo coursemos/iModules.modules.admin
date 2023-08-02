@@ -9,7 +9,9 @@
  * @license MIT License
  * @modified 2023. 5. 30.
  */
+
 namespace modules\admin\dto;
+
 class Context
 {
     /**
@@ -142,6 +144,7 @@ class Context
                     return '#';
                 }
 
+                // no break
             case 'LINK':
                 return $this->_path;
 
@@ -233,16 +236,5 @@ class Context
     public function getContent(string $subPath = null): string
     {
         return $this->_admin->getContent($this->_path, $subPath);
-    }
-
-    /**
-     * 컨텍스트 접근권한이 존재하는지 확인한다.
-     *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $has_permission
-     */
-    public function hasPermission(?int $member_id = null): bool
-    {
-        return $this->_admin->isMaster() == true || $this->_admin->hasContextPermission($this->_path, $member_id);
     }
 }
