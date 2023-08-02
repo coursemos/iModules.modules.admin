@@ -9,20 +9,17 @@
  * @modified 2023. 3. 6.
  */
 :root {
-    --text-height: 32px;
-    --padding-default: 5px;
-    --padding-large: 7px;
-    --padding-small: 3px;
-    --padding-extra-large: 9px;
-    --font-family-default: SUIT;
-    --font-family-numeric: SUIT;
-    --font-size-default: 14px;
-    --font-size-large: 16px;
-    --font-size-small: 12px;
+    --color-text-100: #b4b4b4;
+    --color-text-200: #6f6f6f;
+    --color-text-300: #393840;
+    --color-text-400: #222;
+    --color-text-500: #000;
 
-    --color-default: #404040;
-    --color-background: #ffffff;
-    --color-hover: #222;
+    --color-background-100: #d0d0d0;
+    --color-background-200: #dadada;
+    --color-background-300: #e6e6e6;
+    --color-background-400: #f7f7f7;
+    --color-background-500: #fff;
 
     --color-primary-300: #66acfb;
     --color-primary-400: #3391f9;
@@ -44,34 +41,54 @@
     --color-danger-500: #dc3535;
     --color-danger-600: #cc3131;
 
-    --color-gray-800: #6f6f6f;
-    --color-gray-700: #b4b4b4;
-    --color-gray-600: #d0d0d0;
-    --color-gray-500: #dadada;
-    --color-gray-400: #e7e7e7;
-    --color-gray-300: #f7f7f7;
+    --color-accent-400: #8875fe;
+    --color-accent-500: #6d56fb;
+    --color-accent-600: #5442c2;
+
+    --color-mark: #ffedb5;
+
+    --font-family-head: SUITE;
+    --font-family-body: SUIT;
+    --font-family-numeric: SUIT;
+    --font-family-monospace: SUIT;
+
     --background-focus: #ffedb5;
 
-    --scrollbar-background-default: var(--color-gray-500);
-    --scrollbar-background-track: var(--color-gray-400);
+    --text-height: 32px;
+    --padding-default: 5px;
+    --padding-large: 7px;
+    --padding-small: 3px;
+    --padding-extra-large: 9px;
+    --font-family-default: SUIT;
+    --font-family-numeric: SUIT;
+    --font-size-default: 14px;
+    --font-size-large: 16px;
+    --font-size-small: 12px;
+
+    --color-default: #404040;
+    --color-background: #ffffff;
+    --color-hover: #222;
+
+    --scrollbar-background-default: var(--color-background-200);
+    --scrollbar-background-track: var(--color-background-300);
     --scrollbar-background-bar: rgba(0, 0, 0, 0.6);
     --scrollbar-background-drag: #222222;
     --scrollbar-border-color-bar: rgba(255, 255, 255, 0.4);
 
-    --loading-background: var(--color-gray-600);
-    --loading-color-indicator: var(--color-gray-800);
-    --loading-color-text: var(--color-gray-800);
-    --loading-box-background: var(--color-gray-400);
+    --loading-background: var(--color-background-100);
+    --loading-color-indicator: var(--color-text-200);
+    --loading-color-text: var(--color-text-200);
+    --loading-box-background: var(--color-background-300);
 
     --input-background-default: var(--color-background);
     --input-background-hover: var(--color-background);
     --input-background-focus: var(--color-background);
     --input-background-select: var(--color-primary-500);
     --input-background-error: var(--color-background);
-    --input-background-disabled: var(--color-gray-400);
-    --input-background-loading: var(--color-gray-400);
-    --input-border-color-default: var(--color-gray-400);
-    --input-border-color-hover: var(--color-gray-400);
+    --input-background-disabled: var(--color-background-300);
+    --input-background-loading: var(--color-background-300);
+    --input-border-color-default: var(--color-background-300);
+    --input-border-color-hover: var(--color-background-300);
     --input-border-color-focus: var(--color-primary-500);
     --input-border-color-select: var(--color-primary-500);
     --input-border-color-error: var(--color-danger-500);
@@ -79,9 +96,13 @@
     --input-color-select: var(--color-background);
     --input-color-required: var(--color-danger-500);
     --input-color-error: var(--color-danger-500);
-    --input-color-empty: var(--color-gray-700);
-    --input-color-help: var(--color-gray-700);
-    --input-color-disabled: var(--color-gray-700);
+    --input-color-empty: var(--color-text-100);
+    --input-color-help: var(--color-text-100);
+    --input-color-disabled: var(--color-text-100);
+    --input-button-search-background-default: var(--color-primary-500);
+    --input-button-search-background-hover: var(--color-primary-600);
+    --input-button-search-background-disabled: var(--color-primary-500);
+    --input-button-search-color-default: var(--color-background);
 
     --button-color-default: var(--color-default);
     --button-color-hover: var(--color-hover);
@@ -90,13 +111,13 @@
     --button-color-confirm: var(--color-background);
     --button-color-danger: var(--color-background);
     --button-background-default: var(--color-background);
-    --button-background-hover: var(--color-gray-300);
-    --button-background-focus: var(--color-gray-300);
+    --button-background-hover: var(--color-background-400);
+    --button-background-focus: var(--color-background-400);
     --button-background-pressed: var(--color-primary-500);
     --button-background-confirm: var(--color-primary-500);
     --button-background-danger: var(--color-danger-500);
-    --button-border-color-default: var(--color-gray-400);
-    --button-border-color-hover: var(--color-gray-500);
+    --button-border-color-default: var(--color-background-300);
+    --button-border-color-hover: var(--color-background-200);
     --button-border-color-focus: var(--color-primary-500);
     --button-border-color-pressed: var(--color-primary-500);
     --button-border-color-confirm: var(--color-primary-500);
@@ -133,13 +154,13 @@
 
     --toolbar-height: calc(var(--text-height) + var(--padding-default) * 2);
     --toolbar-background: var(--color-background);
-    --toolbar-border-color: var(--color-gray-400);
+    --toolbar-border-color: var(--color-background-300);
     --toolbar-color-default: var(--color-default);
-    --toolbar-button-background-default: var(--color-gray-300);
-    --toolbar-button-background-hover: var(--color-gray-400);
-    --toolbar-button-background-focus: var(--color-gray-300);
-    --toolbar-button-border-color-default: var(--color-gray-400);
-    --toolbar-button-border-color-hover: var(--color-gray-500);
+    --toolbar-button-background-default: var(--color-background-400);
+    --toolbar-button-background-hover: var(--color-background-300);
+    --toolbar-button-background-focus: var(--color-background-400);
+    --toolbar-button-border-color-default: var(--color-background-300);
+    --toolbar-button-border-color-hover: var(--color-background-200);
     --toolbar-button-border-color-focus: var(--color-primary-500);
 
     --tabbar-height: var(--title-height);
@@ -153,15 +174,17 @@
     --tabbar-button-color-selected: var(--color-primary-500);
 
     --panel-background: var(--color-background);
-    --panel-border-color-default: var(--color-gray-500);
-    --panel-background-disabled: var(--color-gray-600);
+    --panel-border-color-default: var(--color-background-200);
+    --panel-background-disabled: var(--color-background-100);
 
-    --grid-header-border-color: var(--color-gray-400);
-    --grid-header-background-default: var(--color-gray-300);
+    --grid-header-border-color: var(--color-background-300);
+    --grid-header-background-default: var(--color-background-400);
     --grid-header-background-hover: #eaeff4;
     --grid-header-color-default: var(--color-default);
-    --grid-header-color-button: var(--color-gray-800);
-    --grid-row-border-color-default: var(--color-gray-400);
+    --grid-header-button-color-default: var(--color-text-200);
+    --grid-header-sorter-default: var(--color-background-100);
+    --grid-header-sorter-active: var(--color-primary-500);
+    --grid-row-border-color-default: var(--color-background-300);
     --grid-row-border-color-hover: #d9dfe4;
     --grid-row-border-color-focus: #f0dfab;
     --grid-row-border-color-select: var(--color-primary-400);
@@ -172,12 +195,17 @@
     --grid-column-border-color-focus: var(--color-primary-500);
     --grid-column-border-color-selected-focused: var(--color-primary-700);
     --grid-color-select: var(--color-background);
+    --grid-input-color-select: var(--color-background);
+    --grid-input-border-color-default: var(--color-text-100);
+    --grid-input-border-color-select: var(--color-primary-500);
+    --grid-input-background-default: var(--color-background);
+    --grid-input-background-select: var(--color-primary-500);
 
-    --message-icon-background-default: var(--color-gray-800);
+    --message-icon-background-default: var(--color-text-200);
     --message-icon-color-default: var(--color-background);
     --message-color-default: var(--color-default);
 
-    --menu-border-color: var(--color-gray-500);
+    --menu-border-color: var(--color-background-200);
     --menu-background-default: var(--color-background);
     --menu-shadow-color: rgba(0, 0, 0, 0.1);
     --menu-title-color: var(--color-background);
@@ -186,7 +214,7 @@
     --menu-item-height: calc(var(--text-height) + var(--padding-small) * 2);
     --menu-item-color: var(--color-default);
     --menu-item-color-hover: var(--color-background);
-    --menu-item-border-color: var(--color-gray-500);
+    --menu-item-border-color: var(--color-background-200);
     --menu-item-background-hover: var(--color-primary-400);
 }
 
