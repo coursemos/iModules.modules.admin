@@ -7,20 +7,17 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 28.
+ * @modified 2023. 8. 2.
  */
+
 namespace modules\admin\admin;
+
 abstract class Admin
 {
     /**
      * @var \modules\admin\Admin $_mAdmin 관리자모듈
      */
     private static \modules\admin\Admin $_mAdmin;
-
-    /**
-     * @var array $_permissions 사용자별 현재 모듈의 관리자 권한
-     */
-    private static $_permissions = [];
 
     /**
      * 관리자 클래스를 정의한다.
@@ -177,49 +174,48 @@ abstract class Admin
     }
 
     /**
-     * 현재 모듈의 모든 관리자 권한을 가져온다.
+     * 현재 모듈의 관리자 권한종류를 가져온다.
+     * 각 모듈 관리자 클래스에서 재정의한다.
      *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
      * @return array $permissions 권한
      */
-    final public function getPermissions(?int $member_id = null): array
+    public function getPermissions(): array
     {
         /**
-         * @var \modules\member\Member $mMember
+         * [
+         *     '{권한타입}'=>[
+         *         'label'=>'{권한명}',
+         *         'permissions'=>[
+         *             '{세부권한명}'=>'{표시될 세부권한명}',
+         *             ...
+         *         ]
+         *     ],
+         *     ...
+         * ]
          */
-        $mMember = \Modules::get('member');
-        $member_id ??= $mMember->getLogged();
-
-        if (isset(self::$_permissions[$member_id]) == true) {
-            return self::$_permissions[$member_id];
-        }
-
-        $permissions = self::$_mAdmin->getPermissions($member_id);
-        $component = $this->getComponent()->getType() . '/' . $this->getComponent()->getName();
-        self::$_permissions = isset($permissions[$component]) == true ? $permissions[$component] : [];
-
-        return self::$_permissions;
+        return [];
     }
 
     /**
-     * 권한종류에 따른 권한을 가져온다.
+     * 현재 컴포넌트의 관리자 권한을 가져온다.
      *
-     * @param string $permission_type 권한종류
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool|array $permission
+     * @return bool|array $permissions 권한
      */
-    final public function getPermission(string $permission_type, ?int $member_id = null): bool|array
+    final public function getAdministratorPermissions(?int $member_id = null): bool|array
     {
-        if ($this->isMaster($member_id) == true) {
-            return true;
+        $permissions = self::$_mAdmin->getAdministratorPermissions($member_id);
+        if (is_bool($permissions) == true) {
+            return $permissions;
         }
 
-        $permissions = $this->getPermissions($member_id);
-        if (isset($permissions[$permission_type]) == false) {
-            return false;
+        $component = $this->getComponent()->getType() . '/' . $this->getComponent()->getName();
+        $permissions = isset($permissions[$component]) == true ? $permissions[$component] : false;
+        if (is_bool($permissions) == true) {
+            return $permissions;
         }
 
-        return $permissions[$permission_type];
+        return count($permissions) > 0 ? $permissions : false;
     }
 
     /**
@@ -232,33 +228,40 @@ abstract class Admin
      */
     final public function checkPermission(string $permission_type, ?string $check = null, ?int $member_id = null): bool
     {
-        $permission = $this->getPermission($permission_type, $member_id);
-        if (is_bool($permission) == true) {
-            return $permission;
-        } else {
-            return $check === null ? count($permission) > 0 : in_array($check, $permission) === true;
+        $permissions = $this->getAdministratorPermissions($member_id);
+        if (is_bool($permissions) == true) {
+            return $permissions;
         }
+
+        $permissions = isset($permissions[$permission_type]) == true ? $permissions[$permission_type] : false;
+        if (is_bool($permissions) == true) {
+            return $permissions;
+        }
+
+        return $check === null ? count($permissions) > 0 : in_array($check, $permissions) == true;
     }
 
     /**
-     * 최고관리자인지 확인한다.
+     * 모듈 관리자인지 확인한다.
+     *
+     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @return bool $is_master 최고관리자 여부
+     */
+    final public function isAdministrator(?int $member_id = null): bool
+    {
+        return $this->getAdministratorPermissions($member_id) !== false;
+    }
+
+    /**
+     * 모듈 최고관리자인지 확인한다.
      *
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
      * @return bool $is_master 최고관리자 여부
      */
     final public function isMaster(?int $member_id = null): bool
     {
-        return self::$_mAdmin->isMaster($member_id);
+        return $this->getAdministratorPermissions($member_id) == true;
     }
-
-    /**
-     * 관리자 컨텍스트의 접근권한을 확인한다.
-     *
-     * @param string $path 컨텍스트경로
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $has_permission
-     */
-    abstract public function hasContextPermission(string $path, ?int $member_id = null): bool;
 
     /**
      * 각 컨텍스트의 콘텐츠를 가져온다.

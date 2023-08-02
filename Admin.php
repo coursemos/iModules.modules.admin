@@ -8,9 +8,11 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 28.
+ * @modified 2023. 8. 2.
  */
+
 namespace modules\admin;
+
 class Admin extends \Module
 {
     /**
@@ -29,14 +31,14 @@ class Admin extends \Module
     private static array $_classes = [];
 
     /**
-     * @var object $_member 개인화 설정
+     * @var array $_administrators 관리자 회원정보
      */
-    private static $_member;
+    private static array $_administrators = [];
 
     /**
-     * @var array $_permissions 회원별 관리자 권한
+     * @var array $_permissions 관리자 권한정보
      */
-    private static $_permissions = [];
+    private static array $_permissions = [];
 
     /**
      * 모듈 설정을 초기화한다.
@@ -88,47 +90,42 @@ class Admin extends \Module
     }
 
     /**
-     * 관리자 개인화 설정을 가져온다.
+     * 관리자 정보를 가져온다.
      *
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return object $member
+     * @return ?object $member
      */
-    public function getMember(?int $member_id = null): object
+    public function getAdministrator(?int $member_id = null): ?object
     {
         /**
          * @var \modules\member\Member $mMember
          */
         $mMember = \Modules::get('member');
+        //$mMember->loginTo(84, false);
         $member_id ??= $mMember->getLogged();
-
-        if (isset(self::$_member) == true && self::$_member->member_id == $member_id) {
-            return self::$_member;
+        if ($member_id === 0) {
+            return null;
         }
 
-        $member = $this->db()
+        if (isset(self::$_administrators[$member_id]) == true) {
+            return self::$_administrators[$member_id];
+        }
+
+        $administrator = $this->db()
             ->select()
-            ->from($this->table('members'))
+            ->from($this->table('administrators'))
             ->where('member_id', $member_id)
             ->getOne();
-        if ($member == null) {
-            $this->db()
-                ->replace($this->table('members'), [
-                    'member_id' => $member_id,
-                    'language' => \Request::languages(true),
-                    'contexts' => 'null',
-                ])
-                ->execute();
-            $member = new \stdClass();
-            $member->member_id = $member_id;
-            $member->language = \Request::languages(true);
-            $member->contexts = null;
-        } else {
-            $member->contexts = json_decode($member->contexts);
+
+        if ($administrator !== null) {
+            $administrator->language ??= \Domains::get()->getLanguage();
+            $administrator->contexts = json_decode($administrator->contexts ?? 'null');
+            $administrator->permissions = json_decode($administrator->permissions ?? 'null');
         }
 
-        self::$_member = $member;
+        self::$_administrators[$member_id] = $administrator;
 
-        return self::$_member;
+        return self::$_administrators[$member_id];
     }
 
     /**
@@ -148,7 +145,7 @@ class Admin extends \Module
             return self::$_contexts;
         }
 
-        $contexts = $this->getMember()->contexts;
+        $contexts = $this->getAdministrator()->contexts;
 
         /**
          * 메뉴설정이 없다면 기본메뉴 설정을 생성한다.
@@ -227,9 +224,7 @@ class Admin extends \Module
                     continue;
                 }
 
-                if (self::$_contexts[$item]->hasPermission() !== false) {
-                    $contexts[] = self::$_contexts[$item];
-                }
+                $contexts[] = self::$_contexts[$item];
             } else {
                 $children = [];
                 foreach ($item->children as $child) {
@@ -237,9 +232,7 @@ class Admin extends \Module
                         continue;
                     }
 
-                    if (self::$_contexts[$child]->hasPermission() !== false) {
-                        $children[] = self::$_contexts[$child];
-                    }
+                    $children[] = self::$_contexts[$child];
                 }
 
                 if (strpos($item->title, '@') === 0) {
@@ -269,7 +262,7 @@ class Admin extends \Module
      */
     public function getLanguage(): string
     {
-        return $this->getMember()->language;
+        return $this->getAdministrator()->language;
     }
 
     /**
@@ -345,43 +338,111 @@ class Admin extends \Module
     }
 
     /**
-     * 사용자의 전체 관리자 권한을 가져온다.
+     * 사용자의 관리자 그룹 권한을 포함한 전체 관리자 권한을 가져온다.
      *
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return array $permissions 권한
+     * @return array|bool $permissions 권한
      */
-    public function getPermissions(?int $member_id): array
+    public function getAdministratorPermissions(?int $member_id = null): array|bool
     {
         /**
          * @var \modules\member\Member $mMember
          */
         $mMember = \Modules::get('member');
         $member_id ??= $mMember->getLogged();
+        if ($member_id === 0) {
+            return false;
+        }
 
-        if (isset(self::$_permissions[$member_id]) == false) {
-            self::$_permissions[$member_id] = [];
-            $permissions = $this->db()
-                ->select()
-                ->from($this->table('permissions'))
-                ->where('member_id', $member_id)
+        if (isset(self::$_permissions[$member_id]) == true) {
+            return self::$_permissions[$member_id];
+        }
+
+        $administrator = $this->getAdministrator($member_id);
+        if ($administrator === null) {
+            $permissions = false;
+        } else {
+            $permissions = $administrator->permissions;
+
+            $groups = $this->db()
+                ->select(['g.group_id', 'g.title', 'g.permissions'])
+                ->from($this->table('administrator_groups'), 'ag')
+                ->join($this->table('groups'), 'g', 'g.group_id=ag.group_id', 'LEFT')
+                ->where('ag.member_id', $member_id)
+                ->orderBy('g.title', 'ASC')
                 ->get();
-            foreach ($permissions as $permission) {
-                $component = $permission->component_type . '/' . $permission->component_name;
-                if (isset(self::$_permissions[$member_id][$component]) == false) {
-                    self::$_permissions[$member_id][$component] = [];
-                }
 
-                if ($permission->permissions == '*') {
-                    $permission->permissions = true;
-                } else {
-                    $permission->permissions = json_decode($permission->permissions) ?? false;
-                }
-
-                self::$_permissions[$member_id][$component][$permission->permission_type] = $permission->permissions;
+            foreach ($groups as $group) {
+                $permissions = $this->mergePermissions($permissions, json_decode($group->permissions ?? [], true));
             }
         }
 
+        self::$_permissions[$member_id] = $permissions;
+
         return self::$_permissions[$member_id];
+    }
+
+    /**
+     * 두개의 권한을 병합한다.
+     *
+     * @param array|bool $left
+     * @param array|bool $right
+     * @return array|bool $permissions
+     */
+    public function mergePermissions(array|bool $left, array|bool $right): array|bool
+    {
+        if ($left === true || $right === true) {
+            return true;
+        }
+
+        if ($left === false && $right === false) {
+            return false;
+        }
+
+        if ($left === false) {
+            return $right;
+        }
+
+        if ($right === false) {
+            return $left;
+        }
+
+        $merged = $left;
+        foreach ($merged as $component => $types) {
+            if ($types === true) {
+                continue;
+            }
+
+            if (isset($right[$component]) == true) {
+                if ($right[$component] === true) {
+                    $merged[$component] = true;
+                } else {
+                    foreach ($types as $type => $permissions) {
+                        if ($permissions === true) {
+                            continue;
+                        }
+
+                        if (isset($right[$component][$type]) == true) {
+                            if ($right[$component][$type] === true) {
+                                $merged[$component][$type] = true;
+                            } else {
+                                $merged[$component][$type] = array_values(
+                                    array_unique(array_merge($permissions, $right[$component][$type]))
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($right as $component => $types) {
+            if (isset($merged[$component]) == false) {
+                $merged[$component] = $types;
+            }
+        }
+
+        return $merged;
     }
 
     /**
@@ -390,9 +451,9 @@ class Admin extends \Module
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
      * @return bool $is_admin
      */
-    public function hasPermission(?int $member_id = null): bool
+    public function isAdministrator(?int $member_id = null): bool
     {
-        return count($this->getPermissions($member_id)) > 0;
+        return $this->getAdministratorPermissions($member_id) !== false;
     }
 
     /**
@@ -403,8 +464,7 @@ class Admin extends \Module
      */
     public function isMaster(?int $member_id = null): bool
     {
-        $permissions = $this->getPermissions($member_id);
-        return isset($permissions['*/*']) == true;
+        return $this->getAdministratorPermissions($member_id) === true;
     }
 
     /**
@@ -439,9 +499,9 @@ class Admin extends \Module
         \Html::style($this->getBase() . '/styles/styles.scss');
 
         /**
-         * 관리자 권한이 존재하지 않는다면 로그인 레이아웃을 출력한다.
+         * 관리자가 아니라면 로그인 레이아웃을 출력한다.
          */
-        if ($this->hasPermission() == false) {
+        if ($this->isAdministrator() == false) {
             /**
              * BODY 타입을 지정한다.
              */
@@ -468,10 +528,6 @@ class Admin extends \Module
             preg_match('/^' . \Format::reg($context->getPath()) . '/', $route->getSubPath()) == false
         ) {
             \Header::location($route->getUrl() . $context->getPath());
-        }
-
-        if ($context->hasPermission() === false) {
-            \ErrorHandler::print('FORBIDDEN');
         }
 
         /**
