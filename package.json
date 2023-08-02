@@ -31,7 +31,7 @@
         }
     },
     "databases": {
-        "members": {
+        "administrators": {
             "columns": {
                 "member_id": {
                     "type": "int",
@@ -40,49 +40,73 @@
                 "language": {
                     "type": "char",
                     "length": 2,
+                    "is_null": true,
                     "comment": "언어코드"
                 },
                 "contexts": {
                     "type": "json",
+                    "is_null": true,
                     "comment": "컨텍스트설정"
+                },
+                "permissions": {
+                    "type": "json",
+                    "is_null": true,
+                    "comment": "권한"
                 }
             },
             "indexes": {
                 "member_id": "primary_key"
             },
-            "comment": "아이모듈 관리자 개인화 설정"
+            "comment": "아이모듈 관리자 목록"
         },
-        "permissions": {
+        "groups": {
+            "columns": {
+                "group_id": {
+                    "type": "char",
+                    "length": 36,
+                    "comment": "그룹고유값"
+                },
+                "title": {
+                    "type": "varchar",
+                    "length": 50,
+                    "comment": "그룹명"
+                },
+                "permissions": {
+                    "type": "json",
+                    "is_null": true,
+                    "comment": "그룹권한"
+                },
+                "administrators": {
+                    "type": "int",
+                    "default": 0,
+                    "comment": "인원"
+                }
+            },
+            "indexes": {
+                "group_id": "primary_key"
+            },
+            "comment": "아이모듈 관리자그룹 목록"
+        },
+        "administrator_groups": {
             "columns": {
                 "member_id": {
                     "type": "int",
                     "comment": "회원고유값"
                 },
-                "component_type": {
-                    "type": "varchar",
-                    "length": 10,
-                    "comment": "컴포넌트종류"
+                "group_id": {
+                    "type": "char",
+                    "length": 36,
+                    "comment": "그룹고유값"
                 },
-                "component_name": {
-                    "type": "varchar",
-                    "length": 50,
-                    "comment": "컴포넌트명"
-                },
-                "permission_type": {
-                    "type": "varchar",
-                    "length": 20,
-                    "comment": "권한종류"
-                },
-                "permissions": {
-                    "type": "text",
-                    "comment": "권한"
+                "assigned_at": {
+                    "type": "int",
+                    "comment": "할당일시"
                 }
             },
             "indexes": {
-                "member_id,component_type,component_name,permission_type": "primary_key",
-                "member_id": "index"
+                "member_id,group_id": "primary_key"
             },
-            "comment": "아이모듈 관리자 접근권한 관리"
+            "comment": "아이모듈 관리자그룹할당 목록"
         }
     }
 }
