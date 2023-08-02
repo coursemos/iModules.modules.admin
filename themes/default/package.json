@@ -9,12 +9,6 @@
     },
     "homepage": "https://www.imodules.io",
     "language": "ko",
-    "configs": {
-        "--theme-color": {
-            "type": "color",
-            "default": "#0c76bb"
-        }
-    },
     "styles": [
         "/styles/style.scss"
     ]
