@@ -19,17 +19,17 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->hasPermission() == false) {
+if ($me->isAdministrator() == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 
-$member = $me->getMember();
+$member = $me->getAdministrator();
 $contexts = json_encode($input->get('contexts'));
 
 $me->db()
-    ->update($me->table('members'), ['contexts' => $contexts])
+    ->update($me->table('administrators'), ['contexts' => $contexts])
     ->where('member_id', $member->member_id)
     ->execute();
 

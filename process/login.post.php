@@ -29,7 +29,7 @@ if (count($errors) == 0) {
     $login = $mMember->login($email, $password, $auto_login);
 
     if ($login === true) {
-        if ($me->hasPermission() === true) {
+        if ($me->isAdministrator() === true) {
             $results->success = true;
         } else {
             $results->success = false;
