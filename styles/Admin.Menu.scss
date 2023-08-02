@@ -38,7 +38,7 @@ div[data-component][data-type='menu'][data-role='menu'] {
 
 div[data-component][data-type='menu'][data-role='item'] {
     > div[data-role='container'] {
-        div[data-role='content'] {
+        > div[data-role='content'] {
             width: 100%;
             height: var(--menu-item-height);
 
@@ -96,6 +96,11 @@ div[data-component][data-type='menu'][data-role='item'] {
                     background: var(--menu-item-background-hover);
                     color: var(--menu-item-color-hover);
                 }
+            }
+
+            &.separator {
+                height: 1px;
+                background: var(--menu-item-border-color);
             }
         }
     }
