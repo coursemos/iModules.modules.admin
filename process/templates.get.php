@@ -26,6 +26,7 @@ if ($me->isAdministrator() == false) {
 
 $componentType = Request::get('componentType', true);
 $componentName = Request::get('componentName', true);
+$use_default = Request::get('use_default') === 'true';
 
 if ($componentType == 'module') {
     $component = Modules::get($componentName);
@@ -78,6 +79,14 @@ foreach ($modules as $module) {
 }
 
 $records = [];
+if ($use_default === true) {
+    $records[] = [
+        'name' => '#',
+        'title' => $me->getText('components.form.use_default_template'),
+        'dir' => $me->getText('components.form.use_default_template_help'),
+        'screenshot' => $me->getDir() . '/images/noimage.png',
+    ];
+}
 foreach ($templates as $template) {
     $records[] = [
         'name' => $template->getPathName(),
