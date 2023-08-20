@@ -262,7 +262,7 @@ class Admin extends \Module
      */
     public function getLanguage(): string
     {
-        return $this->getAdministrator()->language;
+        return $this->getAdministrator()?->language ?? \Request::languages(true);
     }
 
     /**
@@ -742,12 +742,11 @@ class Admin extends \Module
         $success = parent::install($previous);
         if ($success == true) {
             $this->db()
-                ->replace($this->table('permissions'), [
+                ->replace($this->table('administrators'), [
                     'member_id' => 1,
-                    'component_type' => '*',
-                    'component_name' => '*',
-                    'permission_type' => '*',
-                    'permissions' => '*',
+                    'language' => $this->getLanguage(),
+
+                    'permissions' => 'true',
                 ])
                 ->execute();
         }
