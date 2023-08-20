@@ -49,7 +49,6 @@ $insert['host'] = $input->get('host', $errors) ?? '';
 $insert['alias'] = $input->get('alias') ?? '';
 $insert['is_rewrite'] = $input->get('is_rewrite') ?? 'FALSE';
 $insert['is_internationalization'] = $input->get('is_internationalization') ?? 'FALSE';
-$insert['membership'] = $input->get('membership') ?? 'DEPENDENCE';
 
 $check = iModules::db()
     ->select()
