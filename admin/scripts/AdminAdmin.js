@@ -304,7 +304,7 @@ var modules;
                      */
                     add: (host = null) => {
                         new Admin.Window({
-                            title: this.printText('admin.sites.domains.' + (host === null ? 'add' : 'edit')),
+                            title: this.printText('admin.sitemap.domains.' + (host === null ? 'add' : 'edit')),
                             width: 500,
                             modal: true,
                             resizable: false,
@@ -314,7 +314,7 @@ var modules;
                                     layout: 'fit',
                                     items: [
                                         new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.domains.host'),
+                                            title: this.printText('admin.sitemap.domains.host'),
                                             items: [
                                                 new Admin.Form.Field.Container({
                                                     direction: 'row',
@@ -335,43 +335,30 @@ var modules;
                                                             name: 'host',
                                                             flex: 1,
                                                             allowBlank: false,
-                                                            emptyText: this.printText('admin.sites.domains.host'),
+                                                            emptyText: this.printText('admin.sitemap.domains.host'),
                                                         }),
                                                     ],
                                                 }),
                                                 new Admin.Form.Field.TextArea({
                                                     name: 'alias',
                                                     rows: 3,
-                                                    emptyText: this.printText('admin.sites.domains.alias'),
+                                                    emptyText: this.printText('admin.sitemap.domains.alias'),
                                                 }),
                                             ],
                                         }),
                                         new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.domains.options.title'),
+                                            title: this.printText('admin.sitemap.domains.options.title'),
                                             items: [
                                                 new Admin.Form.Field.Check({
                                                     name: 'is_rewrite',
-                                                    boxLabel: this.printText('admin.sites.domains.options.is_rewrite'),
+                                                    boxLabel: this.printText('admin.sitemap.domains.options.is_rewrite'),
                                                     onValue: 'TRUE',
                                                     checked: Admin.isRewrite(),
                                                 }),
                                                 new Admin.Form.Field.Check({
                                                     name: 'is_internationalization',
-                                                    boxLabel: this.printText('admin.sites.domains.options.is_internationalization'),
+                                                    boxLabel: this.printText('admin.sitemap.domains.options.is_internationalization'),
                                                     onValue: 'TRUE',
-                                                }),
-                                            ],
-                                        }),
-                                        new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.domains.membership.title'),
-                                            items: [
-                                                new Admin.Form.Field.RadioGroup({
-                                                    name: 'membership',
-                                                    options: {
-                                                        'DEPENDENCE': this.printText('admin.sites.domains.membership.DEPENDENCE'),
-                                                        'INDEPENDENCE': this.printText('admin.sites.domains.membership.INDEPENDENCE'),
-                                                    },
-                                                    value: 'DEPENDENCE',
                                                 }),
                                             ],
                                         }),
@@ -445,7 +432,7 @@ var modules;
                             return;
                         }
                         new Admin.Window({
-                            title: this.printText('admin.sites.sites.' + (language === null ? 'add' : 'edit')),
+                            title: this.printText('admin.sitemap.sites.' + (language === null ? 'add' : 'edit')),
                             width: 700,
                             modal: true,
                             resizable: false,
@@ -456,15 +443,15 @@ var modules;
                                     fieldDefaults: { labelWidth: 100, labelAlign: 'right' },
                                     items: [
                                         new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.sites.default'),
+                                            title: this.printText('admin.sitemap.sites.default'),
                                             items: [
                                                 new Admin.Form.Field.Text({
                                                     name: 'title',
                                                     allowBlank: false,
-                                                    label: this.printText('admin.sites.sites.title'),
+                                                    label: this.printText('admin.sitemap.sites.title'),
                                                 }),
                                                 new Admin.Form.Field.Container({
-                                                    label: this.printText('admin.sites.sites.language'),
+                                                    label: this.printText('admin.sitemap.sites.language'),
                                                     allowBlank: false,
                                                     items: [
                                                         new Admin.Form.Field.Select({
@@ -479,24 +466,24 @@ var modules;
                                                         }),
                                                         new Admin.Form.Field.Check({
                                                             name: 'is_default',
-                                                            boxLabel: this.printText('admin.sites.sites.default_language'),
+                                                            boxLabel: this.printText('admin.sitemap.sites.default_language'),
                                                             flex: true,
                                                         }),
                                                     ],
                                                 }),
                                                 new Admin.Form.Field.TextArea({
                                                     name: 'description',
-                                                    label: this.printText('admin.sites.sites.description'),
+                                                    label: this.printText('admin.sitemap.sites.description'),
                                                     rows: 3,
                                                 }),
                                             ],
                                         }),
                                         new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.sites.design'),
+                                            title: this.printText('admin.sitemap.sites.design'),
                                             items: [
                                                 new Admin.Form.Field.Theme({
                                                     name: 'theme',
-                                                    label: this.printText('admin.sites.sites.theme'),
+                                                    label: this.printText('admin.sitemap.sites.theme'),
                                                     listeners: {
                                                         configs: (field, configs) => {
                                                             if (configs.logo !== null) {
@@ -511,43 +498,43 @@ var modules;
                                                 }),
                                                 new Admin.Form.Field.Include({
                                                     name: 'header',
-                                                    label: this.printText('admin.sites.sites.header'),
+                                                    label: this.printText('admin.sitemap.sites.header'),
                                                 }),
                                                 new Admin.Form.Field.Include({
                                                     name: 'footer',
-                                                    label: this.printText('admin.sites.sites.footer'),
+                                                    label: this.printText('admin.sitemap.sites.footer'),
                                                 }),
                                             ],
                                         }),
                                         new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.sites.images'),
+                                            title: this.printText('admin.sitemap.sites.images'),
                                             items: [
                                                 new Admin.Form.Field.Image({
                                                     name: 'logo',
-                                                    label: this.printText('admin.sites.sites.logo'),
+                                                    label: this.printText('admin.sitemap.sites.logo'),
                                                     showSize: true,
                                                     imageWidth: 200,
                                                     imageHeight: 50,
                                                 }),
                                                 new Admin.Form.Field.Image({
                                                     name: 'emblem',
-                                                    label: this.printText('admin.sites.sites.emblem'),
-                                                    helpText: this.printText('admin.sites.sites.emblem_help'),
+                                                    label: this.printText('admin.sitemap.sites.emblem'),
+                                                    helpText: this.printText('admin.sitemap.sites.emblem_help'),
                                                     imageWidth: 144,
                                                     imageHeight: 144,
                                                 }),
                                                 new Admin.Form.Field.Image({
                                                     name: 'favicon',
-                                                    label: this.printText('admin.sites.sites.favicon'),
-                                                    helpText: this.printText('admin.sites.sites.favicon_help'),
+                                                    label: this.printText('admin.sitemap.sites.favicon'),
+                                                    helpText: this.printText('admin.sitemap.sites.favicon_help'),
                                                     accept: 'image/x-icon',
                                                     imageWidth: 32,
                                                     imageHeight: 32,
                                                 }),
                                                 new Admin.Form.Field.Image({
                                                     name: 'image',
-                                                    label: this.printText('admin.sites.sites.image'),
-                                                    helpText: this.printText('admin.sites.sites.image_help'),
+                                                    label: this.printText('admin.sitemap.sites.image'),
+                                                    helpText: this.printText('admin.sitemap.sites.image_help'),
                                                     imageWidth: 1200,
                                                     imageHeight: 630,
                                                 }),
@@ -664,20 +651,22 @@ var modules;
                         const parent = paths.join('/');
                         path = path == '@' ? null : path;
                         new Admin.Window({
-                            title: this.printText('admin.sites.contexts.' + (path === null ? 'add' : 'edit')),
+                            title: this.printText('admin.sitemap.contexts.' + (path === null ? 'add' : 'edit')),
                             width: 700,
                             modal: true,
                             resizable: false,
                             items: [
                                 new Admin.Form.Panel({
+                                    id: 'testform',
                                     border: false,
                                     layout: 'fit',
                                     items: [
                                         new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.contexts.default'),
+                                            id: 'fieldset1',
+                                            title: this.printText('admin.sitemap.contexts.default'),
                                             items: [
                                                 new Admin.Form.Field.Container({
-                                                    label: this.printText('admin.sites.contexts.path'),
+                                                    label: this.printText('admin.sitemap.contexts.path'),
                                                     direction: 'row',
                                                     gap: 0,
                                                     items: [
@@ -696,31 +685,31 @@ var modules;
                                                             disabled: path === '',
                                                         }),
                                                     ],
-                                                    helpText: this.printText('admin.sites.contexts.path_help'),
+                                                    helpText: this.printText('admin.sitemap.contexts.path_help'),
                                                 }),
                                                 new Admin.Form.Field.Icon({
                                                     name: 'icon',
-                                                    label: this.printText('admin.sites.contexts.icon'),
+                                                    label: this.printText('admin.sitemap.contexts.icon'),
                                                 }),
                                                 new Admin.Form.Field.Text({
                                                     name: 'title',
-                                                    label: this.printText('admin.sites.contexts.title'),
+                                                    label: this.printText('admin.sitemap.contexts.title'),
                                                     allowBlank: false,
                                                 }),
                                                 new Admin.Form.Field.Text({
                                                     name: 'description',
-                                                    label: this.printText('admin.sites.contexts.description'),
+                                                    label: this.printText('admin.sitemap.contexts.description'),
                                                 }),
                                                 new Admin.Form.Field.Image({
                                                     name: 'image',
-                                                    label: this.printText('admin.sites.contexts.image'),
-                                                    helpText: this.printText('admin.sites.contexts.image_help'),
+                                                    label: this.printText('admin.sitemap.contexts.image'),
+                                                    helpText: this.printText('admin.sitemap.contexts.image_help'),
                                                     imageWidth: 1200,
                                                     imageHeight: 630,
                                                 }),
                                                 new Admin.Form.Field.RadioGroup({
                                                     name: 'type',
-                                                    label: this.printText('admin.sites.contexts.type'),
+                                                    label: this.printText('admin.sitemap.contexts.type'),
                                                     displayType: 'box',
                                                     inputClass: 'context_type',
                                                     columns: 6,
@@ -730,7 +719,7 @@ var modules;
                                                             options[type] =
                                                                 this.sitemap.contexts.getTypeIcon(type) +
                                                                     '<span>' +
-                                                                    this.printText('admin.sites.contexts.types.' + type) +
+                                                                    this.printText('admin.sitemap.contexts.types.' + type) +
                                                                     '</span>';
                                                         }
                                                         return options;
@@ -781,32 +770,32 @@ var modules;
                                         }),
                                         new Admin.Form.FieldSet({
                                             id: 'details',
-                                            title: this.printText('admin.sites.contexts.details'),
+                                            title: this.printText('admin.sitemap.contexts.details'),
                                             items: [
                                                 new Admin.Form.Field.Display({
                                                     name: 'child',
-                                                    label: this.printText('admin.sites.contexts.child'),
+                                                    label: this.printText('admin.sitemap.contexts.child'),
                                                     value: null,
                                                     renderer: () => {
-                                                        return this.printText('admin.sites.contexts.child_help');
+                                                        return this.printText('admin.sitemap.contexts.child_help');
                                                     },
                                                 }),
                                                 new Admin.Form.Field.Page({
                                                     name: 'page',
-                                                    label: this.printText('admin.sites.contexts.page'),
-                                                    helpText: this.printText('admin.sites.contexts.page_help'),
+                                                    label: this.printText('admin.sitemap.contexts.page'),
+                                                    helpText: this.printText('admin.sitemap.contexts.page_help'),
                                                     allowBlank: false,
                                                     host: host,
                                                     language: language,
                                                 }),
                                                 new Admin.Form.Field.Check({
                                                     name: 'is_routing',
-                                                    label: this.printText('admin.sites.contexts.is_routing'),
-                                                    boxLabel: this.printText('admin.sites.contexts.is_routing_help'),
+                                                    label: this.printText('admin.sitemap.contexts.is_routing'),
+                                                    boxLabel: this.printText('admin.sitemap.contexts.is_routing_help'),
                                                 }),
                                                 new Admin.Form.Field.Context({
                                                     name: 'module',
-                                                    label: this.printText('admin.sites.contexts.module'),
+                                                    label: this.printText('admin.sitemap.contexts.module'),
                                                     allowBlank: false,
                                                     path: path !== null ? parent + '/' + path : null,
                                                 }),
@@ -814,11 +803,11 @@ var modules;
                                         }),
                                         new Admin.Form.FieldSet({
                                             id: 'design',
-                                            title: this.printText('admin.sites.contexts.design'),
+                                            title: this.printText('admin.sitemap.contexts.design'),
                                             items: [
                                                 new Admin.Form.Field.Select({
                                                     name: 'layout',
-                                                    label: this.printText('admin.sites.contexts.layout'),
+                                                    label: this.printText('admin.sitemap.contexts.layout'),
                                                     valueField: 'name',
                                                     displayField: 'title',
                                                     allowBlank: false,
@@ -829,33 +818,33 @@ var modules;
                                                     }),
                                                 }),
                                                 new Admin.Form.Field.Include({
-                                                    label: this.printText('admin.sites.contexts.header'),
+                                                    label: this.printText('admin.sitemap.contexts.header'),
                                                     name: 'header',
                                                 }),
                                                 new Admin.Form.Field.Include({
-                                                    label: this.printText('admin.sites.contexts.footer'),
+                                                    label: this.printText('admin.sitemap.contexts.footer'),
                                                     name: 'footer',
                                                 }),
                                             ],
                                         }),
                                         new Admin.Form.FieldSet({
-                                            title: this.printText('admin.sites.contexts.visibility'),
+                                            title: this.printText('admin.sitemap.contexts.visibility'),
                                             items: [
                                                 new Admin.Form.Field.Check({
                                                     name: 'is_sitemap',
-                                                    label: this.printText('admin.sites.contexts.is_sitemap'),
-                                                    boxLabel: this.printText('admin.sites.contexts.is_sitemap_help'),
+                                                    label: this.printText('admin.sitemap.contexts.is_sitemap'),
+                                                    boxLabel: this.printText('admin.sitemap.contexts.is_sitemap_help'),
                                                     checked: true,
                                                 }),
                                                 new Admin.Form.Field.Check({
                                                     name: 'is_footer_menu',
-                                                    label: this.printText('admin.sites.contexts.is_footer_menu'),
-                                                    boxLabel: this.printText('admin.sites.contexts.is_footer_menu_help'),
+                                                    label: this.printText('admin.sitemap.contexts.is_footer_menu'),
+                                                    boxLabel: this.printText('admin.sitemap.contexts.is_footer_menu_help'),
                                                 }),
                                                 new Admin.Form.Field.Permission({
                                                     name: 'permission',
-                                                    label: this.printText('admin.sites.contexts.permission'),
-                                                    boxLabel: this.printText('admin.sites.contexts.permission_help'),
+                                                    label: this.printText('admin.sitemap.contexts.permission'),
+                                                    boxLabel: this.printText('admin.sitemap.contexts.permission_help'),
                                                     value: 'true',
                                                 }),
                                             ],
