@@ -616,8 +616,9 @@ var Admin;
             }
             else {
                 if (Array.isArray(this.items) == true) {
-                    this.items.forEach((item) => {
-                        item.remove();
+                    this.items.slice().forEach((item) => {
+                        const index = this.getItemIndex(item);
+                        this.removeItem(index);
                     });
                 }
                 this.scrollbar?.remove();

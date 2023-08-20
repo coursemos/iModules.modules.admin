@@ -800,8 +800,9 @@ namespace Admin {
                 this.getParent().removeItem(this.getParent().getItemIndex(this));
             } else {
                 if (Array.isArray(this.items) == true) {
-                    this.items.forEach((item: Admin.Component) => {
-                        item.remove();
+                    this.items.slice().forEach((item: Admin.Component) => {
+                        const index = this.getItemIndex(item);
+                        this.removeItem(index);
                     });
                 }
                 this.scrollbar?.remove();
