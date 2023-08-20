@@ -71,6 +71,8 @@ if ($installable->success == false) {
 
 $success = Modules::install($name, $configs);
 
+Cache::remove('modules');
+
 $results->success = $success === true;
 if ($success !== true) {
     $results->message = $success;
