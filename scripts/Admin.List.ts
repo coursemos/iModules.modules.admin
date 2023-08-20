@@ -360,8 +360,9 @@ namespace Admin {
                         if (this.wrap === true) {
                             $item.addClass('wrap');
                         }
-
-                        $item.on('click', () => {
+                        $item.on('mousedown', (e: MouseEvent) => {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
                             this.toggle(index);
                         });
                         $item.on('mouseover', () => {
