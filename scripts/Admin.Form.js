@@ -3124,9 +3124,7 @@ var Admin;
                             $button.getEl().focus();
                         });
                         this.$button.on('blur', () => {
-                            setTimeout(() => {
-                                this.collapse();
-                            }, 100);
+                            this.collapse();
                         });
                         this.setKeyboardEvent(this.$button);
                         const $display = this.$getDisplay();
