@@ -467,6 +467,7 @@ var Admin;
                             value: field.value?.name ?? null,
                             componentType: field.component.type,
                             componentName: field.component.name,
+                            use_default: field.component.use_default ?? false,
                             allowBlank: field.allowBlank ?? true,
                         });
                     default:
@@ -4868,7 +4869,7 @@ var Admin;
                             },
                             listeners: {
                                 change: async (field, value) => {
-                                    if (value === null) {
+                                    if (value === null || value === '#') {
                                         this.updateValue();
                                         this.getFieldSet().empty();
                                         this.getFieldSet().hide();
@@ -5012,6 +5013,7 @@ var Admin;
                 field = 'template';
                 componentType;
                 componentName;
+                use_default;
                 context = null;
                 /**
                  * 템플릿필드 클래스 생성한다.
@@ -5022,8 +5024,13 @@ var Admin;
                     super(properties);
                     this.componentType = this.properties.componentType;
                     this.componentName = this.properties.componentName;
+                    this.use_default = this.properties.use_default ?? false;
                     this.listUrl = Admin.getProcessUrl('module', 'admin', 'templates');
-                    this.listParams = { componentType: this.componentType, componentName: this.componentName };
+                    this.listParams = {
+                        componentType: this.componentType,
+                        componentName: this.componentName,
+                        use_default: this.use_default == true ? 'true' : 'false',
+                    };
                     this.configsUrl = Admin.getProcessUrl('module', 'admin', 'template');
                     this.configsParams.componentType = this.componentType;
                     this.configsParams.componentName = this.componentName;
