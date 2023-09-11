@@ -409,6 +409,9 @@ namespace Admin {
              * @return {boolean} selected
              */
             isRowSelected(index: number): boolean {
+                if (index === null) {
+                    return false;
+                }
                 const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
                 if ($row.getEl() === null) {
                     return false;
@@ -484,6 +487,10 @@ namespace Admin {
              */
             select(record: Admin.Data.Record | { [key: string]: any }): void {
                 const index = this.getStore().matchIndex(record);
+                if (index === null) {
+                    return;
+                }
+
                 if (this.isRowSelected(index) == true) {
                     if (this.selections.size != 1) {
                         this.deselectAll(false);
@@ -502,7 +509,7 @@ namespace Admin {
              * @param {boolean} is_event - 이벤트 발생여부
              */
             selectRow(index: number, is_multiple: boolean = false, is_event: boolean = true): void {
-                if (this.selection.selectable == false) {
+                if (index === null || this.selection.selectable == false) {
                     return;
                 }
 
@@ -555,6 +562,10 @@ namespace Admin {
              * @param {boolean} is_event - 이벤트 발생여부
              */
             deselectRow(index: number, is_event: boolean = true): void {
+                if (index === null) {
+                    return;
+                }
+
                 const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
                 if ($row.getEl() === null) {
                     return;

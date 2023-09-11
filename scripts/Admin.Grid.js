@@ -251,6 +251,9 @@ var Admin;
              * @return {boolean} selected
              */
             isRowSelected(index) {
+                if (index === null) {
+                    return false;
+                }
                 const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
                 if ($row.getEl() === null) {
                     return false;
@@ -316,6 +319,9 @@ var Admin;
              */
             select(record) {
                 const index = this.getStore().matchIndex(record);
+                if (index === null) {
+                    return;
+                }
                 if (this.isRowSelected(index) == true) {
                     if (this.selections.size != 1) {
                         this.deselectAll(false);
@@ -334,7 +340,7 @@ var Admin;
              * @param {boolean} is_event - 이벤트 발생여부
              */
             selectRow(index, is_multiple = false, is_event = true) {
-                if (this.selection.selectable == false) {
+                if (index === null || this.selection.selectable == false) {
                     return;
                 }
                 const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
@@ -377,6 +383,9 @@ var Admin;
              * @param {boolean} is_event - 이벤트 발생여부
              */
             deselectRow(index, is_event = true) {
+                if (index === null) {
+                    return;
+                }
                 const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
                 if ($row.getEl() === null) {
                     return;
