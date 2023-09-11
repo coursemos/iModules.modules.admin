@@ -52,14 +52,22 @@ $errors = [];
 $insert = [];
 $insert['host'] = $host;
 $insert['language'] = $language;
-
-if ($input->get('path') !== null) {
-    if (strpos($input->get('path'), '/') !== false) {
-        $errors['path'] = '/';
+if ($path === '/') {
+    $insert['path'] = '/';
+} else {
+    if (strlen($input->get('basename')) == 0) {
+        $errors['basename'] = $me->getErrorText('REQUIRED');
     }
+
+    if (strpos('/', $input->get('basename')) !== false) {
+        $errors['basename'] = $me->getErrorText('NOT_ALLOWED_SLASH_IN_BASENAME');
+    }
+
+    $insert['path'] = $input->get('parent');
+    $insert['path'] .= $insert['path'] !== '/' ? '/' : '';
+    $insert['path'] .= $input->get('basename');
 }
 
-$insert['path'] = $input->get('parent') . ($input->get('path') ? '/' . $input->get('path') : '');
 $insert['icon'] = $input->get('icon');
 $insert['title'] = $input->get('title', $errors);
 $insert['description'] = $input->get('description');
@@ -137,6 +145,16 @@ if (count($errors) == 0) {
     }
 
     if ($context === null) {
+        $insert['sort'] = iModules::db()
+            ->select()
+            ->from(iModules::table('contexts'))
+            ->where('host', $host)
+            ->where('language', $language)
+            ->count();
+
+        iModules::db()
+            ->insert(iModules::table('contexts'), $insert)
+            ->execute();
     } else {
         iModules::db()
             ->update(iModules::table('contexts'), $insert)
@@ -149,7 +167,7 @@ if (count($errors) == 0) {
     Cache::remove('contexts');
 
     $results->success = true;
-    $results->insert = $insert;
+    $results->path = $insert['path'];
 } else {
     $results->success = false;
     $results->errors = $errors;

@@ -642,14 +642,6 @@ var modules;
                         if (language === null) {
                             return;
                         }
-                        if (path === null) {
-                            // @todo 하위메뉴 선택창
-                            return;
-                        }
-                        const paths = path.split('/');
-                        path = paths.pop();
-                        const parent = paths.join('/');
-                        path = path == '@' ? null : path;
                         new Admin.Window({
                             title: this.printText('admin.sitemap.contexts.' + (path === null ? 'add' : 'edit')),
                             width: 700,
@@ -668,21 +660,51 @@ var modules;
                                                 new Admin.Form.Field.Container({
                                                     label: this.printText('admin.sitemap.contexts.path'),
                                                     direction: 'row',
-                                                    gap: 0,
+                                                    gap: 5,
                                                     items: [
-                                                        new Admin.Form.Field.Display({
-                                                            name: 'parent',
-                                                            value: parent,
-                                                            renderer: (value) => {
-                                                                return value == '/' ? value : value + '/';
-                                                            },
-                                                        }),
+                                                        ((path) => {
+                                                            if (path == '/') {
+                                                                return new Admin.Form.Field.Display({
+                                                                    name: 'basename',
+                                                                    value: path,
+                                                                });
+                                                            }
+                                                            else {
+                                                                return new Admin.Form.Field.Select({
+                                                                    name: 'parent',
+                                                                    width: 200,
+                                                                    store: new Admin.Store.Ajax({
+                                                                        url: this.getProcessUrl('contexts'),
+                                                                        params: {
+                                                                            host: host,
+                                                                            language: language,
+                                                                            mode: 'linear',
+                                                                        },
+                                                                        primaryKeys: ['host', 'language', 'path'],
+                                                                        sorters: { sort: 'ASC' },
+                                                                    }),
+                                                                    listRenderer: (display) => {
+                                                                        if (display == '/')
+                                                                            return display;
+                                                                        return display + '/';
+                                                                    },
+                                                                    renderer: (display) => {
+                                                                        if (display == '/')
+                                                                            return display;
+                                                                        return display + '/';
+                                                                    },
+                                                                    displayField: 'path',
+                                                                    valueField: 'path',
+                                                                    value: '/',
+                                                                });
+                                                            }
+                                                        })(path),
                                                         new Admin.Form.Field.Text({
-                                                            name: 'path',
+                                                            name: 'basename',
                                                             flex: 1,
                                                             allowBlank: false,
-                                                            hidden: path === '',
-                                                            disabled: path === '',
+                                                            hidden: path == '/',
+                                                            disabled: path == '/',
                                                         }),
                                                     ],
                                                     helpText: this.printText('admin.sitemap.contexts.path_help'),
@@ -690,6 +712,7 @@ var modules;
                                                 new Admin.Form.Field.Icon({
                                                     name: 'icon',
                                                     label: this.printText('admin.sitemap.contexts.icon'),
+                                                    value: 'NONE',
                                                 }),
                                                 new Admin.Form.Field.Text({
                                                     name: 'title',
@@ -713,6 +736,7 @@ var modules;
                                                     displayType: 'box',
                                                     inputClass: 'context_type',
                                                     columns: 6,
+                                                    value: 'EMPTY',
                                                     options: (() => {
                                                         const options = {};
                                                         for (const type of this.sitemap.contexts.getTypes()) {
@@ -872,7 +896,7 @@ var modules;
                                             params: {
                                                 host: host,
                                                 language: language,
-                                                path: path !== null ? parent + '/' + path : null,
+                                                path: path,
                                             },
                                         });
                                         if (results.success == true) {
@@ -884,11 +908,11 @@ var modules;
                                                 handler: async () => {
                                                     const contexts = Admin.getComponent('contexts');
                                                     await contexts.getStore().reload();
-                                                    const path = form.getField('parent').getValue() +
-                                                        (form.getField('path').getValue()
-                                                            ? '/' + form.getField('path').getValue()
-                                                            : '');
-                                                    contexts.select({ host: host, language: language, path: path });
+                                                    contexts.select({
+                                                        host: host,
+                                                        language: language,
+                                                        path: results.path,
+                                                    });
                                                     window.close();
                                                     Admin.Message.close();
                                                 },
@@ -903,7 +927,7 @@ var modules;
                                         const form = window.getItemAt(0);
                                         const results = await form.load({
                                             url: this.getProcessUrl('context'),
-                                            params: { host: host, language: language, path: parent + '/' + path },
+                                            params: { host: host, language: language, path: path },
                                         });
                                         if (results.success == false) {
                                             window.close();

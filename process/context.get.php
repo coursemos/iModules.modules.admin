@@ -37,21 +37,21 @@ $context = iModules::db()
 
 if ($context === null) {
     $results->success = false;
-    $results->message = $me->getErrorText('NOT_FOUND');
+    $results->message = $me->getErrorText('NOT_FOUND_DATA');
     return;
 }
 
 if ($context->path == '/') {
-    $parent = '/';
-    $path = '';
+    $parent = null;
+    $basename = '/';
 } else {
     $temp = explode('/', $context->path);
-    $path = array_pop($temp);
+    $basename = array_pop($temp);
     $parent = implode('/', $temp);
 }
 
-$context->parent = $parent;
-$context->path = $path;
+$context->parent = $parent == '' ? '/' : $parent;
+$context->basename = $basename;
 $context->icon = json_decode($context->icon ?? '');
 
 switch ($context->type) {
