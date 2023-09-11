@@ -4398,6 +4398,15 @@ var Admin;
                     this.$getContent().append($label);
                 }
                 /**
+                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
+                 */
+                onRender() {
+                    if (this.checked === true) {
+                        this.setValue(this.checked);
+                    }
+                    super.onRender();
+                }
+                /**
                  * 필드 레이아웃을 업데이트한다.
                  */
                 updateLayout() {
