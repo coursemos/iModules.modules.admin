@@ -13,15 +13,14 @@ Html.ready(() => {
     const type = $body.getData('type');
     if (type == 'login') {
         const $form = Html.get('form', $body);
-        const $button = Html.get('button[type=submit]', $body);
+        const form = Form.get($form);
         Html.get('input', $form).on('input', () => {
             const $message = Html.get('div[data-role=message]', $form);
             $message.remove();
         });
-        $button.on('click', async () => {
+        form.onSubmit(async () => {
             const $message = Html.get('div[data-role=message]', $form);
             $message.remove();
-            $button.disable(true);
             const form = Form.get($form);
             const results = await form.submit(iModules.getProcessUrl('module', 'admin', 'login'));
             if (results.success == true) {
@@ -34,7 +33,6 @@ Html.ready(() => {
                     $form.append($message);
                 }
                 $form.shake();
-                $button.enable();
             }
         });
     }
