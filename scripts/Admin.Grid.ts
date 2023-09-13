@@ -161,7 +161,7 @@ namespace Admin {
             /**
              * 그리드패널을 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.Grid.Panel.Properties} properties - 객체설정
              */
             constructor(properties: Admin.Grid.Panel.Properties = null) {
                 super(properties);
@@ -1256,7 +1256,7 @@ namespace Admin {
             /**
              * 그리드패널 컬럼객체를 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.Grid.Column.Properties} properties - 객체설정
              */
             constructor(properties: Admin.Grid.Column.Properties = null) {
                 super(properties);
@@ -1701,7 +1701,7 @@ namespace Admin {
             /**
              * 그리드패널 컬럼객체를 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.Grid.Column.Properties} properties - 객체설정
              */
             constructor(properties: Admin.Grid.Column.Properties = null) {
                 super(properties);
