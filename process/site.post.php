@@ -57,6 +57,7 @@ $insert['language'] = $input->get('language', $errors) ?? '';
 $insert['title'] = $input->get('title', $errors) ?? '';
 $insert['description'] = $input->get('description') ?? '';
 $insert['theme'] = Format::toJson($input->get('theme', $errors));
+$insert['color'] = $input->get('color');
 $insert['header'] = $input->get('header');
 $insert['footer'] = $input->get('footer');
 $insert['logo'] = $input->get('logo');

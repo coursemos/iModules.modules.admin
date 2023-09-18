@@ -496,6 +496,10 @@ var modules;
                                                         },
                                                     },
                                                 }),
+                                                new Admin.Form.Field.Color({
+                                                    name: 'color',
+                                                    label: this.printText('admin.sitemap.sites.color'),
+                                                }),
                                                 new Admin.Form.Field.Include({
                                                     name: 'header',
                                                     label: this.printText('admin.sitemap.sites.header'),
