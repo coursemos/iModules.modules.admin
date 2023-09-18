@@ -1955,6 +1955,9 @@ var Admin;
                     }
                     else {
                         this.setError(false);
+                        if (value !== null) {
+                            value = value.toLowerCase();
+                        }
                         this.$getPreview().setStyle('background', value);
                         this.$getButton().setValue(value);
                     }
