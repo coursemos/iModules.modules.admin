@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 11.
+ * @modified 2023. 9. 18.
  */
 declare var moment: any;
 
@@ -662,6 +662,14 @@ namespace Admin {
                             componentType: field.component.type,
                             componentName: field.component.name,
                             use_default: field.component.use_default ?? false,
+                            allowBlank: field.allowBlank ?? true,
+                        });
+
+                    case 'color':
+                        return new Admin.Form.Field.Color({
+                            name: field.name ?? null,
+                            label: field.label ?? null,
+                            value: field.value ?? null,
                             allowBlank: field.allowBlank ?? true,
                         });
 
@@ -2350,7 +2358,7 @@ namespace Admin {
                 $button: Dom;
 
                 /**
-                 * 숫자필드 클래스 생성한다.
+                 * 검색필드 클래스 생성한다.
                  *
                  * @param {Admin.Form.Field.Search.Properties} properties - 객체설정
                  */
@@ -2430,6 +2438,137 @@ namespace Admin {
 
                     const $button = this.$getButton();
                     this.$getContent().append($button);
+                }
+            }
+
+            export namespace Color {
+                export interface Properties extends Admin.Form.Field.Base.Properties {
+                    //
+                }
+            }
+
+            export class Color extends Admin.Form.Field.Text {
+                inputType: string = 'color';
+
+                $button: Dom;
+                $preview: Dom;
+
+                /**
+                 * 색상필드 클래스 생성한다.
+                 *
+                 * @param {Admin.Form.Field.Color.Properties} properties - 객체설정
+                 */
+                constructor(properties: Admin.Form.Field.Color.Properties = null) {
+                    super(properties);
+                }
+
+                /**
+                 * INPUT 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput(): Dom {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('input', {
+                            type: 'text',
+                            name: this.inputName,
+                        });
+
+                        this.$input.on('input', (e: InputEvent) => {
+                            const input = e.currentTarget as HTMLInputElement;
+                            this.setValue(input.value);
+                        });
+                    }
+
+                    return this.$input;
+                }
+
+                /**
+                 * 컬러픽커버튼 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $searchButton
+                 */
+                $getButton(): Dom {
+                    if (this.$button === undefined) {
+                        this.$button = Html.create('input', {
+                            type: 'color',
+                        });
+
+                        this.$button.on('input', (e: InputEvent) => {
+                            this.setValue((e.currentTarget as HTMLInputElement).value);
+                        });
+                    }
+
+                    return this.$button;
+                }
+
+                /**
+                 * 색상미리보기 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getPreview(): Dom {
+                    if (this.$preview === undefined) {
+                        this.$preview = Html.create('i', { 'data-role': 'preview' });
+                    }
+
+                    return this.$preview;
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value: any, is_origin?: boolean): void {
+                    if (value !== null && value.length > 0 && value.search(/^#[a-zA-Z0-9]{6}$/) === -1) {
+                        this.setError(true);
+                    } else {
+                        this.setError(false);
+
+                        this.$getPreview().setStyle('background', value);
+                        this.$getButton().setValue(value);
+                    }
+
+                    super.setValue(value, is_origin);
+                }
+
+                /**
+                 * 필드값이 유효한지 확인한다.
+                 *
+                 * @return {boolean|string} validation
+                 */
+                async validate(): Promise<boolean | string> {
+                    if (this.allowBlank === false && this.isBlank() == true) {
+                        return await Admin.getErrorText('REQUIRED');
+                    }
+
+                    if (typeof this.validator == 'function') {
+                        return await this.validator(this.getValue(), this);
+                    }
+
+                    if (this.getValue() !== null && this.getValue().length > 0) {
+                        if (this.getValue().search(/^#[a-zA-Z0-9]{6}$/) === -1) {
+                            return await Admin.getErrorText('INVALID_COLOR_CODE');
+                        }
+                    }
+
+                    return true;
+                }
+
+                /**
+                 * INPUT 태그를 랜더링한다.
+                 */
+                renderContent(): void {
+                    const $input = this.$getInput();
+                    this.$getContent().append($input);
+
+                    const $button = this.$getButton();
+                    this.$getContent().append($button);
+
+                    const $preview = this.$getPreview();
+                    this.$getContent().append($preview);
                 }
             }
 

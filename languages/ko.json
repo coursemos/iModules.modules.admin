@@ -50,7 +50,8 @@
         }
     },
     "errors": {
-        "PERMISSION_DENIED": "관리자 권한이 없습니다."
+        "PERMISSION_DENIED": "관리자 권한이 없습니다.",
+        "INVALID_COLOR_CODE": "색상코드가 잘못입력되었습니다. #000000 형식만 입력가능합니다."
     },
     "admin": {
         "contexts": {
