@@ -34,7 +34,7 @@ namespace Admin {
             primaryKeys?: string[];
 
             /**
-             * @type {(string|Object)[]} fields - 필드값의 타입을 정의한다.
+             * @type {(string|Object)[]} fields - 필드값 타입
              */
             fields?: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[];
 
@@ -222,6 +222,15 @@ namespace Admin {
         }
 
         /**
+         * 특정인덱스의 데이터를 가져온다.
+         *
+         * @return {Admin.Data.Record} record
+         */
+        get(index: number): Admin.Data.Record {
+            return this.data?.getRecords()[index] ?? null;
+        }
+
+        /**
          * 고유키값을 가져온다.
          *
          * @return {string[]} primary_keys
@@ -297,10 +306,10 @@ namespace Admin {
         }
 
         /**
-         * 데이터와 일치하는 레코드의 인덱스를 찾는다.
+         * 데이터와 일치하는 레코드를 찾는다.
          *
          * @param {Admin.Data.Record|Object} matcher - 찾을 레코드
-         * @return {number} index - 검색된 데이터의 인덱스
+         * @return {Admin.Data.Record} record - 검색된 레코드
          */
         match(matcher: Admin.Data.Record | { [key: string]: any }): Admin.Data.Record {
             let matched: Admin.Data.Record = null;

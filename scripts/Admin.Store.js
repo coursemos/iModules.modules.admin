@@ -147,6 +147,14 @@ var Admin;
             return this.data?.getRecords() ?? [];
         }
         /**
+         * 특정인덱스의 데이터를 가져온다.
+         *
+         * @return {Admin.Data.Record} record
+         */
+        get(index) {
+            return this.data?.getRecords()[index] ?? null;
+        }
+        /**
          * 고유키값을 가져온다.
          *
          * @return {string[]} primary_keys
@@ -215,10 +223,10 @@ var Admin;
             return null;
         }
         /**
-         * 데이터와 일치하는 레코드의 인덱스를 찾는다.
+         * 데이터와 일치하는 레코드를 찾는다.
          *
          * @param {Admin.Data.Record|Object} matcher - 찾을 레코드
-         * @return {number} index - 검색된 데이터의 인덱스
+         * @return {Admin.Data.Record} record - 검색된 레코드
          */
         match(matcher) {
             let matched = null;
