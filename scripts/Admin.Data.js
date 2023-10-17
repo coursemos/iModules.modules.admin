@@ -11,7 +11,7 @@
 var Admin;
 (function (Admin) {
     class Data {
-        originRecoreds = [];
+        originRecords = [];
         records = [];
         fields = {};
         primaryKeys = [];
@@ -44,7 +44,7 @@ var Admin;
                 }
                 this.records.push(new Admin.Data.Record(record, this.primaryKeys));
             }
-            this.originRecoreds = this.records;
+            this.originRecords = this.records;
             this.sorting = false;
             this.sorters = null;
             this.filtering = false;
@@ -157,7 +157,7 @@ var Admin;
             this.filtering = true;
             if (Object.keys(filters).length > 0) {
                 const records = [];
-                for (const record of this.originRecoreds) {
+                for (const record of this.originRecords) {
                     let passed = true;
                     for (const field in filters) {
                         const filter = filters[field];
@@ -233,7 +233,7 @@ var Admin;
                 this.records = records;
             }
             else {
-                this.records = this.originRecoreds;
+                this.records = this.originRecords;
             }
             this.filters = filters;
             this.filtering = false;
