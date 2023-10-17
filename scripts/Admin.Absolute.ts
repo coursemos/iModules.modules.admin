@@ -296,7 +296,7 @@ Html.ready(() => {
     Html.get('body').on('mousedown', (e: MouseEvent) => {
         const $target = Html.el(e.target);
         Admin.Absolute.$absolute.forEach(($dom: Dom, id: string) => {
-            if ($target.is($dom) === false && $target.getParents('div[data-component=' + id + ']') === null) {
+            if ($target.isSame($dom) === false && $target.getParents('div[data-component=' + id + ']') === null) {
                 const absolute = Admin.get(id) as Admin.Absolute;
                 absolute.hide();
             }
