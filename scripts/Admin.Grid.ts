@@ -35,12 +35,17 @@ namespace Admin {
                 /**
                  * @type {Function} openItem - 아이템을 오픈할 때
                  */
-                openItem?: (record: Admin.Data.Record, index: number, grid: Admin.Grid.Panel) => void;
+                openItem?: (record: Admin.Data.Record, rowIndex: number, grid: Admin.Grid.Panel) => void;
 
                 /**
                  * @type {Function} openMenu - 아이템 메뉴가 오픈될 때
                  */
-                openMenu?: (menu: Admin.Menu, record: Admin.Data.Record, index: number, grid: Admin.Grid.Panel) => void;
+                openMenu?: (
+                    menu: Admin.Menu,
+                    record: Admin.Data.Record,
+                    rowIndex: number,
+                    grid: Admin.Grid.Panel
+                ) => void;
 
                 /**
                  * @type {Function} openMenus - 다중 아이템 메뉴가 오픈될 때
@@ -288,11 +293,11 @@ namespace Admin {
             /**
              * 특정 순서의 컬럼을 가져온다.
              *
-             * @param {number} index - 가져올 컬럼의 인덱스
+             * @param {number} columnIndex - 가져올 컬럼의 인덱스
              * @return {Admin.Grid.Column} column - 컬럼
              */
-            getColumnByIndex(index: number): Admin.Grid.Column {
-                const column = this.columns[index];
+            getColumnByIndex(columnIndex: number): Admin.Grid.Column {
+                const column = this.columns[columnIndex];
                 if (column instanceof Admin.Grid.Column) {
                     return column as Admin.Grid.Column;
                 } else {
@@ -306,8 +311,10 @@ namespace Admin {
              * @param {number} rowIndex - 행 인덱스
              */
             focusRow(rowIndex: number): void {
-                const $row = Html.all('div[data-role=row]', this.$getBody()).get(rowIndex);
-                if ($row == null) return;
+                const $row = this.$getRow(rowIndex);
+                if ($row == null) {
+                    return;
+                }
 
                 this.blurRow();
 
@@ -364,17 +371,19 @@ namespace Admin {
                 const contentWidth = this.$getContent().getWidth();
                 const offset = $column.getPosition();
                 const scroll = this.getScrollbar().getPosition();
-                const left = offset.left;
+                const left = offset.left - scroll.x;
                 const right = left + $column.getOuterWidth();
 
-                if (left < this.freezeWidth) {
-                    const minScroll = 0;
-                    const x = Math.max(left + scroll.x - this.freezeWidth - 2, minScroll);
-                    this.getScrollbar().setPosition(x, null, true);
-                } else if (right > contentWidth) {
-                    const maxScroll = this.$getContent().getScrollWidth() - contentWidth;
-                    const x = Math.min(right + scroll.x - contentWidth + 2, maxScroll);
-                    this.getScrollbar().setPosition(x, null, true);
+                if ($column.hasClass('sticky') == false) {
+                    if (left < this.freezeWidth) {
+                        const minScroll = 0;
+                        const x = Math.max(left + scroll.x - this.freezeWidth - 2, minScroll);
+                        this.getScrollbar().setPosition(x, null, true);
+                    } else if (right > contentWidth) {
+                        const maxScroll = this.$getContent().getScrollWidth() - contentWidth;
+                        const x = Math.min(right + scroll.x - contentWidth + 2, maxScroll);
+                        this.getScrollbar().setPosition(x, null, true);
+                    }
                 }
             }
 
@@ -405,14 +414,14 @@ namespace Admin {
             /**
              * 그리드 아이템(행)이 선택여부를 확인한다.
              *
-             * @param {number} index - 선택여부를 확인할 아이탬(행) 인덱스
+             * @param {number} rowIndex - 선택여부를 확인할 아이탬(행) 인덱스
              * @return {boolean} selected
              */
-            isRowSelected(index: number): boolean {
+            isRowSelected(rowIndex: number): boolean {
                 if (index === null) {
                     return false;
                 }
-                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
+                const $row = this.$getRow(rowIndex);
                 if ($row.getEl() === null) {
                     return false;
                 }
@@ -424,37 +433,33 @@ namespace Admin {
             /**
              * 아이템을 오픈한다.
              *
-             * @param {number} index - 아이탬(행) 인덱스
+             * @param {number} rowIndex - 아이탬(행) 인덱스
              */
-            openItem(index: number): void {
-                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
-                if ($row.getEl() === null) {
-                    return;
-                }
+            openItem(rowIndex: number): void {
+                const $row = this.$getRow(rowIndex);
+                if ($row === null) return;
 
                 const record = $row.getData('record') as Admin.Data.Record;
                 this.select(record);
-                this.fireEvent('openItem', [record, index, this]);
+                this.fireEvent('openItem', [record, rowIndex, this]);
             }
 
             /**
              * 아이템 메뉴를 오픈한다.
              *
-             * @param {number} index - 아이탬(행) 인덱스
+             * @param {number} rowIndex - 아이탬(행) 인덱스
              * @param {PointerEvent} pointerEvent - 포인트이벤트
              */
-            openMenu(index: number, pointerEvent: PointerEvent): void {
-                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
-                if ($row.getEl() === null) {
-                    return;
-                }
+            openMenu(rowIndex: number, pointerEvent: PointerEvent): void {
+                const $row = this.$getRow(rowIndex);
+                if ($row === null) return;
 
                 const record = $row.getData('record') as Admin.Data.Record;
                 this.select(record);
 
                 const menu = new Admin.Menu();
 
-                this.fireEvent('openMenu', [menu, record, index, this]);
+                this.fireEvent('openMenu', [menu, record, rowIndex, this]);
 
                 if (menu.getItems()?.length == 0) {
                     menu.remove();
@@ -486,18 +491,16 @@ namespace Admin {
              * @param {Admin.Data.Record|Object} record - 선택할 레코드
              */
             select(record: Admin.Data.Record | { [key: string]: any }): void {
-                const index = this.getStore().matchIndex(record);
-                if (index === null) {
-                    return;
-                }
+                const rowIndex = this.getStore().matchIndex(record);
+                if (rowIndex === null) return;
 
-                if (this.isRowSelected(index) == true) {
+                if (this.isRowSelected(rowIndex) == true) {
                     if (this.selections.size != 1) {
                         this.deselectAll(false);
-                        this.selectRow(index);
+                        this.selectRow(rowIndex);
                     }
                 } else {
-                    this.selectRow(index);
+                    this.selectRow(rowIndex);
                 }
             }
 
@@ -508,19 +511,13 @@ namespace Admin {
              * @param {boolean} is_multiple - 다중선택여부
              * @param {boolean} is_event - 이벤트 발생여부
              */
-            selectRow(index: number, is_multiple: boolean = false, is_event: boolean = true): void {
-                if (index === null || this.selection.selectable == false) {
-                    return;
-                }
+            selectRow(rowIndex: number, is_multiple: boolean = false, is_event: boolean = true): void {
+                if (rowIndex === null || this.selection.selectable == false) return;
 
-                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
-                if ($row.getEl() === null) {
-                    return;
-                }
+                const $row = this.$getRow(rowIndex);
+                if ($row === null) return;
 
-                if (this.isRowSelected(index) == true) {
-                    return;
-                }
+                if (this.isRowSelected(rowIndex) == true) return;
 
                 if (this.selection.multiple == false || is_multiple == false) {
                     this.deselectAll(false);
@@ -558,20 +555,16 @@ namespace Admin {
             /**
              * 아이템을 선택해제한다.
              *
-             * @param {number} index - 아이탬(행) 인덱스
+             * @param {number} rowIndex - 아이탬(행) 인덱스
              * @param {boolean} is_event - 이벤트 발생여부
              */
-            deselectRow(index: number, is_event: boolean = true): void {
-                if (index === null) {
-                    return;
-                }
+            deselectRow(rowIndex: number, is_event: boolean = true): void {
+                if (rowIndex === null) return;
 
-                const $row = Html.all('> div[data-role=row]', this.$getBody()).get(index);
-                if ($row.getEl() === null) {
-                    return;
-                }
+                const $row = this.$getRow(rowIndex);
+                if ($row === null) return;
 
-                if (this.isRowSelected(index) == true) {
+                if (this.isRowSelected(rowIndex) == true) {
                     const record = $row.getData('record');
                     this.selections.delete(record.getHash());
                     $row.removeClass('selected');
@@ -835,6 +828,80 @@ namespace Admin {
             }
 
             /**
+             * 그리드패널의 아이탬(행) DOM 을 생성하거나 가져온다.
+             *
+             * @param {number} rowIndex - 생성하거나 가져올 행 인덱스
+             * @param {Admin.Data.Record} record - 행 데이터 (데이터가 NULL 이 아닌 경우 DOM 을 생성한다.)
+             */
+            $getRow(rowIndex: number, record: Admin.Data.Record = null): Dom {
+                if (record === null) {
+                    return Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex);
+                } else {
+                    let leftPosition = 0;
+                    const $row = Html.create('div')
+                        .setData('role', 'row')
+                        .setData('index', rowIndex)
+                        .setData('record', record, false);
+                    this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
+                        const value = record.get(column.dataIndex);
+                        const $column = column.$getBody(value, record, rowIndex, columnIndex);
+                        $row.append($column);
+
+                        if (columnIndex < this.freezeColumn) {
+                            $column.addClass('sticky');
+                            $column.setStyle('left', leftPosition + 'px');
+                            leftPosition += column.getMinWidth() + 1;
+
+                            if (columnIndex == this.freezeColumn - 1) {
+                                $column.addClass('end');
+                            }
+                        }
+                    });
+                    $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+
+                    $row.on('click', (e: PointerEvent) => {
+                        if (this.selection.selectable == true) {
+                            if (this.selection.display == 'check') {
+                                this.deselectAll(false);
+                                this.selectRow(rowIndex, false);
+                            } else if (this.selection.deselectable == true && this.isRowSelected(rowIndex) == true) {
+                                this.deselectRow(rowIndex);
+                            } else {
+                                this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
+                            }
+                        }
+                    });
+
+                    $row.on('dblclick', (e: MouseEvent) => {
+                        if (e.button === 0) {
+                            this.openItem(rowIndex);
+                        }
+                    });
+
+                    $row.on('contextmenu', (e: PointerEvent) => {
+                        if (this.isRowSelected(rowIndex) == true) {
+                            if (this.getSelections().length == 1 || this.selection.multiple == false) {
+                                this.openMenu(rowIndex, e);
+                            } else {
+                                this.openMenus(e);
+                            }
+                        } else {
+                            this.openMenu(rowIndex, e);
+                        }
+                        e.preventDefault();
+                    });
+
+                    $row.on('longpress', (e: PointerEvent) => {
+                        Admin.Menu.pointerEvent = e;
+                        this.openMenu(rowIndex, e);
+                        e.preventDefault();
+                    });
+
+                    return $row;
+                }
+            }
+
+            /**
              * 그리드패널의 헤더(제목행)을 데이터에 따라 업데이트한다.
              */
             updateHeader(): void {
@@ -891,69 +958,7 @@ namespace Admin {
                 this.getStore()
                     .getRecords()
                     .forEach((record: Admin.Data.Record, rowIndex: number) => {
-                        let leftPosition = 0;
-                        const $row = Html.create('div')
-                            .setData('role', 'row')
-                            .setData('row-index', rowIndex)
-                            .setData('record', record, false);
-                        this.getColumns().forEach((column: Admin.Grid.Column, columnIndex: number) => {
-                            const value = record.get(column.dataIndex);
-                            const $column = column.$getBody(value, record, rowIndex, columnIndex);
-                            $row.append($column);
-
-                            if (columnIndex < this.freezeColumn) {
-                                $column.addClass('sticky');
-                                $column.setStyle('left', leftPosition + 'px');
-                                leftPosition += column.getMinWidth() + 1;
-
-                                if (columnIndex == this.freezeColumn - 1) {
-                                    $column.addClass('end');
-                                }
-                            }
-                        });
-                        $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
-
-                        $row.on('click', (e: PointerEvent) => {
-                            if (this.selection.selectable == true) {
-                                if (this.selection.display == 'check') {
-                                    this.deselectAll(false);
-                                    this.selectRow(rowIndex, false);
-                                } else if (
-                                    this.selection.deselectable == true &&
-                                    this.isRowSelected(rowIndex) == true
-                                ) {
-                                    this.deselectRow(rowIndex);
-                                } else {
-                                    this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
-                                }
-                            }
-                        });
-
-                        $row.on('dblclick', (e: MouseEvent) => {
-                            if (e.button === 0) {
-                                this.openItem(rowIndex);
-                            }
-                        });
-
-                        $row.on('contextmenu', (e: PointerEvent) => {
-                            if (this.isRowSelected(rowIndex) == true) {
-                                if (this.getSelections().length == 1 || this.selection.multiple == false) {
-                                    this.openMenu(rowIndex, e);
-                                } else {
-                                    this.openMenus(e);
-                                }
-                            } else {
-                                this.openMenu(rowIndex, e);
-                            }
-                            e.preventDefault();
-                        });
-
-                        $row.on('longpress', (e: PointerEvent) => {
-                            Admin.Menu.pointerEvent = e;
-                            this.openMenu(rowIndex, e);
-                            e.preventDefault();
-                        });
-
+                        const $row = this.$getRow(rowIndex, record);
                         this.$body.append($row);
                     });
             }
@@ -1024,7 +1029,7 @@ namespace Admin {
                                 break;
 
                             case 'ArrowDown':
-                                rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? 0) + 1);
+                                rowIndex = Math.max(0, (this.focusedCell.rowIndex ?? -1) + 1);
                                 columnIndex = this.focusedCell.columnIndex ?? 0;
                                 break;
                         }
@@ -1680,14 +1685,14 @@ namespace Admin {
                     this.grid.focusCell($column.getData('row'), $column.getData('column'));
                 });
 
-                const $display = Html.create('div').setData('display', 'view');
+                const $view = Html.create('div').setData('role', 'view');
                 if (this.renderer !== null) {
-                    $display.html(this.renderer(value, record, $column, rowIndex, columnIndex, this, this.getGrid()));
+                    $view.html(this.renderer(value, record, $column, rowIndex, columnIndex, this, this.getGrid()));
                 } else {
-                    $display.html(value);
+                    $view.html(value);
                 }
 
-                $column.append($display);
+                $column.append($view);
 
                 if (this.isHidden() == true) {
                     $column.setStyle('display', 'none');
