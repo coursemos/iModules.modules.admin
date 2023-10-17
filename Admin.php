@@ -541,9 +541,11 @@ class Admin extends \Module
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Drag.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Resizer.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.TreeData.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Component.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Absolute.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Store.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.TreeStore.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Title.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Text.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Button.js');
@@ -553,6 +555,7 @@ class Admin extends \Module
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Toolbar.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Tab.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Grid.js');
+        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Tree.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Form.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Window.js');
         \Cache::script('admin', $this->getBase() . '/scripts/Admin.Message.js');
@@ -591,6 +594,7 @@ class Admin extends \Module
         \Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.scss');
         \Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.scss');
         \Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tree.scss');
         \Cache::style('admin', $this->getBase() . '/styles/Admin.Form.scss');
         \Cache::style('admin', $this->getBase() . '/styles/Admin.Window.scss');
         \Cache::style('admin', $this->getBase() . '/styles/Admin.Message.scss');
