@@ -122,9 +122,9 @@ namespace Admin {
                 autoLoad?: boolean;
 
                 /**
-                 * @type {number} expandedDepth - 확장할 트리뎁스
+                 * @type {number|boolean} expandedDepth - 확장할 트리뎁스
                  */
-                expandedDepth?: number;
+                expandedDepth?: number | boolean;
 
                 /**
                  * @type {string} loadingType - 로딩메시지 타입
@@ -159,7 +159,7 @@ namespace Admin {
             store: Admin.TreeStore;
             autoLoad: boolean;
 
-            expandedDepth: number;
+            expandedDepth: number | boolean;
 
             $header: Dom;
             $body: Dom;
@@ -207,7 +207,8 @@ namespace Admin {
                 });
                 this.autoLoad = this.properties.autoLoad !== false;
 
-                this.expandedDepth = this.properties.expandedDepth ?? 0;
+                this.expandedDepth = this.properties.expandedDepth ?? false;
+                this.expandedDepth = this.expandedDepth === 0 ? false : this.expandedDepth;
 
                 this.initColumns();
 
@@ -534,7 +535,7 @@ namespace Admin {
              *
              * @param {number[]} treeIndex - 확장할 아이탬(행) 인덱스
              */
-            expandRow(treeIndex: number[]): void {
+            async expandRow(treeIndex: number[]): Promise<void> {
                 const $row = this.$getRow(treeIndex);
                 if ($row === null || $row.hasClass('edge') == true) return;
 
@@ -567,6 +568,30 @@ namespace Admin {
                     this.collapseRow(treeIndex);
                 } else {
                     this.expandRow(treeIndex);
+                }
+            }
+
+            /**
+             * 전체 아이탬(행)을 확장한다.
+             *
+             * @param {number|boolean} depth - 확장할 깊이 (true인 경우 전체를 확장한다.)
+             */
+            async expandAll(depth: number | boolean, parents: number[] = []): Promise<void> {
+                if (depth === false || (depth !== true && parents.length < depth)) {
+                    return;
+                }
+                if (parents.length == 0) {
+                    for (let i = 0; i < this.getStore().getCount(); i++) {
+                        await this.expandAll(depth, [i]);
+                    }
+                } else {
+                    const record = this.getStore().get(parents);
+                    if (record.hasChild() == true) {
+                        await this.expandRow(parents);
+                        for (let i = 0, loop = record.getChildren().length; i < loop; i++) {
+                            await this.expandAll(depth, [...parents, i]);
+                        }
+                    }
                 }
             }
 
@@ -1287,6 +1312,9 @@ namespace Admin {
                 this.renderBody();
                 this.restoreSelections();
                 this.updateHeader();
+                if (this.expandedDepth !== false) {
+                    this.expandAll(this.expandedDepth);
+                }
                 this.fireEvent('update', [this, this.getStore()]);
             }
 

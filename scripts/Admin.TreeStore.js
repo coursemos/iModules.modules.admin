@@ -159,6 +159,7 @@ var Admin;
             if (index.length == 0) {
                 return null;
             }
+            index = index.slice();
             let record = null;
             let children = this.data?.getRecords();
             while (index.length > 0) {

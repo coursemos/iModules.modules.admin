@@ -244,6 +244,7 @@ namespace Admin {
             if (index.length == 0) {
                 return null;
             }
+            index = index.slice();
             let record: Admin.TreeData.Record = null;
             let children: Admin.TreeData.Record[] = this.data?.getRecords();
 
