@@ -448,6 +448,12 @@ var Admin;
                 this.fireEvent('selectionChange', [this.getSelections(), this]);
             }
             /**
+             * 사용자입력에 의하여 선택항목이 변경되었을 때 이벤트를 처리한다.
+             */
+            onSelectionComplete() {
+                this.fireEvent('selectionComplete', [this.getSelections(), this]);
+            }
+            /**
              * 컬럼 순서를 업데이트한다.
              */
             updateColumnIndex() {
@@ -656,6 +662,7 @@ var Admin;
                             else {
                                 this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
                             }
+                            this.onSelectionComplete();
                         }
                     });
                     $row.on('dblclick', (e) => {
@@ -800,6 +807,7 @@ var Admin;
                     if (e.key == ' ' || e.key == 'Enter') {
                         if (this.focusedRow !== null) {
                             this.selectRow(this.focusedRow);
+                            this.onSelectionComplete();
                         }
                     }
                 });
@@ -1299,7 +1307,7 @@ var Admin;
                     $column.setStyle('width', this.minWidth + 'px');
                 }
                 $column.addClass(this.textAlign);
-                $column.on('pointerdown', (e) => {
+                $column.on('mousedown', (e) => {
                     const $column = Html.el(e.currentTarget);
                     this.grid.focusCell($column.getData('row'), $column.getData('column'));
                 });
@@ -1454,6 +1462,7 @@ var Admin;
                             this.getGrid().selectRow(rowIndex, true);
                         }
                     }
+                    this.getGrid().onSelectionComplete();
                     e.stopImmediatePropagation();
                 });
                 const $label = Html.create('label');

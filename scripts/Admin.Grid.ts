@@ -33,6 +33,11 @@ namespace Admin {
                 selectionChange?: (selections: Admin.Data.Record[], grid: Admin.Grid.Panel) => void;
 
                 /**
+                 * @type {Function} selectionComplete - 사용자입력에 의하여 선택항목이 변경되었을 때
+                 */
+                selectionComplete?: (selections: Admin.Data.Record[], grid: Admin.Grid.Panel) => void;
+
+                /**
                  * @type {Function} openItem - 아이템을 오픈할 때
                  */
                 openItem?: (record: Admin.Data.Record, rowIndex: number, grid: Admin.Grid.Panel) => void;
@@ -634,6 +639,13 @@ namespace Admin {
             }
 
             /**
+             * 사용자입력에 의하여 선택항목이 변경되었을 때 이벤트를 처리한다.
+             */
+            onSelectionComplete(): void {
+                this.fireEvent('selectionComplete', [this.getSelections(), this]);
+            }
+
+            /**
              * 컬럼 순서를 업데이트한다.
              */
             updateColumnIndex(): void {
@@ -869,6 +881,7 @@ namespace Admin {
                             } else {
                                 this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
                             }
+                            this.onSelectionComplete();
                         }
                     });
 
@@ -1041,6 +1054,7 @@ namespace Admin {
                     if (e.key == ' ' || e.key == 'Enter') {
                         if (this.focusedRow !== null) {
                             this.selectRow(this.focusedRow);
+                            this.onSelectionComplete();
                         }
                     }
                 });
@@ -1680,7 +1694,7 @@ namespace Admin {
 
                 $column.addClass(this.textAlign);
 
-                $column.on('pointerdown', (e: PointerEvent) => {
+                $column.on('mousedown', (e: MouseEvent) => {
                     const $column = Html.el(e.currentTarget);
                     this.grid.focusCell($column.getData('row'), $column.getData('column'));
                 });
@@ -1852,6 +1866,7 @@ namespace Admin {
                             this.getGrid().selectRow(rowIndex, true);
                         }
                     }
+                    this.getGrid().onSelectionComplete();
                     e.stopImmediatePropagation();
                 });
 
