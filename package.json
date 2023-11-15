@@ -85,18 +85,18 @@
             "indexes": {
                 "group_id": "primary_key"
             },
-            "comment": "아이모듈 관리자그룹 목록"
+            "comment": "아이모듈 관리자그룹"
         },
-        "administrator_groups": {
+        "group_administrators": {
             "columns": {
-                "member_id": {
-                    "type": "int",
-                    "comment": "회원고유값"
-                },
                 "group_id": {
                     "type": "char",
                     "length": 36,
                     "comment": "그룹고유값"
+                },
+                "member_id": {
+                    "type": "int",
+                    "comment": "회원고유값"
                 },
                 "assigned_at": {
                     "type": "int",
@@ -104,9 +104,11 @@
                 }
             },
             "indexes": {
-                "member_id,group_id": "primary_key"
+                "group_id,member_id": "primary_key",
+                "member_id": "index",
+                "group_id": "index"
             },
-            "comment": "아이모듈 관리자그룹할당 목록"
+            "comment": "아이모듈 관리자그룹 소속회원"
         }
     }
 }

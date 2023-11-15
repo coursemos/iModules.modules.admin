@@ -366,7 +366,7 @@ class Admin extends \Module
 
             $groups = $this->db()
                 ->select(['g.group_id', 'g.title', 'g.permissions'])
-                ->from($this->table('administrator_groups'), 'ag')
+                ->from($this->table('group_administrators'), 'ag')
                 ->join($this->table('groups'), 'g', 'g.group_id=ag.group_id', 'LEFT')
                 ->where('ag.member_id', $member_id)
                 ->orderBy('g.title', 'ASC')

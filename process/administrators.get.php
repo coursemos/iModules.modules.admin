@@ -42,7 +42,7 @@ $records = $me
     ->join($mMember->table('members'), 'm', 'm.member_id=a.member_id', 'LEFT');
 
 if ($group_id != 'ALL') {
-    $records->join($me->table('administrator_groups'), 'ag', 'ag.member_id=a.member_id', 'LEFT');
+    $records->join($me->table('group_administrators'), 'ag', 'ag.member_id=a.member_id', 'LEFT');
     if ($group_id == 'EMPTY') {
         $records->where('ag.group_id', null);
     } else {
@@ -64,7 +64,7 @@ foreach ($records as &$record) {
     $record->groups = $me
         ->db()
         ->select(['g.title'])
-        ->from($me->table('administrator_groups'), 'ag')
+        ->from($me->table('group_administrators'), 'ag')
         ->join($me->table('groups'), 'g', 'g.group_id=ag.group_id', 'LEFT')
         ->where('ag.member_id', $record->member_id)
         ->get('title');

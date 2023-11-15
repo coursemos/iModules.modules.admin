@@ -79,7 +79,7 @@ if ($mode == 'permission') {
 
 if ($mode == 'move_group') {
     $me->db()
-        ->delete($me->table('administrator_groups'))
+        ->delete($me->table('group_administrators'))
         ->where('member_id', $member_ids, 'IN')
         ->execute();
 }
@@ -110,13 +110,13 @@ foreach ($member_ids as $member_id) {
             $me
                 ->db()
                 ->select()
-                ->from($me->table('administrator_groups'))
+                ->from($me->table('group_administrators'))
                 ->where('member_id', $member_id)
                 ->where('group_id', $group_id)
                 ->has() == false
         ) {
             $me->db()
-                ->insert($me->table('administrator_groups'), [
+                ->insert($me->table('group_administrators'), [
                     'member_id' => $member_id,
                     'group_id' => $group_id,
                     'assigned_at' => time(),
@@ -135,7 +135,7 @@ foreach ($groups as $group) {
     $administrators = $me
         ->db()
         ->select()
-        ->from($me->table('administrator_groups'))
+        ->from($me->table('group_administrators'))
         ->where('group_id', $group->group_id)
         ->count();
 
