@@ -465,6 +465,29 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                                 background: var(--grid-input-color-select);
                                                 content: ' ';
                                             }
+
+                                            &[disabled] {
+                                                cursor: not-allowed;
+
+                                                &::before {
+                                                    width: 14px;
+                                                    height: 14px;
+                                                    top: 0;
+                                                    left: 0;
+                                                    font-family: moimz;
+                                                    font-size: 12px;
+                                                    text-align: center;
+                                                    line-height: 14px;
+                                                    content: '\ed00';
+                                                    color: var(--grid-input-color-select);
+                                                    background: transparent;
+                                                    animation: mi-loading 2s infinite linear;
+                                                }
+
+                                                &::after {
+                                                    display: none;
+                                                }
+                                            }
                                         }
                                     }
 
@@ -694,6 +717,10 @@ div[data-component][data-type='panel'][data-role='tree'] {
 
                         > div[data-role='tree'] {
                             display: none;
+
+                            &::after {
+                                display: none;
+                            }
                         }
 
                         &.edge {
