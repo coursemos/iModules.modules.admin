@@ -12,14 +12,15 @@ var Admin;
 (function (Admin) {
     class Ajax {
         /**
-         * GET 방식으로 데이터를 가져온다.
+         * GET / DELETE 방식으로 데이터를 가져온다.
          *
+         * @param {string} method - 요청방식
          * @param {string} url - 요청주소
          * @param {Admin.Ajax.Params} params - GET 데이터
          * @param {boolean|number} is_retry - 재시도여부
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
-        static async get(url, params = {}, is_retry = true) {
+        static async #get(method = 'GET', url, params = {}, is_retry = true) {
             const requestUrl = new URL(url, location.origin);
             for (const name in params) {
                 if (params[name] === null) {
@@ -33,8 +34,10 @@ var Admin;
             let retry = (is_retry === false ? 10 : is_retry);
             try {
                 const response = (await fetch(url, {
-                    method: 'GET',
+                    // @todo DELETE 등 웹서버에서 지원하지 않을 경우 대체필요
+                    method: method,
                     headers: {
+                        'X-Method': method,
                         'Accept-Language': Admin.getLanguage(),
                         'Accept': 'application/json',
                         'Content-Type': 'application/json; charset=utf-8',
@@ -43,7 +46,7 @@ var Admin;
                     redirect: 'follow',
                 }).catch((error) => {
                     if (retry <= 3) {
-                        return Admin.Ajax.get(url, params, ++retry);
+                        return Admin.Ajax.#get(method, url, params, ++retry);
                     }
                     else {
                         Admin.Message.show({
@@ -69,7 +72,96 @@ var Admin;
             }
             catch (e) {
                 if (retry <= 3) {
-                    return Admin.Ajax.get(url, params, ++retry);
+                    return Admin.Ajax.#get(method, url, params, ++retry);
+                }
+                else {
+                    Admin.Message.show({
+                        icon: Admin.Message.ERROR,
+                        title: Admin.printErrorText('TITLE'),
+                        message: Admin.printErrorText('CONNECT_ERROR'),
+                        buttons: Admin.Message.OK,
+                    });
+                    console.error(e);
+                    return { success: false };
+                }
+            }
+        }
+        /**
+         * GET 방식으로 데이터를 가져온다.
+         *
+         * @param {string} url - 요청주소
+         * @param {Admin.Ajax.Params} params - GET 데이터
+         * @param {boolean|number} is_retry - 재시도여부
+         * @return {Promise<Admin.Ajax.Results>} results - 요청결과
+         */
+        static async get(url, params = {}, is_retry = true) {
+            return Admin.Ajax.#get('GET', url, params, is_retry);
+        }
+        /**
+         * POST / PUT / PATCH 방식으로 데이터를 가져온다.
+         * 전송할 데이터는 JSON 방식으로 전송된다.
+         *
+         * @param {string} method - 요청방식
+         * @param {string} url - 요청주소
+         * @param {Admin.Ajax.Data} data - 전송할 데이터
+         * @param {Admin.Ajax.Params} params - GET 데이터
+         * @param {boolean|number} is_retry - 재시도여부
+         * @return {Promise<Admin.Ajax.Results>} results - 요청결과
+         */
+        static async #post(method = 'POST', url, data = {}, params = {}, is_retry = true) {
+            const requestUrl = new URL(url, location.origin);
+            for (const name in params) {
+                if (params[name] === null) {
+                    requestUrl.searchParams.delete(name);
+                }
+                else {
+                    requestUrl.searchParams.append(name, params[name].toString());
+                }
+            }
+            url = requestUrl.toString();
+            let retry = (is_retry === false ? 10 : is_retry);
+            try {
+                const response = (await fetch(url, {
+                    // @todo PATCH, PUT 등 웹서버에서 지원하지 않을 경우 대체필요
+                    method: method,
+                    headers: {
+                        'X-Method': method,
+                        'Accept-Language': Admin.getLanguage(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json; charset=utf-8',
+                    },
+                    body: JSON.stringify(data),
+                    cache: 'no-store',
+                    redirect: 'follow',
+                }).catch((error) => {
+                    if (retry <= 3) {
+                        return Admin.Ajax.#post(method, url, data, params, ++retry);
+                    }
+                    else {
+                        Admin.Message.show({
+                            icon: Admin.Message.ERROR,
+                            title: Admin.printErrorText('TITLE'),
+                            message: Admin.printErrorText('CONNECT_ERROR'),
+                            buttons: Admin.Message.OK,
+                        });
+                        console.error(error);
+                        return { success: false };
+                    }
+                }));
+                const results = (await response.json());
+                if (results.success == false && results.message !== undefined) {
+                    Admin.Message.show({
+                        icon: Admin.Message.ERROR,
+                        title: Admin.printErrorText('TITLE'),
+                        message: results.message,
+                        buttons: Admin.Message.OK,
+                    });
+                }
+                return results;
+            }
+            catch (e) {
+                if (retry <= 3) {
+                    return Admin.Ajax.#post(method, url, data, params, ++retry);
                 }
                 else {
                     Admin.Message.show({
@@ -94,69 +186,20 @@ var Admin;
          * @return {Promise<Admin.Ajax.Results>} results - 요청결과
          */
         static async post(url, data = {}, params = {}, is_retry = true) {
-            const requestUrl = new URL(url, location.origin);
-            for (const name in params) {
-                if (params[name] === null) {
-                    requestUrl.searchParams.delete(name);
-                }
-                else {
-                    requestUrl.searchParams.append(name, params[name].toString());
-                }
-            }
-            url = requestUrl.toString();
-            let retry = (is_retry === false ? 10 : is_retry);
-            try {
-                const response = (await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Accept-Language': Admin.getLanguage(),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json; charset=utf-8',
-                    },
-                    body: JSON.stringify(data),
-                    cache: 'no-store',
-                    redirect: 'follow',
-                }).catch((error) => {
-                    if (retry <= 3) {
-                        return Admin.Ajax.post(url, data, params, ++retry);
-                    }
-                    else {
-                        Admin.Message.show({
-                            icon: Admin.Message.ERROR,
-                            title: Admin.printErrorText('TITLE'),
-                            message: Admin.printErrorText('CONNECT_ERROR'),
-                            buttons: Admin.Message.OK,
-                        });
-                        console.error(error);
-                        return { success: false };
-                    }
-                }));
-                const results = (await response.json());
-                if (results.success == false && results.message !== undefined) {
-                    Admin.Message.show({
-                        icon: Admin.Message.ERROR,
-                        title: Admin.printErrorText('TITLE'),
-                        message: results.message,
-                        buttons: Admin.Message.OK,
-                    });
-                }
-                return results;
-            }
-            catch (e) {
-                if (retry <= 3) {
-                    return Admin.Ajax.post(url, data, params, ++retry);
-                }
-                else {
-                    Admin.Message.show({
-                        icon: Admin.Message.ERROR,
-                        title: Admin.printErrorText('TITLE'),
-                        message: Admin.printErrorText('CONNECT_ERROR'),
-                        buttons: Admin.Message.OK,
-                    });
-                    console.error(e);
-                    return { success: false };
-                }
-            }
+            return Admin.Ajax.#post('POST', url, data, params, is_retry);
+        }
+        /**
+         * DELETE 방식으로 데이터를 가져온다.
+         * 전송할 데이터는 JSON 방식으로 전송된다.
+         *
+         * @param {string} url - 요청주소
+         * @param {Admin.Ajax.Data} data - 전송할 데이터
+         * @param {Admin.Ajax.Params} params - GET 데이터
+         * @param {boolean|number} is_retry - 재시도여부
+         * @return {Promise<Admin.Ajax.Results>} results - 요청결과
+         */
+        static async delete(url, params = {}, is_retry = true) {
+            return Admin.Ajax.#get('DELETE', url, params, is_retry);
         }
     }
     Admin.Ajax = Ajax;
