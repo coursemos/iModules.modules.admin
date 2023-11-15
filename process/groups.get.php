@@ -56,7 +56,7 @@ $records[] = [
         ->db()
         ->select()
         ->from($me->table('administrators'), 'a')
-        ->join($me->table('administrator_groups'), 'ag', 'ag.member_id=a.member_id', 'LEFT')
+        ->join($me->table('group_administrators'), 'ag', 'ag.member_id=a.member_id', 'LEFT')
         ->where('ag.group_id', null)
         ->count(),
     'sort' => ++$sort,
