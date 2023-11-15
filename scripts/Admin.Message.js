@@ -14,8 +14,18 @@ var Admin;
         static message = null;
         static INFO = Html.create('i').addClass('info');
         static ERROR = Html.create('i').addClass('error');
+        static CONFIRM = Html.create('i').addClass('confirm');
         static LOADING = Html.create('i').addClass('loading').html('<i></i><i></i><i></i><i></i>');
-        static OK = [{ button: 'ok', text: '@buttons.ok', buttonClass: 'confirm' }];
+        static OK = [{ action: 'ok', text: '@buttons.ok', buttonClass: 'confirm' }];
+        static DANGER = [{ action: 'ok', text: '@buttons.ok', buttonClass: 'danger' }];
+        static OKCANCEL = [
+            { action: 'cancel', text: '@buttons.cancel' },
+            { action: 'ok', text: '@buttons.ok', buttonClass: 'confirm' },
+        ];
+        static DANGERCANCEL = [
+            { action: 'cancel', text: '@buttons.cancel' },
+            { action: 'ok', text: '@buttons.ok', buttonClass: 'danger' },
+        ];
         /**
          * 메시지창을 연다.
          *
@@ -30,8 +40,8 @@ var Admin;
                 });
             properties?.buttons?.forEach((button) => {
                 buttons.push(new Admin.Button({
+                    ...button,
                     text: button.text.indexOf('@') === 0 ? Admin.printText(button.text.substring(1)) : button.text,
-                    buttonClass: button.buttonClass,
                     handler: handler,
                 }));
             });

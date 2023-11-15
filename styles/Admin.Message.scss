@@ -56,6 +56,17 @@ div[data-component][data-type='window'][data-role='message'] {
                                 content: '\ea13';
                             }
                         }
+
+                        &.confirm {
+                            font-family: moimz;
+                            font-size: 28px;
+                            line-height: 48px;
+                            color: var(--message-icon-color-default);
+
+                            &::before {
+                                content: '\ea06';
+                            }
+                        }
                     }
                 }
 
