@@ -23,6 +23,7 @@ var Admin;
             columnResizable;
             selection;
             selections = new Map();
+            expandedRows = new Map();
             store;
             autoLoad;
             expandedDepth;
@@ -62,6 +63,9 @@ var Admin;
                 });
                 this.store.addEvent('update', () => {
                     this.onUpdate();
+                });
+                this.store.addEvent('updateChildren', (_store, record) => {
+                    this.onUpdateChildren(record);
                 });
                 this.autoLoad = this.properties.autoLoad !== false;
                 this.expandedDepth = this.properties.expandedDepth ?? false;
@@ -161,12 +165,13 @@ var Admin;
                     return;
                 }
                 this.blurRow();
+                const $leaf = Html.get('> div[data-role=leaf]', $row);
                 const headerHeight = this.$getHeader().getOuterHeight();
                 const contentHeight = this.$getContent().getHeight();
-                const offset = $row.getPosition();
+                const offset = $leaf.getPosition();
                 const scroll = this.getScrollbar().getPosition();
                 const top = offset.top;
-                const bottom = top + $row.getOuterHeight();
+                const bottom = top + $leaf.getOuterHeight();
                 if (top - 1 < headerHeight) {
                     const minScroll = 0;
                     const y = Math.max(top + scroll.y - headerHeight - 1, minScroll);
@@ -358,8 +363,23 @@ var Admin;
                 const $row = this.$getRow(treeIndex);
                 if ($row === null || $row.hasClass('edge') == true)
                     return;
-                // @todo 리모트 확장이 필요한지 확인
-                $row.addClass('expanded');
+                const record = $row.getData('record');
+                if (record.isExpanded() === true) {
+                    $row.addClass('expanded');
+                }
+                else {
+                    const $leaf = Html.get('> div[data-role=leaf]', $row);
+                    const $toggle = Html.get('> div[data-role=column] > div[data-role=toggle] > button', $leaf);
+                    $toggle.disable();
+                    await this.getStore().expand(treeIndex);
+                    $toggle.enable();
+                    $row.addClass('expanded');
+                }
+                const depth = record.getParents().length;
+                if (this.expandedRows.has(depth) == false) {
+                    this.expandedRows.set(depth, new Map());
+                }
+                this.expandedRows.get(depth).set(record.getHash(), record);
             }
             /**
              * 트리를 축소한다.
@@ -371,6 +391,12 @@ var Admin;
                 if ($row === null || $row.hasClass('edge') == true)
                     return;
                 $row.removeClass('expanded');
+                const record = $row.getData('record');
+                const depth = record.getParents().length;
+                if (this.expandedRows.has(depth) == false) {
+                    return;
+                }
+                this.expandedRows.get(depth).delete(record.getHash());
             }
             /**
              * 트리를 토글한다.
@@ -394,7 +420,7 @@ var Admin;
              * @param {number|boolean} depth - 확장할 깊이 (true인 경우 전체를 확장한다.)
              */
             async expandAll(depth, parents = []) {
-                if (depth === false || (depth !== true && parents.length < depth)) {
+                if (depth === false || (depth !== true && parents.length > depth)) {
                     return;
                 }
                 if (parents.length == 0) {
@@ -545,6 +571,31 @@ var Admin;
                                 Html.get('> div[data-role=leaf]', $row).addClass('selected');
                             }
                         }
+                    }
+                }
+            }
+            /**
+             * 데이터가 변경되거나 다시 로딩되었을 때 이전 확장아이템이 있다면 복구한다.
+             */
+            async restoreExpandedRows() {
+                if (this.expandedRows.size > 0) {
+                    let depth = 0;
+                    while (true) {
+                        if (this.expandedRows.has(depth) == false) {
+                            return;
+                        }
+                        for (const expandedRow of this.expandedRows.get(depth).values()) {
+                            const treeIndex = this.getStore().matchIndex(expandedRow);
+                            if (treeIndex !== null) {
+                                await this.expandRow(treeIndex);
+                            }
+                        }
+                        depth++;
+                    }
+                }
+                else {
+                    if (this.expandedDepth !== false) {
+                        await this.expandAll(this.expandedDepth);
                     }
                 }
             }
@@ -1042,12 +1093,37 @@ var Admin;
             onUpdate() {
                 this.focusedCell = { treeIndex: null, columnIndex: null };
                 this.renderBody();
-                this.restoreSelections();
                 this.updateHeader();
-                if (this.expandedDepth !== false) {
-                    this.expandAll(this.expandedDepth);
-                }
+                this.restoreExpandedRows().then(() => {
+                    this.restoreSelections();
+                });
                 this.fireEvent('update', [this, this.getStore()]);
+            }
+            /**
+             * 자식데이터가 변경되었을 때 이벤트를 처리한다.
+             *
+             * @param {Admin.TreeData.Record} record
+             */
+            onUpdateChildren(record) {
+                const treeIndex = this.getStore().matchIndex(record);
+                if (treeIndex == null) {
+                    return;
+                }
+                const $row = this.$getRow(treeIndex);
+                if (record.hasChild() == true) {
+                    const $tree = Html.get('div[data-role=tree]', $row);
+                    $tree.empty();
+                    record.getChildren().forEach((child, childIndex) => {
+                        $tree.append(this.$getRow([...treeIndex, childIndex], child));
+                    });
+                    $row.addClass('expandable');
+                }
+                else {
+                    if (Html.get('div[data-role=tree]', $row).getEl() !== null) {
+                        Html.get('div[data-role=tree]', $row).remove();
+                    }
+                    $row.addClass('edge');
+                }
             }
             /**
              * 클립보드 이벤트를 처리한다.
@@ -1507,6 +1583,9 @@ var Admin;
                         this.getTree().focusCell(treeIndex, 0);
                         e.stopImmediatePropagation();
                         e.preventDefault();
+                    });
+                    $button.on('dblclick', (e) => {
+                        e.stopImmediatePropagation();
                     });
                     $toggle.append($button);
                     $column.append($toggle);
