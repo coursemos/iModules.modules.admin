@@ -24,36 +24,17 @@ if ($me->isAdministrator() == false) {
     return;
 }
 
+$mode = Request::get('mode') ?? 'tree';
+
+/**
+ * @var \modules\admin\AdminAdmin $mAdmin
+ */
+$mAdmin = $me->getAdmin();
+
 Cache::remove('contexts');
 $host = Request::get('host', true);
 $language = Request::get('language', true);
 $site = Sites::get($host, $language);
 
-$index = $site->getIndex();
-$tree = $index->getTree();
-
-$records = [];
-foreach ($tree as $index => $context) {
-    $record = new stdClass();
-    $record->host = $context->getHost();
-    $record->language = $context->getLanguage();
-    $record->path = $context->getPath();
-    $record->title = $context->getTitle();
-    $record->type = $context->getType();
-    $record->sort = $index; //$context->getSort();
-
-    if ($index != $context->getSort()) {
-        iModules::db()
-            ->update(iModules::table('contexts'), ['sort' => $index])
-            ->where('host', $context->getHost())
-            ->where('language', $context->getLanguage())
-            ->where('path', $context->getPath())
-            ->execute();
-    }
-
-    $records[] = $record;
-}
-
 $results->success = true;
-$results->records = $records;
-$results->site = $site->getSitemap();
+$results->records = $mAdmin->getSitemapContexts($site, $mode);
