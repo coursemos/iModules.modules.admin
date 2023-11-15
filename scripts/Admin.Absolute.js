@@ -43,6 +43,10 @@ var Admin;
             }
             if (Html.get('section[data-role=admin][data-type=absolutes]', Html.get('body')).getEl() == null) {
                 Admin.Absolute.$absolutes = Html.create('section', { 'data-role': 'admin', 'data-type': 'absolutes' });
+                Admin.Absolute.$absolutes.on('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                });
                 Html.get('body').append(Admin.Absolute.$absolutes);
             }
             else {
@@ -111,11 +115,11 @@ var Admin;
                 }
                 if (targetRect.left + absoluteRect.width > windowRect.width) {
                     position.right = windowRect.width - targetRect.right;
-                    position.maxWidth = windowRect.width - position.right - 10;
+                    position.maxWidth = windowRect.width - position.right;
                 }
                 else {
                     position.left = targetRect.left;
-                    position.maxWidth = windowRect.width - position.left - 10;
+                    position.maxWidth = windowRect.width - position.left;
                 }
             }
             return position;
