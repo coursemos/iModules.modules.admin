@@ -99,7 +99,7 @@ var Admin;
          * @return {number} count
          */
         getCount() {
-            return this.count ?? 0;
+            return this.data?.getCount() ?? 0;
         }
         /**
          * 데이터를 불러오기 위한 매개변수를 설정한다.
@@ -167,7 +167,7 @@ var Admin;
          *
          * @param {Object|Object[]} record
          */
-        add(record) {
+        async add(record) {
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record;
@@ -176,7 +176,7 @@ var Admin;
                 records.push(record);
             }
             this.data?.add(records);
-            this.onUpdate();
+            await this.onUpdate();
         }
         /**
          * 데이터를 가져온다.
@@ -273,12 +273,11 @@ var Admin;
         async multiSort(sorters) {
             this.sorters = sorters;
             if (this.remoteSort == true) {
-                this.reload();
+                await this.reload();
             }
             else {
-                this.data?.sort(this.sorters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.sort(this.sorters);
+                await this.onUpdate();
             }
         }
         /**
@@ -296,38 +295,37 @@ var Admin;
          * @param {any} value - 필터링에 사용할 기준값
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
-        setFilter(field, value, operator = '=') {
+        async setFilter(field, value, operator = '=') {
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
-            this.filter();
+            await this.filter();
         }
         /**
          * 특정 필드의 필터를 제거한다.
          *
          * @param {string} field
          */
-        removeFilter(field) {
+        async removeFilter(field) {
             delete this.filters[field];
-            this.filter();
+            await this.filter();
         }
         /**
          * 모든 필터를 초기화한다.
          */
-        resetFilter() {
+        async resetFilter() {
             this.filters = null;
-            this.filter();
+            await this.filter();
         }
         /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter() {
             if (this.remoteFilter === true) {
-                this.reload();
+                await this.reload();
             }
             else {
-                this.data?.filter(this.filters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.filter(this.filters);
+                await this.onUpdate();
             }
         }
         /**
@@ -339,37 +337,31 @@ var Admin;
         /**
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
-        onLoad() {
+        async onLoad() {
             this.fireEvent('load', [this, this.data]);
-            this.onUpdate();
+            await this.onUpdate();
         }
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
-        onUpdate() {
+        async onUpdate() {
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {
-                    this.reload();
+                    await this.reload();
                 }
                 else {
-                    this.data?.sort(this.sorters).then(() => {
-                        this.onUpdate();
-                    });
+                    await this.data?.sort(this.sorters);
                 }
             }
-            else if (Format.isEqual(this.data?.filters, this.filters) == false) {
+            if (Format.isEqual(this.data?.filters, this.filters) == false) {
                 if (this.remoteFilter == true) {
-                    this.reload();
+                    await this.reload();
                 }
                 else {
-                    this.data?.filter(this.filters).then(() => {
-                        this.onUpdate();
-                    });
+                    await this.data?.filter(this.filters);
                 }
             }
-            else {
-                this.fireEvent('update', [this, this.data]);
-            }
+            this.fireEvent('update', [this, this.data]);
         }
     }
     Admin.Store = Store;
@@ -393,7 +385,7 @@ var Admin;
             async load() {
                 this.onBeforeLoad();
                 if (this.loaded == true) {
-                    this.onLoad();
+                    await this.onLoad();
                     return this;
                 }
                 const records = [];
@@ -413,7 +405,7 @@ var Admin;
                 this.data = new Admin.Data(records, this.fields, this.primaryKeys);
                 this.count = records.length;
                 this.total = this.count;
-                this.onLoad();
+                await this.onLoad();
                 return this;
             }
             /**
@@ -448,14 +440,14 @@ var Admin;
             async load() {
                 this.onBeforeLoad();
                 if (this.loaded == true) {
-                    this.onLoad();
-                    return;
+                    await this.onLoad();
+                    return this;
                 }
                 if (this.loading == true) {
-                    return;
+                    return this;
                 }
                 this.loading = true;
-                this.params ??= {};
+                const params = { ...this.params };
                 if (this.fields.length > 0) {
                     const fields = [];
                     for (const field of this.fields) {
@@ -466,55 +458,50 @@ var Admin;
                             fields.push(field.name);
                         }
                     }
-                    this.params.fields = fields.join(',');
+                    params.fields = fields.join(',');
                 }
                 if (this.limit > 0) {
-                    this.params.start = (this.page - 1) * this.limit;
-                    this.params.limit = this.limit;
+                    params.start = (this.page - 1) * this.limit;
+                    params.limit = this.limit;
                 }
                 if (this.remoteSort == true) {
                     if (this.sorters === null) {
-                        this.params.sorters = null;
+                        params.sorters = null;
                     }
                     else {
-                        this.params.sorters = JSON.stringify(this.sorters);
+                        params.sorters = JSON.stringify(this.sorters);
                     }
                 }
                 if (this.remoteFilter == true) {
                     if (this.filters === null) {
-                        this.params.filters = null;
+                        params.filters = null;
                     }
                     else {
-                        this.params.filters = JSON.stringify(this.filters);
+                        params.filters = JSON.stringify(this.filters);
                     }
                 }
-                Admin.Ajax.get(this.url, this.params)
-                    .then((results) => {
-                    if (results.success == true) {
-                        this.loaded = true;
-                        this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
-                        this.count = results[this.recordsField].length;
-                        this.total = results[this.totalField] ?? this.count;
-                        if (this.remoteSort == true) {
-                            const sorters = this.params?.sorters ? JSON.parse(this.params.sorters) : null;
-                            this.data.sort(sorters, false);
-                        }
-                        if (this.remoteFilter == true) {
-                            const filters = this.params?.filters ? JSON.parse(this.params.filters) : null;
-                            this.data.filter(filters, false);
-                        }
-                        this.loading = false;
-                        this.onLoad();
+                const results = await Admin.Ajax.get(this.url, params);
+                if (results.success == true) {
+                    this.loaded = true;
+                    this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
+                    this.count = results[this.recordsField].length;
+                    this.total = results[this.totalField] ?? this.count;
+                    if (this.remoteSort == true) {
+                        const sorters = params.sorters ? JSON.parse(params.sorters) : null;
+                        this.data.sort(sorters, false);
+                    }
+                    if (this.remoteFilter == true) {
+                        const filters = params.filters ? JSON.parse(params.filters) : null;
+                        this.data.filter(filters, false);
                     }
                     this.loading = false;
-                    return this;
-                })
-                    .catch((e) => {
-                    console.error(e);
-                    this.loading = false;
+                    await this.onLoad();
+                }
+                else {
                     this.loaded = false;
-                    return this;
-                });
+                }
+                this.loading = false;
+                return this;
             }
             /**
              * 현재 데이터를 새로고침한다.

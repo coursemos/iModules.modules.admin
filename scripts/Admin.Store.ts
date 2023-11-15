@@ -168,7 +168,7 @@ namespace Admin {
          * @return {number} count
          */
         getCount(): number {
-            return this.count ?? 0;
+            return this.data?.getCount() ?? 0;
         }
 
         /**
@@ -244,7 +244,7 @@ namespace Admin {
          *
          * @param {Object|Object[]} record
          */
-        add(record: { [key: string]: any } | { [key: string]: any }[]): void {
+        async add(record: { [key: string]: any } | { [key: string]: any }[]): Promise<void> {
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record as { [key: string]: any }[];
@@ -252,7 +252,7 @@ namespace Admin {
                 records.push(record);
             }
             this.data?.add(records);
-            this.onUpdate();
+            await this.onUpdate();
         }
 
         /**
@@ -361,11 +361,10 @@ namespace Admin {
         async multiSort(sorters: { [field: string]: 'ASC' | 'DESC' }): Promise<void> {
             this.sorters = sorters;
             if (this.remoteSort == true) {
-                this.reload();
+                await this.reload();
             } else {
-                this.data?.sort(this.sorters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.sort(this.sorters);
+                await this.onUpdate();
             }
         }
 
@@ -385,10 +384,10 @@ namespace Admin {
          * @param {any} value - 필터링에 사용할 기준값
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
-        setFilter(field: string, value: any, operator: string = '='): void {
+        async setFilter(field: string, value: any, operator: string = '='): Promise<void> {
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
-            this.filter();
+            await this.filter();
         }
 
         /**
@@ -396,17 +395,17 @@ namespace Admin {
          *
          * @param {string} field
          */
-        removeFilter(field: string): void {
+        async removeFilter(field: string): Promise<void> {
             delete this.filters[field];
-            this.filter();
+            await this.filter();
         }
 
         /**
          * 모든 필터를 초기화한다.
          */
-        resetFilter(): void {
+        async resetFilter(): Promise<void> {
             this.filters = null;
-            this.filter();
+            await this.filter();
         }
 
         /**
@@ -414,11 +413,10 @@ namespace Admin {
          */
         async filter(): Promise<void> {
             if (this.remoteFilter === true) {
-                this.reload();
+                await this.reload();
             } else {
-                this.data?.filter(this.filters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.filter(this.filters);
+                await this.onUpdate();
             }
         }
 
@@ -432,34 +430,32 @@ namespace Admin {
         /**
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
-        onLoad(): void {
+        async onLoad(): Promise<void> {
             this.fireEvent('load', [this, this.data]);
-            this.onUpdate();
+            await this.onUpdate();
         }
 
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
-        onUpdate(): void {
+        async onUpdate(): Promise<void> {
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {
-                    this.reload();
+                    await this.reload();
                 } else {
-                    this.data?.sort(this.sorters).then(() => {
-                        this.onUpdate();
-                    });
+                    await this.data?.sort(this.sorters);
                 }
-            } else if (Format.isEqual(this.data?.filters, this.filters) == false) {
-                if (this.remoteFilter == true) {
-                    this.reload();
-                } else {
-                    this.data?.filter(this.filters).then(() => {
-                        this.onUpdate();
-                    });
-                }
-            } else {
-                this.fireEvent('update', [this, this.data]);
             }
+
+            if (Format.isEqual(this.data?.filters, this.filters) == false) {
+                if (this.remoteFilter == true) {
+                    await this.reload();
+                } else {
+                    await this.data?.filter(this.filters);
+                }
+            }
+
+            this.fireEvent('update', [this, this.data]);
         }
     }
 
@@ -496,7 +492,7 @@ namespace Admin {
                 this.onBeforeLoad();
 
                 if (this.loaded == true) {
-                    this.onLoad();
+                    await this.onLoad();
                     return this;
                 }
 
@@ -517,7 +513,7 @@ namespace Admin {
                 this.count = records.length;
                 this.total = this.count;
 
-                this.onLoad();
+                await this.onLoad();
 
                 return this;
             }
@@ -592,17 +588,17 @@ namespace Admin {
                 this.onBeforeLoad();
 
                 if (this.loaded == true) {
-                    this.onLoad();
-                    return;
+                    await this.onLoad();
+                    return this;
                 }
 
                 if (this.loading == true) {
-                    return;
+                    return this;
                 }
 
                 this.loading = true;
 
-                this.params ??= {};
+                const params = { ...this.params };
 
                 if (this.fields.length > 0) {
                     const fields = [];
@@ -613,64 +609,57 @@ namespace Admin {
                             fields.push(field.name);
                         }
                     }
-                    this.params.fields = fields.join(',');
+                    params.fields = fields.join(',');
                 }
 
                 if (this.limit > 0) {
-                    this.params.start = (this.page - 1) * this.limit;
-                    this.params.limit = this.limit;
+                    params.start = (this.page - 1) * this.limit;
+                    params.limit = this.limit;
                 }
 
                 if (this.remoteSort == true) {
                     if (this.sorters === null) {
-                        this.params.sorters = null;
+                        params.sorters = null;
                     } else {
-                        this.params.sorters = JSON.stringify(this.sorters);
+                        params.sorters = JSON.stringify(this.sorters);
                     }
                 }
 
                 if (this.remoteFilter == true) {
                     if (this.filters === null) {
-                        this.params.filters = null;
+                        params.filters = null;
                     } else {
-                        this.params.filters = JSON.stringify(this.filters);
+                        params.filters = JSON.stringify(this.filters);
                     }
                 }
 
-                Admin.Ajax.get(this.url, this.params)
-                    .then((results: Admin.Ajax.Results) => {
-                        if (results.success == true) {
-                            this.loaded = true;
-                            this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
-                            this.count = results[this.recordsField].length;
-                            this.total = results[this.totalField] ?? this.count;
+                const results = await Admin.Ajax.get(this.url, params);
+                if (results.success == true) {
+                    this.loaded = true;
+                    this.data = new Admin.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
+                    this.count = results[this.recordsField].length;
+                    this.total = results[this.totalField] ?? this.count;
 
-                            if (this.remoteSort == true) {
-                                const sorters = this.params?.sorters ? JSON.parse(this.params.sorters) : null;
-                                this.data.sort(sorters, false);
-                            }
+                    if (this.remoteSort == true) {
+                        const sorters = params.sorters ? JSON.parse(params.sorters) : null;
+                        this.data.sort(sorters, false);
+                    }
 
-                            if (this.remoteFilter == true) {
-                                const filters = this.params?.filters ? JSON.parse(this.params.filters) : null;
-                                this.data.filter(filters, false);
-                            }
+                    if (this.remoteFilter == true) {
+                        const filters = params.filters ? JSON.parse(params.filters) : null;
+                        this.data.filter(filters, false);
+                    }
 
-                            this.loading = false;
+                    this.loading = false;
 
-                            this.onLoad();
-                        }
+                    await this.onLoad();
+                } else {
+                    this.loaded = false;
+                }
 
-                        this.loading = false;
+                this.loading = false;
 
-                        return this;
-                    })
-                    .catch((e) => {
-                        console.error(e);
-                        this.loading = false;
-                        this.loaded = false;
-
-                        return this;
-                    });
+                return this;
             }
 
             /**
