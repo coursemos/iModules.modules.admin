@@ -101,6 +101,15 @@ namespace Admin {
         }
 
         /**
+         * 데이터 갯수를 가져온다.
+         *
+         * @return {number} count
+         */
+        getCount(): number {
+            return this.records.length;
+        }
+
+        /**
          * 데이터를 추가한다.
          *
          * @param {Object[]} records
@@ -324,23 +333,32 @@ namespace Admin {
             }
 
             /**
+             * 고유값을 가져온다.
+             *
+             * @return {Object} primary
+             */
+            getPrimary(): { [key: string]: any } {
+                let primaryKeys = {};
+                let keys = this.primaryKeys;
+                if (keys.length == 0) {
+                    keys = this.getKeys();
+                }
+
+                for (const key of keys) {
+                    primaryKeys[key] = this.data[key] ?? null;
+                }
+
+                return primaryKeys;
+            }
+
+            /**
              * 데이터의 고유값 해시(SHA1)를 가져온다.
              *
              * @returns {string} hash
              */
             getHash(): string {
                 if (this.hash === undefined) {
-                    let primaryKeys = {};
-                    let keys = this.primaryKeys;
-                    if (keys.length == 0) {
-                        keys = this.getKeys();
-                    }
-
-                    for (const key of keys) {
-                        primaryKeys[key] = this.data[key] ?? null;
-                    }
-
-                    this.hash = Format.sha1(JSON.stringify(primaryKeys));
+                    this.hash = Format.sha1(JSON.stringify(this.getPrimary()));
                 }
 
                 return this.hash;
