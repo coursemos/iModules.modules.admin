@@ -25,6 +25,15 @@ namespace Admin {
              * @type {Function} update - 데이터스토어가 변경되었을 때
              */
             update?: (store: Admin.TreeStore, records: Admin.TreeData) => void;
+
+            /**
+             * @type {Function} updateChildren - 자식데이터가 변경되었을 때
+             */
+            updateChildren?: (
+                store: Admin.TreeStore,
+                record: Admin.TreeData.Record,
+                children: Admin.TreeData.Record[]
+            ) => void;
         }
 
         export interface Properties extends Admin.Base.Properties {
@@ -59,9 +68,14 @@ namespace Admin {
             remoteSort?: boolean;
 
             /**
-             * @type {Function} remoteSort - store 외부에서 자식 데이터를 확장할지 여부
+             * @type {boolean} remoteExpand - store 외부에서 자식 데이터를 확장할지 여부
              */
-            remoteExpand?: (record: Admin.TreeData.Record) => Admin.TreeData.Record[];
+            remoteExpand?: boolean;
+
+            /**
+             * @type {Function} remoteExpander - 외부 확장을 위한 확장함수
+             */
+            remoteExpander?: (record: Admin.TreeData.Record) => Promise<{ [key: string]: object }[]>;
 
             /**
              * @type {Object} filters - 데이터 필터
@@ -89,7 +103,8 @@ namespace Admin {
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
         remoteFilter: boolean = false;
-        remoteExpand: (record: Admin.TreeData.Record) => Admin.TreeData.Record[];
+        remoteExpand: boolean = false;
+        remoteExpander: (record: Admin.TreeData.Record) => Promise<{ [key: string]: object }[]>;
         loading: boolean = false;
         loaded: boolean = false;
         data: Admin.TreeData;
@@ -112,7 +127,8 @@ namespace Admin {
             this.params = this.properties.params ?? null;
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
-            this.remoteExpand = this.properties.remoteExpand ?? null;
+            this.remoteExpand = this.properties.remoteExpand === true;
+            this.remoteExpander = this.properties.remoteExpander ?? null;
             this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
 
@@ -182,7 +198,7 @@ namespace Admin {
          * @return {number} count
          */
         getCount(): number {
-            return this.count ?? 0;
+            return this.data?.getCount() ?? 0;
         }
 
         /**
@@ -275,7 +291,7 @@ namespace Admin {
          * @param {Object|Object[]} record
          * @param {number[]} parents - 부모인덱스
          */
-        add(record: { [key: string]: any } | { [key: string]: any }[], parents: number[] = []): void {
+        async add(record: { [key: string]: any } | { [key: string]: any }[], parents: number[] = []): Promise<void> {
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record as { [key: string]: any }[];
@@ -283,7 +299,7 @@ namespace Admin {
                 records.push(record);
             }
             this.data?.add(records);
-            this.onUpdate();
+            await this.onUpdate();
         }
 
         /**
@@ -297,6 +313,58 @@ namespace Admin {
          * 현재 데이터를 새로고침한다.
          */
         async reload(): Promise<Admin.TreeStore> {
+            return this;
+        }
+
+        /**
+         * 자식 데이터를 확장한다.
+         *
+         * @param {number[]|Admin.TreeData.Record} index - 확장할 인덱스 또는 레코드
+         */
+        async expand(index: number[] | Admin.TreeData.Record): Promise<Admin.TreeStore> {
+            const record = index instanceof Admin.TreeData.Record ? index : this.get(index);
+            if (this.remoteExpander !== null) {
+                const children = await this.remoteExpander(record);
+                record.setChildren(children);
+                await this.onUpdateChildren(record);
+            } else {
+                await this.loadChildren(record);
+            }
+
+            return this;
+        }
+
+        /**
+         * 전체 데이터의 자식 데이터를 확장한다.
+         *
+         * @param {number|boolean} depth - 확장할 깊이 (true인 경우 전체를 확장한다.)
+         */
+        async expandAll(depth: number | boolean, parents: number[] = []): Promise<void> {
+            if (depth === false || (depth !== true && parents.length > depth)) {
+                return;
+            }
+
+            if (parents.length == 0) {
+                for (let i = 0; i < this.getData().getCount(); i++) {
+                    await this.expandAll(depth, [i]);
+                }
+            } else {
+                const record = this.get(parents);
+                if (record.hasChild() == true) {
+                    await this.expand(parents);
+                    for (let i = 0, loop = record.getChildren().length; i < loop; i++) {
+                        await this.expandAll(depth, [...parents, i]);
+                    }
+                }
+            }
+        }
+
+        /**
+         * 자식데이터를 불러온다.
+         *
+         * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+         */
+        async loadChildren(record: Admin.TreeData.Record): Promise<Admin.TreeStore> {
             return this;
         }
 
@@ -417,10 +485,10 @@ namespace Admin {
          * @param {string} field - 정렬할 필드명
          * @param {string} direction - 정렬방향 (asc, desc)
          */
-        sort(field: string, direction: string): void {
+        async sort(field: string, direction: string): Promise<void> {
             let sorters = {};
             sorters[field] = direction;
-            this.multiSort(sorters);
+            await this.multiSort(sorters);
         }
 
         /**
@@ -433,9 +501,8 @@ namespace Admin {
             if (this.remoteSort == true) {
                 this.reload();
             } else {
-                this.data?.sort(this.sorters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.sort(this.sorters);
+                await this.onUpdate();
             }
         }
 
@@ -455,10 +522,10 @@ namespace Admin {
          * @param {any} value - 필터링에 사용할 기준값
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
-        setFilter(field: string, value: any, operator: string = '='): void {
+        async setFilter(field: string, value: any, operator: string = '='): Promise<void> {
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
-            this.filter();
+            await this.filter();
         }
 
         /**
@@ -466,17 +533,17 @@ namespace Admin {
          *
          * @param {string} field
          */
-        removeFilter(field: string): void {
+        async removeFilter(field: string): Promise<void> {
             delete this.filters[field];
-            this.filter();
+            await this.filter();
         }
 
         /**
          * 모든 필터를 초기화한다.
          */
-        resetFilter(): void {
+        async resetFilter(): Promise<void> {
             this.filters = null;
-            this.filter();
+            await this.filter();
         }
 
         /**
@@ -484,11 +551,10 @@ namespace Admin {
          */
         async filter(): Promise<void> {
             if (this.remoteFilter === true) {
-                this.reload();
+                await this.reload();
             } else {
-                this.data?.filter(this.filters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.filter(this.filters);
+                await this.onUpdate();
             }
         }
 
@@ -502,34 +568,55 @@ namespace Admin {
         /**
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
-        onLoad(): void {
+        async onLoad(): Promise<void> {
             this.fireEvent('load', [this, this.data]);
-            this.onUpdate();
+            await this.onUpdate();
         }
 
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
-        onUpdate(): void {
+        async onUpdate(): Promise<void> {
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {
-                    this.reload();
+                    await this.reload();
                 } else {
-                    this.data?.sort(this.sorters).then(() => {
-                        this.onUpdate();
-                    });
+                    await this.data?.sort(this.sorters);
                 }
-            } else if (Format.isEqual(this.data?.filters, this.filters) == false) {
-                if (this.remoteFilter == true) {
-                    this.reload();
-                } else {
-                    this.data?.filter(this.filters).then(() => {
-                        this.onUpdate();
-                    });
-                }
-            } else {
-                this.fireEvent('update', [this, this.data]);
             }
+
+            if (Format.isEqual(this.data?.filters, this.filters) == false) {
+                if (this.remoteFilter == true) {
+                    await this.reload();
+                } else {
+                    await this.data?.filter(this.filters);
+                }
+            }
+
+            this.fireEvent('update', [this, this.data]);
+        }
+
+        /**
+         * 자식 데이터가 변경되었을 때 이벤트를 처리한다.
+         *
+         * @param {Admin.TreeData.Record} record
+         */
+        async onUpdateChildren(record: Admin.TreeData.Record): Promise<void> {
+            if (Format.isEqual(record.sorters, this.sorters) == false) {
+                if (this.remoteSort == true) {
+                    await this.loadChildren(record);
+                } else {
+                    await record.sort(this.sorters);
+                }
+            } else if (Format.isEqual(record.filters, this.filters) == false) {
+                if (this.remoteFilter == true) {
+                    await this.loadChildren(record);
+                } else {
+                    await record.filter(this.filters);
+                }
+            }
+
+            this.fireEvent('updateChildren', [this, record, record.getChildren()]);
         }
     }
 
@@ -566,7 +653,7 @@ namespace Admin {
                 this.onBeforeLoad();
 
                 if (this.loaded == true) {
-                    this.onLoad();
+                    await this.onLoad();
                     return this;
                 }
 
@@ -587,7 +674,7 @@ namespace Admin {
                 this.count = records.length;
                 this.total = this.count;
 
-                this.onLoad();
+                await this.onLoad();
 
                 return this;
             }
@@ -662,17 +749,17 @@ namespace Admin {
                 this.onBeforeLoad();
 
                 if (this.loaded == true) {
-                    this.onLoad();
-                    return;
+                    await this.onLoad();
+                    return this;
                 }
 
                 if (this.loading == true) {
-                    return;
+                    return this;
                 }
 
                 this.loading = true;
 
-                this.params ??= {};
+                const params = { ...this.params };
 
                 if (this.fields.length > 0) {
                     const fields = [];
@@ -683,69 +770,62 @@ namespace Admin {
                             fields.push(field.name);
                         }
                     }
-                    this.params.fields = fields.join(',');
+                    params.fields = fields.join(',');
                 }
 
                 if (this.limit > 0) {
-                    this.params.start = (this.page - 1) * this.limit;
-                    this.params.limit = this.limit;
+                    params.start = (this.page - 1) * this.limit;
+                    params.limit = this.limit;
                 }
 
                 if (this.remoteSort == true) {
                     if (this.sorters === null) {
-                        this.params.sorters = null;
+                        params.sorters = null;
                     } else {
-                        this.params.sorters = JSON.stringify(this.sorters);
+                        params.sorters = JSON.stringify(this.sorters);
                     }
                 }
 
                 if (this.remoteFilter == true) {
                     if (this.filters === null) {
-                        this.params.filters = null;
+                        params.filters = null;
                     } else {
-                        this.params.filters = JSON.stringify(this.filters);
+                        params.filters = JSON.stringify(this.filters);
                     }
                 }
 
-                Admin.Ajax.get(this.url, this.params)
-                    .then((results: Admin.Ajax.Results) => {
-                        if (results.success == true) {
-                            this.loaded = true;
-                            this.data = new Admin.TreeData(
-                                results[this.recordsField] ?? [],
-                                this.fields,
-                                this.primaryKeys,
-                                this.childrenField
-                            );
-                            this.count = results[this.recordsField].length;
-                            this.total = results[this.totalField] ?? this.count;
+                const results = await Admin.Ajax.get(this.url, params);
+                if (results.success == true) {
+                    this.loaded = true;
+                    this.data = new Admin.TreeData(
+                        results[this.recordsField] ?? [],
+                        this.fields,
+                        this.primaryKeys,
+                        this.childrenField
+                    );
+                    this.count = results[this.recordsField].length;
+                    this.total = results[this.totalField] ?? this.count;
 
-                            if (this.remoteSort == true) {
-                                const sorters = this.params?.sorters ? JSON.parse(this.params.sorters) : null;
-                                this.data.sort(sorters, false);
-                            }
+                    if (this.remoteSort == true) {
+                        const sorters = params.sorters ? JSON.parse(params.sorters) : null;
+                        this.data.sort(sorters, false);
+                    }
 
-                            if (this.remoteFilter == true) {
-                                const filters = this.params?.filters ? JSON.parse(this.params.filters) : null;
-                                this.data.filter(filters, false);
-                            }
+                    if (this.remoteFilter == true) {
+                        const filters = params.filters ? JSON.parse(params.filters) : null;
+                        this.data.filter(filters, false);
+                    }
 
-                            this.loading = false;
+                    this.loading = false;
 
-                            this.onLoad();
-                        }
+                    await this.onLoad();
+                } else {
+                    this.loaded = false;
+                }
 
-                        this.loading = false;
+                this.loading = false;
 
-                        return this;
-                    })
-                    .catch((e) => {
-                        console.error(e);
-                        this.loading = false;
-                        this.loaded = false;
-
-                        return this;
-                    });
+                return this;
             }
 
             /**
@@ -754,6 +834,63 @@ namespace Admin {
             async reload(): Promise<Admin.TreeStore.Ajax> {
                 this.loaded = false;
                 return await this.load();
+            }
+
+            /**
+             * 자식데이터를 불러온다.
+             *
+             * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+             */
+            async loadChildren(record: Admin.TreeData.Record): Promise<Admin.TreeStore.Ajax> {
+                const params = { ...this.params };
+                params.parent = JSON.stringify(record.getPrimary());
+
+                if (this.fields.length > 0) {
+                    const fields = [];
+                    for (const field of this.fields) {
+                        if (typeof field == 'string') {
+                            fields.push(field);
+                        } else if (field?.name !== undefined) {
+                            fields.push(field.name);
+                        }
+                    }
+                    params.fields = fields.join(',');
+                }
+
+                if (this.remoteSort == true) {
+                    if (this.sorters === null) {
+                        params.sorters = null;
+                    } else {
+                        params.sorters = JSON.stringify(this.sorters);
+                    }
+                }
+
+                if (this.remoteFilter == true) {
+                    if (this.filters === null) {
+                        params.filters = null;
+                    } else {
+                        params.filters = JSON.stringify(this.filters);
+                    }
+                }
+
+                const results = await Admin.Ajax.get(this.url, params);
+                if (results.success == true) {
+                    if (this.remoteSort == true) {
+                        const sorters = params.sorters ? JSON.parse(params.sorters) : null;
+                        this.data.sort(sorters, false);
+                    }
+
+                    if (this.remoteFilter == true) {
+                        const filters = params.filters ? JSON.parse(params.filters) : null;
+                        this.data.filter(filters, false);
+                    }
+
+                    record.setChildren(results.records);
+                    await this.onUpdateChildren(record);
+                } else {
+                }
+
+                return this;
             }
         }
     }

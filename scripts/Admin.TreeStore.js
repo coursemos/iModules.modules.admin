@@ -19,7 +19,8 @@ var Admin;
         remoteSort = false;
         filters;
         remoteFilter = false;
-        remoteExpand;
+        remoteExpand = false;
+        remoteExpander;
         loading = false;
         loaded = false;
         data;
@@ -40,7 +41,8 @@ var Admin;
             this.params = this.properties.params ?? null;
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
-            this.remoteExpand = this.properties.remoteExpand ?? null;
+            this.remoteExpand = this.properties.remoteExpand === true;
+            this.remoteExpander = this.properties.remoteExpander ?? null;
             this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
             if (this.filters !== null) {
@@ -103,7 +105,7 @@ var Admin;
          * @return {number} count
          */
         getCount() {
-            return this.count ?? 0;
+            return this.data?.getCount() ?? 0;
         }
         /**
          * 데이터를 불러오기 위한 매개변수를 설정한다.
@@ -186,7 +188,7 @@ var Admin;
          * @param {Object|Object[]} record
          * @param {number[]} parents - 부모인덱스
          */
-        add(record, parents = []) {
+        async add(record, parents = []) {
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record;
@@ -195,7 +197,7 @@ var Admin;
                 records.push(record);
             }
             this.data?.add(records);
-            this.onUpdate();
+            await this.onUpdate();
         }
         /**
          * 데이터를 가져온다.
@@ -207,6 +209,55 @@ var Admin;
          * 현재 데이터를 새로고침한다.
          */
         async reload() {
+            return this;
+        }
+        /**
+         * 자식 데이터를 확장한다.
+         *
+         * @param {number[]|Admin.TreeData.Record} index - 확장할 인덱스 또는 레코드
+         */
+        async expand(index) {
+            const record = index instanceof Admin.TreeData.Record ? index : this.get(index);
+            if (this.remoteExpander !== null) {
+                const children = await this.remoteExpander(record);
+                record.setChildren(children);
+                await this.onUpdateChildren(record);
+            }
+            else {
+                await this.loadChildren(record);
+            }
+            return this;
+        }
+        /**
+         * 전체 데이터의 자식 데이터를 확장한다.
+         *
+         * @param {number|boolean} depth - 확장할 깊이 (true인 경우 전체를 확장한다.)
+         */
+        async expandAll(depth, parents = []) {
+            if (depth === false || (depth !== true && parents.length > depth)) {
+                return;
+            }
+            if (parents.length == 0) {
+                for (let i = 0; i < this.getData().getCount(); i++) {
+                    await this.expandAll(depth, [i]);
+                }
+            }
+            else {
+                const record = this.get(parents);
+                if (record.hasChild() == true) {
+                    await this.expand(parents);
+                    for (let i = 0, loop = record.getChildren().length; i < loop; i++) {
+                        await this.expandAll(depth, [...parents, i]);
+                    }
+                }
+            }
+        }
+        /**
+         * 자식데이터를 불러온다.
+         *
+         * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+         */
+        async loadChildren(record) {
             return this;
         }
         /**
@@ -310,10 +361,10 @@ var Admin;
          * @param {string} field - 정렬할 필드명
          * @param {string} direction - 정렬방향 (asc, desc)
          */
-        sort(field, direction) {
+        async sort(field, direction) {
             let sorters = {};
             sorters[field] = direction;
-            this.multiSort(sorters);
+            await this.multiSort(sorters);
         }
         /**
          * 데이터를 다중 정렬기준에 따라 정렬한다.
@@ -326,9 +377,8 @@ var Admin;
                 this.reload();
             }
             else {
-                this.data?.sort(this.sorters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.sort(this.sorters);
+                await this.onUpdate();
             }
         }
         /**
@@ -346,38 +396,37 @@ var Admin;
          * @param {any} value - 필터링에 사용할 기준값
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
-        setFilter(field, value, operator = '=') {
+        async setFilter(field, value, operator = '=') {
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
-            this.filter();
+            await this.filter();
         }
         /**
          * 특정 필드의 필터를 제거한다.
          *
          * @param {string} field
          */
-        removeFilter(field) {
+        async removeFilter(field) {
             delete this.filters[field];
-            this.filter();
+            await this.filter();
         }
         /**
          * 모든 필터를 초기화한다.
          */
-        resetFilter() {
+        async resetFilter() {
             this.filters = null;
-            this.filter();
+            await this.filter();
         }
         /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter() {
             if (this.remoteFilter === true) {
-                this.reload();
+                await this.reload();
             }
             else {
-                this.data?.filter(this.filters).then(() => {
-                    this.onUpdate();
-                });
+                await this.data?.filter(this.filters);
+                await this.onUpdate();
             }
         }
         /**
@@ -389,37 +438,55 @@ var Admin;
         /**
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
-        onLoad() {
+        async onLoad() {
             this.fireEvent('load', [this, this.data]);
-            this.onUpdate();
+            await this.onUpdate();
         }
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
-        onUpdate() {
+        async onUpdate() {
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {
-                    this.reload();
+                    await this.reload();
                 }
                 else {
-                    this.data?.sort(this.sorters).then(() => {
-                        this.onUpdate();
-                    });
+                    await this.data?.sort(this.sorters);
                 }
             }
-            else if (Format.isEqual(this.data?.filters, this.filters) == false) {
+            if (Format.isEqual(this.data?.filters, this.filters) == false) {
                 if (this.remoteFilter == true) {
-                    this.reload();
+                    await this.reload();
                 }
                 else {
-                    this.data?.filter(this.filters).then(() => {
-                        this.onUpdate();
-                    });
+                    await this.data?.filter(this.filters);
                 }
             }
-            else {
-                this.fireEvent('update', [this, this.data]);
+            this.fireEvent('update', [this, this.data]);
+        }
+        /**
+         * 자식 데이터가 변경되었을 때 이벤트를 처리한다.
+         *
+         * @param {Admin.TreeData.Record} record
+         */
+        async onUpdateChildren(record) {
+            if (Format.isEqual(record.sorters, this.sorters) == false) {
+                if (this.remoteSort == true) {
+                    await this.loadChildren(record);
+                }
+                else {
+                    await record.sort(this.sorters);
+                }
             }
+            else if (Format.isEqual(record.filters, this.filters) == false) {
+                if (this.remoteFilter == true) {
+                    await this.loadChildren(record);
+                }
+                else {
+                    await record.filter(this.filters);
+                }
+            }
+            this.fireEvent('updateChildren', [this, record, record.getChildren()]);
         }
     }
     Admin.TreeStore = TreeStore;
@@ -443,7 +510,7 @@ var Admin;
             async load() {
                 this.onBeforeLoad();
                 if (this.loaded == true) {
-                    this.onLoad();
+                    await this.onLoad();
                     return this;
                 }
                 const records = [];
@@ -463,7 +530,7 @@ var Admin;
                 this.data = new Admin.TreeData(records, this.fields, this.primaryKeys, this.childrenField);
                 this.count = records.length;
                 this.total = this.count;
-                this.onLoad();
+                await this.onLoad();
                 return this;
             }
             /**
@@ -498,14 +565,14 @@ var Admin;
             async load() {
                 this.onBeforeLoad();
                 if (this.loaded == true) {
-                    this.onLoad();
-                    return;
+                    await this.onLoad();
+                    return this;
                 }
                 if (this.loading == true) {
-                    return;
+                    return this;
                 }
                 this.loading = true;
-                this.params ??= {};
+                const params = { ...this.params };
                 if (this.fields.length > 0) {
                     const fields = [];
                     for (const field of this.fields) {
@@ -516,55 +583,50 @@ var Admin;
                             fields.push(field.name);
                         }
                     }
-                    this.params.fields = fields.join(',');
+                    params.fields = fields.join(',');
                 }
                 if (this.limit > 0) {
-                    this.params.start = (this.page - 1) * this.limit;
-                    this.params.limit = this.limit;
+                    params.start = (this.page - 1) * this.limit;
+                    params.limit = this.limit;
                 }
                 if (this.remoteSort == true) {
                     if (this.sorters === null) {
-                        this.params.sorters = null;
+                        params.sorters = null;
                     }
                     else {
-                        this.params.sorters = JSON.stringify(this.sorters);
+                        params.sorters = JSON.stringify(this.sorters);
                     }
                 }
                 if (this.remoteFilter == true) {
                     if (this.filters === null) {
-                        this.params.filters = null;
+                        params.filters = null;
                     }
                     else {
-                        this.params.filters = JSON.stringify(this.filters);
+                        params.filters = JSON.stringify(this.filters);
                     }
                 }
-                Admin.Ajax.get(this.url, this.params)
-                    .then((results) => {
-                    if (results.success == true) {
-                        this.loaded = true;
-                        this.data = new Admin.TreeData(results[this.recordsField] ?? [], this.fields, this.primaryKeys, this.childrenField);
-                        this.count = results[this.recordsField].length;
-                        this.total = results[this.totalField] ?? this.count;
-                        if (this.remoteSort == true) {
-                            const sorters = this.params?.sorters ? JSON.parse(this.params.sorters) : null;
-                            this.data.sort(sorters, false);
-                        }
-                        if (this.remoteFilter == true) {
-                            const filters = this.params?.filters ? JSON.parse(this.params.filters) : null;
-                            this.data.filter(filters, false);
-                        }
-                        this.loading = false;
-                        this.onLoad();
+                const results = await Admin.Ajax.get(this.url, params);
+                if (results.success == true) {
+                    this.loaded = true;
+                    this.data = new Admin.TreeData(results[this.recordsField] ?? [], this.fields, this.primaryKeys, this.childrenField);
+                    this.count = results[this.recordsField].length;
+                    this.total = results[this.totalField] ?? this.count;
+                    if (this.remoteSort == true) {
+                        const sorters = params.sorters ? JSON.parse(params.sorters) : null;
+                        this.data.sort(sorters, false);
+                    }
+                    if (this.remoteFilter == true) {
+                        const filters = params.filters ? JSON.parse(params.filters) : null;
+                        this.data.filter(filters, false);
                     }
                     this.loading = false;
-                    return this;
-                })
-                    .catch((e) => {
-                    console.error(e);
-                    this.loading = false;
+                    await this.onLoad();
+                }
+                else {
                     this.loaded = false;
-                    return this;
-                });
+                }
+                this.loading = false;
+                return this;
             }
             /**
              * 현재 데이터를 새로고침한다.
@@ -572,6 +634,59 @@ var Admin;
             async reload() {
                 this.loaded = false;
                 return await this.load();
+            }
+            /**
+             * 자식데이터를 불러온다.
+             *
+             * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+             */
+            async loadChildren(record) {
+                const params = { ...this.params };
+                params.parent = JSON.stringify(record.getPrimary());
+                if (this.fields.length > 0) {
+                    const fields = [];
+                    for (const field of this.fields) {
+                        if (typeof field == 'string') {
+                            fields.push(field);
+                        }
+                        else if (field?.name !== undefined) {
+                            fields.push(field.name);
+                        }
+                    }
+                    params.fields = fields.join(',');
+                }
+                if (this.remoteSort == true) {
+                    if (this.sorters === null) {
+                        params.sorters = null;
+                    }
+                    else {
+                        params.sorters = JSON.stringify(this.sorters);
+                    }
+                }
+                if (this.remoteFilter == true) {
+                    if (this.filters === null) {
+                        params.filters = null;
+                    }
+                    else {
+                        params.filters = JSON.stringify(this.filters);
+                    }
+                }
+                const results = await Admin.Ajax.get(this.url, params);
+                if (results.success == true) {
+                    if (this.remoteSort == true) {
+                        const sorters = params.sorters ? JSON.parse(params.sorters) : null;
+                        this.data.sort(sorters, false);
+                    }
+                    if (this.remoteFilter == true) {
+                        const filters = params.filters ? JSON.parse(params.filters) : null;
+                        this.data.filter(filters, false);
+                    }
+                    record.setChildren(results.records);
+                    await this.onUpdateChildren(record);
+                }
+                else {
+                }
+                return this;
             }
         }
         TreeStore.Ajax = Ajax;
