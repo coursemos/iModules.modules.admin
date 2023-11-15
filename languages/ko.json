@@ -102,7 +102,6 @@
             }
         },
         "modules": {
-            "title": "모듈관리",
             "modules": {
                 "title": "모듈명",
                 "version": "버전",
@@ -138,7 +137,6 @@
             }
         },
         "sitemap": {
-            "title": "사이트맵관리",
             "domains": {
                 "add": "도메인추가",
                 "edit": "도메인수정",
@@ -175,6 +173,8 @@
             "contexts": {
                 "add": "컨텍스트추가",
                 "edit": "컨텍스트수정",
+                "delete": "컨텍스트삭제",
+                "delete_confirm": "컨텍스트를 삭제하면, 해당 컨텍스트의 모든 하위 컨텍스트도 삭제됩니다.<br>정말 삭제하시겠습니까?",
                 "default": "기본설정",
                 "path": "경로",
                 "icon": "아이콘",
@@ -213,13 +213,13 @@
             }
         },
         "administrators": {
-            "title": "관리자관리",
             "add": "관리자추가",
             "master": "최고관리자",
             "selected_members": "${count}명 선택됨",
             "unselected_members": "선택회원 없음",
             "deselect_all": "전체 선택해제",
             "component_master": "전체관리자",
+            "name": "관리자명",
             "permissions": "권한",
             "permission_sumamry": "${names}외 ${count}개",
             "type_all": "전체",

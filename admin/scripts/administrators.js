@@ -15,7 +15,7 @@ Admin.ready(async () => {
         border: false,
         layout: 'column',
         iconClass: 'xi xi-user-lock',
-        title: (await me.getText('admin.administrators.title')),
+        title: (await me.getText('admin.contexts.administrators')),
         scrollable: true,
         items: [
             new Admin.Grid.Panel({
@@ -48,13 +48,13 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await mMember.getText('admin.administrators.groups.title')),
+                        text: (await me.getText('admin.administrators.groups.title')),
                         dataIndex: 'title',
                         sortable: 'sort',
                         flex: 1,
                     },
                     {
-                        text: (await mMember.getText('admin.administrators.groups.administrators')),
+                        text: (await me.getText('admin.administrators.groups.administrators')),
                         dataIndex: 'administrators',
                         sortable: true,
                         width: 80,
@@ -162,7 +162,7 @@ Admin.ready(async () => {
                         sortable: true,
                     },
                     {
-                        text: (await mMember.getText('admin.members.name')),
+                        text: (await me.getText('admin.administrators.name')),
                         dataIndex: 'name',
                         width: 150,
                         sortable: true,
@@ -171,7 +171,7 @@ Admin.ready(async () => {
                         },
                     },
                     {
-                        text: (await mMember.getText('admin.administrators.groups.groups')),
+                        text: (await me.getText('admin.administrators.groups.groups')),
                         dataIndex: 'groups',
                         width: 200,
                         renderer: (value) => {

@@ -16,7 +16,7 @@ Admin.ready(async () => {
         border: false,
         layout: 'column',
         iconClass: 'xi xi-user-lock',
-        title: (await me.getText('admin.administrators.title')) as string,
+        title: (await me.getText('admin.contexts.administrators')) as string,
         scrollable: true,
         items: [
             new Admin.Grid.Panel({
@@ -49,13 +49,13 @@ Admin.ready(async () => {
                 ],
                 columns: [
                     {
-                        text: (await mMember.getText('admin.administrators.groups.title')) as string,
+                        text: (await me.getText('admin.administrators.groups.title')) as string,
                         dataIndex: 'title',
                         sortable: 'sort',
                         flex: 1,
                     },
                     {
-                        text: (await mMember.getText('admin.administrators.groups.administrators')) as string,
+                        text: (await me.getText('admin.administrators.groups.administrators')) as string,
                         dataIndex: 'administrators',
                         sortable: true,
                         width: 80,
@@ -164,7 +164,7 @@ Admin.ready(async () => {
                         sortable: true,
                     },
                     {
-                        text: (await mMember.getText('admin.members.name')) as string,
+                        text: (await me.getText('admin.administrators.name')) as string,
                         dataIndex: 'name',
                         width: 150,
                         sortable: true,
@@ -175,7 +175,7 @@ Admin.ready(async () => {
                         },
                     },
                     {
-                        text: (await mMember.getText('admin.administrators.groups.groups')) as string,
+                        text: (await me.getText('admin.administrators.groups.groups')) as string,
                         dataIndex: 'groups',
                         width: 200,
                         renderer: (value) => {
