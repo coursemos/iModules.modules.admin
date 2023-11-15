@@ -24,6 +24,11 @@ namespace Admin {
 
         export interface Properties extends Admin.Component.Properties {
             /**
+             * @type {string} action - 버튼액션명
+             */
+            action?: string;
+
+            /**
              * @type {string} text - 버튼텍스트
              */
             text?: string;
@@ -88,6 +93,7 @@ namespace Admin {
     export class Button extends Admin.Component {
         type: string = 'button';
         role: string = 'button';
+        action: string;
         text: string;
         textAlign: 'center' | 'left' | 'right';
         iconClass: string;
@@ -110,6 +116,7 @@ namespace Admin {
         constructor(properties: Admin.Button.Properties = null) {
             super(properties);
 
+            this.action = this.properties.action ?? null;
             this.text = this.properties.text ?? '';
             this.textAlign = this.properties.textAlign ?? 'center';
             this.iconClass = this.properties.iconClass ?? null;
@@ -234,7 +241,7 @@ namespace Admin {
          * 버튼의 비활성화여부를 설정한다.
          *
          * @param {boolean} disabled - 비활성여부
-         * @return {Admin.Component} this
+         * @return {Admin.Button} this
          */
         setDisabled(disabled: boolean): this {
             if (disabled == true) {
@@ -244,6 +251,23 @@ namespace Admin {
             }
 
             return super.setDisabled(disabled);
+        }
+
+        /**
+         * 버튼의 로딩상태여부를 설정한다.
+         *
+         * @param {boolean} loading - 로딩상태여부
+         * @return {Admin.Button} this
+         */
+        setLoading(loading: boolean): this {
+            if (loading == true) {
+                this.$getButton().addClass('loading');
+            } else {
+                this.$getButton().removeClass('loading');
+            }
+
+            this.setDisabled(loading);
+            return this;
         }
 
         /**

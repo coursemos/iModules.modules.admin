@@ -13,6 +13,7 @@ var Admin;
     class Button extends Admin.Component {
         type = 'button';
         role = 'button';
+        action;
         text;
         textAlign;
         iconClass;
@@ -31,6 +32,7 @@ var Admin;
          */
         constructor(properties = null) {
             super(properties);
+            this.action = this.properties.action ?? null;
             this.text = this.properties.text ?? '';
             this.textAlign = this.properties.textAlign ?? 'center';
             this.iconClass = this.properties.iconClass ?? null;
@@ -150,7 +152,7 @@ var Admin;
          * 버튼의 비활성화여부를 설정한다.
          *
          * @param {boolean} disabled - 비활성여부
-         * @return {Admin.Component} this
+         * @return {Admin.Button} this
          */
         setDisabled(disabled) {
             if (disabled == true) {
@@ -160,6 +162,22 @@ var Admin;
                 this.$getButton().removeAttr('disabled');
             }
             return super.setDisabled(disabled);
+        }
+        /**
+         * 버튼의 로딩상태여부를 설정한다.
+         *
+         * @param {boolean} loading - 로딩상태여부
+         * @return {Admin.Button} this
+         */
+        setLoading(loading) {
+            if (loading == true) {
+                this.$getButton().addClass('loading');
+            }
+            else {
+                this.$getButton().removeClass('loading');
+            }
+            this.setDisabled(loading);
+            return this;
         }
         /**
          * 버튼값을 가져온다.

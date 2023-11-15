@@ -150,6 +150,31 @@ div[data-component][data-type='button'][data-role='button'] {
                         }
                     }
                 }
+
+                &.loading {
+                    > i {
+                        visibility: hidden;
+                    }
+
+                    > span {
+                        visibility: hidden;
+                    }
+
+                    &::after {
+                        position: absolute;
+                        top: calc(50% - (var(--text-height) - 2px) / 2);
+                        left: calc(50% - (var(--text-height) - 2px) / 2);
+                        width: calc(var(--text-height) - 2px);
+                        height: calc(var(--text-height) - 2px);
+                        line-height: calc(var(--text-height) - 2px);
+                        text-align: center;
+                        font-family: moimz;
+                        content: '\ed00';
+                        z-index: 1;
+                        color: inherit;
+                        animation: mi-loading 2s infinite linear;
+                    }
+                }
             }
         }
     }
