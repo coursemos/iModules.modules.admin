@@ -88,6 +88,13 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     }
                 }
 
+                &.hidden {
+                    height: 0;
+                    overflow: hidden;
+                    opacity: 0;
+                    border: 0;
+                }
+
                 &:has(div[data-column-type='fill'].grow) {
                     > div[data-role] {
                         &:last-child {
@@ -340,20 +347,12 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
             > div[data-role='body'] {
                 display: flex;
-                row-gap: 1px;
+                row-gap: 0px;
                 flex-direction: column;
-                background: var(--grid-row-border-color-default);
+                background: var(--grid-column-background-default);
                 width: fit-content;
                 align-items: stretch;
                 min-width: 100%;
-
-                &::before {
-                    content: ' ';
-                }
-
-                &::after {
-                    content: ' ';
-                }
 
                 > div[data-role='row'] {
                     display: flex;
@@ -363,7 +362,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     width: fit-content;
                     min-width: 100%;
                     column-gap: 1px;
-                    background: var(--grid-row-border-color-default);
+                    background: var(--grid-column-background-default);
 
                     > div[data-column-type='fill'] {
                         flex-basis: 0px;
@@ -413,6 +412,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                         &.focused {
                             outline: 1px solid var(--grid-column-border-color-focus) !important;
+                            outline-offset: -1px;
                             z-index: 5;
                         }
 
@@ -537,7 +537,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     }
 
                     &:hover {
-                        background: var(--grid-row-border-color-hover);
+                        background: var(--grid-column-background-hover);
 
                         > div[data-role='column'] {
                             background: var(--grid-column-background-hover);
@@ -557,15 +557,12 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     &:has(div[data-role='column'].focused),
                     &.focused {
                         position: relative;
-                        background: var(--grid-row-border-color-focus);
-                        outline: 1px solid var(--grid-row-border-color-focus);
+                        background: var(--grid-column-background-focus);
 
                         > div[data-role='column'] {
                             background: var(--grid-column-background-focus);
 
                             &.sticky {
-                                outline: 1px solid var(--grid-row-border-color-focus);
-
                                 &.end:not(.focused) {
                                     &::before {
                                         background: var(--grid-row-border-color-focus);
@@ -577,26 +574,19 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                     &.selected {
                         position: relative;
-                        background: var(--grid-row-border-color-select) !important;
+                        background: var(--grid-column-background-select) !important;
                         border-color: transparent !important;
-                        outline: 1px solid var(--grid-row-border-color-select) !important;
                         color: var(--grid-color-select) !important;
 
                         > div[data-role='column'] {
                             background: var(--grid-column-background-select) !important;
 
                             &.sticky {
-                                outline: 1px solid var(--grid-row-border-color-select) !important;
-
                                 &.end:not(.focused) {
                                     &::before {
                                         background: var(--grid-row-border-color-select) !important;
                                     }
                                 }
-                            }
-
-                            &.focused {
-                                outline: 1px solid var(--grid-column-border-color-selected-focused) !important;
                             }
 
                             &.check.selection {
@@ -618,6 +608,65 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             &::before {
                                 background: transparent !important;
                             }
+                        }
+                    }
+                }
+
+                &.row-lines {
+                    gap: 1px;
+                    background: var(--grid-row-border-color-default);
+                    &::before {
+                        content: ' ';
+                    }
+
+                    &::after {
+                        content: ' ';
+                    }
+
+                    > div[data-role='row'] {
+                        &:has(div[data-role='column'].focused),
+                        &.focused {
+                            position: relative;
+                            background: var(--grid-column-background-focus);
+
+                            > div[data-role='column'] {
+                                &.focused {
+                                    outline-offset: 0px;
+                                }
+                            }
+                        }
+
+                        &.selected {
+                            outline: 1px solid var(--grid-row-border-color-select) !important;
+
+                            > div[data-role='column'] {
+                                &.sticky {
+                                    outline: 1px solid var(--grid-row-border-color-select) !important;
+
+                                    &.focused {
+                                        outline: 1px solid var(--grid-column-border-color-focus) !important;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                &.column-lines {
+                    > div[data-role='row'] {
+                        background: var(--grid-row-border-color-default);
+
+                        &:hover {
+                            background: var(--grid-row-border-color-hover);
+                        }
+
+                        &:has(div[data-role='column'].focused),
+                        &.focused {
+                            background: var(--grid-row-border-color-focus);
+                        }
+
+                        &.selected {
+                            background: var(--grid-row-border-color-select) !important;
                         }
                     }
                 }

@@ -112,6 +112,21 @@ namespace Admin {
                 columnResizable?: boolean;
 
                 /**
+                 * @type {boolean} columnLines - 컬럼간 구분선 표시여부
+                 */
+                columnLines?: boolean;
+
+                /**
+                 * @type {boolean} rowLines - 컬럼 제목 표시여부
+                 */
+                columnHeaders?: boolean;
+
+                /**
+                 * @type {boolean} rowLines - 행간 구분선 표시여부
+                 */
+                rowLines?: boolean;
+
+                /**
                  * @type {Admin.Grid.Panel.Selection} selection - 선택설정
                  */
                 selection?: Admin.Grid.Panel.Selection;
@@ -153,6 +168,9 @@ namespace Admin {
             freezeColumn: number;
             freezeWidth: number;
             columnResizable: boolean;
+            columnLines: boolean;
+            columnHeaders: boolean;
+            rowLines: boolean;
             selection: Admin.Grid.Panel.Selection;
             selections: Map<string, Admin.Data.Record> = new Map();
 
@@ -179,6 +197,9 @@ namespace Admin {
                 this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.columnResizable = this.properties.columnResizable !== false;
+                this.columnLines = this.properties.columnLines !== false;
+                this.columnHeaders = this.properties.columnHeaders !== false;
+                this.rowLines = this.properties.rowLines !== false;
 
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
@@ -961,6 +982,11 @@ namespace Admin {
 
                 this.updateColumnIndex();
                 this.updateColumnFill();
+
+                if (this.columnHeaders === false) {
+                    this.$header.addClass('hidden');
+                    return;
+                }
             }
 
             /**
@@ -974,6 +1000,14 @@ namespace Admin {
                         const $row = this.$getRow(rowIndex, record);
                         this.$body.append($row);
                     });
+
+                if (this.columnLines == true) {
+                    this.$body.addClass('column-lines');
+                }
+
+                if (this.rowLines == true) {
+                    this.$body.addClass('row-lines');
+                }
             }
 
             /**

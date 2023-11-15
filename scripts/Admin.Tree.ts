@@ -107,6 +107,21 @@ namespace Admin {
                 columnResizable?: boolean;
 
                 /**
+                 * @type {boolean} columnLines - 컬럼간 구분선 표시여부
+                 */
+                columnLines?: boolean;
+
+                /**
+                 * @type {boolean} rowLines - 컬럼 제목 표시여부
+                 */
+                columnHeaders?: boolean;
+
+                /**
+                 * @type {boolean} rowLines - 행간 구분선 표시여부
+                 */
+                rowLines?: boolean;
+
+                /**
                  * @type {Admin.Tree.Panel.Selection} selection - 선택설정
                  */
                 selection?: Admin.Tree.Panel.Selection;
@@ -153,6 +168,9 @@ namespace Admin {
             freezeColumn: number;
             freezeWidth: number;
             columnResizable: boolean;
+            columnLines: boolean;
+            columnHeaders: boolean;
+            rowLines: boolean;
             selection: Admin.Tree.Panel.Selection;
             selections: Map<string, Admin.TreeData.Record> = new Map();
             expandedRows: Map<number, Map<string, Admin.TreeData.Record>> = new Map();
@@ -182,6 +200,9 @@ namespace Admin {
                 this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.columnResizable = this.properties.columnResizable !== false;
+                this.columnLines = this.properties.columnLines !== false;
+                this.columnHeaders = this.properties.columnHeaders !== false;
+                this.rowLines = this.properties.rowLines !== false;
 
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
@@ -1154,6 +1175,11 @@ namespace Admin {
 
                 this.updateColumnIndex();
                 this.updateColumnFill();
+
+                if (this.columnHeaders === false) {
+                    this.$header.addClass('hidden');
+                    return;
+                }
             }
 
             /**
@@ -1171,6 +1197,14 @@ namespace Admin {
                     });
 
                 this.$body.append($tree);
+
+                if (this.columnLines == true) {
+                    this.$body.addClass('column-lines');
+                }
+
+                if (this.rowLines == true) {
+                    this.$body.addClass('row-lines');
+                }
             }
 
             /**

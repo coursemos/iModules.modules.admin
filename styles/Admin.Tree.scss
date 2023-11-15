@@ -88,6 +88,13 @@ div[data-component][data-type='panel'][data-role='tree'] {
                     }
                 }
 
+                &.hidden {
+                    height: 0;
+                    overflow: hidden;
+                    opacity: 0;
+                    border: 0;
+                }
+
                 &:has(div[data-column-type='fill'].grow) {
                     > div[data-role] {
                         &:last-child {
@@ -341,20 +348,12 @@ div[data-component][data-type='panel'][data-role='tree'] {
             > div[data-role='body'] {
                 div[data-role='tree'] {
                     display: flex;
-                    row-gap: 1px;
+                    row-gap: 0px;
                     flex-direction: column;
-                    background: var(--grid-row-border-color-default);
+                    background: var(--grid-column-background-default);
                     width: fit-content;
                     align-items: stretch;
                     min-width: 100%;
-
-                    &::before {
-                        content: ' ';
-                    }
-
-                    &::after {
-                        content: ' ';
-                    }
 
                     > div[data-role='row'] {
                         > div[data-role='leaf'] {
@@ -365,7 +364,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                             width: fit-content;
                             min-width: 100%;
                             column-gap: 1px;
-                            background: var(--grid-row-border-color-default);
+                            background: var(--grid-column-background-default);
 
                             > div[data-column-type='fill'] {
                                 flex-basis: 0px;
@@ -498,6 +497,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
 
                                 &.focused {
                                     outline: 1px solid var(--grid-column-border-color-focus) !important;
+                                    outline-offset: -1px;
                                     z-index: 5;
                                 }
 
@@ -630,7 +630,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                             }
 
                             &:hover {
-                                background: var(--grid-row-border-color-hover);
+                                background: var(--grid-column-background-hover);
 
                                 > div[data-role='column'] {
                                     background: var(--grid-column-background-hover);
@@ -650,15 +650,12 @@ div[data-component][data-type='panel'][data-role='tree'] {
                             &:has(div[data-role='column'].focused),
                             &.focused {
                                 position: relative;
-                                background: var(--grid-row-border-color-focus);
-                                outline: 1px solid var(--grid-row-border-color-focus);
+                                background: var(--grid-column-background-focus);
 
                                 > div[data-role='column'] {
                                     background: var(--grid-column-background-focus);
 
                                     &.sticky {
-                                        outline: 1px solid var(--grid-row-border-color-focus);
-
                                         &.end:not(.focused) {
                                             &::before {
                                                 background: var(--grid-row-border-color-focus);
@@ -670,26 +667,19 @@ div[data-component][data-type='panel'][data-role='tree'] {
 
                             &.selected {
                                 position: relative;
-                                background: var(--grid-row-border-color-select) !important;
+                                background: var(--grid-column-background-select) !important;
                                 border-color: transparent !important;
-                                outline: 1px solid var(--grid-row-border-color-select) !important;
                                 color: var(--grid-color-select) !important;
 
                                 > div[data-role='column'] {
                                     background: var(--grid-column-background-select) !important;
 
                                     &.sticky {
-                                        outline: 1px solid var(--grid-row-border-color-select) !important;
-
                                         &.end:not(.focused) {
                                             &::before {
                                                 background: var(--grid-row-border-color-select) !important;
                                             }
                                         }
-                                    }
-
-                                    &.focused {
-                                        outline: 1px solid var(--grid-column-border-color-selected-focused) !important;
                                     }
 
                                     &.check.selection {
@@ -764,6 +754,64 @@ div[data-component][data-type='panel'][data-role='tree'] {
 
                             > div[data-role='tree'] {
                                 display: flex;
+                            }
+                        }
+                    }
+                }
+
+                &.row-lines {
+                    div[data-role='tree'] {
+                        gap: 1px;
+                        background: var(--grid-row-border-color-default);
+                        &::before {
+                            content: ' ';
+                        }
+                        &::after {
+                            content: ' ';
+                        }
+                        > div[data-role='row'] {
+                            > div[data-role='leaf'] {
+                                &:has(div[data-role='column'].focused),
+                                &.focused {
+                                    position: relative;
+                                    background: var(--grid-column-background-focus);
+                                    > div[data-role='column'] {
+                                        &.focused {
+                                            outline-offset: 0px;
+                                        }
+                                    }
+                                }
+                                &.selected {
+                                    outline: 1px solid var(--grid-row-border-color-select) !important;
+                                    > div[data-role='column'] {
+                                        &.sticky {
+                                            outline: 1px solid var(--grid-row-border-color-select) !important;
+                                            &.focused {
+                                                outline: 1px solid var(--grid-column-border-color-focus) !important;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                &.column-lines {
+                    div[data-role='tree'] {
+                        > div[data-role='row'] {
+                            > div[data-role='leaf'] {
+                                background: var(--grid-row-border-color-default);
+                                &:hover {
+                                    background: var(--grid-row-border-color-hover);
+                                }
+                                &:has(div[data-role='column'].focused),
+                                &.focused {
+                                    background: var(--grid-row-border-color-focus);
+                                }
+                                &.selected {
+                                    background: var(--grid-row-border-color-select) !important;
+                                }
                             }
                         }
                     }

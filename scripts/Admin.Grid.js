@@ -21,6 +21,9 @@ var Admin;
             freezeColumn;
             freezeWidth;
             columnResizable;
+            columnLines;
+            columnHeaders;
+            rowLines;
             selection;
             selections = new Map();
             store;
@@ -41,6 +44,9 @@ var Admin;
                 this.freeze = this.properties.freeze ?? 0;
                 this.scrollable = this.properties.scrollable ?? true;
                 this.columnResizable = this.properties.columnResizable !== false;
+                this.columnLines = this.properties.columnLines !== false;
+                this.columnHeaders = this.properties.columnHeaders !== false;
+                this.rowLines = this.properties.rowLines !== false;
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
                 this.selection.display = this.selection.display ?? 'row';
@@ -732,6 +738,10 @@ var Admin;
                 this.getScrollbar().setTrackPosition('y', this.$header.getHeight() + 1);
                 this.updateColumnIndex();
                 this.updateColumnFill();
+                if (this.columnHeaders === false) {
+                    this.$header.addClass('hidden');
+                    return;
+                }
             }
             /**
              * 그리드패널의 바디(데이터행)를 랜더링한다.
@@ -744,6 +754,12 @@ var Admin;
                     const $row = this.$getRow(rowIndex, record);
                     this.$body.append($row);
                 });
+                if (this.columnLines == true) {
+                    this.$body.addClass('column-lines');
+                }
+                if (this.rowLines == true) {
+                    this.$body.addClass('row-lines');
+                }
             }
             /**
              * 그리드패널의 푸터(합계행)를 핸더링한다.
