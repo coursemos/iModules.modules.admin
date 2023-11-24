@@ -14,7 +14,7 @@ Admin.ready(async () => {
         border: false,
         layout: 'column',
         iconClass: 'xi xi xi-sitemap',
-        title: (await me.getText('admin.sitemap.title')),
+        title: (await me.getText('admin.contexts.sitemap')),
         scrollable: true,
         items: [
             new Admin.Grid.Panel({
@@ -46,16 +46,16 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
+                store: new Admin.Store.Ajax({
+                    url: me.getProcessUrl('domains'),
+                    primaryKeys: ['host'],
+                }),
                 columns: [
                     {
                         text: (await me.getText('admin.sitemap.domains.host')),
                         dataIndex: 'host',
                     },
                 ],
-                store: new Admin.Store.Ajax({
-                    url: me.getProcessUrl('domains'),
-                    primaryKeys: ['host'],
-                }),
                 listeners: {
                     update: (grid) => {
                         if (Admin.getContextSubTree().at(0) !== undefined && grid.getSelections().length == 0) {
@@ -123,16 +123,16 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
+                store: new Admin.Store.Ajax({
+                    url: me.getProcessUrl('sites'),
+                    primaryKeys: ['host', 'language'],
+                }),
                 columns: [
                     {
                         text: (await me.getText('admin.sitemap.sites.title')),
                         dataIndex: 'title',
                     },
                 ],
-                store: new Admin.Store.Ajax({
-                    url: me.getProcessUrl('sites'),
-                    primaryKeys: ['host', 'language'],
-                }),
                 listeners: {
                     update: (grid) => {
                         if (Admin.getContextSubTree().at(1) !== undefined && grid.getSelections().length == 0) {
@@ -177,12 +177,13 @@ Admin.ready(async () => {
                     },
                 },
             }),
-            new Admin.Grid.Panel({
+            new Admin.Tree.Panel({
                 id: 'contexts',
                 border: [false, false, false, true],
                 flex: 2,
                 minWidth: 400,
-                columnResizable: false,
+                columnResizable: true,
+                expandedDepth: true,
                 selection: { selectable: true },
                 disabled: true,
                 autoLoad: false,
@@ -230,21 +231,40 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
+                store: new Admin.TreeStore.Ajax({
+                    url: me.getProcessUrl('contexts'),
+                    primaryKeys: ['host', 'language', 'path'],
+                    params: {
+                        mode: 'tree',
+                    },
+                    sorters: { sort: 'ASC' },
+                }),
                 columns: [
                     {
                         text: (await me.getText('admin.sitemap.contexts.path')),
-                        dataIndex: 'path',
+                        dataIndex: 'display',
+                        minWidth: 250,
                     },
                     {
-                        dataIndex: 'sort',
-                        width: 80,
+                        text: (await me.getText('admin.sitemap.contexts.title')),
+                        dataIndex: 'title',
+                        minWidth: 150,
+                        flex: 1,
+                    },
+                    {
+                        text: (await me.getText('admin.sitemap.contexts.type')),
+                        dataIndex: 'type',
+                        width: 250,
+                        renderer: (value, record) => {
+                            return me.sitemap.contexts.getTypeIcon(value) + record.data.context;
+                        },
+                    },
+                    {
+                        text: (await me.getText('admin.sitemap.contexts.layout')),
+                        dataIndex: 'layout',
+                        width: 100,
                     },
                 ],
-                store: new Admin.Store.Ajax({
-                    url: me.getProcessUrl('contexts'),
-                    primaryKeys: ['host', 'language', 'path'],
-                    sorters: { sort: 'ASC' },
-                }),
                 listeners: {
                     openItem: (record) => {
                         me.sitemap.contexts.add(record.get('path'));
@@ -256,6 +276,13 @@ Admin.ready(async () => {
                             iconClass: 'xi xi-form-checkout',
                             handler: () => {
                                 me.sitemap.contexts.add(record.get('path'));
+                            },
+                        });
+                        menu.add({
+                            text: me.printText('admin.sitemap.contexts.delete'),
+                            iconClass: 'mi mi-trash',
+                            handler: () => {
+                                me.sitemap.contexts.delete(record.get('path'));
                             },
                         });
                     },
