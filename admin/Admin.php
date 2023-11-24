@@ -33,6 +33,38 @@ abstract class Admin
     abstract public function init(): void;
 
     /**
+     * 각 컴포넌트에서 사용할 데이터베이스 인터페이스 클래스를 가져온다.
+     *
+     * @param ?string $name 데이터베이스 인터페이스 고유명
+     * @param ?DatabaseConnector $connector 데이터베이스정보
+     * @return DatabaseInterface $interface
+     */
+    final public function db(?string $name = null, ?\DatabaseConnector $connector = null): \DatabaseInterface
+    {
+        return \Database::getInterface(
+            $name ?? $this->getComponent()->getType() . '/' . $this->getComponent()->getName(),
+            $connector ?? \Configs::db()
+        );
+    }
+
+    /**
+     * 간략화된 테이블명으로 실제 데이터베이스 테이블명을 가져온다.
+     *
+     * @param string $table;
+     * @return string $table;
+     */
+    final public function table(string $table): string
+    {
+        return \iModules::table(
+            $this->getComponent()->getType() .
+                '_' .
+                str_replace('/', '_', $this->getComponent()->getName()) .
+                '_' .
+                $table
+        );
+    }
+
+    /**
      * 언어팩 코드 문자열을 가져온다.
      *
      * @param string $text 코드
