@@ -193,13 +193,19 @@ var Admin;
         /**
          * 특정 필드의 특정값을 가진 레코드를 찾는다.
          *
-         * @param {string} field - 검색필드
-         * @param {any} value - 검색값
+         * @param {object} target - 검색대상
          * @return {Admin.Data.Record} record - 검색된 레코드
          */
-        find(field, value) {
+        find(target) {
             for (const record of this.getRecords()) {
-                if (record.get(field) == value) {
+                let matched = true;
+                for (const field in target) {
+                    if (record.get(field) !== target[field]) {
+                        matched = false;
+                        break;
+                    }
+                }
+                if (matched === true) {
                     return record;
                 }
             }
@@ -208,15 +214,21 @@ var Admin;
         /**
          * 특정 필드의 특정값을 가진 레코드 인덱스를 찾는다.
          *
-         * @param {string} field - 검색필드
-         * @param {any} value - 검색값
+         * @param {object} target - 검색대상
          * @return {number} index - 검색된 레코드의 인덱스
          */
-        findIndex(field, value) {
+        findIndex(target) {
             for (const key in this.getRecords()) {
                 const index = parseInt(key, 10);
                 const record = this.getRecords().at(index);
-                if (record.get(field) == value) {
+                let matched = true;
+                for (const field in target) {
+                    if (record.get(field) !== target[field]) {
+                        matched = false;
+                        break;
+                    }
+                }
+                if (matched == true) {
                     return index;
                 }
             }
