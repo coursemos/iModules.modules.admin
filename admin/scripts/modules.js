@@ -15,7 +15,7 @@ Admin.ready(async () => {
         iconClass: 'xi xi-box',
         border: false,
         layout: 'fit',
-        title: (await me.getText('admin.modules.title')),
+        title: (await me.getText('admin.contexts.modules')),
         selection: { selectable: true },
         autoLoad: true,
         topbar: [
@@ -39,6 +39,10 @@ Admin.ready(async () => {
                 },
             }),
         ],
+        store: new Admin.Store.Ajax({
+            url: me.getProcessUrl('modules'),
+            primaryKeys: ['name'],
+        }),
         columns: [
             {
                 text: (await me.getText('admin.modules.modules.title')),
@@ -101,10 +105,6 @@ Admin.ready(async () => {
                 },
             },
         ],
-        store: new Admin.Store.Ajax({
-            url: me.getProcessUrl('modules'),
-            primaryKeys: ['name'],
-        }),
         listeners: {
             openItem: (record) => {
                 me.modules.show(record.data.name);
