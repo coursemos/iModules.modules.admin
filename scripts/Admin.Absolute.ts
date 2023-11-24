@@ -20,6 +20,11 @@ namespace Admin {
              * @type {'x'|'y'} direction - 대상위치에서 절대위치객체를 출력할 축
              */
             direction: 'x' | 'y';
+
+            /**
+             * @type {boolean|[boolean, boolean, boolean, boolean]} border - 패널 테두리 표시여부 (상단, 우측, 하단, 좌측)
+             */
+            border?: boolean | [boolean, boolean, boolean, boolean];
         }
     }
 
@@ -34,6 +39,7 @@ namespace Admin {
 
         $target: Dom | PointerEvent;
         direction: string;
+        border: boolean | [boolean, boolean, boolean, boolean];
 
         hideOnClick: boolean;
 
@@ -51,6 +57,7 @@ namespace Admin {
             this.$target = this.properties.$target ?? null;
             this.direction = this.properties.direction ?? 'y';
             this.hideOnClick = this.properties.hideOnClick === true;
+            this.border = this.properties.border ?? true;
         }
 
         /**
@@ -282,6 +289,24 @@ namespace Admin {
             if (this.hideOnClick === true) {
                 Admin.Absolute.$absolute.delete(this.getId());
             }
+        }
+
+        /**
+         * 컴포넌트 콘텐츠를 랜더링한다.
+         */
+        render(): void {
+            if (this.border === true) {
+                this.$container.addClass('border');
+            } else if (this.border !== false) {
+                const border = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+                this.border.forEach((is: boolean, index: number) => {
+                    if (is === true) {
+                        this.$container.addClass(border[index]);
+                    }
+                });
+            }
+
+            super.render();
         }
 
         /**

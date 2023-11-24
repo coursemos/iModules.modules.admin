@@ -21,6 +21,29 @@ section[data-role='admin'][data-type='absolutes'] {
         > div[data-role='container'] {
             display: flex;
             flex-direction: column;
+            border-width: 0;
+            border-style: solid;
+            border-color: var(--panel-border-color-default);
+
+            &.border {
+                border-width: 1px;
+            }
+
+            &.borderTop {
+                border-top-width: 1px;
+            }
+
+            &.borderRight {
+                border-right-width: 1px;
+            }
+
+            &.borderBottom {
+                border-bottom-width: 1px;
+            }
+
+            &.borderLeft {
+                border-left-width: 1px;
+            }
 
             > div[data-role='content'] {
                 max-width: inherit;

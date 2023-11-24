@@ -18,6 +18,7 @@ var Admin;
         role = 'absolute';
         $target;
         direction;
+        border;
         hideOnClick;
         latestTargetRect;
         latestAbsoluteRect;
@@ -31,6 +32,7 @@ var Admin;
             this.$target = this.properties.$target ?? null;
             this.direction = this.properties.direction ?? 'y';
             this.hideOnClick = this.properties.hideOnClick === true;
+            this.border = this.properties.border ?? true;
         }
         /**
          * 절대위치를 가지는 DOM 을 랜더링할 기준 DOM 객체를 가져온다.
@@ -212,6 +214,23 @@ var Admin;
             if (this.hideOnClick === true) {
                 Admin.Absolute.$absolute.delete(this.getId());
             }
+        }
+        /**
+         * 컴포넌트 콘텐츠를 랜더링한다.
+         */
+        render() {
+            if (this.border === true) {
+                this.$container.addClass('border');
+            }
+            else if (this.border !== false) {
+                const border = ['borderTop', 'borderRight', 'borderBottom', 'borderLeft'];
+                this.border.forEach((is, index) => {
+                    if (is === true) {
+                        this.$container.addClass(border[index]);
+                    }
+                });
+            }
+            super.render();
         }
         /**
          * 컴포넌트를 제거한다.
