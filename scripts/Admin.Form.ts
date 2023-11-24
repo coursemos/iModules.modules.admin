@@ -3926,9 +3926,9 @@ namespace Admin {
 
                 export interface Properties extends Admin.Form.Field.Base.Properties {
                     /**
-                     * @type {Admin.Store} store - 목록 store
+                     * @type {Admin.Store|Admin.TreeStore} store - 목록 store
                      */
-                    store: Admin.Store;
+                    store: Admin.Store | Admin.TreeStore;
 
                     /**
                      * @type {boolean} multiple - 다중선택여부
@@ -4030,10 +4030,10 @@ namespace Admin {
             export class Select extends Admin.Form.Field.Base {
                 field: string = 'select';
 
-                store: Admin.Store;
                 search: boolean;
                 searchField: string;
                 searchOperator: string;
+                searching: boolean = false;
                 liveSearch: boolean;
                 remoteSearch: boolean;
                 multiple: boolean;
@@ -4052,13 +4052,20 @@ namespace Admin {
                     field: Admin.Form.Field.Select
                 ) => string;
 
+                listRenderer: (
+                    display: string,
+                    record: Admin.Data.Record,
+                    $dom: Dom,
+                    list: Admin.Form.Field.Select
+                ) => string;
+
                 $button: Dom;
                 $display: Dom;
                 $emptyText: Dom;
                 $search: Dom;
 
                 absolute: Admin.Absolute;
-                list: Admin.List.Panel;
+                list: Admin.Grid.Panel | Admin.Tree.Panel;
 
                 loading: Admin.Loading;
 
@@ -4079,7 +4086,8 @@ namespace Admin {
 
                     this.displayField = this.properties.displayField ?? 'display';
                     this.valueField = this.properties.valueField ?? 'value';
-                    this.listField = this.properties.listField ?? 'display';
+                    this.listField = this.properties.listField ?? this.displayField;
+                    this.listRenderer = this.properties.listRenderer ?? null;
 
                     this.searchField = this.properties.searchField ?? this.displayField;
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
@@ -4119,8 +4127,17 @@ namespace Admin {
                             hideOnClick: true,
                             parent: this,
                             listeners: {
-                                show: (absolute: Admin.Absolute) => {
-                                    this.getList().setMaxHeight(absolute.getPosition().maxHeight);
+                                render: () => {
+                                    this.getAbsolute()
+                                        .$getContainer()
+                                        .setStyle('border-color', 'var(--input-border-color-focus)');
+                                },
+                                show: () => {
+                                    this.getList().setMaxWidth(null);
+                                    this.getList().setMaxHeight(null);
+                                    this.getAbsolute().updatePosition();
+                                    this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
+                                    this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -4136,20 +4153,41 @@ namespace Admin {
                 /**
                  * 목록 컴포넌트를 가져온다.
                  *
-                 * @return {Admin.List.Panel} list
+                 * @return {Admin.Grid.Panel|Admin.Tree.Panel} list
                  */
-                getList(): Admin.List.Panel {
+                getList(): Admin.Grid.Panel | Admin.Tree.Panel {
                     if (this.list === undefined) {
-                        this.list = new Admin.List.Panel({
+                        const properties = {
                             store: this.properties.store,
-                            renderer: this.properties.listRenderer,
-                            displayField: this.displayField,
-                            valueField: this.valueField,
-                            multiple: this.multiple,
-                            wrap: this.properties.listWrap === true,
-                            class: this.properties.listClass ?? null,
-                            hideOnEmpty: true,
                             parent: this,
+                            selection: {
+                                selectable: true,
+                                display: 'row',
+                                multiple: false,
+                                deselectable: false,
+                                keepable: true,
+                            },
+                            columnHeaders: false,
+                            rowLines: false,
+                            border: false,
+                            columns: [
+                                {
+                                    text: 'display',
+                                    dataIndex: this.listField,
+                                    flex: 1,
+                                    renderer: (
+                                        value: any,
+                                        record: Admin.Data.Record | Admin.TreeData.Record,
+                                        $dom: Dom
+                                    ) => {
+                                        if (this.listRenderer !== null) {
+                                            return this.listRenderer(value, record, $dom, this);
+                                        } else {
+                                            return value;
+                                        }
+                                    },
+                                },
+                            ],
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
@@ -4158,9 +4196,11 @@ namespace Admin {
                                     this.onLoad();
                                 },
                                 update: () => {
+                                    this.getList().setMaxWidth(null);
                                     this.getList().setMaxHeight(null);
                                     this.getAbsolute().updatePosition();
-                                    this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight);
+                                    this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
+                                    this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
                                 },
                                 selectionChange: (selections: Admin.Data.Record[]) => {
@@ -4174,17 +4214,24 @@ namespace Admin {
                                     this.collapse();
                                 },
                             },
-                        });
+                        };
+
+                        if (this.properties.store instanceof Admin.Store) {
+                            this.list = new Admin.Grid.Panel(properties as Admin.Grid.Panel.Properties);
+                        } else {
+                            this.list = new Admin.Tree.Panel(properties as Admin.Tree.Panel.Properties);
+                        }
                     }
+
                     return this.list;
                 }
 
                 /**
                  * 데이터스토어를 가져온다.
                  *
-                 * @return {Admin.Store} store
+                 * @return {Admin.Store | Admin.TreeStore} store
                  */
-                getStore(): Admin.Store {
+                getStore(): Admin.Store | Admin.TreeStore {
                     return this.getList().getStore();
                 }
 
@@ -4259,26 +4306,40 @@ namespace Admin {
                     if (this.$search === undefined) {
                         this.$search = Html.create('input', { 'type': 'search', 'tabindex': '0' });
                         this.$search.on('input', () => {
+                            this.searching = true;
                             if (this.$search.getData('timeout') !== null) {
                                 clearTimeout(this.$search.getData('timeout'));
                                 this.$search.setData('timeout', null);
                             }
                             this.match(this.$search.getValue());
+                            if (this.$search.getValue()?.length == 0) {
+                                this.$getEmptyText().show();
+                            } else {
+                                this.$getEmptyText().hide();
+                            }
                         });
                         this.$search.on('focus', () => {
+                            this.searching = true;
                             if (this.$search.getData('timeout') !== null) {
                                 clearTimeout(this.$search.getData('timeout'));
                                 this.$search.setData('timeout', null);
                             }
                             this.expand();
+
                             this.$getDisplay().hide();
-                            this.$getEmptyText().show();
+                            if (this.$search.getValue()?.length == 0) {
+                                this.$getEmptyText().show();
+                            } else {
+                                this.$getEmptyText().hide();
+                            }
                         });
                         this.$search.on('mousedown', (e: MouseEvent) => {
                             e.stopImmediatePropagation();
                         });
                         this.$search.on('blur', () => {
+                            this.searching = false;
                             this.$search.setValue('');
+                            this.match('');
                             this.$search.setData(
                                 'timeout',
                                 setTimeout(() => {
@@ -4331,8 +4392,9 @@ namespace Admin {
 
                         if (Array.isArray(value) == true) {
                         } else {
-                            const record = this.getStore().find(this.valueField, value);
-
+                            const target = {};
+                            target[this.valueField] = value;
+                            const record = this.getStore().find(target);
                             if (record == null) {
                                 value = null;
                                 this.$getEmptyText().show();
@@ -4349,6 +4411,33 @@ namespace Admin {
 
                     this.$getDisplay().show();
                     super.setValue(value, is_origin);
+
+                    if (this.rawValue !== null && value === null) {
+                        if (this.getStore() instanceof Admin.TreeStore) {
+                            const store = this.getStore() as Admin.TreeStore;
+                            const target = {};
+                            target[this.valueField] = this.rawValue;
+                            store.getParents(target).then((parents) => {
+                                if (parents !== null) {
+                                    this.setValue(this.rawValue, is_origin);
+                                }
+                            });
+                        }
+                    }
+                }
+
+                /**
+                 * 항목 인덱스로 항목을 선택한다.
+                 *
+                 * @param {(number|number[])} index - 항목인덱스
+                 */
+                select(index: number | number[]): void {
+                    const list = this.getList();
+                    if (list instanceof Admin.Grid.Panel) {
+                        list.selectRow(index as number);
+                    } else {
+                        list.selectRow(index as number[]);
+                    }
                 }
 
                 /**
@@ -4358,7 +4447,7 @@ namespace Admin {
                  */
                 setKeyboardEvent($target: Dom): void {
                     $target.on('keydown', (e: KeyboardEvent) => {
-                        if (e.key == 'ArrowDown' || e.key == 'ArrowUp' || e.key == 'Enter') {
+                        if (e.key == 'ArrowDown' || e.key == 'ArrowUp' || e.key == 'Enter' || e.key == ' ') {
                             if (this.isExpand() == false) {
                                 this.expand();
                             }
@@ -4387,13 +4476,11 @@ namespace Admin {
                     this.loading.hide();
 
                     if (this.value !== null) {
-                        this.getStore()
-                            .getRecords()
-                            .forEach((record: Admin.Data.Record, index: number) => {
-                                if (record.get(this.valueField) == this.value) {
-                                    this.getList().select(index);
-                                }
-                            });
+                        const target = {};
+                        target[this.valueField] = this.value;
+                        // @todo 다중선택 처리
+                        const index = this.getStore().findIndex(target);
+                        this.select(index);
                     }
                 }
 
@@ -4526,7 +4613,9 @@ namespace Admin {
                  */
                 onUpdate(): void {
                     if (this.rawValue !== null) {
-                        this.setValue(this.rawValue);
+                        if (this.search === false || this.searching === false) {
+                            this.setValue(this.rawValue);
+                        }
                     }
                     this.fireEvent('update', [this.getStore(), this]);
                 }
@@ -4972,7 +5061,7 @@ namespace Admin {
 
                     if (Array.isArray(value) == true) {
                     } else {
-                        const record = this.getStore().find('name', value);
+                        const record = this.getStore().find({ name: value });
 
                         if (record == null) {
                             value = null;
