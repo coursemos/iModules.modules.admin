@@ -366,26 +366,35 @@ var Admin;
              * @param {number[]} treeIndex - 확장할 아이탬(행) 인덱스
              */
             async expandRow(treeIndex) {
-                const $row = this.$getRow(treeIndex);
-                if ($row === null || $row.hasClass('edge') == true)
+                if (treeIndex.length == 0) {
                     return;
-                const record = $row.getData('record');
-                if (record.isExpanded() === true) {
-                    $row.addClass('expanded');
                 }
-                else {
-                    const $leaf = Html.get('> div[data-role=leaf]', $row);
-                    const $toggle = Html.get('> div[data-role=column] > div[data-role=toggle] > button', $leaf);
-                    $toggle.disable();
-                    await this.getStore().expand(treeIndex);
-                    $toggle.enable();
-                    $row.addClass('expanded');
+                const currentIndex = [];
+                treeIndex = treeIndex.slice();
+                while (treeIndex.length > 0) {
+                    currentIndex.push(treeIndex.shift());
+                    const $row = this.$getRow(currentIndex);
+                    if ($row === null || $row.hasClass('edge') == true) {
+                        return;
+                    }
+                    const record = $row.getData('record');
+                    if (record.isExpanded() === true) {
+                        $row.addClass('expanded');
+                    }
+                    else {
+                        const $leaf = Html.get('> div[data-role=leaf]', $row);
+                        const $toggle = Html.get('> div[data-role=column] > div[data-role=toggle] > button', $leaf);
+                        $toggle.disable();
+                        await this.getStore().expand(currentIndex);
+                        $toggle.enable();
+                        $row.addClass('expanded');
+                    }
+                    const depth = record.getParents().length;
+                    if (this.expandedRows.has(depth) == false) {
+                        this.expandedRows.set(depth, new Map());
+                    }
+                    this.expandedRows.get(depth).set(record.getHash(), record);
                 }
-                const depth = record.getParents().length;
-                if (this.expandedRows.has(depth) == false) {
-                    this.expandedRows.set(depth, new Map());
-                }
-                this.expandedRows.get(depth).set(record.getHash(), record);
             }
             /**
              * 트리를 축소한다.
@@ -481,12 +490,14 @@ var Admin;
                 if (this.selection.multiple == false || is_multiple == false) {
                     this.deselectAll(false);
                 }
-                const record = $row.getData('record');
-                this.selections.set(record.getHash(), record);
-                Html.get('> div[data-role=leaf]', $row).addClass('selected');
-                if (is_event == true) {
-                    this.onSelectionChange();
-                }
+                this.expandRow(treeIndex.slice(0, -1)).then(() => {
+                    const record = $row.getData('record');
+                    this.selections.set(record.getHash(), record);
+                    Html.get('> div[data-role=leaf]', $row).addClass('selected');
+                    if (is_event == true) {
+                        this.onSelectionChange();
+                    }
+                });
             }
             /**
              * 현재 페이지의 모든 아이템을 선택한다.

@@ -563,28 +563,39 @@ namespace Admin {
              * @param {number[]} treeIndex - 확장할 아이탬(행) 인덱스
              */
             async expandRow(treeIndex: number[]): Promise<void> {
-                const $row = this.$getRow(treeIndex);
-                if ($row === null || $row.hasClass('edge') == true) return;
-
-                const record: Admin.TreeData.Record = $row.getData('record');
-
-                if (record.isExpanded() === true) {
-                    $row.addClass('expanded');
-                } else {
-                    const $leaf = Html.get('> div[data-role=leaf]', $row);
-                    const $toggle = Html.get('> div[data-role=column] > div[data-role=toggle] > button', $leaf);
-                    $toggle.disable();
-                    await this.getStore().expand(treeIndex);
-                    $toggle.enable();
-                    $row.addClass('expanded');
+                if (treeIndex.length == 0) {
+                    return;
                 }
 
-                const depth = record.getParents().length;
-                if (this.expandedRows.has(depth) == false) {
-                    this.expandedRows.set(depth, new Map());
-                }
+                const currentIndex = [];
+                treeIndex = treeIndex.slice();
+                while (treeIndex.length > 0) {
+                    currentIndex.push(treeIndex.shift());
 
-                this.expandedRows.get(depth).set(record.getHash(), record);
+                    const $row = this.$getRow(currentIndex);
+                    if ($row === null || $row.hasClass('edge') == true) {
+                        return;
+                    }
+
+                    const record: Admin.TreeData.Record = $row.getData('record');
+                    if (record.isExpanded() === true) {
+                        $row.addClass('expanded');
+                    } else {
+                        const $leaf = Html.get('> div[data-role=leaf]', $row);
+                        const $toggle = Html.get('> div[data-role=column] > div[data-role=toggle] > button', $leaf);
+                        $toggle.disable();
+                        await this.getStore().expand(currentIndex);
+                        $toggle.enable();
+                        $row.addClass('expanded');
+                    }
+
+                    const depth = record.getParents().length;
+                    if (this.expandedRows.has(depth) == false) {
+                        this.expandedRows.set(depth, new Map());
+                    }
+
+                    this.expandedRows.get(depth).set(record.getHash(), record);
+                }
             }
 
             /**
@@ -685,14 +696,16 @@ namespace Admin {
                     this.deselectAll(false);
                 }
 
-                const record = $row.getData('record');
-                this.selections.set(record.getHash(), record);
+                this.expandRow(treeIndex.slice(0, -1)).then(() => {
+                    const record = $row.getData('record');
+                    this.selections.set(record.getHash(), record);
 
-                Html.get('> div[data-role=leaf]', $row).addClass('selected');
+                    Html.get('> div[data-role=leaf]', $row).addClass('selected');
 
-                if (is_event == true) {
-                    this.onSelectionChange();
-                }
+                    if (is_event == true) {
+                        this.onSelectionChange();
+                    }
+                });
             }
 
             /**
