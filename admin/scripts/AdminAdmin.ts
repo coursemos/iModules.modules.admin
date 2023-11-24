@@ -721,12 +721,10 @@ namespace modules {
                             resizable: false,
                             items: [
                                 new Admin.Form.Panel({
-                                    id: 'testform',
                                     border: false,
                                     layout: 'fit',
                                     items: [
                                         new Admin.Form.FieldSet({
-                                            id: 'fieldset1',
                                             title: this.printText('admin.sitemap.contexts.default'),
                                             items: [
                                                 new Admin.Form.Field.Container({
@@ -749,7 +747,7 @@ namespace modules {
                                                                         params: {
                                                                             host: host,
                                                                             language: language,
-                                                                            mode: 'linear',
+                                                                            mode: 'list',
                                                                         },
                                                                         primaryKeys: ['host', 'language', 'path'],
                                                                         sorters: { sort: 'ASC' },
@@ -764,6 +762,8 @@ namespace modules {
                                                                     },
                                                                     displayField: 'path',
                                                                     valueField: 'path',
+                                                                    search: true,
+                                                                    emptyText: '부모',
                                                                     value: '/',
                                                                 });
                                                             }
@@ -1019,6 +1019,61 @@ namespace modules {
                                 },
                             },
                         }).show();
+                    },
+                    /**
+                     * 컨텍스트를 삭제한다.
+                     *
+                     * @param {string} path - 삭제할 경로
+                     */
+                    delete: (path: string): void => {
+                        const domains: Admin.Grid.Panel = Admin.getComponent('domains') as Admin.Grid.Panel;
+                        const host =
+                            domains.getSelections().length == 1 ? domains.getSelections()[0].get('host') : null;
+                        if (host === null) {
+                            return;
+                        }
+
+                        const sites: Admin.Grid.Panel = Admin.getComponent('sites') as Admin.Grid.Panel;
+                        const language =
+                            sites.getSelections().length == 1 ? sites.getSelections()[0].get('language') : null;
+                        if (language === null) {
+                            return;
+                        }
+
+                        Admin.Message.show({
+                            title: this.printText('confirm'),
+                            message: this.printText('admin.sitemap.contexts.delete_confirm'),
+                            icon: Admin.Message.CONFIRM,
+                            buttons: Admin.Message.DANGERCANCEL,
+                            handler: async (button) => {
+                                if (button.action == 'ok') {
+                                    button.setLoading(true);
+
+                                    const results = await Admin.Ajax.delete(this.getProcessUrl('context'), {
+                                        host: host,
+                                        language: language,
+                                        path: path,
+                                    });
+
+                                    if (results.success == true) {
+                                        Admin.Message.show({
+                                            title: this.printText('info'),
+                                            message: this.printText('actions.success'),
+                                            buttons: Admin.Message.OK,
+                                            handler: () => {
+                                                const contexts: Admin.Grid.Panel = Admin.getComponent(
+                                                    'contexts'
+                                                ) as Admin.Grid.Panel;
+                                                contexts.getStore().reload();
+                                                Admin.Message.close();
+                                            },
+                                        });
+                                    }
+                                } else {
+                                    Admin.Message.close();
+                                }
+                            },
+                        });
                     },
                 },
             };

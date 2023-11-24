@@ -653,12 +653,10 @@ var modules;
                             resizable: false,
                             items: [
                                 new Admin.Form.Panel({
-                                    id: 'testform',
                                     border: false,
                                     layout: 'fit',
                                     items: [
                                         new Admin.Form.FieldSet({
-                                            id: 'fieldset1',
                                             title: this.printText('admin.sitemap.contexts.default'),
                                             items: [
                                                 new Admin.Form.Field.Container({
@@ -682,7 +680,7 @@ var modules;
                                                                         params: {
                                                                             host: host,
                                                                             language: language,
-                                                                            mode: 'linear',
+                                                                            mode: 'list',
                                                                         },
                                                                         primaryKeys: ['host', 'language', 'path'],
                                                                         sorters: { sort: 'ASC' },
@@ -699,6 +697,8 @@ var modules;
                                                                     },
                                                                     displayField: 'path',
                                                                     valueField: 'path',
+                                                                    search: true,
+                                                                    emptyText: '부모',
                                                                     value: '/',
                                                                 });
                                                             }
@@ -940,6 +940,54 @@ var modules;
                                 },
                             },
                         }).show();
+                    },
+                    /**
+                     * 컨텍스트를 삭제한다.
+                     *
+                     * @param {string} path - 삭제할 경로
+                     */
+                    delete: (path) => {
+                        const domains = Admin.getComponent('domains');
+                        const host = domains.getSelections().length == 1 ? domains.getSelections()[0].get('host') : null;
+                        if (host === null) {
+                            return;
+                        }
+                        const sites = Admin.getComponent('sites');
+                        const language = sites.getSelections().length == 1 ? sites.getSelections()[0].get('language') : null;
+                        if (language === null) {
+                            return;
+                        }
+                        Admin.Message.show({
+                            title: this.printText('confirm'),
+                            message: this.printText('admin.sitemap.contexts.delete_confirm'),
+                            icon: Admin.Message.CONFIRM,
+                            buttons: Admin.Message.DANGERCANCEL,
+                            handler: async (button) => {
+                                if (button.action == 'ok') {
+                                    button.setLoading(true);
+                                    const results = await Admin.Ajax.delete(this.getProcessUrl('context'), {
+                                        host: host,
+                                        language: language,
+                                        path: path,
+                                    });
+                                    if (results.success == true) {
+                                        Admin.Message.show({
+                                            title: this.printText('info'),
+                                            message: this.printText('actions.success'),
+                                            buttons: Admin.Message.OK,
+                                            handler: () => {
+                                                const contexts = Admin.getComponent('contexts');
+                                                contexts.getStore().reload();
+                                                Admin.Message.close();
+                                            },
+                                        });
+                                    }
+                                }
+                                else {
+                                    Admin.Message.close();
+                                }
+                            },
+                        });
                     },
                 },
             };
