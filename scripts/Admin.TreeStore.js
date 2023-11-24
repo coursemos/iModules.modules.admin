@@ -21,6 +21,7 @@ var Admin;
         remoteFilter = false;
         remoteExpand = false;
         remoteExpander;
+        remotePathFinder;
         loading = false;
         loaded = false;
         data;
@@ -43,6 +44,7 @@ var Admin;
             this.remoteSort = this.properties.remoteSort === true;
             this.remoteExpand = this.properties.remoteExpand === true;
             this.remoteExpander = this.properties.remoteExpander ?? null;
+            this.remotePathFinder = this.properties.remotePathFinder ?? null;
             this.filters = this.properties.filters ?? null;
             this.remoteFilter = this.properties.remoteFilter === true;
             if (this.filters !== null) {
@@ -183,6 +185,35 @@ var Admin;
             return this.primaryKeys;
         }
         /**
+         * 부모 데이터를 가져온다.
+         *
+         * @param {Admin.TreeData.Record|Object} child - 부모데이터를 가져올 자식데이터
+         * @return {Object[]} parents - 전체 부모레코드 배열
+         */
+        async getParents(child) {
+            if (this.isLoaded() == false) {
+                await this.load();
+            }
+            if (child instanceof Admin.TreeData.Record) {
+                return child.getParents();
+            }
+            else {
+                const record = this.find(child);
+                console.log('loadParents', 'match', record);
+                if (record !== null) {
+                    return this.getParents(record);
+                }
+                if (this.remoteExpand == true) {
+                    await this.loadParents(child);
+                    const record = this.find(child);
+                    if (record !== null) {
+                        return this.getParents(record);
+                    }
+                }
+                return null;
+            }
+        }
+        /**
          * 데이터를 추가한다.
          *
          * @param {Object|Object[]} record
@@ -256,56 +287,165 @@ var Admin;
          * 자식데이터를 불러온다.
          *
          * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+         * @return {Admin.TreeStore} this
          */
         async loadChildren(record) {
             return this;
         }
         /**
+         * 부모데이터를 불러온다.
+         *
+         * @param {Object} record - 부모데이터를 불러올 자식 레코드
+         * @return {Admin.TreeStore} this
+         */
+        async loadParents(record) {
+            return this;
+        }
+        /**
          * 특정 필드의 특정값을 가진 레코드를 찾는다.
          *
-         * @param {string} field - 검색필드
-         * @param {any} value - 검색값
+         * @param {Object} target - 검색대상
+         * @param {number[]} treeIndex - 재귀호출을 위한 변수
+         * @param {Admin.TreeData.Record} record - 재귀호출을 위한 변수
          * @return {Admin.TreeData.Record} record - 검색된 레코드
          */
-        find(field, value) {
-            for (const record of this.getRecords()) {
-                if (record.get(field) == value) {
-                    return record;
+        find(target, treeIndex = [], record = null) {
+            let matched = null;
+            if (treeIndex.length == 0) {
+                this.getRecords().some((record, index) => {
+                    matched = this.find(target, [index], record);
+                    if (matched !== null) {
+                        return true;
+                    }
+                });
+            }
+            else {
+                if (record === null) {
+                    const root = treeIndex.shift();
+                    record = this.getRecords()[root] ?? null;
+                    if (record === null) {
+                        return null;
+                    }
+                    while (treeIndex.length > 0) {
+                        const current = treeIndex.shift();
+                        record = record.getChildren()[current] ?? null;
+                        if (record === null) {
+                            return null;
+                        }
+                    }
+                }
+                matched = record;
+                for (const field in target) {
+                    if (record.get(field) !== target[field]) {
+                        matched = null;
+                        break;
+                    }
+                }
+                if (matched === null) {
+                    record.getChildren().some((record, index) => {
+                        matched = this.find(target, [...treeIndex, index], record);
+                        if (matched !== null) {
+                            return true;
+                        }
+                    });
                 }
             }
-            return null;
+            return matched;
         }
         /**
          * 특정 필드의 특정값을 가진 레코드 인덱스를 찾는다.
          *
-         * @param {string} field - 검색필드
-         * @param {any} value - 검색값
-         * @return {number} index - 검색된 레코드의 인덱스
+         * @param {object} target - 검색대상
+         * @param {number[]} treeIndex - 재귀호출을 위한 변수
+         * @param {Admin.TreeData.Record} record - 재귀호출을 위한 변수
+         * @return {number[]} index - 검색된 레코드의 인덱스
          */
-        findIndex(field, value) {
-            for (const key in this.getRecords()) {
-                const index = parseInt(key, 10);
-                const record = this.getRecords().at(index);
-                if (record.get(field) == value) {
-                    return index;
+        findIndex(target, treeIndex = [], record = null) {
+            let matched = null;
+            if (treeIndex.length == 0) {
+                this.getRecords().some((record, index) => {
+                    matched = this.findIndex(target, [index], record);
+                    if (matched !== null) {
+                        return true;
+                    }
+                });
+            }
+            else {
+                if (record === null) {
+                    const root = treeIndex.shift();
+                    record = this.getRecords()[root] ?? null;
+                    if (record === null) {
+                        return null;
+                    }
+                    while (treeIndex.length > 0) {
+                        const current = treeIndex.shift();
+                        record = record.getChildren()[current] ?? null;
+                        if (record === null) {
+                            return null;
+                        }
+                    }
+                }
+                matched = treeIndex;
+                for (const field in target) {
+                    if (record.get(field) !== target[field]) {
+                        matched = null;
+                        break;
+                    }
+                }
+                if (matched === null) {
+                    record.getChildren().some((record, index) => {
+                        matched = this.findIndex(target, [...treeIndex, index], record);
+                        if (matched !== null) {
+                            return true;
+                        }
+                    });
                 }
             }
-            return null;
+            return matched;
         }
         /**
          * 데이터와 일치하는 레코드를 찾는다.
          *
          * @param {Admin.TreeData.Record|Object} matcher - 찾을 레코드
+         * @param {number[]} treeIndex - 재귀호출을 위한 변수
+         * @param {Admin.TreeData.Record} record - 재귀호출을 위한 변수
          * @return {Admin.TreeData.Record} record - 검색된 레코드
          */
-        match(matcher) {
+        match(matcher, treeIndex = [], record = null) {
             let matched = null;
-            this.getRecords().some((record) => {
-                if (record.isEqual(matcher) === true) {
-                    matched = record;
-                    return true;
+            if (treeIndex.length == 0) {
+                this.getRecords().some((record, index) => {
+                    matched = this.match(matcher, [index], record);
+                    if (matched !== null) {
+                        return true;
+                    }
+                });
+            }
+            else {
+                if (record === null) {
+                    const root = treeIndex.shift();
+                    record = this.getRecords()[root] ?? null;
+                    if (record === null) {
+                        return null;
+                    }
+                    while (treeIndex.length > 0) {
+                        const current = treeIndex.shift();
+                        record = record.getChildren()[current] ?? null;
+                        if (record === null) {
+                            return null;
+                        }
+                    }
                 }
-            });
+                if (record.isEqual(matcher) == true) {
+                    return record;
+                }
+                record.getChildren().some((record, index) => {
+                    matched = this.match(matcher, [...treeIndex, index], record);
+                    if (matched !== null) {
+                        return true;
+                    }
+                });
+            }
             return matched;
         }
         /**
@@ -317,15 +457,14 @@ var Admin;
          * @return {number[]} index - 검색된 데이터의 인덱스
          */
         matchIndex(matcher, treeIndex = [], record = null) {
+            let matched = null;
             if (treeIndex.length == 0) {
-                let matched = null;
                 this.getRecords().some((record, index) => {
                     matched = this.matchIndex(matcher, [index], record);
                     if (matched !== null) {
                         return true;
                     }
                 });
-                return matched;
             }
             else {
                 if (record === null) {
@@ -345,15 +484,14 @@ var Admin;
                 if (record.isEqual(matcher) == true) {
                     return treeIndex;
                 }
-                let matched = null;
                 record.getChildren().some((record, index) => {
                     matched = this.matchIndex(matcher, [...treeIndex, index], record);
                     if (matched !== null) {
                         return true;
                     }
                 });
-                return matched;
             }
+            return matched;
         }
         /**
          * 데이터를 정렬한다.
@@ -639,6 +777,7 @@ var Admin;
              * 자식데이터를 불러온다.
              *
              * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+             * @return {Admin.TreeStore.Ajax} this
              */
             async loadChildren(record) {
                 const params = { ...this.params };
@@ -683,6 +822,42 @@ var Admin;
                     }
                     record.setChildren(results.records);
                     await this.onUpdateChildren(record);
+                }
+                else {
+                }
+                return this;
+            }
+            /**
+             * 부모데이터를 불러온다.
+             *
+             * @param {Object} record - 부모데이터를 불러올 자식 레코드
+             * @return {Admin.TreeStore.Ajax} this
+             */
+            async loadParents(record) {
+                console.log('loadParents', record);
+                const params = { ...this.params };
+                params.child = JSON.stringify(record);
+                if (this.fields.length > 0) {
+                    const fields = [];
+                    for (const field of this.fields) {
+                        if (typeof field == 'string') {
+                            fields.push(field);
+                        }
+                        else if (field?.name !== undefined) {
+                            fields.push(field.name);
+                        }
+                    }
+                    params.fields = fields.join(',');
+                }
+                const results = await Admin.Ajax.get(this.url, params);
+                if (results.success == true) {
+                    for (const parent of results.records) {
+                        const index = this.matchIndex(parent);
+                        if (index === null) {
+                            break;
+                        }
+                        await this.expand(index);
+                    }
                 }
                 else {
                 }
