@@ -2345,17 +2345,26 @@ namespace Admin {
             export namespace Search {
                 export interface Properties extends Admin.Form.Field.Base.Properties {
                     /**
-                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
+                     * @type {boolean} liveSearch - 실시간 검색을 실행할지 여부
                      */
-                    handler?: (keyword: string, field: Admin.Form.Field.Search) => void;
+                    liveSearch?: boolean;
+
+                    /**
+                     * @type {Function} handler - 검색을 시행할 함수
+                     */
+                    handler?: (keyword: string, field: Admin.Form.Field.Search) => Promise<void>;
                 }
             }
 
             export class Search extends Admin.Form.Field.Text {
                 inputType: string = 'search';
 
-                handler: (keyword: string, field: Admin.Form.Field.Search) => void;
+                liveSearch: boolean;
+                handler: (keyword: string, field: Admin.Form.Field.Search) => Promise<void>;
                 $button: Dom;
+
+                searching: boolean = false;
+                lastKeyword: string = null;
 
                 /**
                  * 검색필드 클래스 생성한다.
@@ -2365,6 +2374,7 @@ namespace Admin {
                 constructor(properties: Admin.Form.Field.Search.Properties = null) {
                     super(properties);
 
+                    this.liveSearch = this.properties.liveSearch === true;
                     this.handler = this.properties.handler ?? null;
                 }
 
@@ -2383,6 +2393,9 @@ namespace Admin {
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLInputElement;
                             this.setValue(input.value);
+                            if (this.liveSearch == true) {
+                                this.search();
+                            }
                         });
 
                         this.$input.on('keydown', (e: KeyboardEvent) => {
@@ -2423,9 +2436,25 @@ namespace Admin {
                 /**
                  * 검색을 시작한다.
                  */
-                search(): void {
+                async search(is_reset: boolean = false): Promise<void> {
+                    if (this.searching == true) {
+                        return;
+                    }
+
+                    const keyword = this.getValue();
+                    if (this.lastKeyword == keyword) {
+                        if (is_reset == true) {
+                            this.lastKeyword = null;
+                        }
+                        return;
+                    }
+
+                    this.searching = true;
+                    this.lastKeyword = keyword;
                     if (this.handler !== null) {
-                        this.handler(this.getValue(), this);
+                        await this.handler(keyword, this);
+                        this.searching = false;
+                        this.search(true);
                     }
                 }
 
@@ -4191,6 +4220,7 @@ namespace Admin {
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
+                                    this.getList().setHeight(100);
                                 },
                                 load: () => {
                                     this.onLoad();
@@ -4199,6 +4229,7 @@ namespace Admin {
                                     this.getList().setMaxWidth(null);
                                     this.getList().setMaxHeight(null);
                                     this.getAbsolute().updatePosition();
+                                    this.getList().setHeight(null);
                                     this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
@@ -4452,11 +4483,13 @@ namespace Admin {
                                 this.expand();
                             }
                             this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
+                            e.preventDefault();
                             e.stopPropagation();
                         }
 
                         if (e.key == 'Escape') {
                             this.collapse();
+                            e.preventDefault();
                             e.stopPropagation();
                         }
 

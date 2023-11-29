@@ -1811,8 +1811,11 @@ var Admin;
             Field.Password = Password;
             class Search extends Admin.Form.Field.Text {
                 inputType = 'search';
+                liveSearch;
                 handler;
                 $button;
+                searching = false;
+                lastKeyword = null;
                 /**
                  * 검색필드 클래스 생성한다.
                  *
@@ -1820,6 +1823,7 @@ var Admin;
                  */
                 constructor(properties = null) {
                     super(properties);
+                    this.liveSearch = this.properties.liveSearch === true;
                     this.handler = this.properties.handler ?? null;
                 }
                 /**
@@ -1836,6 +1840,9 @@ var Admin;
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
                             this.setValue(input.value);
+                            if (this.liveSearch == true) {
+                                this.search();
+                            }
                         });
                         this.$input.on('keydown', (e) => {
                             if (e.key == 'Enter') {
@@ -1870,9 +1877,23 @@ var Admin;
                 /**
                  * 검색을 시작한다.
                  */
-                search() {
+                async search(is_reset = false) {
+                    if (this.searching == true) {
+                        return;
+                    }
+                    const keyword = this.getValue();
+                    if (this.lastKeyword == keyword) {
+                        if (is_reset == true) {
+                            this.lastKeyword = null;
+                        }
+                        return;
+                    }
+                    this.searching = true;
+                    this.lastKeyword = keyword;
                     if (this.handler !== null) {
-                        this.handler(this.getValue(), this);
+                        await this.handler(keyword, this);
+                        this.searching = false;
+                        this.search(true);
                     }
                 }
                 /**
@@ -3208,6 +3229,7 @@ var Admin;
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
+                                    this.getList().setHeight(100);
                                 },
                                 load: () => {
                                     this.onLoad();
@@ -3216,6 +3238,7 @@ var Admin;
                                     this.getList().setMaxWidth(null);
                                     this.getList().setMaxHeight(null);
                                     this.getAbsolute().updatePosition();
+                                    this.getList().setHeight(null);
                                     this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
@@ -3453,10 +3476,12 @@ var Admin;
                                 this.expand();
                             }
                             this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
+                            e.preventDefault();
                             e.stopPropagation();
                         }
                         if (e.key == 'Escape') {
                             this.collapse();
+                            e.preventDefault();
                             e.stopPropagation();
                         }
                         if (e.key == 'Enter') {
