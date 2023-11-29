@@ -742,12 +742,12 @@ namespace modules {
                                                                 return new Admin.Form.Field.Select({
                                                                     name: 'parent',
                                                                     width: 200,
-                                                                    store: new Admin.Store.Ajax({
+                                                                    store: new Admin.TreeStore.Ajax({
                                                                         url: this.getProcessUrl('contexts'),
                                                                         params: {
                                                                             host: host,
                                                                             language: language,
-                                                                            mode: 'list',
+                                                                            mode: 'tree',
                                                                         },
                                                                         primaryKeys: ['host', 'language', 'path'],
                                                                         sorters: { sort: 'ASC' },
@@ -761,9 +761,9 @@ namespace modules {
                                                                         return display + '/';
                                                                     },
                                                                     displayField: 'path',
+                                                                    listField: 'display',
                                                                     valueField: 'path',
                                                                     search: true,
-                                                                    emptyText: '부모',
                                                                     value: '/',
                                                                 });
                                                             }
@@ -776,7 +776,6 @@ namespace modules {
                                                             disabled: path == '/',
                                                         }),
                                                     ],
-                                                    helpText: this.printText('admin.sitemap.contexts.path_help'),
                                                 }),
                                                 new Admin.Form.Field.Icon({
                                                     name: 'icon',
@@ -1426,14 +1425,14 @@ namespace modules {
                                                 name: 'keyword',
                                                 width: 200,
                                                 emptyText: mMember.printText('keyword'),
-                                                handler: (keyword, field) => {
+                                                handler: async (keyword, field) => {
                                                     const grid = field.getParent().getParent() as Admin.Grid.Panel;
                                                     if (keyword?.length > 0) {
                                                         grid.getStore().setParam('keyword', keyword);
                                                     } else {
                                                         grid.getStore().setParam('keyword', null);
                                                     }
-                                                    grid.getStore().loadPage(1);
+                                                    await grid.getStore().loadPage(1);
                                                 },
                                             }),
                                         ],
