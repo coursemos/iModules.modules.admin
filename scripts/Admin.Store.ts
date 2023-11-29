@@ -155,11 +155,12 @@ namespace Admin {
         /**
          * 특정페이지를 로딩한다.
          *
-         * @return {number} totalPage
+         * @param {number} page - 불러올 페이지
+         * @return {Admin.Store} this
          */
-        loadPage(page: number): void {
+        async loadPage(page: number): Promise<Admin.Store> {
             this.page = page;
-            this.reload();
+            return this.reload();
         }
 
         /**
@@ -257,6 +258,8 @@ namespace Admin {
 
         /**
          * 데이터를 가져온다.
+         *
+         * @return {Admin.Store} this
          */
         async load(): Promise<Admin.Store> {
             return this;
@@ -264,6 +267,8 @@ namespace Admin {
 
         /**
          * 현재 데이터를 새로고침한다.
+         *
+         * @return {Admin.Store} this
          */
         async reload(): Promise<Admin.Store> {
             return this;

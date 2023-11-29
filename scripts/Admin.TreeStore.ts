@@ -196,11 +196,12 @@ namespace Admin {
         /**
          * 특정페이지를 로딩한다.
          *
-         * @return {number} totalPage
+         * @param {number} page - 불러올 페이지
+         * @return {Admin.TreeStore} this
          */
-        loadPage(page: number): void {
+        async loadPage(page: number): Promise<Admin.TreeStore> {
             this.page = page;
-            this.reload();
+            return this.reload();
         }
 
         /**
@@ -701,6 +702,15 @@ namespace Admin {
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
             await this.filter();
+        }
+
+        /**
+         * 현재 필터를 가져온다.
+         *
+         * @return {Object} filters
+         */
+        getFilters(): { [field: string]: { value: any; operator: string } } {
+            return this.data?.filters ?? this.filters;
         }
 
         /**

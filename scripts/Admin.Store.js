@@ -87,11 +87,12 @@ var Admin;
         /**
          * 특정페이지를 로딩한다.
          *
-         * @return {number} totalPage
+         * @param {number} page - 불러올 페이지
+         * @return {Admin.Store} this
          */
-        loadPage(page) {
+        async loadPage(page) {
             this.page = page;
-            this.reload();
+            return this.reload();
         }
         /**
          * 데이터 갯수를 가져온다.
@@ -180,12 +181,16 @@ var Admin;
         }
         /**
          * 데이터를 가져온다.
+         *
+         * @return {Admin.Store} this
          */
         async load() {
             return this;
         }
         /**
          * 현재 데이터를 새로고침한다.
+         *
+         * @return {Admin.Store} this
          */
         async reload() {
             return this;

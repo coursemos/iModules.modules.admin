@@ -95,11 +95,12 @@ var Admin;
         /**
          * 특정페이지를 로딩한다.
          *
-         * @return {number} totalPage
+         * @param {number} page - 불러올 페이지
+         * @return {Admin.TreeStore} this
          */
-        loadPage(page) {
+        async loadPage(page) {
             this.page = page;
-            this.reload();
+            return this.reload();
         }
         /**
          * 데이터 갯수를 가져온다.
@@ -538,6 +539,14 @@ var Admin;
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
             await this.filter();
+        }
+        /**
+         * 현재 필터를 가져온다.
+         *
+         * @return {Object} filters
+         */
+        getFilters() {
+            return this.data?.filters ?? this.filters;
         }
         /**
          * 특정 필드의 필터를 제거한다.
