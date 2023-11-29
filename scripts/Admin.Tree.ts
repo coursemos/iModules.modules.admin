@@ -137,6 +137,11 @@ namespace Admin {
                 autoLoad?: boolean;
 
                 /**
+                 * @type {boolean} autoExpand - 레코드에 자식레코드가 존재할 경우 자동으로 확장할지 여부
+                 */
+                autoExpand?: boolean;
+
+                /**
                  * @type {number|boolean} expandedDepth - 확장할 트리뎁스
                  */
                 expandedDepth?: number | boolean;
@@ -177,6 +182,7 @@ namespace Admin {
 
             store: Admin.TreeStore;
             autoLoad: boolean;
+            autoExpand: boolean;
 
             expandedDepth: number | boolean;
 
@@ -226,12 +232,16 @@ namespace Admin {
                 });
                 this.store.addEvent('update', () => {
                     this.onUpdate();
+                    if (this.store.getFilters() !== null) {
+                        this.expandAll(true);
+                    }
                 });
                 this.store.addEvent('updateChildren', (_store: Admin.TreeStore, record: Admin.TreeData.Record) => {
                     this.onUpdateChildren(record);
                 });
 
                 this.autoLoad = this.properties.autoLoad !== false;
+                this.autoExpand = this.properties.autoExpand !== false;
 
                 this.expandedDepth = this.properties.expandedDepth ?? false;
                 this.expandedDepth = this.expandedDepth === 0 ? false : this.expandedDepth;
@@ -842,6 +852,13 @@ namespace Admin {
             }
 
             /**
+             * 사용자입력에 의하여 선택항목이 변경되었을 때 이벤트를 처리한다.
+             */
+            onSelectionComplete(): void {
+                this.fireEvent('selectionComplete', [this.getSelections(), this]);
+            }
+
+            /**
              * 컬럼 순서를 업데이트한다.
              */
             updateColumnIndex(): void {
@@ -1094,6 +1111,8 @@ namespace Admin {
                             } else {
                                 this.selectRow(treeIndex, e.metaKey == true || e.ctrlKey == true);
                             }
+
+                            this.onSelectionComplete();
                         }
                     });
 
@@ -1133,6 +1152,9 @@ namespace Admin {
                         });
 
                         $row.addClass('expandable');
+                        if (this.autoExpand == true && record.getChildren().length > 0) {
+                            $row.addClass('expanded');
+                        }
                     } else {
                         $row.addClass('edge');
                     }
@@ -1351,6 +1373,7 @@ namespace Admin {
                     if (e.key == ' ' || e.key == 'Enter') {
                         if (this.focusedRow !== null) {
                             this.selectRow(this.focusedRow);
+                            this.onSelectionComplete();
                         }
 
                         if (e.key == ' ' && this.focusedCell.columnIndex === 0) {

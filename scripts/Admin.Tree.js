@@ -29,6 +29,7 @@ var Admin;
             expandedRows = new Map();
             store;
             autoLoad;
+            autoExpand;
             expandedDepth;
             $header;
             $body;
@@ -69,11 +70,15 @@ var Admin;
                 });
                 this.store.addEvent('update', () => {
                     this.onUpdate();
+                    if (this.store.getFilters() !== null) {
+                        this.expandAll(true);
+                    }
                 });
                 this.store.addEvent('updateChildren', (_store, record) => {
                     this.onUpdateChildren(record);
                 });
                 this.autoLoad = this.properties.autoLoad !== false;
+                this.autoExpand = this.properties.autoExpand !== false;
                 this.expandedDepth = this.properties.expandedDepth ?? false;
                 this.expandedDepth = this.expandedDepth === 0 ? false : this.expandedDepth;
                 this.initColumns();
@@ -623,6 +628,12 @@ var Admin;
                 this.fireEvent('selectionChange', [this.getSelections(), this]);
             }
             /**
+             * 사용자입력에 의하여 선택항목이 변경되었을 때 이벤트를 처리한다.
+             */
+            onSelectionComplete() {
+                this.fireEvent('selectionComplete', [this.getSelections(), this]);
+            }
+            /**
              * 컬럼 순서를 업데이트한다.
              */
             updateColumnIndex() {
@@ -845,6 +856,7 @@ var Admin;
                             else {
                                 this.selectRow(treeIndex, e.metaKey == true || e.ctrlKey == true);
                             }
+                            this.onSelectionComplete();
                         }
                     });
                     $leaf.on('dblclick', (e) => {
@@ -879,6 +891,9 @@ var Admin;
                             $tree.append(this.$getRow([...treeIndex, childIndex], child));
                         });
                         $row.addClass('expandable');
+                        if (this.autoExpand == true && record.getChildren().length > 0) {
+                            $row.addClass('expanded');
+                        }
                     }
                     else {
                         $row.addClass('edge');
@@ -1062,6 +1077,7 @@ var Admin;
                     if (e.key == ' ' || e.key == 'Enter') {
                         if (this.focusedRow !== null) {
                             this.selectRow(this.focusedRow);
+                            this.onSelectionComplete();
                         }
                         if (e.key == ' ' && this.focusedCell.columnIndex === 0) {
                             this.toggleRow(this.focusedCell.treeIndex);
