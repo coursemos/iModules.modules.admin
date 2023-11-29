@@ -188,7 +188,6 @@ Admin.ready(async () => {
                 flex: 2,
                 minWidth: 400,
                 columnResizable: true,
-                expandedDepth: true,
                 selection: { selectable: true },
                 disabled: true,
                 autoLoad: false,
