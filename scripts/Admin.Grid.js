@@ -1519,9 +1519,9 @@ var Admin;
             /**
              * 페이징 툴바를 생성한다.
              *
-             * @param {Admin.Component[]} items - 추가 툴바 아이템
+             * @param {(Admin.Component|string)[]} items - 추가 툴바 아이템
              */
-            constructor(items = []) {
+            constructor(items = null) {
                 super(items);
             }
             /**
