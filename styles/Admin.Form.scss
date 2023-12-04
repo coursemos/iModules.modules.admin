@@ -279,8 +279,10 @@ div[data-component][data-type='form'][data-role='field'] {
             cursor: pointer;
 
             &[data-action='search'] {
+                position: relative;
                 color: var(--input-button-search-color-default);
                 background: var(--input-button-search-background-default);
+                border: 1px solid var(--input-button-search-background-default);
 
                 > i {
                     font-family: moimz;
@@ -290,6 +292,17 @@ div[data-component][data-type='form'][data-role='field'] {
                     &::before {
                         content: '\eb09';
                     }
+                }
+
+                &:focus::before {
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    width: calc(100% - 2px);
+                    height: calc(100% - 2px);
+                    content: ' ';
+                    z-index: 1;
+                    border: 1px solid var(--button-border-color-focus-inset);
                 }
 
                 &:hover {
@@ -368,7 +381,7 @@ div[data-component][data-type='form'][data-role='field'] {
         }
 
         &:has(input:focus),
-        &:has(button:active) {
+        &:has(button:focus) {
             background: var(--input-background-focus);
 
             > input {
