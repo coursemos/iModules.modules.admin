@@ -3144,6 +3144,15 @@ var Admin;
                         this.properties.renderer ??
                             ((display) => {
                                 if (Array.isArray(display) == true) {
+                                    if (display.length > 1) {
+                                        return Admin.printText('components.form.select.values', {
+                                            display: display[0],
+                                            count: (display.length - 1).toString(),
+                                        });
+                                    }
+                                    else {
+                                        return display[0];
+                                    }
                                 }
                                 else if (typeof display == 'string' && display.length > 0) {
                                     return display;
@@ -3203,9 +3212,9 @@ var Admin;
                             parent: this,
                             selection: {
                                 selectable: true,
-                                display: 'row',
-                                multiple: false,
-                                deselectable: false,
+                                display: this.multiple ? 'check' : 'row',
+                                multiple: this.multiple,
+                                deselectable: this.multiple,
                                 keepable: true,
                             },
                             columnHeaders: false,
@@ -3249,6 +3258,13 @@ var Admin;
                                     }
                                     else if (selections.length == 1) {
                                         this.setValue(selections[0].get(this.valueField));
+                                    }
+                                    else {
+                                        const values = [];
+                                        for (const selection of selections) {
+                                            values.push(selection.get(this.valueField));
+                                        }
+                                        this.setValue(values);
                                     }
                                 },
                                 selectionComplete: () => {
@@ -3402,6 +3418,62 @@ var Admin;
                     }
                 }
                 /**
+                 * 필드값으로 데이터스토어의 레코드를 가져온다.
+                 *
+                 * @param {any} value - 필드값
+                 * @return {Promise<Admin.Data.Record | Admin.TreeData.Record>} record
+                 */
+                async getValueToRecord(value) {
+                    const target = {};
+                    target[this.valueField] = value;
+                    const record = this.getStore().find(target);
+                    if (record !== null) {
+                        return record;
+                    }
+                    else {
+                        const store = this.getStore();
+                        if (this.getStore().isLoaded() == false) {
+                            await this.getStore().reload();
+                            return await this.getValueToRecord(value);
+                        }
+                        if (store instanceof Admin.TreeStore) {
+                            const parents = await store.getParents(target);
+                            if (parents !== null) {
+                                return await this.getValueToRecord(value);
+                            }
+                        }
+                    }
+                    return null;
+                }
+                /**
+                 * 필드값으로 데이터스토어의 레코드를 가져온다.
+                 *
+                 * @param {any} value - 필드값
+                 * @return {Promise<Admin.Data.Record | Admin.TreeData.Record>} record
+                 */
+                async getValueToIndex(value) {
+                    const target = {};
+                    target[this.valueField] = value;
+                    const index = this.getStore().findIndex(target);
+                    if (index !== null) {
+                        return index;
+                    }
+                    else {
+                        const store = this.getStore();
+                        if (this.getStore().isLoaded() == false) {
+                            await this.getStore().reload();
+                            return await this.getValueToIndex(value);
+                        }
+                        if (store instanceof Admin.TreeStore) {
+                            const parents = await store.getParents(target);
+                            if (parents !== null) {
+                                return await this.getValueToIndex(value);
+                            }
+                        }
+                    }
+                    return null;
+                }
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
@@ -3414,38 +3486,60 @@ var Admin;
                         this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
                     }
                     else {
-                        if (this.getStore().isLoaded() == false) {
-                            this.getStore().load();
-                            return;
-                        }
-                        if (Array.isArray(value) == true) {
+                        if (this.multiple == true) {
+                            if (Array.isArray(value) == false) {
+                                value = [value];
+                            }
                         }
                         else {
-                            const target = {};
-                            target[this.valueField] = value;
-                            const record = this.getStore().find(target);
-                            if (record == null) {
-                                value = null;
-                                this.$getEmptyText().show();
+                            if (Array.isArray(value) == true) {
+                                value = value.pop();
                             }
-                            else {
-                                value = record.get(this.valueField);
-                                this.$getEmptyText().hide();
-                            }
-                            this.$getDisplay().html(this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this));
                         }
-                    }
-                    this.$getDisplay().show();
-                    super.setValue(value, is_origin);
-                    if (this.rawValue !== null && value === null) {
-                        if (this.getStore() instanceof Admin.TreeStore) {
-                            const store = this.getStore();
-                            const target = {};
-                            target[this.valueField] = this.rawValue;
-                            store.getParents(target).then((parents) => {
-                                if (parents !== null) {
-                                    this.setValue(this.rawValue, is_origin);
+                        if (Array.isArray(value) == true) {
+                            const promises = [];
+                            for (const v of value) {
+                                promises.push(this.getValueToRecord(v));
+                            }
+                            Promise.all(promises).then((results) => {
+                                const displays = [];
+                                const values = [];
+                                const records = [];
+                                for (const record of results) {
+                                    if (record !== null) {
+                                        displays.push(record.get(this.displayField));
+                                        values.push(record.get(this.valueField));
+                                        records.push(record);
+                                    }
                                 }
+                                if (values.length == 0) {
+                                    value = null;
+                                    this.$getDisplay().hide();
+                                    this.$getEmptyText().show();
+                                }
+                                else {
+                                    value = values;
+                                    this.$getEmptyText().hide();
+                                    this.$getDisplay().html(this.renderer(displays, records, this.$getDisplay(), this));
+                                    this.$getDisplay().show();
+                                }
+                                super.setValue(value, is_origin);
+                            });
+                        }
+                        else {
+                            this.getValueToRecord(value).then((record) => {
+                                if (record == null) {
+                                    value = null;
+                                    this.$getDisplay().hide();
+                                    this.$getEmptyText().show();
+                                }
+                                else {
+                                    value = record.get(this.valueField);
+                                    this.$getEmptyText().hide();
+                                    this.$getDisplay().html(this.renderer(record?.get(this.displayField) ?? '', record, this.$getDisplay(), this));
+                                    this.$getDisplay().show();
+                                }
+                                super.setValue(value, is_origin);
                             });
                         }
                     }
@@ -3458,10 +3552,10 @@ var Admin;
                 select(index) {
                     const list = this.getList();
                     if (list instanceof Admin.Grid.Panel) {
-                        list.selectRow(index);
+                        list.selectRow(index, this.multiple);
                     }
                     else {
-                        list.selectRow(index);
+                        list.selectRow(index, this.multiple);
                     }
                 }
                 /**
@@ -3497,12 +3591,28 @@ var Admin;
                 expand() {
                     this.getAbsolute().show();
                     this.loading.hide();
-                    if (this.value !== null) {
-                        const target = {};
-                        target[this.valueField] = this.value;
-                        // @todo 다중선택 처리
-                        const index = this.getStore().findIndex(target);
-                        this.select(index);
+                    const value = this.value;
+                    if (value !== null) {
+                        if (Array.isArray(value) == true) {
+                            const promises = [];
+                            for (const v of value) {
+                                promises.push(this.getValueToIndex(v));
+                            }
+                            Promise.all(promises).then((results) => {
+                                for (const index of results) {
+                                    if (index !== null) {
+                                        this.select(index);
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            this.getValueToIndex(value).then((index) => {
+                                if (index !== null) {
+                                    this.select(index);
+                                }
+                            });
+                        }
                     }
                 }
                 /**
