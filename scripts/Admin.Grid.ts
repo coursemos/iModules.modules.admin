@@ -360,7 +360,6 @@ namespace Admin {
                     const y = Math.min(bottom + scroll.y - contentHeight + 1, maxScroll);
                     this.getScrollbar().setPosition(null, y, true);
                 }
-
                 this.focusedRow = rowIndex;
                 $row.addClass('focused');
             }
@@ -553,6 +552,32 @@ namespace Admin {
                 this.selections.set(record.getHash(), record);
 
                 $row.addClass('selected');
+
+                if (is_event == true) {
+                    this.onSelectionChange();
+                }
+            }
+
+            /**
+             * 특정 범위의 행을 선택한다.
+             *
+             * @param {number} startIndex - 시작 아이템(행) 인덱스
+             * @param {number} endIndex - 종료 아이템(행) 인덱스
+             */
+            selectRange(startIndex: number, endIndex: number, is_event: boolean = true): void {
+                if (this.selection.multiple == false) {
+                    this.selectRow(endIndex, false, false);
+                } else {
+                    this.deselectAll(false);
+
+                    for (
+                        let i = Math.min(startIndex, endIndex), loop = Math.max(startIndex, endIndex);
+                        i <= loop;
+                        i++
+                    ) {
+                        this.selectRow(i, true, false);
+                    }
+                }
 
                 if (is_event == true) {
                     this.onSelectionChange();
@@ -893,15 +918,21 @@ namespace Admin {
                     $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
 
                     $row.on('click', (e: PointerEvent) => {
+                        console.log('click');
                         if (this.selection.selectable == true) {
                             if (this.selection.display == 'check') {
-                                this.deselectAll(false);
-                                this.selectRow(rowIndex, false);
+                                if (e.metaKey == true || e.ctrlKey == true) {
+                                    this.selectRow(rowIndex, true);
+                                } else {
+                                    this.deselectAll(false);
+                                    this.selectRow(rowIndex, false);
+                                }
                             } else if (this.selection.deselectable == true && this.isRowSelected(rowIndex) == true) {
                                 this.deselectRow(rowIndex);
                             } else {
                                 this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
                             }
+
                             this.onSelectionComplete();
                         }
                     });
@@ -1728,9 +1759,26 @@ namespace Admin {
 
                 $column.addClass(this.textAlign);
 
-                $column.on('mousedown', (e: MouseEvent) => {
+                $column.on('pointerdown', (e: PointerEvent) => {
                     const $column = Html.el(e.currentTarget);
+
+                    if (e.shiftKey == true && this.grid.selection.multiple == true && this.grid.focusedRow !== null) {
+                        this.grid.selectRange(this.grid.focusedRow, $column.getData('row'));
+                    }
                     this.grid.focusCell($column.getData('row'), $column.getData('column'));
+                });
+
+                $column.on('click', (e: PointerEvent) => {
+                    const $column = Html.el(e.currentTarget);
+
+                    if (
+                        e.shiftKey == true &&
+                        this.grid.selection.multiple == true &&
+                        this.grid.focusedRow == $column.getData('row')
+                    ) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }
                 });
 
                 const $view = Html.create('div').setData('role', 'view');
@@ -1899,8 +1947,10 @@ namespace Admin {
                         } else {
                             this.getGrid().selectRow(rowIndex, true);
                         }
+                    } else {
+                        this.getGrid().onSelectionComplete();
                     }
-                    this.getGrid().onSelectionComplete();
+
                     e.stopImmediatePropagation();
                 });
 
