@@ -677,7 +677,6 @@ var Admin;
                     });
                     $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                     $row.on('click', (e) => {
-                        console.log('click');
                         if (this.selection.selectable == true) {
                             if (this.selection.display == 'check') {
                                 if (e.metaKey == true || e.ctrlKey == true) {
