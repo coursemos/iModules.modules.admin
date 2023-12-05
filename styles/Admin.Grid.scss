@@ -258,8 +258,28 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         }
                     }
 
+                    > button {
+                        flex-basis: 24px;
+                        flex-shrink: 0;
+                        height: 100%;
+                        display: none;
+                        border: 0;
+                        background: transparent;
+                        border-left: 1px solid var(--grid-header-border-color);
+                        cursor: pointer;
+
+                        &::before {
+                            font-family: moimz;
+                            content: '\e906';
+                            color: var(--grid-header-button-color-default);
+                            font-size: var(--font-size-default);
+                        }
+                    }
+
                     &.check {
-                        > label {
+                        display: block;
+
+                        > button {
                             display: block;
                             width: 100%;
                             height: 100%;
@@ -283,7 +303,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         }
 
                         &.checked {
-                            > label {
+                            > button {
                                 &::before {
                                     font-family: moimz;
                                     content: '\eb10';
@@ -292,24 +312,6 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     color: var(--grid-input-color-select);
                                 }
                             }
-                        }
-                    }
-
-                    > button {
-                        flex-basis: 24px;
-                        flex-shrink: 0;
-                        height: 100%;
-                        display: none;
-                        border: 0;
-                        background: transparent;
-                        border-left: 1px solid var(--grid-header-border-color);
-                        cursor: pointer;
-
-                        &::before {
-                            font-family: moimz;
-                            content: '\e906';
-                            color: var(--grid-header-button-color-default);
-                            font-size: var(--font-size-default);
                         }
                     }
 
@@ -429,12 +431,14 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         }
 
                         &.check {
-                            > label {
+                            > button {
                                 display: block;
                                 width: 100%;
                                 height: 100%;
                                 position: relative;
                                 padding: 0;
+                                background: transparent;
+                                border: 0;
 
                                 &::before {
                                     position: absolute;
@@ -453,7 +457,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             }
 
                             &.checked {
-                                > label {
+                                > button {
                                     &::before {
                                         font-family: moimz;
                                         content: '\eb10';
@@ -590,7 +594,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             }
 
                             &.check.selection {
-                                > label {
+                                > button {
                                     &::before {
                                         font-family: moimz;
                                         content: '\eb10';

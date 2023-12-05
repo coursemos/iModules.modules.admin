@@ -2064,7 +2064,7 @@ namespace Admin {
                     }
 
                     const $toggle = Html.create('div', { 'data-role': 'toggle' });
-                    const $button = Html.create('button', { type: 'button' }, 'a');
+                    const $button = Html.create('button', { type: 'button' });
                     $button.on('click', (e: PointerEvent) => {
                         this.getTree().toggleRow(treeIndex);
                         this.getTree().focusCell(treeIndex, 0);
@@ -2076,6 +2076,22 @@ namespace Admin {
                     });
                     $toggle.append($button);
                     $column.append($toggle);
+
+                    if (this.tree.selection.display == 'check') {
+                        const $check = Html.create('div', { 'data-role': 'check' });
+                        const $button = Html.create('button', { type: 'button' });
+                        $button.on('click', (e: PointerEvent) => {
+                            if (this.getTree().isRowSelected(treeIndex) == true) {
+                                this.getTree().deselectRow(treeIndex);
+                            } else {
+                                this.getTree().selectRow(treeIndex, true);
+                            }
+
+                            e.stopImmediatePropagation();
+                        });
+                        $check.append($button);
+                        $column.append($check);
+                    }
                 }
 
                 const $view = Html.create('div').setData('role', 'view');

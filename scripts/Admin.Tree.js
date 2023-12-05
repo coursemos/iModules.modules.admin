@@ -1620,7 +1620,7 @@ var Admin;
                         $column.append(Html.create('div', { 'data-role': 'depth' }));
                     }
                     const $toggle = Html.create('div', { 'data-role': 'toggle' });
-                    const $button = Html.create('button', { type: 'button' }, 'a');
+                    const $button = Html.create('button', { type: 'button' });
                     $button.on('click', (e) => {
                         this.getTree().toggleRow(treeIndex);
                         this.getTree().focusCell(treeIndex, 0);
@@ -1632,6 +1632,21 @@ var Admin;
                     });
                     $toggle.append($button);
                     $column.append($toggle);
+                    if (this.tree.selection.display == 'check') {
+                        const $check = Html.create('div', { 'data-role': 'check' });
+                        const $button = Html.create('button', { type: 'button' });
+                        $button.on('click', (e) => {
+                            if (this.getTree().isRowSelected(treeIndex) == true) {
+                                this.getTree().deselectRow(treeIndex);
+                            }
+                            else {
+                                this.getTree().selectRow(treeIndex, true);
+                            }
+                            e.stopImmediatePropagation();
+                        });
+                        $check.append($button);
+                        $column.append($check);
+                    }
                 }
                 const $view = Html.create('div').setData('role', 'view');
                 if (this.renderer !== null) {

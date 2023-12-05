@@ -1443,8 +1443,8 @@ var Admin;
                     $header.setData('role', 'column');
                     $header.addClass('check');
                     $header.setStyle('width', this.width + 'px');
-                    const $label = Html.create('label');
-                    $header.append($label);
+                    const $button = Html.create('button');
+                    $header.append($button);
                     $header.on('click', (e) => {
                         if ($header.hasClass('checked') == true) {
                             this.getGrid().deselectAll();
@@ -1515,14 +1515,11 @@ var Admin;
                             this.getGrid().selectRow(rowIndex, true);
                         }
                     }
-                    else {
-                        this.getGrid().onSelectionComplete();
-                    }
                     e.stopImmediatePropagation();
                 });
-                const $label = Html.create('label');
-                $label.addClass(this.headerAlign);
-                $column.append($label);
+                const $button = Html.create('button');
+                $button.addClass(this.headerAlign);
+                $column.append($button);
                 return $column;
             }
         }

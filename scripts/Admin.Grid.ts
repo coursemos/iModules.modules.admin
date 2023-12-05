@@ -1869,8 +1869,8 @@ namespace Admin {
                     $header.addClass('check');
                     $header.setStyle('width', this.width + 'px');
 
-                    const $label = Html.create('label');
-                    $header.append($label);
+                    const $button = Html.create('button');
+                    $header.append($button);
 
                     $header.on('click', (e: MouseEvent) => {
                         if ($header.hasClass('checked') == true) {
@@ -1946,16 +1946,14 @@ namespace Admin {
                         } else {
                             this.getGrid().selectRow(rowIndex, true);
                         }
-                    } else {
-                        this.getGrid().onSelectionComplete();
                     }
 
                     e.stopImmediatePropagation();
                 });
 
-                const $label = Html.create('label');
-                $label.addClass(this.headerAlign);
-                $column.append($label);
+                const $button = Html.create('button');
+                $button.addClass(this.headerAlign);
+                $column.append($button);
 
                 return $column;
             }
