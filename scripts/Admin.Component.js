@@ -59,6 +59,9 @@ var Admin;
             this.$component = Html.create('div', { 'data-component': this.id, 'tabindex': '-1' });
             this.$container = Html.create('div', { 'data-role': 'container' });
             this.$scrollable = this.$container;
+            if (this.style !== null) {
+                this.$component.setAttr('style', this.style);
+            }
         }
         /**
          * 컴포넌트의 하위 컴포넌트를 정의한다.

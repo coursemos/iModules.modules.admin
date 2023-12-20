@@ -74,7 +74,7 @@ namespace Admin {
             margin?: string | number;
 
             /**
-             * @type {string|number} style - 컴포넌트 스타일정의
+             * @type {string} style - 컴포넌트 스타일정의
              */
             style?: string;
 
@@ -165,6 +165,10 @@ namespace Admin {
             this.$component = Html.create('div', { 'data-component': this.id, 'tabindex': '-1' });
             this.$container = Html.create('div', { 'data-role': 'container' });
             this.$scrollable = this.$container;
+
+            if (this.style !== null) {
+                this.$component.setAttr('style', this.style);
+            }
         }
 
         /**
