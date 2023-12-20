@@ -19,6 +19,7 @@ var Admin;
         sorters;
         filtering;
         filters;
+        filterMode = 'AND';
         /**
          * 데이터셋을 생성한다.
          *
@@ -148,9 +149,10 @@ var Admin;
          * 데이터를 필터링한다.
          *
          * @param {Object} filters - 필터기준
+         * @param {'OR'|'AND'} filterMode - 필터모드
          * @param {boolean} execute - 실제 필터링을 할지 여부
          */
-        async filter(filters, execute = true) {
+        async filter(filters, filterMode = 'AND', execute = true) {
             if (execute === false) {
                 this.filters = filters;
                 return;
@@ -160,16 +162,18 @@ var Admin;
             }
             if (filters === null) {
                 this.filters = null;
+                this.records = this.originRecords;
                 return;
             }
             this.filtering = true;
             if (Object.keys(filters).length > 0) {
                 const records = [];
                 for (const record of this.originRecords) {
-                    let passed = true;
+                    let matched = false;
                     for (const field in filters) {
                         const filter = filters[field];
                         const value = record.get(field) ?? null;
+                        let passed = true;
                         switch (filter.operator) {
                             case '=':
                                 if (value !== filter.value) {
@@ -216,25 +220,26 @@ var Admin;
                                 }
                                 break;
                             case 'like':
-                                if (value.search(filter.value) == -1) {
+                                if (value === null || value.search(filter.value) == -1) {
                                     passed = false;
                                 }
                                 break;
                             case 'likecode':
                                 const keycode = Format.keycode(filter.value);
-                                const valuecode = Format.keycode(value);
-                                if (valuecode.search(keycode) == -1) {
+                                const valuecode = value === null ? null : Format.keycode(value);
+                                if (valuecode === null || valuecode.search(keycode) == -1) {
                                     passed = false;
                                 }
                                 break;
                             default:
                                 passed = false;
                         }
-                        if (passed == false) {
+                        matched = matched || passed;
+                        if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                             break;
                         }
                     }
-                    if (passed == true) {
+                    if (matched == true) {
                         records.push(record);
                     }
                 }

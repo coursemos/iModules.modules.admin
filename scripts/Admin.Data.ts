@@ -18,6 +18,7 @@ namespace Admin {
         sorters: { [field: string]: 'ASC' | 'DESC' };
         filtering: boolean;
         filters: { [field: string]: { value: any; operator: string } };
+        filterMode: 'OR' | 'AND' = 'AND';
 
         /**
          * 데이터셋을 생성한다.
@@ -171,10 +172,12 @@ namespace Admin {
          * 데이터를 필터링한다.
          *
          * @param {Object} filters - 필터기준
+         * @param {'OR'|'AND'} filterMode - 필터모드
          * @param {boolean} execute - 실제 필터링을 할지 여부
          */
         async filter(
             filters: { [field: string]: { value: any; operator: string } },
+            filterMode: 'OR' | 'AND' = 'AND',
             execute: boolean = true
         ): Promise<void> {
             if (execute === false) {
@@ -188,6 +191,7 @@ namespace Admin {
 
             if (filters === null) {
                 this.filters = null;
+                this.records = this.originRecords;
                 return;
             }
 
@@ -195,11 +199,12 @@ namespace Admin {
             if (Object.keys(filters).length > 0) {
                 const records: Admin.Data.Record[] = [];
                 for (const record of this.originRecords) {
-                    let passed = true;
+                    let matched = false;
                     for (const field in filters) {
                         const filter = filters[field];
                         const value = record.get(field) ?? null;
 
+                        let passed = true;
                         switch (filter.operator) {
                             case '=':
                                 if (value !== filter.value) {
@@ -258,16 +263,16 @@ namespace Admin {
                                 break;
 
                             case 'like':
-                                if (value.search(filter.value) == -1) {
+                                if (value === null || value.search(filter.value) == -1) {
                                     passed = false;
                                 }
                                 break;
 
                             case 'likecode':
                                 const keycode = Format.keycode(filter.value);
-                                const valuecode = Format.keycode(value);
+                                const valuecode = value === null ? null : Format.keycode(value);
 
-                                if (valuecode.search(keycode) == -1) {
+                                if (valuecode === null || valuecode.search(keycode) == -1) {
                                     passed = false;
                                 }
                                 break;
@@ -276,12 +281,14 @@ namespace Admin {
                                 passed = false;
                         }
 
-                        if (passed == false) {
+                        matched = matched || passed;
+
+                        if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                             break;
                         }
                     }
 
-                    if (passed == true) {
+                    if (matched == true) {
                         records.push(record);
                     }
                 }

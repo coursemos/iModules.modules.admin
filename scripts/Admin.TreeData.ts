@@ -18,6 +18,7 @@ namespace Admin {
         sorters: { [field: string]: 'ASC' | 'DESC' };
         filtering: boolean;
         filters: { [field: string]: { value: any; operator: string } };
+        filterMode: 'OR' | 'AND' = 'AND';
 
         /**
          * 데이터셋을 생성한다.
@@ -182,16 +183,18 @@ namespace Admin {
          * 데이터를 필터링한다.
          *
          * @param {Object} filters - 필터기준
+         * @param {'OR'|'AND'} filterMode - 필터모드
          * @param {boolean} execute - 실제 필터링을 할지 여부
          */
         async filter(
             filters: { [field: string]: { value: any; operator: string } },
+            filterMode: 'OR' | 'AND' = 'AND',
             execute: boolean = true
         ): Promise<void> {
             if (execute === false) {
                 this.filters = filters;
                 for (const record of this.records) {
-                    await record.filter(filters, execute);
+                    await record.filter(filters, filterMode, execute);
                 }
                 return;
             }
@@ -202,6 +205,7 @@ namespace Admin {
 
             if (filters === null) {
                 this.filters = null;
+                this.records = this.originRecords;
                 return;
             }
 
@@ -209,11 +213,12 @@ namespace Admin {
             if (Object.keys(filters).length > 0) {
                 const records: Admin.TreeData.Record[] = [];
                 for (const record of this.originRecords) {
-                    let passed = true;
+                    let matched = false;
                     for (const field in filters) {
                         const filter = filters[field];
                         const value = record.get(field) ?? null;
 
+                        let passed = true;
                         switch (filter.operator) {
                             case '=':
                                 if (value !== filter.value) {
@@ -272,16 +277,16 @@ namespace Admin {
                                 break;
 
                             case 'like':
-                                if (value.search(filter.value) == -1) {
+                                if (value === null || value.search(filter.value) == -1) {
                                     passed = false;
                                 }
                                 break;
 
                             case 'likecode':
                                 const keycode = Format.keycode(filter.value);
-                                const valuecode = Format.keycode(value);
+                                const valuecode = value === null ? null : Format.keycode(value);
 
-                                if (valuecode.search(keycode) == -1) {
+                                if (valuecode === null || valuecode.search(keycode) == -1) {
                                     passed = false;
                                 }
                                 break;
@@ -290,13 +295,15 @@ namespace Admin {
                                 passed = false;
                         }
 
-                        if (passed == false) {
+                        matched = matched || passed;
+
+                        if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                             break;
                         }
                     }
 
-                    await record.filter(filters, true);
-                    if (passed == true || record.getChildren().length > 0) {
+                    await record.filter(filters, filterMode, true);
+                    if (matched == true || record.getChildren().length > 0) {
                         records.push(record);
                     }
                 }
@@ -324,6 +331,7 @@ namespace Admin {
             sorters: { [field: string]: 'ASC' | 'DESC' };
             filtering: boolean;
             filters: { [field: string]: { value: any; operator: string } };
+            filterMode: 'OR' | 'AND' = 'AND';
 
             /**
              * 데이터 레코드를 생성한다.
@@ -527,16 +535,19 @@ namespace Admin {
              * 자식데이터를 필터링한다.
              *
              * @param {Object} filters - 필터기준
+             * @param {'OR'|'AND'} filterMode - 필터모드
              * @param {boolean} execute - 실제 필터링을 할지 여부
              */
             async filter(
                 filters: { [field: string]: { value: any; operator: string } },
+                filterMode: 'OR' | 'AND' = 'AND',
                 execute: boolean = true
             ): Promise<void> {
                 if (execute === false) {
                     this.filters = filters;
+                    this.filterMode = filterMode;
                     for (const child of this.getChildren()) {
-                        await child.filter(filters, execute);
+                        await child.filter(filters, filterMode, execute);
                     }
                     return;
                 }
@@ -551,6 +562,7 @@ namespace Admin {
 
                 if (filters === null) {
                     this.filters = null;
+                    this.children = this.originChildren;
                     return;
                 }
 
@@ -558,11 +570,12 @@ namespace Admin {
                 if (Object.keys(filters).length > 0) {
                     const children: Admin.TreeData.Record[] = [];
                     for (const record of this.originChildren) {
-                        let passed = true;
+                        let matched = false;
                         for (const field in filters) {
                             const filter = filters[field];
                             const value = record.get(field) ?? null;
 
+                            let passed = true;
                             switch (filter.operator) {
                                 case '=':
                                     if (value !== filter.value) {
@@ -621,16 +634,16 @@ namespace Admin {
                                     break;
 
                                 case 'like':
-                                    if (value.search(filter.value) == -1) {
+                                    if (value === null || value.search(filter.value) == -1) {
                                         passed = false;
                                     }
                                     break;
 
                                 case 'likecode':
                                     const keycode = Format.keycode(filter.value);
-                                    const valuecode = Format.keycode(value);
+                                    const valuecode = value === null ? null : Format.keycode(value);
 
-                                    if (valuecode.search(keycode) == -1) {
+                                    if (valuecode === null || valuecode.search(keycode) == -1) {
                                         passed = false;
                                     }
                                     break;
@@ -639,13 +652,15 @@ namespace Admin {
                                     passed = false;
                             }
 
-                            if (passed == false) {
+                            matched = matched || passed;
+
+                            if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                                 break;
                             }
                         }
 
-                        await record.filter(filters, true);
-                        if (passed == true || record.getChildren().length > 0) {
+                        await record.filter(filters, filterMode, true);
+                        if (matched == true || record.getChildren().length > 0) {
                             children.push(record);
                         }
                     }
@@ -656,7 +671,7 @@ namespace Admin {
                 }
 
                 for (const child of this.getChildren()) {
-                    await child.filter(filters, execute);
+                    await child.filter(filters, filterMode, execute);
                 }
 
                 this.filters = filters;
