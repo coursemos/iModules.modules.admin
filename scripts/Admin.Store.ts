@@ -59,6 +59,11 @@ namespace Admin {
             filters?: { [field: string]: { value: any; operator?: string } | string };
 
             /**
+             * @type {'OR'|'AND'} filterMode - 필터모드
+             */
+            filterMode?: 'OR' | 'AND';
+
+            /**
              * @type {boolean} remoteFilter - store 외부에서 데이터를 필터링할지 여부
              */
             remoteFilter?: boolean;
@@ -77,8 +82,8 @@ namespace Admin {
         sorters: { [field: string]: 'ASC' | 'DESC' };
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
+        filterMode: 'OR' | 'AND' = 'AND';
         remoteFilter: boolean = false;
-        loading: boolean = false;
         loaded: boolean = false;
         data: Admin.Data;
         limit: number;
@@ -100,6 +105,7 @@ namespace Admin {
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
+            this.filterMode = this.properties.filterMode?.toUpperCase() == 'OR' ? 'OR' : 'AND';
             this.remoteFilter = this.properties.remoteFilter === true;
 
             if (this.filters !== null) {
@@ -156,7 +162,7 @@ namespace Admin {
          * 특정페이지를 로딩한다.
          *
          * @param {number} page - 불러올 페이지
-         * @return {Admin.Store} this
+         * @return {Promise<Admin.Store>} this
          */
         async loadPage(page: number): Promise<Admin.Store> {
             this.page = page;
@@ -259,7 +265,7 @@ namespace Admin {
         /**
          * 데이터를 가져온다.
          *
-         * @return {Admin.Store} this
+         * @return {Promise<Admin.Store>} this
          */
         async load(): Promise<Admin.Store> {
             return this;
@@ -268,10 +274,11 @@ namespace Admin {
         /**
          * 현재 데이터를 새로고침한다.
          *
-         * @return {Admin.Store} this
+         * @return {Promise<Admin.Store>} this
          */
         async reload(): Promise<Admin.Store> {
-            return this;
+            this.loaded = false;
+            return await this.load();
         }
 
         /**
@@ -404,19 +411,33 @@ namespace Admin {
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
         async setFilter(field: string, value: any, operator: string = '='): Promise<void> {
-            this.filters ??= {};
+            this.filters = {};
             this.filters[field] = { value: value, operator: operator };
             await this.filter();
         }
 
         /**
-         * 특정 필드의 필터를 제거한다.
+         * 다중필터를 설정한다.
          *
-         * @param {string} field
+         * @param {Object} filters - 필터설정
+         * @param {'OR'|'AND'} filterMode - 필터모드
          */
-        async removeFilter(field: string): Promise<void> {
-            delete this.filters[field];
+        async setFilters(
+            filters: { [field: string]: { value: any; operator: string } },
+            filterMode: 'OR' | 'AND' = 'AND'
+        ): Promise<void> {
+            this.filters = filters;
+            this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
             await this.filter();
+        }
+
+        /**
+         * 현재 필터를 가져온다.
+         *
+         * @return {Object} filters
+         */
+        getFilters(): { [field: string]: { value: any; operator: string } } {
+            return this.data?.filters ?? this.filters;
         }
 
         /**
@@ -428,13 +449,24 @@ namespace Admin {
         }
 
         /**
+         * 필터모드를 변경한다.
+         * 모드변경시에는 필터함수를 자동으로 호출하지 않으므로,
+         * 변경된 모드로 필터링하고자 할때는 filter() 함수를 호출하여야 한다.
+         *
+         * @param {'OR'|'AND'} filterMode - 필터모드
+         */
+        setFilterMode(filterMode: 'OR' | 'AND'): void {
+            this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
+        }
+
+        /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter(): Promise<void> {
             if (this.remoteFilter === true) {
                 await this.reload();
             } else {
-                await this.data?.filter(this.filters);
+                await this.data?.filter(this.filters, this.filterMode);
                 await this.onUpdate();
             }
         }
@@ -466,11 +498,11 @@ namespace Admin {
                 }
             }
 
-            if (Format.isEqual(this.data?.filters, this.filters) == false) {
+            if (Format.isEqual(this.data?.filters, this.filters) == false || this.filterMode != this.data?.filterMode) {
                 if (this.remoteFilter == true) {
                     await this.reload();
                 } else {
-                    await this.data?.filter(this.filters);
+                    await this.data?.filter(this.filters, this.filterMode);
                 }
             }
 
@@ -506,6 +538,8 @@ namespace Admin {
 
             /**
              * 데이터를 가져온다.
+             *
+             * @return {Promise<Admin.Store.Array>} this
              */
             async load(): Promise<Admin.Store.Array> {
                 this.onBeforeLoad();
@@ -535,14 +569,6 @@ namespace Admin {
                 await this.onLoad();
 
                 return this;
-            }
-
-            /**
-             * 현재 데이터를 새로고침한다.
-             */
-            async reload(): Promise<Admin.Store.Array> {
-                this.loaded = false;
-                return await this.load();
             }
         }
 
@@ -602,6 +628,8 @@ namespace Admin {
 
             /**
              * 데이터를 가져온다.
+             *
+             * @return {Promise<Admin.Store.Ajax>} this
              */
             async load(): Promise<Admin.Store.Ajax> {
                 this.onBeforeLoad();
@@ -610,12 +638,6 @@ namespace Admin {
                     await this.onLoad();
                     return this;
                 }
-
-                if (this.loading == true) {
-                    return this;
-                }
-
-                this.loading = true;
 
                 const params = { ...this.params };
 
@@ -649,6 +671,7 @@ namespace Admin {
                         params.filters = null;
                     } else {
                         params.filters = JSON.stringify(this.filters);
+                        params.filterMode = this.filterMode;
                     }
                 }
 
@@ -666,27 +689,15 @@ namespace Admin {
 
                     if (this.remoteFilter == true) {
                         const filters = params.filters ? JSON.parse(params.filters) : null;
-                        this.data.filter(filters, false);
+                        this.data.filter(filters, params.filterMode, false);
                     }
-
-                    this.loading = false;
 
                     await this.onLoad();
                 } else {
                     this.loaded = false;
                 }
 
-                this.loading = false;
-
                 return this;
-            }
-
-            /**
-             * 현재 데이터를 새로고침한다.
-             */
-            async reload(): Promise<Admin.Store.Ajax> {
-                this.loaded = false;
-                return await this.load();
             }
         }
     }

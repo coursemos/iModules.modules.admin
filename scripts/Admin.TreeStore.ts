@@ -90,6 +90,11 @@ namespace Admin {
             filters?: { [field: string]: { value: any; operator?: string } | string };
 
             /**
+             * @type {'OR'|'AND'} filterMode - 필터모드
+             */
+            filterMode?: 'OR' | 'AND';
+
+            /**
              * @type {boolean} remoteFilter - store 외부에서 데이터를 필터링할지 여부
              */
             remoteFilter?: boolean;
@@ -109,13 +114,13 @@ namespace Admin {
         sorters: { [field: string]: 'ASC' | 'DESC' };
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
+        filterMode: 'OR' | 'AND' = 'AND';
         remoteFilter: boolean = false;
         remoteExpand: boolean = false;
         remoteExpander: (record: Admin.TreeData.Record) => Promise<{ [key: string]: object }[]>;
         remotePathFinder: (
             record: Admin.TreeData.Record | { [key: string]: any }
         ) => Promise<{ [key: string]: object }[]>;
-        loading: boolean = false;
         loaded: boolean = false;
         data: Admin.TreeData;
         limit: number;
@@ -141,6 +146,7 @@ namespace Admin {
             this.remoteExpander = this.properties.remoteExpander ?? null;
             this.remotePathFinder = this.properties.remotePathFinder ?? null;
             this.filters = this.properties.filters ?? null;
+            this.filterMode = this.properties.filterMode?.toUpperCase() == 'OR' ? 'OR' : 'AND';
             this.remoteFilter = this.properties.remoteFilter === true;
 
             if (this.filters !== null) {
@@ -197,7 +203,7 @@ namespace Admin {
          * 특정페이지를 로딩한다.
          *
          * @param {number} page - 불러올 페이지
-         * @return {Admin.TreeStore} this
+         * @return {Promise<Admin.TreeStore>} this
          */
         async loadPage(page: number): Promise<Admin.TreeStore> {
             this.page = page;
@@ -301,7 +307,7 @@ namespace Admin {
          * 부모 데이터를 가져온다.
          *
          * @param {Admin.TreeData.Record|Object} child - 부모데이터를 가져올 자식데이터
-         * @return {Object[]} parents - 전체 부모레코드 배열
+         * @return {Promise<Object[]>} parents - 전체 부모레코드 배열
          */
         async getParents(child: Admin.TreeData.Record | { [key: string]: any }): Promise<{ [key: string]: any }[]> {
             if (this.isLoaded() == false) {
@@ -312,7 +318,6 @@ namespace Admin {
                 return child.getParents();
             } else {
                 const record = this.find(child);
-                console.log('loadParents', 'match', record);
                 if (record !== null) {
                     return this.getParents(record);
                 }
@@ -348,6 +353,8 @@ namespace Admin {
 
         /**
          * 데이터를 가져온다.
+         *
+         * @return {Promise<Admin.TreeStore>} this
          */
         async load(): Promise<Admin.TreeStore> {
             return this;
@@ -355,15 +362,19 @@ namespace Admin {
 
         /**
          * 현재 데이터를 새로고침한다.
+         *
+         * @return {Promise<Admin.TreeStore>} this
          */
         async reload(): Promise<Admin.TreeStore> {
-            return this;
+            this.loaded = false;
+            return await this.load();
         }
 
         /**
          * 자식 데이터를 확장한다.
          *
          * @param {number[]|Admin.TreeData.Record} index - 확장할 인덱스 또는 레코드
+         * @return {Promise<Admin.TreeStore>} this
          */
         async expand(index: number[] | Admin.TreeData.Record): Promise<Admin.TreeStore> {
             const record = index instanceof Admin.TreeData.Record ? index : this.get(index);
@@ -407,7 +418,7 @@ namespace Admin {
          * 자식데이터를 불러온다.
          *
          * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
-         * @return {Admin.TreeStore} this
+         * @return {Promise<Admin.TreeStore>} this
          */
         async loadChildren(record: Admin.TreeData.Record): Promise<Admin.TreeStore> {
             return this;
@@ -417,7 +428,7 @@ namespace Admin {
          * 부모데이터를 불러온다.
          *
          * @param {Object} record - 부모데이터를 불러올 자식 레코드
-         * @return {Admin.TreeStore} this
+         * @return {Promise<Admin.TreeStore>} this
          */
         async loadParents(record: { [key: string]: any }): Promise<Admin.TreeStore> {
             return this;
@@ -705,6 +716,21 @@ namespace Admin {
         }
 
         /**
+         * 다중필터를 설정한다.
+         *
+         * @param {Object} filters - 필터설정
+         * @param {'OR'|'AND'} filterMode - 필터모드
+         */
+        async setFilters(
+            filters: { [field: string]: { value: any; operator: string } },
+            filterMode: 'OR' | 'AND' = 'AND'
+        ): Promise<void> {
+            this.filters = filters;
+            this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
+            await this.filter();
+        }
+
+        /**
          * 현재 필터를 가져온다.
          *
          * @return {Object} filters
@@ -732,13 +758,24 @@ namespace Admin {
         }
 
         /**
+         * 필터모드를 변경한다.
+         * 모드변경시에는 필터함수를 자동으로 호출하지 않으므로,
+         * 변경된 모드로 필터링하고자 할때는 filter() 함수를 호출하여야 한다.
+         *
+         * @param {'OR'|'AND'} filterMode - 필터모드
+         */
+        setFilterMode(filterMode: 'OR' | 'AND'): void {
+            this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
+        }
+
+        /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter(): Promise<void> {
             if (this.remoteFilter === true) {
                 await this.reload();
             } else {
-                await this.data?.filter(this.filters);
+                await this.data?.filter(this.filters, this.filterMode);
                 await this.onUpdate();
             }
         }
@@ -770,11 +807,11 @@ namespace Admin {
                 }
             }
 
-            if (Format.isEqual(this.data?.filters, this.filters) == false) {
+            if (Format.isEqual(this.data?.filters, this.filters) == false || this.filterMode != this.data?.filterMode) {
                 if (this.remoteFilter == true) {
                     await this.reload();
                 } else {
-                    await this.data?.filter(this.filters);
+                    await this.data?.filter(this.filters, this.filterMode);
                 }
             }
 
@@ -793,11 +830,11 @@ namespace Admin {
                 } else {
                     await record.sort(this.sorters);
                 }
-            } else if (Format.isEqual(record.filters, this.filters) == false) {
+            } else if (Format.isEqual(record.filters, this.filters) == false || record.filterMode != this.filterMode) {
                 if (this.remoteFilter == true) {
                     await this.loadChildren(record);
                 } else {
-                    await record.filter(this.filters);
+                    await record.filter(this.filters, this.filterMode);
                 }
             }
 
@@ -833,6 +870,8 @@ namespace Admin {
 
             /**
              * 데이터를 가져온다.
+             *
+             * @return {Promise<Admin.TreeStore.Array>} this
              */
             async load(): Promise<Admin.TreeStore.Array> {
                 this.onBeforeLoad();
@@ -862,14 +901,6 @@ namespace Admin {
                 await this.onLoad();
 
                 return this;
-            }
-
-            /**
-             * 현재 데이터를 새로고침한다.
-             */
-            async reload(): Promise<Admin.TreeStore.Array> {
-                this.loaded = false;
-                return await this.load();
             }
         }
 
@@ -929,6 +960,8 @@ namespace Admin {
 
             /**
              * 데이터를 가져온다.
+             *
+             * @return {Promise<Admin.TreeStore.Ajax>} this
              */
             async load(): Promise<Admin.TreeStore.Ajax> {
                 this.onBeforeLoad();
@@ -937,12 +970,6 @@ namespace Admin {
                     await this.onLoad();
                     return this;
                 }
-
-                if (this.loading == true) {
-                    return this;
-                }
-
-                this.loading = true;
 
                 const params = { ...this.params };
 
@@ -976,6 +1003,7 @@ namespace Admin {
                         params.filters = null;
                     } else {
                         params.filters = JSON.stringify(this.filters);
+                        params.filterMode = this.filterMode;
                     }
                 }
 
@@ -998,34 +1026,22 @@ namespace Admin {
 
                     if (this.remoteFilter == true) {
                         const filters = params.filters ? JSON.parse(params.filters) : null;
-                        this.data.filter(filters, false);
+                        this.data.filter(filters, params.filterMode, false);
                     }
-
-                    this.loading = false;
 
                     await this.onLoad();
                 } else {
                     this.loaded = false;
                 }
 
-                this.loading = false;
-
                 return this;
-            }
-
-            /**
-             * 현재 데이터를 새로고침한다.
-             */
-            async reload(): Promise<Admin.TreeStore.Ajax> {
-                this.loaded = false;
-                return await this.load();
             }
 
             /**
              * 자식데이터를 불러온다.
              *
              * @param {Admin.TreeData.Record} record - 자식데이터를 불러올 부모레코드
-             * @return {Admin.TreeStore.Ajax} this
+             * @return {Promise<Admin.TreeStore.Ajax>} this
              */
             async loadChildren(record: Admin.TreeData.Record): Promise<Admin.TreeStore.Ajax> {
                 const params = { ...this.params };
@@ -1056,6 +1072,7 @@ namespace Admin {
                         params.filters = null;
                     } else {
                         params.filters = JSON.stringify(this.filters);
+                        params.filterMode = this.filterMode;
                     }
                 }
 
@@ -1068,7 +1085,7 @@ namespace Admin {
 
                     if (this.remoteFilter == true) {
                         const filters = params.filters ? JSON.parse(params.filters) : null;
-                        this.data.filter(filters, false);
+                        this.data.filter(filters, params.filterMode, false);
                     }
 
                     record.setChildren(results.records);
@@ -1083,10 +1100,9 @@ namespace Admin {
              * 부모데이터를 불러온다.
              *
              * @param {Object} record - 부모데이터를 불러올 자식 레코드
-             * @return {Admin.TreeStore.Ajax} this
+             * @return {Promise<Admin.TreeStore.Ajax>} this
              */
             async loadParents(record: { [key: string]: any }): Promise<Admin.TreeStore.Ajax> {
-                console.log('loadParents', record);
                 const params = { ...this.params };
                 params.child = JSON.stringify(record);
 

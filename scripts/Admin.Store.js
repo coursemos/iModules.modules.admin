@@ -17,8 +17,8 @@ var Admin;
         sorters;
         remoteSort = false;
         filters;
+        filterMode = 'AND';
         remoteFilter = false;
-        loading = false;
         loaded = false;
         data;
         limit;
@@ -38,6 +38,7 @@ var Admin;
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
+            this.filterMode = this.properties.filterMode?.toUpperCase() == 'OR' ? 'OR' : 'AND';
             this.remoteFilter = this.properties.remoteFilter === true;
             if (this.filters !== null) {
                 for (const field in this.filters) {
@@ -88,7 +89,7 @@ var Admin;
          * 특정페이지를 로딩한다.
          *
          * @param {number} page - 불러올 페이지
-         * @return {Admin.Store} this
+         * @return {Promise<Admin.Store>} this
          */
         async loadPage(page) {
             this.page = page;
@@ -182,7 +183,7 @@ var Admin;
         /**
          * 데이터를 가져온다.
          *
-         * @return {Admin.Store} this
+         * @return {Promise<Admin.Store>} this
          */
         async load() {
             return this;
@@ -190,10 +191,11 @@ var Admin;
         /**
          * 현재 데이터를 새로고침한다.
          *
-         * @return {Admin.Store} this
+         * @return {Promise<Admin.Store>} this
          */
         async reload() {
-            return this;
+            this.loaded = false;
+            return await this.load();
         }
         /**
          * 특정 필드의 특정값을 가진 레코드를 찾는다.
@@ -313,18 +315,28 @@ var Admin;
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
         async setFilter(field, value, operator = '=') {
-            this.filters ??= {};
+            this.filters = {};
             this.filters[field] = { value: value, operator: operator };
             await this.filter();
         }
         /**
-         * 특정 필드의 필터를 제거한다.
+         * 다중필터를 설정한다.
          *
-         * @param {string} field
+         * @param {Object} filters - 필터설정
+         * @param {'OR'|'AND'} filterMode - 필터모드
          */
-        async removeFilter(field) {
-            delete this.filters[field];
+        async setFilters(filters, filterMode = 'AND') {
+            this.filters = filters;
+            this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
             await this.filter();
+        }
+        /**
+         * 현재 필터를 가져온다.
+         *
+         * @return {Object} filters
+         */
+        getFilters() {
+            return this.data?.filters ?? this.filters;
         }
         /**
          * 모든 필터를 초기화한다.
@@ -334,6 +346,16 @@ var Admin;
             await this.filter();
         }
         /**
+         * 필터모드를 변경한다.
+         * 모드변경시에는 필터함수를 자동으로 호출하지 않으므로,
+         * 변경된 모드로 필터링하고자 할때는 filter() 함수를 호출하여야 한다.
+         *
+         * @param {'OR'|'AND'} filterMode - 필터모드
+         */
+        setFilterMode(filterMode) {
+            this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
+        }
+        /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter() {
@@ -341,7 +363,7 @@ var Admin;
                 await this.reload();
             }
             else {
-                await this.data?.filter(this.filters);
+                await this.data?.filter(this.filters, this.filterMode);
                 await this.onUpdate();
             }
         }
@@ -370,12 +392,12 @@ var Admin;
                     await this.data?.sort(this.sorters);
                 }
             }
-            if (Format.isEqual(this.data?.filters, this.filters) == false) {
+            if (Format.isEqual(this.data?.filters, this.filters) == false || this.filterMode != this.data?.filterMode) {
                 if (this.remoteFilter == true) {
                     await this.reload();
                 }
                 else {
-                    await this.data?.filter(this.filters);
+                    await this.data?.filter(this.filters, this.filterMode);
                 }
             }
             this.fireEvent('update', [this, this.data]);
@@ -398,6 +420,8 @@ var Admin;
             }
             /**
              * 데이터를 가져온다.
+             *
+             * @return {Promise<Admin.Store.Array>} this
              */
             async load() {
                 this.onBeforeLoad();
@@ -425,13 +449,6 @@ var Admin;
                 await this.onLoad();
                 return this;
             }
-            /**
-             * 현재 데이터를 새로고침한다.
-             */
-            async reload() {
-                this.loaded = false;
-                return await this.load();
-            }
         }
         Store.Array = Array;
         class Ajax extends Admin.Store {
@@ -453,6 +470,8 @@ var Admin;
             }
             /**
              * 데이터를 가져온다.
+             *
+             * @return {Promise<Admin.Store.Ajax>} this
              */
             async load() {
                 this.onBeforeLoad();
@@ -460,10 +479,6 @@ var Admin;
                     await this.onLoad();
                     return this;
                 }
-                if (this.loading == true) {
-                    return this;
-                }
-                this.loading = true;
                 const params = { ...this.params };
                 if (this.fields.length > 0) {
                     const fields = [];
@@ -495,6 +510,7 @@ var Admin;
                     }
                     else {
                         params.filters = JSON.stringify(this.filters);
+                        params.filterMode = this.filterMode;
                     }
                 }
                 const results = await Admin.Ajax.get(this.url, params);
@@ -509,23 +525,14 @@ var Admin;
                     }
                     if (this.remoteFilter == true) {
                         const filters = params.filters ? JSON.parse(params.filters) : null;
-                        this.data.filter(filters, false);
+                        this.data.filter(filters, params.filterMode, false);
                     }
-                    this.loading = false;
                     await this.onLoad();
                 }
                 else {
                     this.loaded = false;
                 }
-                this.loading = false;
                 return this;
-            }
-            /**
-             * 현재 데이터를 새로고침한다.
-             */
-            async reload() {
-                this.loaded = false;
-                return await this.load();
             }
         }
         Store.Ajax = Ajax;
