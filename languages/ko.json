@@ -46,6 +46,9 @@
             },
             "calendar": {
                 "today": "오늘"
+            },
+            "select": {
+                "values": "${display}외 ${count}개"
             }
         }
     },
