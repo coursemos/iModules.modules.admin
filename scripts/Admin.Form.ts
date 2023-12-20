@@ -4621,9 +4621,20 @@ namespace Admin {
                                 promises.push(this.getValueToIndex(v));
                             }
                             Promise.all(promises).then((results) => {
+                                let lastIndex: number | number[] = null;
                                 for (const index of results) {
                                     if (index !== null) {
                                         this.select(index);
+                                    }
+
+                                    lastIndex = index;
+                                }
+
+                                if (lastIndex !== null) {
+                                    if (Array.isArray(lastIndex) == true) {
+                                        (this.getList() as Admin.Tree.Panel).focusRow(lastIndex as number[]);
+                                    } else {
+                                        (this.getList() as Admin.Grid.Panel).focusRow(lastIndex as number);
                                     }
                                 }
                             });
@@ -4631,6 +4642,12 @@ namespace Admin {
                             this.getValueToIndex(value).then((index) => {
                                 if (index !== null) {
                                     this.select(index);
+                                }
+
+                                if (Array.isArray(index) == true) {
+                                    (this.getList() as Admin.Tree.Panel).focusRow(index as number[]);
+                                } else {
+                                    (this.getList() as Admin.Grid.Panel).focusRow(index as number);
                                 }
                             });
                         }

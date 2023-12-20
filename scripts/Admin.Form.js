@@ -3599,9 +3599,19 @@ var Admin;
                                 promises.push(this.getValueToIndex(v));
                             }
                             Promise.all(promises).then((results) => {
+                                let lastIndex = null;
                                 for (const index of results) {
                                     if (index !== null) {
                                         this.select(index);
+                                    }
+                                    lastIndex = index;
+                                }
+                                if (lastIndex !== null) {
+                                    if (Array.isArray(lastIndex) == true) {
+                                        this.getList().focusRow(lastIndex);
+                                    }
+                                    else {
+                                        this.getList().focusRow(lastIndex);
                                     }
                                 }
                             });
@@ -3610,6 +3620,12 @@ var Admin;
                             this.getValueToIndex(value).then((index) => {
                                 if (index !== null) {
                                     this.select(index);
+                                }
+                                if (Array.isArray(index) == true) {
+                                    this.getList().focusRow(index);
+                                }
+                                else {
+                                    this.getList().focusRow(index);
                                 }
                             });
                         }

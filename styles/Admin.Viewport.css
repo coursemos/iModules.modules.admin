@@ -3,7 +3,7 @@
  *
  * 관리자 뷰포트 스타일시트를 정의한다.
  * 
- * @file /styles/Admin.Viewport.scss
+ * @file /styles/Admin.Viewport.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2023. 3. 7.
@@ -201,7 +201,7 @@ div[data-component][data-type='viewport'][data-role='context'] {
             &.selected {
                 > a:not([disabled]) {
                     color: var(--navigation-color-focus);
-                    background: var(--navigation-item-border-color-selected);
+                    background: var(--navigation-item-background-selected);
                 }
             }
         }
@@ -246,7 +246,7 @@ div[data-component][data-type='viewport'][data-role='context'] {
                         height: calc(100% - 4px - var(--navigation-item-height) * 0.5);
                         background: var(--navigation-border-color-default);
                         top: 0;
-                        left: calc(var(--navigation-collapsed-width) * 0.5);
+                        left: calc(var(--navigation-collapsed-width) * 0.5 - 1px);
                         content: ' ';
                     }
                 }
@@ -256,11 +256,11 @@ div[data-component][data-type='viewport'][data-role='context'] {
 
                     &::before {
                         position: absolute;
-                        width: 10px;
+                        width: calc(30px - var(--navigation-collapsed-width) * 0.5 + 1px);
                         height: 1px;
                         background: var(--navigation-border-color-default);
                         top: calc(var(--navigation-item-height) * 0.5 + 1px);
-                        left: calc(var(--navigation-collapsed-width) * 0.5 - 30px);
+                        left: calc(var(--navigation-collapsed-width) * 0.5 - 30px - 1px);
                         content: ' ';
                         opacity: 1;
                         transition: 0.2s ease-in left, opacity;
@@ -404,6 +404,17 @@ div[data-component][data-type='viewport'][data-role='panel'] {
                                             border: 1px solid var(--navigation-border-color-default);
                                             border-radius: 50%;
                                             box-sizing: border-box;
+                                        }
+                                    }
+
+                                    &.selected {
+                                        > a {
+                                            background: transparent;
+
+                                            > i {
+                                                border-color: var(--navigation-item-background-selected);
+                                                background: var(--navigation-item-background-selected);
+                                            }
                                         }
                                     }
                                 }
