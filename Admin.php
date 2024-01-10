@@ -496,7 +496,7 @@ class Admin extends \Module
          * 관리자 기본 리소스를 불러온다.
          */
         \Html::script($this->getBase() . '/scripts/script.js');
-        \Html::style($this->getBase() . '/styles/styles.scss');
+        \Html::style($this->getBase() . '/styles/styles.css');
 
         /**
          * 관리자가 아니라면 로그인 레이아웃을 출력한다.
@@ -579,30 +579,30 @@ class Admin extends \Module
         }
         \Html::script(\Cache::script('admin.interfaces'), 15);
 
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Base.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Loading.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Component.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Absolute.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Resizer.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Title.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Text.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Button.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Panel.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Explorer.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.List.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tree.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Form.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Window.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Message.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Viewport.scss');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.scss');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Base.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Loading.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Component.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Absolute.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Resizer.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Title.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Text.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Button.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Panel.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Explorer.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.List.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tree.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Form.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Window.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Message.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Viewport.css');
+        \Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.css');
         \Html::style(\Cache::style('admin'), 10);
 
-        \Cache::style('admin.interfaces', $this->getBase() . '/admin/styles/Admin.scss');
+        \Cache::style('admin.interfaces', $this->getBase() . '/admin/styles/Admin.css');
         foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
                 \Cache::style(
@@ -611,10 +611,10 @@ class Admin extends \Module
                 );
             }
 
-            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.scss') == true) {
+            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
                 \Cache::style(
                     'admin.interfaces',
-                    $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.scss'
+                    $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.css'
                 );
             }
 
@@ -644,7 +644,7 @@ class Admin extends \Module
         $type = $subPath[1];
         $is_viewer = end($subPath) === 'viewer';
 
-        \Html::style($this->getBase() . '/styles/preview.scss');
+        \Html::style($this->getBase() . '/styles/preview.css');
         \Html::body('data-type', 'preview');
 
         if ($is_viewer === true) {

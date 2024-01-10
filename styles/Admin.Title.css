@@ -3,7 +3,7 @@
  *
  * 제목 스타일시트를 정의한다.
  * 
- * @file /styles/Admin.Title.scss
+ * @file /styles/Admin.Title.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2023. 6. 2.
@@ -18,7 +18,6 @@ div[data-component][data-type='title'][data-role='title'] {
         flex-direction: row;
         align-items: stretch;
 
-        // @todo 좌 버튼영역
         > div[data-role='top'] {
         }
 

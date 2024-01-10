@@ -3,7 +3,7 @@
  *
  * 관리자 기본테마 - 스타일시트
  *
- * @file /modules/admin/themes/default/styles/style.scss
+ * @file /modules/admin/themes/default/styles/style.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2023. 3. 6.
@@ -146,7 +146,7 @@
     --navigation-item-margin: 2px;
     --navigation-item-border-color-drag: #9e9ea6;
     --navigation-item-border-color-drop: var(--color-primary-500);
-    --navigation-item-border-color-selected: var(--color-primary-500);
+    --navigation-item-background-selected: var(--color-primary-500);
 
     --title-height: calc(var(--text-height) + var(--padding-large) * 2);
     --title-background: var(--color-primary-400);

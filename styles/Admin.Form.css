@@ -3,7 +3,7 @@
  *
  * 폼 관련 스타일시트를 정의한다.
  * 
- * @file /styles/Admin.Form.scss
+ * @file /styles/Admin.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2023. 9. 18.
@@ -741,21 +741,20 @@ div[data-component][data-type='form'][data-role='field'] {
                         box-sizing: border-box;
                         position: relative;
 
-                        > i.icon {
+                        > i {
                             width: 50%;
                             height: 50%;
                             left: 25%;
                             top: 25%;
                         }
 
-                        > div.image {
+                        > div {
                             background-color: var(--input-background-default);
                         }
 
-                        > div.progress {
+                        > progress {
                             width: 80%;
                             height: 8px;
-                            background: rgba(0, 0, 0, 0.5);
                             border: 1px solid rgba(0, 0, 0, 0.6);
                             bottom: 10px;
                             left: 10%;
@@ -763,9 +762,11 @@ div[data-component][data-type='form'][data-role='field'] {
                             box-sizing: border-box;
                             overflow: hidden;
 
-                            > div {
-                                width: calc(var(--percentage) * 1%);
-                                height: 6px;
+                            &::-webkit-progress-bar {
+                                background: rgba(0, 0, 0, 0.5);
+                            }
+
+                            &::-webkit-progress-value {
                                 background: #fff;
                                 border-radius: 3px;
                             }
@@ -874,10 +875,10 @@ div[data-component][data-type='form'][data-role='field'] {
 
                     &[data-status='WAITING'] {
                         > div[data-role='preview'] {
-                            > div.progress {
-                                > div {
-                                    animation: form-field-file-progress-loading infinite 2s;
+                            > progress {
+                                &::-webkit-progress-value {
                                     width: 20%;
+                                    animation: form-field-file-progress-loading infinite 2s;
                                 }
                             }
                         }
@@ -886,7 +887,7 @@ div[data-component][data-type='form'][data-role='field'] {
                     &[data-status='COMPLETE'],
                     &[data-status='LOADING'] {
                         > div[data-role='preview'] {
-                            > div.progress {
+                            > progress {
                                 display: none;
                             }
                         }
@@ -966,21 +967,20 @@ div[data-component][data-type='form'][data-role='field'] {
                             box-sizing: border-box;
                             position: static;
 
-                            > i.icon {
+                            > i {
                                 display: none;
                             }
 
-                            > div.image {
+                            > div {
                                 position: static;
                                 background-size: contain;
                                 background-repeat: no-repeat;
                                 background-position: 50% 50%;
                             }
 
-                            > div.progress {
+                            > progress {
                                 width: 80%;
                                 height: 8px;
-                                background: rgba(0, 0, 0, 0.5);
                                 border: 1px solid rgba(0, 0, 0, 0.6);
                                 bottom: 10px;
                                 left: 10%;
@@ -988,9 +988,11 @@ div[data-component][data-type='form'][data-role='field'] {
                                 box-sizing: border-box;
                                 overflow: hidden;
 
-                                > div {
-                                    width: calc(var(--percentage) * 1%);
-                                    height: 6px;
+                                &::-webkit-progress-bar {
+                                    background: rgba(0, 0, 0, 0.5);
+                                }
+
+                                &::-webkit-progress-value {
                                     background: #fff;
                                     border-radius: 3px;
                                 }
@@ -1023,10 +1025,10 @@ div[data-component][data-type='form'][data-role='field'] {
 
                         &[data-status='WAITING'] {
                             > div[data-role='preview'] {
-                                > div.progress {
-                                    > div {
-                                        animation: form-field-file-progress-loading infinite 2s;
+                                > progress {
+                                    &::-webkit-progress-value {
                                         width: 20%;
+                                        animation: form-field-file-progress-loading infinite 2s;
                                     }
                                 }
                             }
@@ -1035,7 +1037,7 @@ div[data-component][data-type='form'][data-role='field'] {
                         &[data-status='COMPLETE'],
                         &[data-status='LOADING'] {
                             > div[data-role='preview'] {
-                                > div.progress {
+                                > progress {
                                     display: none;
                                 }
                             }
@@ -1148,6 +1150,9 @@ div[data-component][data-type='form'][data-role='field'] {
                 padding: var(--padding-default);
                 height: var(--text-height);
                 line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             &::before {
