@@ -112,7 +112,7 @@ abstract class Admin
      */
     final public function addContext(string $path, string $title, string $icon = '', bool $is_root = false): void
     {
-        $context = new \modules\admin\dto\Context($this, $title, $icon);
+        $context = new \modules\admin\dtos\Context($this, $title, $icon);
         $context->setContext($path, $is_root);
 
         $this->getAdmin()->addContext($context);
@@ -128,7 +128,7 @@ abstract class Admin
      */
     final public function addLink(string $url, string $title, string $target = '_self', string $icon = ''): void
     {
-        $context = new \modules\admin\dto\Context($this, $title, $icon);
+        $context = new \modules\admin\dtos\Context($this, $title, $icon);
         $context->setLink($url, $target);
         $this->getAdmin()->addContext($context);
     }

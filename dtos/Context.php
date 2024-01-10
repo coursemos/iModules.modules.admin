@@ -4,14 +4,12 @@
  *
  * 모듈관리자 컨텍스트 구조체를 정의한다.
  *
- * @file /modules/admin/dto/Context.php
+ * @file /modules/admin/dtos/Context.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2023. 5. 30.
  */
-
-namespace modules\admin\dto;
-
+namespace modules\admin\dtos;
 class Context
 {
     /**
@@ -50,7 +48,7 @@ class Context
     private string $_smart = 'none';
 
     /**
-     * @var \modules\admin\dto\Context[] $_children 자식 컨텍스트
+     * @var \modules\admin\dtos\Context[] $_children 자식 컨텍스트
      */
     private array $_children = [];
 
@@ -102,7 +100,7 @@ class Context
     /**
      * 폴더 컨텍스트를 설정한다.
      *
-     * @param \modules\admin\dto\Context[] $children 자식컨텍스트
+     * @param \modules\admin\dtos\Context[] $children 자식컨텍스트
      * @param string $smart 스마트폴더 여부
      */
     public function setFolder(array $children, string $smart = 'none'): void
@@ -144,7 +142,7 @@ class Context
                     return '#';
                 }
 
-                // no break
+            // no break
             case 'LINK':
                 return $this->_path;
 
@@ -210,7 +208,7 @@ class Context
     /**
      * 자식 컨텍스트를 종류를 가져온다.
      *
-     * @return \modules\admin\dto\Context[] $children
+     * @return \modules\admin\dtos\Context[] $children
      */
     public function getChildren(): array
     {

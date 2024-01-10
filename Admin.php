@@ -16,12 +16,12 @@ namespace modules\admin;
 class Admin extends \Module
 {
     /**
-     * @var \modules\admin\dto\Context[] $_contexts 전체 관리자 컨텍스트 정보
+     * @var \modules\admin\dtos\Context[] $_contexts 전체 관리자 컨텍스트 정보
      */
     private static array $_contexts;
 
     /**
-     * @var \modules\admin\dto\Context[] $_tree 유저가 설정한 컨텍스트 트리
+     * @var \modules\admin\dtos\Context[] $_tree 유저가 설정한 컨텍스트 트리
      */
     private static array $_tree;
 
@@ -75,7 +75,7 @@ class Admin extends \Module
     /**
      * 관리자 컨텍스트를 추가한다.
      */
-    public function addContext(\modules\admin\dto\Context $context): void
+    public function addContext(\modules\admin\dtos\Context $context): void
     {
         if (isset(self::$_contexts[$context->getPath()]) == true) {
             \ErrorHandler::print(
@@ -132,7 +132,7 @@ class Admin extends \Module
      * 관리자 전체 컨텍스트를 가져온다.
      *
      * @param bool $is_all_contexts 전체 컨텍스트를 경로와 함께 반환할지 여부
-     * @return \modules\admin\dto\Context[] $contexts
+     * @return \modules\admin\dtos\Context[] $contexts
      */
     public function getAdminContexts(bool $is_all_contexts = false): array
     {
@@ -243,7 +243,7 @@ class Admin extends \Module
                     $item->title = $this->getText('admin.navigation.folder.preset.' . substr($item->title, 1));
                 }
 
-                $folder = new \modules\admin\dto\Context($this->getAdminClass($this), $item->title, $item->icon);
+                $folder = new \modules\admin\dtos\Context($this->getAdminClass($this), $item->title, $item->icon);
                 $folder->setFolder($children, $item->smart);
 
                 $contexts[] = $folder;
@@ -269,9 +269,9 @@ class Admin extends \Module
      * 현재 관리자 경로에 해당하는 컨텍스트를 가져온다.
      *
      * @param \Route $route 현재 경로
-     * @return ?\modules\admin\dto\Context $context
+     * @return ?\modules\admin\dtos\Context $context
      */
-    public function getAdminContext(\Route $route): ?\modules\admin\dto\Context
+    public function getAdminContext(\Route $route): ?\modules\admin\dtos\Context
     {
         $contexts = $this->getAdminContexts();
         $paths = array_keys(self::$_contexts);
