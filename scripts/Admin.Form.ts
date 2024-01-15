@@ -6667,13 +6667,13 @@ namespace Admin {
                             valueField: 'name',
                             listField: 'name',
                             listClass: 'template',
-                            listRenderer: (display: string, record: Admin.Data.Record) => {
+                            listRenderer: (_display: string, record: Admin.Data.Record) => {
                                 const html = [
-                                    '<div>',
-                                    '    <i style="background-image:url(' + record.data.screenshot + ');"></i>',
+                                    '<div class="theme">',
+                                    '    <i style="background-image:url(' + record.get('screenshot') + ');"></i>',
                                     '    <div class="text">',
-                                    '        <b>' + display + '</b>',
-                                    '        <small>(' + record.data.dir + ')</small>',
+                                    '        <b>' + record.get('title') + '</b>',
+                                    '        <small>(' + record.get('dir') + ')</small>',
                                     '    </div>',
                                     '</div>',
                                 ];
