@@ -59,7 +59,7 @@ if ($sorters !== null) {
 
 $records = $records->limit($start, $limit)->get();
 foreach ($records as &$record) {
-    $record->photo = $mMember->getMemberPhotoUrl($record->member_id);
+    $record->photo = $mMember->getMemberPhoto($record->member_id);
     $administrator = $me->getAdministrator($record->member_id);
     $record->groups = $me
         ->db()

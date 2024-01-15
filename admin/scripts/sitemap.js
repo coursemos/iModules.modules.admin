@@ -71,7 +71,7 @@ Admin.ready(async () => {
                             text: me.printText('admin.sitemap.domains.edit'),
                             iconClass: 'xi xi-form-checkout',
                             handler: () => {
-                                me.sitemap.sites.add(record.get('host'));
+                                me.sitemap.domains.add(record.get('host'));
                             },
                         });
                     },
