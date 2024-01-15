@@ -3086,8 +3086,11 @@ namespace Admin {
                             }
 
                             if (e.key == 'Escape') {
-                                this.collapse();
-                                e.stopPropagation();
+                                if (this.isExpand() == true) {
+                                    this.collapse();
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }
                             }
                         });
 
@@ -4592,9 +4595,11 @@ namespace Admin {
                         }
 
                         if (e.key == 'Escape') {
-                            this.collapse();
-                            e.preventDefault();
-                            e.stopPropagation();
+                            if (this.isExpand() == true) {
+                                this.collapse();
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }
                         }
 
                         if (e.key == 'Enter') {

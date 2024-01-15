@@ -2412,8 +2412,11 @@ var Admin;
                                 e.stopPropagation();
                             }
                             if (e.key == 'Escape') {
-                                this.collapse();
-                                e.stopPropagation();
+                                if (this.isExpand() == true) {
+                                    this.collapse();
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }
                             }
                         });
                         this.$input.on('input', () => {
@@ -3574,9 +3577,11 @@ var Admin;
                             e.stopPropagation();
                         }
                         if (e.key == 'Escape') {
-                            this.collapse();
-                            e.preventDefault();
-                            e.stopPropagation();
+                            if (this.isExpand() == true) {
+                                this.collapse();
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }
                         }
                         if (e.key == 'Enter') {
                             this.$getButton().focus();
