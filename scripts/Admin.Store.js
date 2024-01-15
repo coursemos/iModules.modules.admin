@@ -530,7 +530,7 @@ var Admin;
                     await this.onLoad();
                 }
                 else {
-                    this.loaded = false;
+                    this.loaded = true;
                 }
                 return this;
             }
