@@ -5174,6 +5174,7 @@ namespace Admin {
 
                     this.host = this.properties.host;
                     this.language = this.properties.language;
+                    this.scrollable = true;
 
                     this.rawValue = this.properties.value ?? null;
 
@@ -5181,6 +5182,8 @@ namespace Admin {
                         type: 'column',
                         direction: 'row',
                     });
+
+                    this.$scrollable = this.$getContent();
                 }
 
                 /**
@@ -5293,6 +5296,7 @@ namespace Admin {
                  */
                 onUpdate(): void {
                     const $pages = this.$getPages();
+                    $pages.empty();
 
                     for (const record of this.getStore().getRecords()) {
                         const $page = Html.create('li', { 'data-name': record.get('name') });

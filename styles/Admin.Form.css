@@ -1331,18 +1331,18 @@ div[data-component][data-type='form'][data-role='field'] {
 
     > div[data-role='container'] > div[data-role='content'][data-field='page'] {
         position: relative;
-        height: 220px;
+        min-height: 220px;
 
         > ul[data-role='pages'] {
             display: flex;
             flex-direction: row;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 5px;
             list-style: none;
             min-height: 220px;
 
             > li {
-                flex-basis: 130px;
+                flex-basis: 128px;
                 flex-shrink: 0;
                 flex-grow: 0;
                 overflow: hidden;

@@ -4070,11 +4070,13 @@ var Admin;
                     super(properties);
                     this.host = this.properties.host;
                     this.language = this.properties.language;
+                    this.scrollable = true;
                     this.rawValue = this.properties.value ?? null;
                     this.loading = new Admin.Loading(this, {
                         type: 'column',
                         direction: 'row',
                     });
+                    this.$scrollable = this.$getContent();
                 }
                 /**
                  * 페이지목록이 보일 DOM 을 가져온다.
@@ -4176,6 +4178,7 @@ var Admin;
                  */
                 onUpdate() {
                     const $pages = this.$getPages();
+                    $pages.empty();
                     for (const record of this.getStore().getRecords()) {
                         const $page = Html.create('li', { 'data-name': record.get('name') });
                         const $iframe = Html.create('iframe', { 'src': record.get('preview'), 'tabindex': '-1' });
