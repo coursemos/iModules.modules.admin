@@ -25,7 +25,7 @@ var Admin;
             /**
              * 탭패널을 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.Tab.Panel.Properties} properties - 객체설정
              */
             constructor(properties = null) {
                 super(properties);
@@ -103,6 +103,7 @@ var Admin;
                     }
                     tab.show();
                     this.bar.active(tab.getId());
+                    this.onActive(tab);
                 }
             }
             /**
@@ -148,8 +149,18 @@ var Admin;
              * 탭패널이 화면상에 출력되었을 때 이벤트를 처리한다.
              */
             onRender() {
-                this.active(this.activeTab);
                 super.onRender();
+                if (this.activeTabId === null) {
+                    this.active(this.activeTab);
+                }
+            }
+            /**
+             * 활성화된 탭이 변경되었을 때
+             *
+             * @param {Admin.Panel} panel - 활성화된 탭패널
+             */
+            onActive(panel) {
+                this.fireEvent('active', [panel, this]);
             }
         }
         Tab.Panel = Panel;
@@ -165,6 +176,7 @@ var Admin;
              * @param {Object} properties - 객체설정
              */
             constructor(properties = null) {
+                properties.id = properties.id + '-Bar';
                 super(properties);
                 this.border = this.properties.border ?? true;
                 this.position = this.properties.tabPosition ?? 'bottom';

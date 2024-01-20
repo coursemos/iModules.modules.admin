@@ -10,6 +10,32 @@
  */
 namespace Admin {
     export namespace Tab {
+        export namespace Panel {
+            export interface Listeners extends Admin.Panel.Listeners {
+                /**
+                 * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+                 */
+                render?: (panel: Admin.Tab.Panel) => void;
+
+                /**
+                 * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+                 */
+                active?: (panel: Admin.Panel, tab: Admin.Tab.Panel) => void;
+            }
+
+            export interface Properties extends Admin.Panel.Properties {
+                /**
+                 * @type {Admin.Panel[]} items - 내부 패널
+                 */
+                items?: Admin.Panel[];
+
+                /**
+                 * @type {Admin.Tab.Panel.Listeners} listeners - 이벤트리스너
+                 */
+                listeners?: Admin.Tab.Panel.Listeners;
+            }
+        }
+
         /**
          * 탭패널 클래스를 정의한다.
          */
@@ -25,9 +51,9 @@ namespace Admin {
             /**
              * 탭패널을 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Admin.Tab.Panel.Properties} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
+            constructor(properties: Admin.Tab.Panel.Properties = null) {
                 super(properties);
 
                 this.activeTab = this.properties.activeTab ?? 0;
@@ -111,6 +137,7 @@ namespace Admin {
                     }
                     tab.show();
                     this.bar.active(tab.getId());
+                    this.onActive(tab);
                 }
             }
 
@@ -161,9 +188,20 @@ namespace Admin {
             /**
              * 탭패널이 화면상에 출력되었을 때 이벤트를 처리한다.
              */
-            onRender() {
-                this.active(this.activeTab);
+            onRender(): void {
                 super.onRender();
+                if (this.activeTabId === null) {
+                    this.active(this.activeTab);
+                }
+            }
+
+            /**
+             * 활성화된 탭이 변경되었을 때
+             *
+             * @param {Admin.Panel} panel - 활성화된 탭패널
+             */
+            onActive(panel: Admin.Panel): void {
+                this.fireEvent('active', [panel, this]);
             }
         }
 
@@ -180,6 +218,7 @@ namespace Admin {
              * @param {Object} properties - 객체설정
              */
             constructor(properties: { [key: string]: any } = null) {
+                properties.id = properties.id + '-Bar';
                 super(properties);
 
                 this.border = this.properties.border ?? true;
