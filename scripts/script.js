@@ -21,7 +21,6 @@ Html.ready(() => {
         form.onSubmit(async () => {
             const $message = Html.get('div[data-role=message]', $form);
             $message.remove();
-            const form = Form.get($form);
             const results = await form.submit(iModules.getProcessUrl('module', 'admin', 'login'));
             if (results.success == true) {
                 location.replace(location.href);
