@@ -550,19 +550,19 @@ class Admin extends \Module
 
         \Cache::script('Admin.component', $this->getBase() . '/admin/scripts/Component.js');
         foreach (\Modules::all(false) as $module) {
-            if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . 'Admin.js') == true) {
+            if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . '.js') == true) {
                 \Cache::script(
-                    'admin.interfaces',
-                    $module->getBase() . '/admin/scripts/' . $module->getClassName() . 'Admin.js'
+                    'Admin.component',
+                    $module->getBase() . '/admin/scripts/' . $module->getClassName() . '.js'
                 );
             }
 
             $scripts = $this->getAdminClass($module)?->scripts() ?? [];
             foreach ($scripts as $script) {
-                \Cache::script('admin.interfaces', $script);
+                \Cache::script('Admin.component', $script);
             }
         }
-        \Html::script(\Cache::script('admin.interfaces'), 15);
+        \Html::script(\Cache::script('Admin.component'), 20);
 
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Base.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Loading.css');
