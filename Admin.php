@@ -525,8 +525,6 @@ class Admin extends \Module
          * 기본 자바스크립트파일을 불러온다.
          * 사용되는 모든 스크립트 파일을 캐시를 이용해 압축한다.
          */
-
-        \Cache::script('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Base.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Loading.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Ajax.js');
@@ -554,6 +552,13 @@ class Admin extends \Module
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Viewport.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Menu.js');
         \Html::script(\Cache::script('Aui'), 10);
+
+        \Cache::script('Admin.ui', $this->getBase() . '/admin/scripts/ui/Admin.js');
+        \Cache::script('Admin.ui', $this->getBase() . '/admin/scripts/ui/AdminUi.Form.js');
+        \Cache::script('Admin.ui', $this->getBase() . '/admin/scripts/ui/AdminUi.Viewport.js');
+        \Html::script(\Cache::script('Admin.ui'), 15);
+
+        \Cache::script('Admin.component', $this->getBase() . '/admin/scripts/Component.js');
         foreach (\Modules::all(false) as $module) {
             if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . 'Admin.js') == true) {
                 \Cache::script(
