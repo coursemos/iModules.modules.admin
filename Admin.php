@@ -491,27 +491,20 @@ class Admin extends \Module
         \Html::font('FontAwesome');
 
         /**
-         * 관리자 기본 리소스를 불러온다.
+         * BODY 타입을 지정한다.
          */
-        \Html::script($this->getBase() . '/scripts/script.js');
-        \Html::style($this->getBase() . '/styles/styles.css');
+        \Html::body('data-role', 'module');
+        \Html::body('data-module', 'admin');
+        \Html::body('data-type', 'admin');
 
         /**
          * 관리자가 아니라면 로그인 레이아웃을 출력한다.
          */
         if ($this->isAdministrator() == false) {
-            /**
-             * BODY 타입을 지정한다.
-             */
-            \Html::body('data-type', 'login');
+            \Html::style($this->getBase() . '/admin/styles/Admin.css', 15);
 
             return $theme->getLayout('login');
         }
-
-        /**
-         * BODY 타입을 지정한다.
-         */
-        \Html::body('data-type', 'admin');
 
         $theme->assign('mMember', $mMember);
         $theme->assign('member', $member);
@@ -576,8 +569,6 @@ class Admin extends \Module
         }
         \Html::script(\Cache::script('admin.interfaces'), 15);
 
-
-        \Cache::style('admin.interfaces', $this->getBase() . '/admin/styles/Admin.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Base.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Loading.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Scroll.css');
@@ -599,27 +590,29 @@ class Admin extends \Module
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Viewport.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Menu.css');
         \Html::style(\Cache::style('Aui'), 10);
+
+        \Cache::style('Admin.Component', $this->getBase() . '/admin/styles/Admin.css');
         foreach (\Modules::all() as $module) {
-            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
+            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . '.scss') == true) {
                 \Cache::style(
-                    'admin.interfaces',
-                    $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.css'
+                    'Admin.Component',
+                    $module->getBase() . '/admin/styles/' . $module->getClassName() . '.scss'
                 );
             }
 
-            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
+            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . '.css') == true) {
                 \Cache::style(
-                    'admin.interfaces',
-                    $module->getBase() . '/admin/styles/' . $module->getClassName() . 'Admin.css'
+                    'Admin.Component',
+                    $module->getBase() . '/admin/styles/' . $module->getClassName() . '.css'
                 );
             }
 
             $styles = $this->getAdminClass($module)?->styles() ?? [];
             foreach ($styles as $style) {
-                \Cache::style('admin.interfaces', $style);
+                \Cache::style('Admin.Component', $style);
             }
         }
-        \Html::style(\Cache::style('admin.interfaces'), 15);
+        \Html::style(\Cache::style('Admin.Component'), 20);
 
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));

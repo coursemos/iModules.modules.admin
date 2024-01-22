@@ -6,52 +6,63 @@
  * @file /modules/admin/admin/styles/Admin.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 26.
+ * @modified 2024. 1. 23.
  */
-section[data-role='admin'],
-main[data-role='admin'] {
-    z-index: 0;
+html,
+body[data-type='admin'],
+body[data-type='login'],
+body[data-type='preview'] {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-touch-callout: none;
 
-    i.icon,
-    i.photo {
-        font-style: normal;
-        font-weight: 400;
-        display: inline-block;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: 50% 50%;
-        text-align: center;
-        box-sizing: border-box;
-    }
+    section[data-role='admin'],
+    main[data-role='admin'] {
+        z-index: 0;
 
-    i.photo {
-        border-radius: 50%;
-        border: 1px solid #ccc;
-    }
+        i.icon,
+        i.photo {
+            font-style: normal;
+            font-weight: 400;
+            display: inline-block;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: 50% 50%;
+            text-align: center;
+            box-sizing: border-box;
+        }
 
-    time {
-        display: inline-block;
-        width: 100%;
-        font-size: 90%;
-        line-height: 1;
-        font-variant-numeric: tabular-nums;
-        text-align: center;
-    }
+        i.photo {
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
 
-    div[data-component][data-type='form'][data-role='field'].context_type {
-        label {
-            > span {
-                padding: 4px 12px !important;
-                text-align: center;
+        time {
+            display: inline-block;
+            width: 100%;
+            font-size: 90%;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+        }
 
-                > i {
-                    display: block;
-                    margin: 5px auto;
-                    font-size: 20px;
-                }
-
+        div[data-component][data-type='form'][data-role='field'].context_type {
+            label {
                 > span {
-                    white-space: nowrap;
+                    padding: 4px 12px !important;
+                    text-align: center;
+
+                    > i {
+                        display: block;
+                        margin: 5px auto;
+                        font-size: 20px;
+                    }
+
+                    > span {
+                        white-space: nowrap;
+                    }
                 }
             }
         }
