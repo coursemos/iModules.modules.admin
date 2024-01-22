@@ -612,7 +612,7 @@ class Admin extends \Module
                 );
             }
 
-            $styles = $this->getAdminClass($module)?->styles() ?? [];
+            $styles = $module->getAdmin()?->getStyles() ?? [];
             foreach ($styles as $style) {
                 \Cache::style('Admin.Component', $style);
             }
@@ -695,7 +695,7 @@ class Admin extends \Module
              * 관리자 컨텍스트 URL 이 이미 정의된 경우
              */
             case 'DUPLICATED_ADMIN_CONTEXT_PATH':
-                $error = \ErrorHandler::data($code, $this);
+                $error = \ErrorHandler::data($code);
                 $error->message = $this->getErrorText('DUPLICATED_ADMIN_CONTEXT_PATH', [
                     'path' => $message,
                     'name' => $details->getComponent()->getTitle($this->getLanguage()),
@@ -708,9 +708,9 @@ class Admin extends \Module
              * 그렇지 않은 경우 권한이 부족하다는 에러메시지를 표시한다.
              */
             case 'FORBIDDEN':
-                $error = \ErrorHandler::data($code, $this);
+                $error = \ErrorHandler::data($code);
                 /**
-                 * @var ModuleMember $mMember
+                 * @var \modules\member\Member $mMember
                  */
                 $mMember = \Modules::get('member');
                 if ($mMember->isLogged() == true) {
