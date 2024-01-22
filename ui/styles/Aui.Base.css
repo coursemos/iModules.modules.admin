@@ -1,0 +1,15 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 관리자 UI 컴포넌트 기본 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Base.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+body[data-type='admin'] {
+    section[data-role='admin'] {
+        z-index: 0;
+    }
+}

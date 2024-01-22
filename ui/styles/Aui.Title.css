@@ -1,0 +1,109 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 제목 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Title.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-component][data-type='title'][data-role='title'] {
+    > div[data-role='container'] {
+        width: 100%;
+        height: var(--title-height);
+        background: var(--title-background);
+        color: var(--title-color);
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+
+        > div[data-role='top'] {
+        }
+
+        > div[data-role='content'] {
+            flex-grow: 1;
+            font-weight: normal;
+            height: var(--title-height);
+            padding: var(--padding-large);
+            box-sizing: border-box;
+            font-size: 0;
+
+            > i {
+                display: inline-block;
+                vertical-align: top;
+                font-size: var(--font-size-large);
+                width: 34px;
+                height: calc(var(--title-height) - var(--padding-large) * 2);
+                line-height: calc(var(--title-height) - var(--padding-large) * 2);
+                padding-left: var(--padding-default);
+                padding-right: var(--padding-default);
+                box-sizing: border-box;
+            }
+
+            > span {
+                display: inline-block;
+                vertical-align: top;
+                font-size: var(--font-size-default);
+                width: 100%;
+                height: calc(var(--title-height) - var(--padding-large) * 2);
+                line-height: calc(var(--title-height) - var(--padding-large) * 2);
+                font-family: var(--font-family-default);
+                padding-left: var(--padding-default);
+                box-sizing: border-box;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            > i + span {
+                padding-left: 0;
+                width: calc(100% - 34px);
+            }
+
+            &.movable {
+                cursor: move;
+            }
+        }
+
+        > div[data-role='bottom'] {
+            flex-shrink: 0;
+            flex-basis: 0;
+            width: fit-content;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            column-gap: 4px;
+            padding: var(--padding-default);
+
+            > div[data-component] {
+                width: var(--text-height);
+                height: var(--text-height);
+
+                > div[data-role='container'] {
+                    width: 100%;
+                    height: 100%;
+
+                    > div[data-role='content'] {
+                        width: 100%;
+                        height: 100%;
+
+                        > button {
+                            display: block;
+                            width: 100%;
+                            height: 100%;
+                            cursor: pointer;
+                            background: transparent;
+                            border: 0;
+                            color: var(--title-color);
+                            font-size: var(--font-size-default);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+div[data-component].moving {
+    opacity: 0.7;
+}

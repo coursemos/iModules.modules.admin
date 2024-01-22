@@ -8,11 +8,9 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 8. 2.
+ * @modified 2024. 1. 23.
  */
-
 namespace modules\admin;
-
 class Admin extends \Module
 {
     /**
@@ -534,36 +532,35 @@ class Admin extends \Module
          * 기본 자바스크립트파일을 불러온다.
          * 사용되는 모든 스크립트 파일을 캐시를 이용해 압축한다.
          */
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Base.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Loading.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Ajax.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Scrollbar.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Drag.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Resizer.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Data.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.TreeData.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Component.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Absolute.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Store.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.TreeStore.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Title.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Text.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Button.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Panel.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Explorer.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.List.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Toolbar.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Tab.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Grid.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Tree.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Form.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Window.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Message.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Viewport.js');
-        \Cache::script('admin', $this->getBase() . '/scripts/Admin.Menu.js');
-        \Html::script(\Cache::script('admin'), 10);
 
         \Cache::script('admin.interfaces', $this->getBase() . '/admin/scripts/Admin.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Base.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Loading.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Ajax.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Scroll.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Drag.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Resizer.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Data.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.TreeData.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Component.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Absolute.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Store.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.TreeStore.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Title.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Text.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Button.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Panel.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Explorer.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Toolbar.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Tab.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Grid.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Tree.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Form.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Window.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Message.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Viewport.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Menu.js');
+        \Html::script(\Cache::script('Aui'), 10);
         foreach (\Modules::all(false) as $module) {
             if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . 'Admin.js') == true) {
                 \Cache::script(
@@ -579,30 +576,29 @@ class Admin extends \Module
         }
         \Html::script(\Cache::script('admin.interfaces'), 15);
 
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Base.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Loading.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Scrollbar.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Component.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Absolute.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Resizer.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Title.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Text.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Button.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Panel.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Explorer.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.List.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Toolbar.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tab.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Grid.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Tree.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Form.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Window.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Message.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Viewport.css');
-        \Cache::style('admin', $this->getBase() . '/styles/Admin.Menu.css');
-        \Html::style(\Cache::style('admin'), 10);
 
         \Cache::style('admin.interfaces', $this->getBase() . '/admin/styles/Admin.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Base.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Loading.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Scroll.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Component.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Absolute.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Resizer.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Title.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Text.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Button.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Panel.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Explorer.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Toolbar.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Tab.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Grid.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Tree.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Form.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Window.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Message.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Viewport.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Menu.css');
+        \Html::style(\Cache::style('Aui'), 10);
         foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . 'Admin.css') == true) {
                 \Cache::style(

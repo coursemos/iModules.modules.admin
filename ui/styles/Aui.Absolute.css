@@ -1,0 +1,55 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 절대위치 컴포넌트 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Absolute.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+section[data-role='admin'][data-type='absolutes'] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2000;
+
+    > div[data-component][data-type='absolute'] {
+        position: fixed;
+        z-index: 0;
+
+        > div[data-role='container'] {
+            display: flex;
+            flex-direction: column;
+            border-width: 0;
+            border-style: solid;
+            border-color: var(--panel-border-color-default);
+
+            &.border {
+                border-width: 1px;
+            }
+
+            &.borderTop {
+                border-top-width: 1px;
+            }
+
+            &.borderRight {
+                border-right-width: 1px;
+            }
+
+            &.borderBottom {
+                border-bottom-width: 1px;
+            }
+
+            &.borderLeft {
+                border-left-width: 1px;
+            }
+
+            > div[data-role='content'] {
+                max-width: inherit;
+                max-height: inherit;
+                flex-shrink: 1;
+            }
+        }
+    }
+}

@@ -1,0 +1,80 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 컴포넌트 기본 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Component.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-component] {
+    z-index: 0;
+    box-sizing: border-box;
+    outline: none;
+
+    > div[data-role='container'] {
+        max-width: inherit;
+        max-height: inherit;
+        box-sizing: border-box;
+
+        > div[data-role='top'] {
+            box-sizing: border-box;
+        }
+
+        > div[data-role='content'] {
+            box-sizing: border-box;
+        }
+
+        > div[data-role='bottom'] {
+            box-sizing: border-box;
+        }
+    }
+
+    &.fit {
+        width: 100%;
+        height: 100%;
+    }
+
+    &.column {
+        width: 100%;
+        height: 100%;
+
+        > div[data-role='container'] {
+            > div[data-role='content'] {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+                overflow: scroll;
+
+                > div[data-component] {
+                    flex-shrink: 0;
+                }
+            }
+        }
+    }
+
+    &.column-item {
+        flex-shrink: 0;
+    }
+
+    &.column {
+        > div[data-role='container'] {
+            > div[data-role='content'] {
+                > div[data-component].column-item {
+                }
+            }
+        }
+    }
+
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+
+    &.selectable {
+        user-select: text;
+        -webkit-user-select: text;
+        -ms-user-select: text;
+    }
+}

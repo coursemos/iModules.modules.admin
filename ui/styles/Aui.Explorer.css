@@ -1,0 +1,23 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 탐색기 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Explorer.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-component][data-type='panel'][data-role='explorer'] {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            display: flex;
+            flex-direction: row;
+
+            > div[data-component] {
+                flex-shrink: 0;
+                flex-grow: 0;
+            }
+        }
+    }
+}

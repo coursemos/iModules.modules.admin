@@ -1,0 +1,231 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 버튼 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Button.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-component][data-type='button'][data-role='button'] {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            > button {
+                outline: none;
+                height: var(--text-height);
+                border: 1px solid var(--button-border-color-default);
+                background: var(--button-background-default);
+                color: var(--button-color-default);
+                cursor: pointer;
+                font-size: var(--font-size-default);
+                font-family: var(--font-family-default);
+                box-sizing: border-box;
+                white-space: nowrap;
+                position: relative;
+                z-index: 0;
+
+                > i {
+                    display: inline-block;
+                    font-style: normal;
+                    width: calc(var(--text-height) - 2px);
+                    height: calc(var(--text-height) - 2px);
+                    line-height: calc(var(--text-height) - 2px - 1px);
+                    vertical-align: middle;
+                    text-align: center;
+                    font-size: inherit;
+                    color: inherit;
+                    text-align: center;
+                }
+
+                > span {
+                    display: inline-block;
+                    vertical-align: middle;
+                    height: calc(var(--text-height) - 2px);
+                    line-height: calc(var(--text-height) - 2px);
+                    padding-left: var(--padding-large);
+                    padding-right: var(--padding-large);
+                    text-align: left;
+                    font-size: var(--font-size-default);
+
+                    &:empty {
+                        display: none;
+                    }
+                }
+
+                > i + span {
+                    padding-left: 0;
+                }
+
+                &::before {
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    width: calc(100% - 2px);
+                    height: calc(100% - 2px);
+                    content: ' ';
+                    z-index: 1;
+                    border: 1px solid transparent;
+                }
+
+                &:hover {
+                    background: var(--button-background-hover);
+                    border-color: var(--button-border-color-hover);
+                    color: var(--button-color-hover);
+                }
+
+                &:focus {
+                    background: var(--button-background-focus);
+                    border-color: var(--button-border-color-focus);
+                    color: var(--button-color-focus);
+                }
+
+                &.pressed {
+                    background: var(--button-background-pressed);
+                    border-color: var(--button-border-color-pressed);
+                    color: var(--button-color-pressed);
+
+                    &:focus {
+                        &::before {
+                            border-color: var(--button-border-color-focus-inset);
+                        }
+                    }
+                }
+
+                &[disabled] {
+                    background: var(--button-background-hover);
+                    border-color: var(--button-border-color-hover);
+                    color: var(--button-color-hover);
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+
+                &.confirm {
+                    background: var(--button-background-confirm);
+                    border-color: var(--button-border-color-confirm);
+                    color: var(--button-color-confirm);
+
+                    &:focus {
+                        &::before {
+                            border-color: var(--button-border-color-focus-inset);
+                        }
+                    }
+                }
+
+                &.danger {
+                    background: var(--button-background-danger);
+                    border-color: var(--button-border-color-danger);
+                    color: var(--button-color-danger);
+
+                    &:focus {
+                        &::before {
+                            border-color: var(--button-border-color-focus-inset);
+                        }
+                    }
+                }
+
+                &.menu {
+                    > span {
+                        padding-right: 0;
+                    }
+
+                    &::after {
+                        display: inline-block;
+                        font-style: normal;
+                        width: calc(var(--text-height) - 2px);
+                        height: calc(var(--text-height) - 2px);
+                        line-height: calc(var(--text-height) - 2px - 1px);
+                        vertical-align: middle;
+                        text-align: center;
+                        font-size: inherit;
+                        color: inherit;
+                        text-align: center;
+                        content: '\e906';
+                        font-family: moimz;
+                    }
+
+                    &.opened {
+                        &::after {
+                            content: '\e905';
+                        }
+                    }
+                }
+
+                &.loading {
+                    > i {
+                        visibility: hidden;
+                    }
+
+                    > span {
+                        visibility: hidden;
+                    }
+
+                    &::after {
+                        position: absolute;
+                        top: calc(50% - (var(--text-height) - 2px) / 2);
+                        left: calc(50% - (var(--text-height) - 2px) / 2);
+                        width: calc(var(--text-height) - 2px);
+                        height: calc(var(--text-height) - 2px);
+                        line-height: calc(var(--text-height) - 2px);
+                        text-align: center;
+                        font-family: moimz;
+                        content: '\ed00';
+                        z-index: 1;
+                        color: inherit;
+                        animation: mi-loading 2s infinite linear;
+                    }
+                }
+            }
+        }
+    }
+}
+
+div[data-component][data-type='button'][data-role='segmented'] {
+    > div[data-role='container'] {
+        border: 1px solid var(--button-border-color-default);
+
+        > div[data-role='content'] {
+            display: flex;
+            align-items: stretch;
+            justify-items: stretch;
+            gap: 1px;
+            background: var(--button-border-color-default);
+
+            &.column {
+                flex-direction: column;
+            }
+
+            &.row {
+                flex-direction: row;
+            }
+
+            > div[data-component] {
+                flex-grow: 1;
+                flex-shrink: 0;
+                > div[data-role='container'] {
+                    > div[data-role='content'] {
+                        > button {
+                            width: 100%;
+                            border: 0;
+
+                            &.pressed {
+                                &:focus {
+                                    &::before {
+                                        position: absolute;
+                                        top: 1px;
+                                        left: 1px;
+                                        z-index: 1;
+                                        border: 1px solid var(--button-border-color-focus-inset);
+                                        content: ' ';
+                                        width: calc(100% - 4px);
+                                        height: calc(100% - 4px);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

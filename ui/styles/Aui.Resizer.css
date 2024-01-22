@@ -1,0 +1,96 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 리사이저 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Resizer.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-role='resizer'] {
+    background: transparent;
+    position: absolute;
+    z-index: 1000;
+    pointer-events: all;
+    background: transparent;
+
+    &[data-direction='left'] {
+        width: 7px;
+        height: 100%;
+        top: 0;
+        left: -3px;
+        cursor: ew-resize;
+    }
+
+    &[data-direction='right'] {
+        width: 7px;
+        height: 100%;
+        top: 0;
+        right: -3px;
+        cursor: ew-resize;
+    }
+
+    &[data-direction='top'] {
+        width: 100%;
+        height: 7px;
+        top: -3px;
+        left: 0;
+        cursor: ns-resize;
+    }
+
+    &[data-direction='bottom'] {
+        width: 100%;
+        height: 7px;
+        bottom: -3px;
+        left: 0;
+        cursor: ns-resize;
+    }
+
+    &[data-direction='topLeft'] {
+        width: 7px;
+        height: 7px;
+        top: -3px;
+        left: -3px;
+        z-index: 1005;
+        background: transparent;
+        cursor: nwse-resize;
+    }
+
+    &[data-direction='topRight'] {
+        width: 7px;
+        height: 7px;
+        top: -3px;
+        right: -3px;
+        z-index: 1005;
+        background: transparent;
+        cursor: nesw-resize;
+    }
+
+    &[data-direction='bottomLeft'] {
+        width: 7px;
+        height: 7px;
+        bottom: -3px;
+        left: -3px;
+        z-index: 1005;
+        background: transparent;
+        cursor: nesw-resize;
+    }
+
+    &[data-direction='bottomRight'] {
+        width: 7px;
+        height: 7px;
+        bottom: -3px;
+        right: -3px;
+        z-index: 1005;
+        background: transparent;
+        cursor: nwse-resize;
+    }
+}
+
+div[data-role='resize-guide'] {
+    position: absolute;
+    border: 1px solid #000;
+    z-index: 1000;
+    box-sizing: border-box;
+}

@@ -1,0 +1,89 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 패널 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Panel.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-component][data-type='panel'] {
+    container-name: panel;
+    container-type: inline-size;
+
+    background: var(--panel-background);
+    color: var(--font-color-default);
+
+    > div[data-role='container'] {
+        width: 100%;
+        height: 100%;
+        border-width: 0;
+        border-style: solid;
+        border-color: var(--panel-border-color-default);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        position: relative;
+        z-index: 0;
+
+        &.border {
+            border-width: 1px;
+        }
+
+        &.borderTop {
+            border-top-width: 1px;
+        }
+
+        &.borderRight {
+            border-right-width: 1px;
+        }
+
+        &.borderBottom {
+            border-bottom-width: 1px;
+        }
+
+        &.borderLeft {
+            border-left-width: 1px;
+        }
+
+        > div[data-role] {
+            width: 100%;
+            z-index: 0;
+        }
+
+        > div[data-role='content'] {
+            flex-grow: 1;
+            flex-shrink: 1;
+            overflow: hidden;
+
+            display: flex;
+            align-items: stretch;
+
+            > div[data-component].fit {
+                height: auto;
+                flex-grow: 1;
+            }
+        }
+    }
+
+    &.disabled {
+        > div[data-role='container'] {
+            cursor: not-allowed !important;
+
+            &::after {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+                background: var(--panel-background-disabled);
+                opacity: 0.7;
+                content: ' ';
+            }
+        }
+    }
+}

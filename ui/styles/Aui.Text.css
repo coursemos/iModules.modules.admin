@@ -1,0 +1,19 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 텍스트 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Text.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-role='component'][data-type='text'][data-role='text'] {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            height: var(--text-height);
+            font-family: var(--font-family-default);
+            font-size: var(--font-size-default);
+        }
+    }
+}

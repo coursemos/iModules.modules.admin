@@ -1,0 +1,238 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 로딩메시지 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Loading.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+@keyframes loading-indicator-column {
+    0% {
+        top: 10%;
+        height: 80%;
+    }
+    50%,
+    100% {
+        top: 30%;
+        height: 40%;
+    }
+}
+
+@keyframes loading-indicator-dot1 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes loading-indicator-dot2 {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(150%, 0);
+    }
+}
+@keyframes loading-indicator-dot3 {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+
+@keyframes loading-indicator-atom1 {
+    0% {
+        transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+    }
+    100% {
+        transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+    }
+}
+
+@keyframes loading-indicator-atom2 {
+    0% {
+        transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+    }
+    100% {
+        transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+    }
+}
+
+@keyframes loading-indicator-atom3 {
+    0% {
+        transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+    }
+    100% {
+        transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+    }
+}
+
+div[data-type='loading'][data-role='loading'] {
+    --loading-box-size: 40px;
+    --loading-box-padding: var(--padding-large);
+    --loading-box-align: center;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: var(--loading-box-align);
+    align-items: center;
+    visibility: hidden;
+
+    &::before {
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.5;
+        background: var(--loading-background);
+        position: absolute;
+        top: 0;
+        left: 0;
+        content: ' ';
+    }
+
+    > div[data-role='box'] {
+        display: flex;
+        align-items: center;
+        padding: var(--loading-box-padding);
+        background: var(--loading-box-background);
+        margin: 1px;
+        gap: 5px;
+
+        > div[data-role='indicator'] {
+            width: var(--loading-box-size);
+            height: var(--loading-box-size);
+            flex-shrink: 0;
+            position: relative;
+
+            &[data-type='column'] {
+                > i {
+                    display: inline-block;
+                    position: absolute;
+                    top: 10%;
+                    width: 20%;
+                    height: 80%;
+                    background: var(--loading-color-indicator);
+                    animation: loading-indicator-column 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+
+                    &:nth-child(1) {
+                        left: 10%;
+                        animation-delay: -0.24s;
+                    }
+
+                    &:nth-child(2) {
+                        left: 40%;
+                        animation-delay: -0.12s;
+                    }
+
+                    &:nth-child(3) {
+                        left: 70%;
+                        animation-delay: 0;
+                    }
+                }
+            }
+
+            &[data-type='dot'] {
+                > i {
+                    display: inline-block;
+                    position: absolute;
+                    top: 40%;
+                    width: 20%;
+                    height: 20%;
+                    background: var(--loading-color-indicator);
+                    border-radius: 50%;
+
+                    &:nth-child(1) {
+                        left: 10%;
+                        animation: loading-indicator-dot1 0.6s infinite;
+                    }
+
+                    &:nth-child(2) {
+                        left: 10%;
+                        animation: loading-indicator-dot2 0.6s infinite;
+                    }
+
+                    &:nth-child(3) {
+                        left: 40%;
+                        animation: loading-indicator-dot2 0.6s infinite;
+                    }
+
+                    &:nth-child(4) {
+                        left: 70%;
+                        animation: loading-indicator-dot3 0.6s infinite;
+                    }
+                }
+            }
+
+            &[data-type='atom'] {
+                perspective: 800px;
+
+                > i {
+                    display: inline-block;
+                    position: absolute;
+                    box-sizing: border-box;
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+
+                    &:nth-child(1) {
+                        left: 0%;
+                        top: 0%;
+                        animation: loading-indicator-atom1 1s linear infinite;
+                        border-bottom: 3px solid var(--loading-color-indicator);
+                    }
+
+                    &:nth-child(2) {
+                        right: 0%;
+                        top: 0%;
+                        animation: loading-indicator-atom2 1s linear infinite;
+                        border-right: 3px solid var(--loading-color-indicator);
+                    }
+
+                    &:nth-child(3) {
+                        right: 0%;
+                        bottom: 0%;
+                        animation: loading-indicator-atom3 1s linear infinite;
+                        border-top: 3px solid var(--loading-color-indicator);
+                    }
+                }
+            }
+        }
+
+        &.column {
+            flex-direction: column;
+        }
+
+        &.row {
+            flex-direction: row;
+        }
+
+        > div[data-role='text'] {
+            font-family: var(--font-family-default);
+            font-size: var(--font-size-default);
+            color: var(--loading-color-text);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        &:not(.row) {
+            > div[data-role='indicator'][data-type='column'] + div[data-role='text'],
+            > div[data-role='indicator'][data-type='dot'] + div[data-role='text'] {
+                padding-bottom: var(--padding-default);
+            }
+        }
+    }
+
+    &.show {
+        visibility: visible;
+    }
+}

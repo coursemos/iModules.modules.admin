@@ -1,0 +1,119 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 메뉴 스타일시트를 정의한다.
+ * 
+ * @file /styles/Aui.Menu.css
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 1. 23.
+ */
+div[data-component][data-type='menu'][data-role='menu'] {
+    position: absolute;
+    z-index: 1;
+    border: 1px solid var(--menu-border-color);
+    background: var(--menu-background-default);
+    box-shadow: 1px 1px 2px var(--menu-shadow-color);
+    box-sizing: border-box;
+
+    > div[data-role='container'] {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+
+        > div[data-role='top'] {
+            --title-color: var(--menu-title-color);
+            --title-background: var(--menu-title-background);
+            --title-height: var(--menu-title-height);
+            flex-shrink: 0;
+        }
+
+        > div[data-role='content'] {
+            overflow: hidden;
+            flex-shrink: 1;
+            flex-grow: 1;
+        }
+    }
+}
+
+div[data-component][data-type='menu'][data-role='item'] {
+    > div[data-role='container'] {
+        > div[data-role='content'] {
+            width: 100%;
+            height: var(--menu-item-height);
+
+            > button {
+                width: 100%;
+                height: 100%;
+                border: 0;
+                background: transparent;
+                font-size: 0;
+                text-align: left;
+                line-break: 1;
+                display: block;
+                font-family: var(--font-family-default);
+                font-size: var(--font-size-default);
+                color: var(--menu-item-color-default);
+                cursor: pointer;
+
+                > i.icon {
+                    display: inline-block;
+                    width: var(--menu-item-height);
+                    height: var(--menu-item-height);
+                    text-align: center;
+                    line-height: var(--menu-item-height);
+                    font-size: var(--font-size-default);
+                    vertical-align: top;
+                    position: relative;
+                }
+
+                > span {
+                    display: inline-block;
+                    width: calc(100% - var(--menu-item-height));
+                    height: var(--menu-item-height);
+                    padding-top: var(--padding-default);
+                    padding-bottom: var(--padding-default);
+                    padding-left: calc(var(--padding-default) * 2);
+                    padding-right: calc(var(--padding-default) * 2);
+                    line-height: calc(var(--menu-item-height) - var(--padding-default) * 2);
+                    vertical-align: top;
+                    box-sizing: border-box;
+
+                    position: relative;
+                    &::before {
+                        width: 1px;
+                        height: var(--menu-item-height);
+                        background: var(--menu-item-border-color);
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        z-index: -1;
+                        content: ' ';
+                    }
+                }
+
+                &:hover {
+                    background: var(--menu-item-background-hover);
+                    color: var(--menu-item-color-hover);
+                }
+            }
+
+            &.separator {
+                height: 1px;
+                background: var(--menu-item-border-color);
+            }
+        }
+    }
+}
+
+section[data-role='admin'][data-type='menu'] {
+    position: fixed;
+    width: 100vw;
+    width: 100svw;
+    height: 100vh;
+    height: 100svh;
+    top: 0;
+    left: 0;
+    z-index: 3000;
+    background: transparent;
+}
