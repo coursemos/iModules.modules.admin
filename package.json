@@ -43,10 +43,10 @@
                     "is_null": true,
                     "comment": "언어코드"
                 },
-                "contexts": {
+                "navigation": {
                     "type": "json",
                     "is_null": true,
-                    "comment": "컨텍스트설정"
+                    "comment": "네비게이션설정"
                 },
                 "permissions": {
                     "type": "json",
