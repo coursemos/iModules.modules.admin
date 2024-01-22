@@ -3,33 +3,33 @@
  *
  * 사이트관리화면을 구성한다.
  *
- * @file /modules/admin/admin/scripts/sitemap.ts
+ * @file /modules/admin/admin/scripts/contexts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 8. 2.
+ * @modified 2024. 1. 23.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
-    return new Admin.Panel({
+    return new Aui.Panel({
         border: false,
         layout: 'column',
         iconClass: 'xi xi xi-sitemap',
         title: (await me.getText('admin.contexts.sitemap')),
         scrollable: true,
         items: [
-            new Admin.Grid.Panel({
+            new Aui.Grid.Panel({
                 id: 'domains',
                 border: [false, true, false, false],
                 width: 240,
                 columnResizable: false,
                 selection: { selectable: true },
                 topbar: [
-                    new Admin.Form.Field.Text({
+                    new Aui.Form.Field.Text({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')),
                     }),
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-plus',
                         text: (await me.getText('admin.sitemap.domains.add')),
                         handler: () => {
@@ -38,7 +38,7 @@ Admin.ready(async () => {
                     }),
                 ],
                 bottombar: [
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-refresh',
                         handler: (button) => {
                             const grid = button.getParent().getParent();
@@ -46,7 +46,7 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
-                store: new Admin.Store.Ajax({
+                store: new Aui.Store.Ajax({
                     url: me.getProcessUrl('domains'),
                     primaryKeys: ['host'],
                 }),
@@ -76,7 +76,7 @@ Admin.ready(async () => {
                         });
                     },
                     selectionChange: (selections) => {
-                        const sites = Admin.getComponent('sites');
+                        const sites = Aui.getComponent('sites');
                         if (selections.length == 1) {
                             const host = selections[0].get('host');
                             sites.getStore().setParams({ host: host });
@@ -92,7 +92,7 @@ Admin.ready(async () => {
                     },
                 },
             }),
-            new Admin.Grid.Panel({
+            new Aui.Grid.Panel({
                 id: 'sites',
                 border: [false, true, false, true],
                 width: 260,
@@ -101,12 +101,12 @@ Admin.ready(async () => {
                 disabled: true,
                 autoLoad: false,
                 topbar: [
-                    new Admin.Form.Field.Text({
+                    new Aui.Form.Field.Text({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')),
                     }),
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-plus',
                         text: (await me.getText('admin.sitemap.sites.add')),
                         handler: () => {
@@ -115,7 +115,7 @@ Admin.ready(async () => {
                     }),
                 ],
                 bottombar: [
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-refresh',
                         handler: (button) => {
                             const grid = button.getParent().getParent();
@@ -123,7 +123,7 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
-                store: new Admin.Store.Ajax({
+                store: new Aui.Store.Ajax({
                     url: me.getProcessUrl('sites'),
                     primaryKeys: ['host', 'language'],
                 }),
@@ -156,7 +156,7 @@ Admin.ready(async () => {
                         });
                     },
                     selectionChange: (selections) => {
-                        const contexts = Admin.getComponent('contexts');
+                        const contexts = Aui.getComponent('contexts');
                         if (selections.length == 1) {
                             const host = selections[0].get('host');
                             const language = selections[0].get('language');
@@ -177,7 +177,7 @@ Admin.ready(async () => {
                     },
                 },
             }),
-            new Admin.Tree.Panel({
+            new Aui.Tree.Panel({
                 id: 'contexts',
                 border: [false, false, false, true],
                 flex: 2,
@@ -187,12 +187,12 @@ Admin.ready(async () => {
                 disabled: true,
                 autoLoad: false,
                 topbar: [
-                    new Admin.Form.Field.Text({
+                    new Aui.Form.Field.Text({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')),
                     }),
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-plus',
                         text: (await me.getText('admin.sitemap.contexts.add')),
                         handler: () => {
@@ -201,7 +201,7 @@ Admin.ready(async () => {
                     }),
                 ],
                 bottombar: [
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-up',
                         handler: (button) => {
                             const grid = button.getParent().getParent();
@@ -211,7 +211,7 @@ Admin.ready(async () => {
                             }
                         },
                     }),
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-down',
                         handler: (button) => {
                             const grid = button.getParent().getParent();
@@ -222,7 +222,7 @@ Admin.ready(async () => {
                         },
                     }),
                     '|',
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-refresh',
                         handler: (button) => {
                             const grid = button.getParent().getParent();
@@ -230,7 +230,7 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
-                store: new Admin.TreeStore.Ajax({
+                store: new Aui.TreeStore.Ajax({
                     url: me.getProcessUrl('contexts'),
                     primaryKeys: ['host', 'language', 'path'],
                     params: {

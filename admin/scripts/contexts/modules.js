@@ -3,14 +3,14 @@
  *
  * 모듈관리화면을 구성한다.
  *
- * @file /modules/admin/admin/scripts/modules.ts
+ * @file /modules/admin/admin/scripts/contexts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2024. 1. 23.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
-    return new Admin.Grid.Panel({
+    return new Aui.Grid.Panel({
         id: 'modules',
         iconClass: 'xi xi-box',
         border: false,
@@ -19,19 +19,19 @@ Admin.ready(async () => {
         selection: { selectable: true },
         autoLoad: true,
         topbar: [
-            new Admin.Form.Field.Text({
+            new Aui.Form.Field.Text({
                 name: 'keyword',
                 width: 200,
                 emptyText: (await me.getText('keyword')),
             }),
             '->',
-            new Admin.Button({
+            new Aui.Button({
                 iconClass: 'mi mi-refresh',
                 text: (await me.getText('admin.modules.modules.update_size')),
             }),
         ],
         bottombar: [
-            new Admin.Button({
+            new Aui.Button({
                 iconClass: 'mi mi-refresh',
                 handler: (button) => {
                     const grid = button.getParent().getParent();
@@ -39,7 +39,7 @@ Admin.ready(async () => {
                 },
             }),
         ],
-        store: new Admin.Store.Ajax({
+        store: new Aui.Store.Ajax({
             url: me.getProcessUrl('modules'),
             primaryKeys: ['name'],
         }),

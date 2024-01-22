@@ -14,24 +14,14 @@ namespace modules\admin;
 class Admin extends \Module
 {
     /**
-     * @var \modules\admin\dtos\Context[] $_contexts 전체 관리자 컨텍스트 정보
-     */
-    private static array $_contexts;
-
-    /**
-     * @var \modules\admin\dtos\Context[] $_tree 유저가 설정한 컨텍스트 트리
-     */
-    private static array $_tree;
-
-    /**
-     * @var \modules\admin\admin\Admin[] $_classes 각 컴포넌트의 관리자 클래스
-     */
-    private static array $_classes = [];
-
-    /**
-     * @var array $_administrators 관리자 회원정보
+     * @var \modules\admin\dtos\Administrator[] $_administrators 관리자 회원 정보
      */
     private static array $_administrators = [];
+
+    /**
+     * @var \modules\admin\dtos\Context[] $_contexts 전체 컴포넌트의 관리자 컨텍스트 정보
+     */
+    private static array $_contexts;
 
     /**
      * @var array $_permissions 관리자 권한정보
@@ -91,9 +81,9 @@ class Admin extends \Module
      * 관리자 정보를 가져온다.
      *
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return ?object $member
+     * @return ?\modules\admin\dtos\Administrator $member
      */
-    public function getAdministrator(?int $member_id = null): ?object
+    public function getAdministrator(?int $member_id = null): ?\modules\admin\dtos\Administrator
     {
         /**
          * @var \modules\member\Member $mMember

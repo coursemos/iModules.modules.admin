@@ -3,15 +3,15 @@
  *
  * 모듈관리화면을 구성한다.
  *
- * @file /modules/admin/admin/scripts/modules.ts
+ * @file /modules/admin/admin/scripts/contexts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 1.
+ * @modified 2024. 1. 23.
  */
 Admin.ready(async () => {
-    const me = Admin.getModule('admin') as modules.admin.AdminAdmin;
+    const me = Admin.getModule('admin') as modules.admin.admin.Admin;
 
-    return new Admin.Grid.Panel({
+    return new Aui.Grid.Panel({
         id: 'modules',
         iconClass: 'xi xi-box',
         border: false,
@@ -20,27 +20,27 @@ Admin.ready(async () => {
         selection: { selectable: true },
         autoLoad: true,
         topbar: [
-            new Admin.Form.Field.Text({
+            new Aui.Form.Field.Text({
                 name: 'keyword',
                 width: 200,
                 emptyText: (await me.getText('keyword')) as string,
             }),
             '->',
-            new Admin.Button({
+            new Aui.Button({
                 iconClass: 'mi mi-refresh',
                 text: (await me.getText('admin.modules.modules.update_size')) as string,
             }),
         ],
         bottombar: [
-            new Admin.Button({
+            new Aui.Button({
                 iconClass: 'mi mi-refresh',
-                handler: (button: Admin.Button) => {
-                    const grid = button.getParent().getParent() as Admin.Grid.Panel;
+                handler: (button) => {
+                    const grid = button.getParent().getParent() as Aui.Grid.Panel;
                     grid.getStore().reload();
                 },
             }),
         ],
-        store: new Admin.Store.Ajax({
+        store: new Aui.Store.Ajax({
             url: me.getProcessUrl('modules'),
             primaryKeys: ['name'],
         }),

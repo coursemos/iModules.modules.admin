@@ -3,34 +3,34 @@
  *
  * 관리자 관리화면을 구성한다.
  *
- * @file /modules/admin/admin/scripts/administrators.ts
+ * @file /modules/admin/admin/scripts/contexts/administrators.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 7. 13.
+ * @modified 2024. 1. 21.
  */
 Admin.ready(async () => {
-    const me = Admin.getModule('admin') as modules.admin.AdminAdmin;
-    const mMember = Admin.getModule('member') as modules.member.MemberAdmin;
+    const me = Admin.getModule('admin') as modules.admin.admin.Admin;
+    const mMember = Admin.getModule('member') as modules.member.admin.Member;
 
-    return new Admin.Panel({
+    return new Aui.Panel({
         border: false,
         layout: 'column',
         iconClass: 'xi xi-user-lock',
         title: (await me.getText('admin.contexts.administrators')) as string,
         scrollable: true,
         items: [
-            new Admin.Grid.Panel({
+            new Aui.Grid.Panel({
                 id: 'groups',
                 border: [false, true, false, false],
                 width: 280,
                 selection: { selectable: true },
                 topbar: [
-                    new Admin.Form.Field.Search({
+                    new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')) as string,
                     }),
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-plus',
                         text: (await me.getText('admin.administrators.groups.add')) as string,
                         handler: () => {
@@ -39,10 +39,10 @@ Admin.ready(async () => {
                     }),
                 ],
                 bottombar: [
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-refresh',
-                        handler: (button: Admin.Button) => {
-                            const grid = button.getParent().getParent() as Admin.Grid.Panel;
+                        handler: (button) => {
+                            const grid = button.getParent().getParent() as Aui.Grid.Panel;
                             grid.getStore().reload();
                         },
                     }),
@@ -59,10 +59,10 @@ Admin.ready(async () => {
                         dataIndex: 'administrators',
                         sortable: true,
                         width: 80,
-                        renderer: Admin.Grid.Renderer.Number(),
+                        renderer: Aui.Grid.Renderer.Number(),
                     },
                 ],
-                store: new Admin.Store.Ajax({
+                store: new Aui.Store.Ajax({
                     url: me.getProcessUrl('groups'),
                     primaryKeys: ['group_id'],
                     fields: [
@@ -108,7 +108,7 @@ Admin.ready(async () => {
                         }
                     },
                     selectionChange: (selections) => {
-                        const administrators = Admin.getComponent('administrators') as Admin.Grid.Panel;
+                        const administrators = Aui.getComponent('administrators') as Aui.Grid.Panel;
                         if (selections.length == 1) {
                             const group_id = selections[0].get('group_id');
                             administrators.getStore().setParam('group_id', group_id);
@@ -124,7 +124,7 @@ Admin.ready(async () => {
                     },
                 },
             }),
-            new Admin.Grid.Panel({
+            new Aui.Grid.Panel({
                 id: 'administrators',
                 border: [false, true, false, false],
                 minWidth: 300,
@@ -133,12 +133,12 @@ Admin.ready(async () => {
                 autoLoad: false,
                 disabled: true,
                 topbar: [
-                    new Admin.Form.Field.Search({
+                    new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')) as string,
                     }),
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-plus',
                         text: (await me.getText('admin.administrators.add')) as string,
                         handler: () => {
@@ -146,11 +146,11 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
-                bottombar: new Admin.Grid.Pagination([
-                    new Admin.Button({
+                bottombar: new Aui.Grid.Pagination([
+                    new Aui.Button({
                         iconClass: 'mi mi-refresh',
-                        handler: (button: Admin.Button) => {
-                            const grid = button.getParent().getParent() as Admin.Grid.Panel;
+                        handler: (button) => {
+                            const grid = button.getParent().getParent() as Aui.Grid.Panel;
                             grid.getStore().reload();
                         },
                     }),
@@ -222,10 +222,10 @@ Admin.ready(async () => {
                         dataIndex: 'logged_at',
                         width: 160,
                         sortable: true,
-                        renderer: Admin.Grid.Renderer.DateTime(),
+                        renderer: Aui.Grid.Renderer.DateTime(),
                     },
                 ],
-                store: new Admin.Store.Ajax({
+                store: new Aui.Store.Ajax({
                     url: me.getProcessUrl('administrators'),
                     primaryKeys: ['member_id'],
                     limit: 50,
@@ -315,19 +315,19 @@ Admin.ready(async () => {
                     },
                 },
             }),
-            new Admin.Form.Panel({
+            new Aui.Form.Panel({
                 id: 'permissions',
                 border: [false, true, false, true],
                 width: 400,
                 disabled: true,
                 hidden: true,
                 topbar: [
-                    new Admin.Form.Field.Text({
+                    new Aui.Form.Field.Text({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')) as string,
                     }),
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-plus',
                         text: (await me.getText('admin.sites.sites.add')) as string,
                         handler: () => {
@@ -336,10 +336,10 @@ Admin.ready(async () => {
                     }),
                 ],
                 bottombar: [
-                    new Admin.Button({
+                    new Aui.Button({
                         iconClass: 'mi mi-refresh',
-                        handler: (button: Admin.Button) => {
-                            const grid = button.getParent().getParent() as Admin.Grid.Panel;
+                        handler: (button) => {
+                            const grid = button.getParent().getParent() as Aui.Grid.Panel;
                             grid.getStore().reload();
                         },
                     }),
