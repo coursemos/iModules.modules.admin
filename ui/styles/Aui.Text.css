@@ -8,10 +8,10 @@
  * @license MIT License
  * @modified 2024. 1. 23.
  */
-div[data-role='component'][data-type='text'][data-role='text'] {
+div[data-component][data-type='text'][data-role='text'] {
     > div[data-role='container'] {
         > div[data-role='content'] {
-            height: var(--text-height);
+            min-height: var(--text-height);
             font-family: var(--font-family-default);
             font-size: var(--font-size-default);
         }
