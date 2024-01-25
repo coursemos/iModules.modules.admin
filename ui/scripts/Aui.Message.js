@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 var Aui;
 (function (Aui) {
@@ -50,7 +50,7 @@ var Aui;
                 modal: true,
                 movable: false,
                 resizable: false,
-                closable: false,
+                closable: properties.closable ?? false,
                 buttons: buttons,
                 listeners: {
                     show: (window) => {
