@@ -100,7 +100,7 @@
                 },
                 "assigned_at": {
                     "type": "int",
-                    "comment": "할당일시"
+                    "comment": "그룹할당일시"
                 }
             },
             "indexes": {
@@ -109,6 +109,66 @@
                 "group_id": "index"
             },
             "comment": "아이모듈 관리자그룹 소속회원"
+        },
+        "logs": {
+            "columns": {
+                "time": {
+                    "type": "double",
+                    "comment": "기록일시(마이크로타임)"
+                },
+                "member_id": {
+                    "type": "int",
+                    "comment": "회원고유값"
+                },
+                "response": {
+                    "type": "enum",
+                    "length": "'OK','FORBIDDEN'",
+                    "default": "OK",
+                    "comment": "응답결과"
+                },
+                "method": {
+                    "type": "varchar",
+                    "length": 6,
+                    "comment": "접근방법"
+                },
+                "component_type": {
+                    "type": "varchar",
+                    "length": 10,
+                    "comment": "기록이 발생한 컴포넌트종류"
+                },
+                "component_name": {
+                    "type": "varchar",
+                    "length": 50,
+                    "comment": "기록이 발생한 컴포넌트명"
+                },
+                "url": {
+                    "type": "varchar",
+                    "length": 255,
+                    "comment": "접근기록"
+                },
+                "input": {
+                    "type": "longtext",
+                    "is_null": true,
+                    "comment": "INPUT데이터"
+                },
+                "ip": {
+                    "type": "varchar",
+                    "length": 39,
+                    "comment": "접근IP"
+                },
+                "agent": {
+                    "type": "varchar",
+                    "length": 255,
+                    "comment": "접근브라우저"
+                }
+            },
+            "indexes": {
+                "time,member_id": "primary_key",
+                "member_id": "index",
+                "component_type,component_name": "index",
+                "ip": "index"
+            },
+            "comment": "아이모듈 관리자 기록"
         }
     }
 }
