@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tab.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 namespace Aui {
     export namespace Tab {
@@ -71,7 +71,7 @@ namespace Aui {
                 this.tabPosition = this.properties.tabPosition ?? 'bottom';
                 this.scrollable = false;
 
-                this.bar = new Aui.Tab.Bar(this.properties);
+                this.bar = new Aui.Tab.Bar({ id: this.id + '-Bar', position: this.tabPosition });
                 this.bar.setParent(this);
 
                 if (this.tabPosition == 'top') {
@@ -215,6 +215,10 @@ namespace Aui {
             }
         }
 
+        export namespace Bar {
+            export interface Properties extends Aui.Toolbar.Properties {}
+        }
+
         /**
          * 탭바 클래스를 정의한다.
          */
@@ -225,14 +229,13 @@ namespace Aui {
             /**
              * 탭바를 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Aui.Tab.Bar.Properties} properties - 객체설정
              */
-            constructor(properties: { [key: string]: any } = null) {
-                properties.id = properties.id + '-Bar';
+            constructor(properties: Aui.Tab.Bar.Properties = null) {
                 super(properties);
 
                 this.border = this.properties.border ?? true;
-                this.position = this.properties.tabPosition ?? 'bottom';
+                this.position = this.properties.position ?? 'bottom';
             }
 
             /**
@@ -241,7 +244,7 @@ namespace Aui {
             initItems(): void {
                 if (this.items === null) {
                     this.items = [];
-                    for (let item of this.properties.items ?? []) {
+                    for (let item of this.getTabPanel().items ?? []) {
                         this.items.push(
                             new Aui.Button({
                                 tabId: item.getId(),

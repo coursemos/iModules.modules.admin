@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tab.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 var Aui;
 (function (Aui) {
@@ -33,7 +33,7 @@ var Aui;
                 this.activeTabId = null;
                 this.tabPosition = this.properties.tabPosition ?? 'bottom';
                 this.scrollable = false;
-                this.bar = new Aui.Tab.Bar(this.properties);
+                this.bar = new Aui.Tab.Bar({ id: this.id + '-Bar', position: this.tabPosition });
                 this.bar.setParent(this);
                 if (this.tabPosition == 'top') {
                     this.$setTop();
@@ -173,13 +173,12 @@ var Aui;
             /**
              * 탭바를 생성한다.
              *
-             * @param {Object} properties - 객체설정
+             * @param {Aui.Tab.Bar.Properties} properties - 객체설정
              */
             constructor(properties = null) {
-                properties.id = properties.id + '-Bar';
                 super(properties);
                 this.border = this.properties.border ?? true;
-                this.position = this.properties.tabPosition ?? 'bottom';
+                this.position = this.properties.position ?? 'bottom';
             }
             /**
              * 탭바의 하위 컴포넌트를 초기화한다.
@@ -187,7 +186,7 @@ var Aui;
             initItems() {
                 if (this.items === null) {
                     this.items = [];
-                    for (let item of this.properties.items ?? []) {
+                    for (let item of this.getTabPanel().items ?? []) {
                         this.items.push(new Aui.Button({
                             tabId: item.getId(),
                             text: item.properties.title ?? null,
