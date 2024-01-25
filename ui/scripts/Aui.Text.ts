@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Text.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 namespace Aui {
     export namespace Text {
@@ -35,9 +35,9 @@ namespace Aui {
         /**
          * 텍스트 객체를 생성한다.
          *
-         * @param {Object|string} properties 객체설정
+         * @param {Aui.Text.Properties|string} properties - 객체설정 또는 문자열
          */
-        constructor(properties: { [key: string]: any } | string) {
+        constructor(properties: Aui.Text.Properties | string) {
             if (typeof properties == 'string') {
                 const text = properties;
                 properties = { text: text };
@@ -50,9 +50,24 @@ namespace Aui {
             this.$text = Html.create('div');
         }
 
+        /**
+         * 텍스트객체의 문자열을 설정한다.
+         *
+         * @param {string} text
+         */
         setText(text: string): void {
             this.text = text;
             this.$text.text(text);
+        }
+
+        /**
+         * 텍스트객체의 HTML태그를 설정한다.
+         *
+         * @param {string} html
+         */
+        setHtml(html: string): void {
+            this.html = html;
+            this.$text.html(html);
         }
 
         /**

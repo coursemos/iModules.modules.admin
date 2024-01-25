@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Text.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 var Aui;
 (function (Aui) {
@@ -20,7 +20,7 @@ var Aui;
         /**
          * 텍스트 객체를 생성한다.
          *
-         * @param {Object|string} properties 객체설정
+         * @param {Aui.Text.Properties|string} properties - 객체설정 또는 문자열
          */
         constructor(properties) {
             if (typeof properties == 'string') {
@@ -33,9 +33,23 @@ var Aui;
             this.scrollable = false;
             this.$text = Html.create('div');
         }
+        /**
+         * 텍스트객체의 문자열을 설정한다.
+         *
+         * @param {string} text
+         */
         setText(text) {
             this.text = text;
             this.$text.text(text);
+        }
+        /**
+         * 텍스트객체의 HTML태그를 설정한다.
+         *
+         * @param {string} html
+         */
+        setHtml(html) {
+            this.html = html;
+            this.$text.html(html);
         }
         /**
          * 텍스트 내용을 랜더링한다.
