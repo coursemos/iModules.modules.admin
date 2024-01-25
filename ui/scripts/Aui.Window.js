@@ -131,6 +131,14 @@ var Aui;
             return this.title;
         }
         /**
+         * 윈도우의 제목을 변경한다.
+         *
+         * @param {string} title
+         */
+        setTitle(title) {
+            this.title.setTitle(title);
+        }
+        /**
          * 윈도우 최대너비를 설정한다.
          *
          * @param {string|number} maxWidth - 최대너비
