@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 namespace Aui {
     export namespace Panel {
@@ -135,7 +135,7 @@ namespace Aui {
                 this.items = [];
 
                 if (this.properties.html) {
-                    this.items.push(new Aui.Text({ layout: this.layout, html: this.properties.html }));
+                    this.items.push(new Aui.Text({ html: this.properties.html }));
                 }
 
                 for (let item of this.properties.items ?? []) {
