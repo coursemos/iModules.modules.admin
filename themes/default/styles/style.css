@@ -563,7 +563,7 @@ body {
                         padding-right: var(--padding-extra-large);
                         border-radius: 5px;
                         cursor: pointer;
-                        z-index: 5;
+                        z-index: 0;
 
                         &:hover {
                             background: var(--color-danger-600);
