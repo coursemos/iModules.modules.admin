@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 declare var moment: any;
 namespace Aui {
@@ -180,7 +180,7 @@ namespace Aui {
             async isValid(): Promise<boolean> {
                 if (this.isLoading() === true) {
                     Aui.Message.show({
-                        title: Aui.printText('info'),
+                        title: Aui.getErrorText('INFO'),
                         message: Aui.printText('actions.waiting_retry'),
                         icon: Aui.Message.INFO,
                         buttons: Aui.Message.OK,
@@ -271,7 +271,7 @@ namespace Aui {
             async submit({ url, params = null, message = null }: Aui.Form.Request): Promise<Aui.Ajax.Results> {
                 if (this.isLoading() === true) {
                     Aui.Message.show({
-                        title: Aui.printText('info'),
+                        title: Aui.getErrorText('INFO'),
                         message: Aui.printText('actions.waiting_retry'),
                         icon: Aui.Message.INFO,
                         buttons: Aui.Message.OK,
@@ -914,7 +914,7 @@ namespace Aui {
                  */
                 async validate(): Promise<boolean | string> {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return await Aui.getErrorText('REQUIRED');
+                        return Aui.getErrorText('REQUIRED');
                     }
 
                     if (typeof this.validator == 'function') {
@@ -2474,7 +2474,7 @@ namespace Aui {
                  */
                 async validate(): Promise<boolean | string> {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return await Aui.getErrorText('REQUIRED');
+                        return Aui.getErrorText('REQUIRED');
                     }
 
                     if (typeof this.validator == 'function') {
@@ -2483,7 +2483,7 @@ namespace Aui {
 
                     if (this.getValue() !== null && this.getValue().length > 0) {
                         if (this.getValue().search(/^#[a-zA-Z0-9]{6}$/) === -1) {
-                            return await Aui.getErrorText('INVALID_COLOR_CODE');
+                            return Aui.getErrorText('INVALID_COLOR_CODE');
                         }
                     }
 

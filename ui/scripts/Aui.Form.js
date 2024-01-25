@@ -115,7 +115,7 @@ var Aui;
             async isValid() {
                 if (this.isLoading() === true) {
                     Aui.Message.show({
-                        title: Aui.printText('info'),
+                        title: Aui.getErrorText('INFO'),
                         message: Aui.printText('actions.waiting_retry'),
                         icon: Aui.Message.INFO,
                         buttons: Aui.Message.OK,
@@ -194,7 +194,7 @@ var Aui;
             async submit({ url, params = null, message = null }) {
                 if (this.isLoading() === true) {
                     Aui.Message.show({
-                        title: Aui.printText('info'),
+                        title: Aui.getErrorText('INFO'),
                         message: Aui.printText('actions.waiting_retry'),
                         icon: Aui.Message.INFO,
                         buttons: Aui.Message.OK,
@@ -628,7 +628,7 @@ var Aui;
                  */
                 async validate() {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return await Aui.getErrorText('REQUIRED');
+                        return Aui.getErrorText('REQUIRED');
                     }
                     if (typeof this.validator == 'function') {
                         return await this.validator(this.getValue(), this);
@@ -1919,14 +1919,14 @@ var Aui;
                  */
                 async validate() {
                     if (this.allowBlank === false && this.isBlank() == true) {
-                        return await Aui.getErrorText('REQUIRED');
+                        return Aui.getErrorText('REQUIRED');
                     }
                     if (typeof this.validator == 'function') {
                         return await this.validator(this.getValue(), this);
                     }
                     if (this.getValue() !== null && this.getValue().length > 0) {
                         if (this.getValue().search(/^#[a-zA-Z0-9]{6}$/) === -1) {
-                            return await Aui.getErrorText('INVALID_COLOR_CODE');
+                            return Aui.getErrorText('INVALID_COLOR_CODE');
                         }
                     }
                     return true;

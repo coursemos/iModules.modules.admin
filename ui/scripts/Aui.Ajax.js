@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Ajax.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 var Aui;
 (function (Aui) {
@@ -80,7 +80,7 @@ var Aui;
                     cache: 'no-store',
                     redirect: 'follow',
                     body: method == 'POST' || method == 'PUT' ? JSON.stringify(data) : null,
-                }).catch((error) => {
+                }).catch((e) => {
                     Aui.Ajax.fetchs.delete(uuid);
                     if (retry <= 3) {
                         return Aui.Ajax.#call(method, url, params, data, ++retry);
@@ -91,8 +91,9 @@ var Aui;
                             title: Aui.getErrorText('TITLE'),
                             message: Aui.getErrorText('CONNECT_ERROR'),
                             buttons: Aui.Message.OK,
+                            closable: true,
                         });
-                        console.error(error);
+                        console.error(e);
                         return { success: false };
                     }
                 }));
@@ -103,6 +104,7 @@ var Aui;
                         title: Aui.getErrorText('TITLE'),
                         message: results.message,
                         buttons: Aui.Message.OK,
+                        closable: true,
                     });
                 }
                 Aui.Ajax.fetchs.delete(uuid);
@@ -119,6 +121,7 @@ var Aui;
                         title: Aui.getErrorText('TITLE'),
                         message: Aui.getErrorText('CONNECT_ERROR'),
                         buttons: Aui.Message.OK,
+                        closable: true,
                     });
                     console.error(e);
                     return { success: false };
