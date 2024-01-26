@@ -35,9 +35,9 @@ namespace Aui {
                 activeTab?: number;
 
                 /**
-                 * @type {'top'|'bottom'} tabPosition - 탭바 위치
+                 * @type {'top'|'bottom'|'hidden'} tabPosition - 탭바 위치
                  */
-                tabPosition?: 'top' | 'bottom';
+                tabPosition?: 'top' | 'bottom' | 'hidden';
 
                 /**
                  * @type {Aui.Tab.Panel.Listeners} listeners - 이벤트리스너
@@ -68,10 +68,19 @@ namespace Aui {
 
                 this.activeTab = this.properties.activeTab ?? 0;
                 this.activeTabId = null;
-                this.tabPosition = this.properties.tabPosition ?? 'bottom';
+
+                if (this.properties.tabPosition == 'hidden') {
+                    this.tabPosition = 'top';
+                } else {
+                    this.tabPosition = this.properties.tabPosition ?? 'bottom';
+                }
                 this.scrollable = false;
 
-                this.bar = new Aui.Tab.Bar({ id: this.id + '-Bar', position: this.tabPosition });
+                this.bar = new Aui.Tab.Bar({
+                    id: this.id + '-Bar',
+                    position: this.tabPosition,
+                    hidden: this.properties.tabPosition == 'hidden',
+                });
                 this.bar.setParent(this);
 
                 if (this.tabPosition == 'top') {
@@ -133,6 +142,15 @@ namespace Aui {
             }
 
             /**
+             * 활성화된 탭패널을 가져온다.
+             *
+             * @return {Aui.Panel} panel - 활성화된 탭 패널객체
+             */
+            getActiveTab(): Aui.Panel {
+                return this.getTab(this.activeTabId);
+            }
+
+            /**
              * 특정탭을 활성화한다.
              *
              * @param {string|number} id - 활성화할 탭 고유값 또는 탭 인덱스
@@ -176,24 +194,6 @@ namespace Aui {
                     this.bar.render();
                 }
             }
-
-            /**
-             * 레이아웃을 렌더링한다.
-             *
-            renderContainer(): void {
-                if (this.isRenderable() == true) {
-                    if (this.tabPosition == 'top') {
-                        this.renderTop();
-                        this.$top.append(this.bar.$getComponent());
-                    } else {
-                        this.renderBottom();
-                        this.$bottom.append(this.bar.$getComponent());
-                    }
-                    this.bar.render();
-                }
-
-                super.renderContainer();
-            }*/
 
             /**
              * 탭패널이 화면상에 출력되었을 때 이벤트를 처리한다.
