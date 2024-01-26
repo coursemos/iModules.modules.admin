@@ -355,7 +355,7 @@ class Administrator
      */
     public function isMaster(): bool
     {
-        return ($this->getPermission()?->getPermissions() ?? false) === false;
+        return ($this->getPermission()?->getPermissions() ?? false) === true;
     }
 
     /**
