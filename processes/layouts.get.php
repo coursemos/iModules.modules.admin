@@ -18,7 +18,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->isAdministrator() == false) {
+if ($me->getAdmin()->checkPermission('sitemap', ['contexts'], false) == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;

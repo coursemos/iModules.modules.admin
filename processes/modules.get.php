@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/modules.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
  */
@@ -18,7 +18,10 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->isAdministrator() == false) {
+if (
+    $me->getAdmin()->checkPermission('modules', ['configs']) == false &&
+    $me->getAdmin()->checkPermission('sitemap', ['contexts']) == false
+) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;

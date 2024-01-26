@@ -18,29 +18,23 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->getAdmin()->checkPermission('administrators', 'edit') == false) {
+if ($me->getAdmin()->checkPermission('administrators') == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 
 $group_ids = explode(',', Request::get('group_ids', true));
-$groups = $me
-    ->db()
-    ->select()
-    ->from($me->table('groups'))
-    ->where('group_id', $group_ids, 'IN')
-    ->get();
-if (count($groups) == 0) {
-    $results->success = false;
-    $results->message = $me->getErrorText('NOT_FOUND');
-    return;
-}
 
-$permissions = [];
-foreach ($groups as $group) {
-    $permissions = $me->mergePermissions($permissions, json_decode($group->permissions, true));
+$permission = new \modules\admin\dtos\Permission();
+foreach ($group_ids as $group_id) {
+    $permission->addPermissions(
+        $me
+            ->getAdminGroup($group_id)
+            ?->getPermission()
+            ?->getPermissions() ?? false
+    );
 }
 
 $results->success = true;
-$results->permissions = $permissions;
+$results->permissions = $permission->getPermissions();

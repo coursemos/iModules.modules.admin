@@ -143,8 +143,13 @@
                 },
                 "url": {
                     "type": "varchar",
-                    "length": 255,
-                    "comment": "접근기록"
+                    "length": 100,
+                    "comment": "접근주소"
+                },
+                "params": {
+                    "type": "text",
+                    "is_null": true,
+                    "comment": "접근매개변수"
                 },
                 "input": {
                     "type": "longtext",

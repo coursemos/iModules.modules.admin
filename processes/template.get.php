@@ -7,21 +7,12 @@
  * @file /modules/admin/processes/template.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
-}
-
-/**
- * 관리자권한이 존재하는지 확인한다.
- */
-if ($me->isAdministrator() == false) {
-    $results->success = false;
-    $results->message = $me->getErrorText('FORBIDDEN');
-    return;
 }
 
 $componentType = Request::get('componentType', true);
@@ -35,7 +26,4 @@ $name = Request::get('name', true);
 $template = new Template($component, (object) ['name' => $name]);
 $results->success = true;
 $results->template = $name;
-
-// @todo 실제 기존의 템플릿설정값을 가져온다.
-$configs = null;
-$results->fields = $template->getPackage()->getConfigsFields($configs);
+$results->fields = $template->getPackage()->getConfigsFields();
