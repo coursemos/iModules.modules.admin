@@ -1,71 +1,28 @@
 {
-    "texts": {
-        "page": "페이지"
-    },
     "errors": {
-        "DUPLICATED_ADMIN_CONTEXT_PATH": "추가하고자 하는 관리자 경로 ${path} 가 이미 ${name}(${component})에서 사용중입니다."
+        "DUPLICATED_ADMIN_CONTEXT_PATH": "추가하고자 하는 관리자 경로 ${path} 가 이미 ${name}(${component})에서 사용중입니다.",
+        "PERMISSION_DENIED": "관리자 권한이 없습니다."
     },
     "buttons": {
         "install": "설치",
         "update": "업데이트",
-        "delete": "삭제",
-        "rollback": "변경사항취소",
-        "file_select": "파일선택",
-        "image_select": "이미지선택"
+        "delete": "삭제"
     },
     "actions": {
         "installing_status": "설치중",
         "installing": "설치과정은 수분이 소요될 수 있습니다.<br>잠시만 기다려주십시오."
-    },
-    "components": {
-        "form": {
-            "icons": {
-                "NONE": "없음",
-                "ICON": "아이콘",
-                "CLASS": "스타일시트",
-                "URL": "이미지주소",
-                "FILE": "업로드"
-            },
-            "icons_help": {
-                "CLASS": "사이트테마의 스타일시트에 정의된 클래스를 입력하여 주십시오.",
-                "URL": "아이콘영역에 표시될 이미지주소를 입력하여 주십시오.",
-                "FILE": "아이콘으로 사용할 이미지파일을 업로드하여 주십시오."
-            },
-            "context": {
-                "module_help": "컨텍스트를 가져올 모듈을 선택하거나, 모듈을 검색할 수 있습니다.",
-                "context_help": "컨텍스트를 선택하거나, 검색할 수 있습니다."
-            },
-            "context_configs": "컨텍스트 설정",
-            "theme_configs": "테마 설정",
-            "template_configs": "템플릿 설정",
-            "use_default_template": "기본설정 사용",
-            "use_default_template_help": "모듈이나 해당 컨텍스트에 이미 설정되어 있는 기본설정을 사용합니다.",
-            "blocks": {
-                "add": "블럭추가",
-                "text": "텍스트블록"
-            },
-            "calendar": {
-                "today": "오늘"
-            },
-            "select": {
-                "values": "${display}외 ${count}개"
-            }
-        }
-    },
-    "errors": {
-        "PERMISSION_DENIED": "관리자 권한이 없습니다.",
-        "INVALID_COLOR_CODE": "색상코드가 잘못입력되었습니다. #000000 형식만 입력가능합니다."
     },
     "admin": {
         "contexts": {
             "dashboard": "대시보드",
             "modules": "모듈관리",
             "plugins": "플러그인관리",
+            "widgets": "위젯관리",
             "sitemap": "사이트맵관리",
             "administrators": "관리자관리",
             "database": "데이터베이스"
         },
-        "permissions": {
+        "scopes": {
             "modules": {
                 "title": "모듈관리",
                 "configs": "모듈설정",
@@ -76,11 +33,14 @@
                 "configs": "플러그인설정",
                 "install": "플러그인설치"
             },
+            "widgets": {
+                "title": "위젯관리"
+            },
             "sitemap": {
                 "title": "사이트맵관리",
-                "domain": "도메인관리",
-                "site": "사이트관리",
-                "context": "컨텍스트관리"
+                "domains": "도메인관리",
+                "sites": "사이트관리",
+                "contexts": "컨텍스트관리"
             },
             "administrators": "관리자 권한관리",
             "databases": "데이터베이스관리"
@@ -93,8 +53,10 @@
                 "edit": "폴더수정",
                 "duplicated": "폴더명이 중복됩니다.",
                 "preset": {
+                    "components": "컴포넌트관리",
                     "modules": "모듈",
                     "plugins": "플러그인",
+                    "widgets": "위젯",
                     "sites": "사이트"
                 }
             },
@@ -105,37 +67,35 @@
             }
         },
         "modules": {
-            "modules": {
-                "title": "모듈명",
-                "version": "버전",
-                "description": "모듈설명",
-                "author": "제작자",
-                "status": {
-                    "title": "상태",
-                    "INSTALLED": "정상설치",
-                    "NEED_UPDATE": "업데이트필요",
-                    "NOT_INSTALLED": "설치되지않음"
-                },
-                "databases": "DB용량",
-                "attachments": "첨부파일용량",
-                "update_size": "사용용량통계 갱신",
-                "homepage": "홈페이지",
-                "language": "기본언어",
-                "hash": "패키지해시",
-                "show": {
-                    "title": "모듈정보보기",
-                    "defaults": "기본정보",
-                    "details": "상세설명",
-                    "properties": {
-                        "title": "모듈속성",
-                        "GLOBAL": "전역모듈",
-                        "ADMIN": "관리자",
-                        "CONTEXT": "컨텍스트",
-                        "WIDGET": "위젯",
-                        "THEME": "사이트테마",
-                        "CRON": "자동화작업",
-                        "CONFIGS": "모듈환경설정"
-                    }
+            "title": "모듈명",
+            "version": "버전",
+            "description": "모듈설명",
+            "author": "제작자",
+            "status": {
+                "title": "상태",
+                "INSTALLED": "정상설치",
+                "NEED_UPDATE": "업데이트필요",
+                "NOT_INSTALLED": "설치되지않음"
+            },
+            "databases": "DB용량",
+            "attachments": "첨부파일용량",
+            "update_size": "사용용량통계 갱신",
+            "homepage": "홈페이지",
+            "language": "기본언어",
+            "hash": "패키지해시",
+            "show": {
+                "title": "모듈정보보기",
+                "defaults": "기본정보",
+                "details": "상세설명",
+                "properties": {
+                    "title": "모듈속성",
+                    "GLOBAL": "전역모듈",
+                    "ADMIN": "관리자",
+                    "CONTEXT": "컨텍스트",
+                    "WIDGET": "위젯",
+                    "THEME": "사이트테마",
+                    "CRON": "자동화작업",
+                    "CONFIGS": "모듈환경설정"
                 }
             }
         },
@@ -216,37 +176,58 @@
             }
         },
         "administrators": {
-            "add": "관리자추가",
-            "master": "최고관리자",
-            "selected_members": "${count}명 선택됨",
-            "unselected_members": "선택회원 없음",
-            "deselect_all": "전체 선택해제",
-            "component_master": "전체관리자",
-            "name": "관리자명",
-            "permissions": "권한",
-            "permission_sumamry": "${names}외 ${count}개",
-            "type_all": "전체",
-            "add_group": "그룹추가",
-            "add_group_help": "현재 선택된 관리자의 기존 그룹을 유지한채 위에서 선택한 그룹을 추가합니다.",
-            "move_group": "그룹이동",
-            "move_group_help": "현재 선택된 관리자의 기존 그룹을 위에서 선택한 그룹으로 대치합니다.",
-            "edit_permissions": "권한설정",
-            "remove": "관리자에서 제외",
-            "selectedCount": "${count}명 선택됨",
-            "actions": {
-                "unselected_members": "먼저 관리자로 등록할 회원을 선택하여 주십시오.",
-                "unselected_permissions": "권한이 선택되지 않았습니다."
+            "lists": {
+                "title": "관리자목록",
+                "add": "관리자추가",
+                "master": "최고관리자",
+                "selected_members": "${count}명 선택됨",
+                "unselected_members": "선택회원 없음",
+                "deselect_all": "전체 선택해제",
+                "component_master": "전체관리자",
+                "name": "관리자명",
+                "scope_all": "전체권한",
+                "member_groups": "회원그룹",
+                "administrator_groups": "관리자그룹",
+                "add_group": "그룹추가",
+                "add_group_help": "현재 선택된 관리자의 기존 그룹을 유지한채 위에서 선택한 그룹을 추가합니다.",
+                "move_group": "그룹이동",
+                "move_group_help": "현재 선택된 관리자의 기존 그룹을 위에서 선택한 그룹으로 대치합니다.",
+                "edit_permissions": "권한설정",
+                "remove": "관리자에서 제외",
+                "selectedCount": "${count}명 선택됨",
+                "permissions": "개인권한",
+                "actions": {
+                    "unselected_members": "먼저 관리자로 등록할 회원을 선택하여 주십시오.",
+                    "unselected_permissions": "권한이 선택되지 않았습니다."
+                },
+                "groups": {
+                    "type": {
+                        "user": "사용자정의그룹",
+                        "component": "컴포넌트자동화그룹"
+                    },
+                    "descriptions": {
+                        "user": "사용자가 직접 관리자로 지정한 모든 관리자 목록을 확인합니다.",
+                        "component": "컴포넌트가 자동으로 관리자그룹을 부여한 모든 관리자 목록을 확인합니다.",
+                        "readonly": "컴포넌트가 자동으로 그룹권한을 관리하므로 그룹권한을 수정할 수 없습니다."
+                    },
+                    "add": "그룹추가",
+                    "edit": "그룹수정",
+                    "show": "그룹권한보기",
+                    "delete": "그룹삭제",
+                    "title": "그룹명",
+                    "description": "그룹설명",
+                    "administrators": "인원",
+                    "all": "전체그룹",
+                    "ungrouped": "그룹없음",
+                    "groups": "그룹",
+                    "permissions": "그룹권한"
+                }
             },
-            "groups": {
-                "add": "그룹추가",
-                "edit": "그룹수정",
-                "delete": "그룹삭제",
-                "title": "그룹명",
-                "administrators": "인원",
-                "all": "전체그룹",
-                "ungrouped": "그룹없음",
-                "groups": "그룹",
-                "permissions": "그룹권한"
+            "logs": {
+                "title": "관리자접속기록",
+                "time": "접근일시",
+                "name": "접근자명",
+                "url": "접근주소"
             }
         }
     }
