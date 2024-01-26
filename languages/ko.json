@@ -12,6 +12,31 @@
         "installing_status": "설치중",
         "installing": "설치과정은 수분이 소요될 수 있습니다.<br>잠시만 기다려주십시오."
     },
+    "components": {
+        "form": {
+            "icons": {
+                "NONE": "없음",
+                "ICON": "아이콘",
+                "CLASS": "스타일시트",
+                "URL": "이미지주소",
+                "FILE": "업로드"
+            },
+            "icons_help": {
+                "CLASS": "사이트테마의 스타일시트에 정의된 클래스를 입력하여 주십시오.",
+                "URL": "아이콘영역에 표시될 이미지주소를 입력하여 주십시오.",
+                "FILE": "아이콘으로 사용할 이미지파일을 업로드하여 주십시오."
+            },
+            "context": {
+                "module_help": "컨텍스트를 가져올 모듈을 선택하거나, 모듈을 검색할 수 있습니다.",
+                "context_help": "컨텍스트를 선택하거나, 검색할 수 있습니다."
+            },
+            "context_configs": "컨텍스트 설정",
+            "theme_configs": "테마 설정",
+            "template_configs": "템플릿 설정",
+            "use_default_template": "기본설정 사용",
+            "use_default_template_help": "모듈이나 해당 컨텍스트에 이미 설정되어 있는 기본설정을 사용합니다."
+        }
+    },
     "admin": {
         "contexts": {
             "dashboard": "대시보드",
