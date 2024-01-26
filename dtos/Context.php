@@ -2,20 +2,20 @@
 /**
  * 이 파일은 아이모듈 관리자모듈의 일부입니다. (https://www.imodules.io)
  *
- * 모듈관리자 컨텍스트 구조체를 정의한다.
+ * 관리자 컨텍스트 구조체를 정의한다.
  *
  * @file /modules/admin/dtos/Context.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  */
 namespace modules\admin\dtos;
 class Context
 {
     /**
-     * @var \modules\admin\admin\Admin $_admin 관리자 클래스
+     * @var \modules\admin\admin\Component $_admin 컴포넌트의 관리자클래스
      */
-    private \modules\admin\admin\Admin $_admin;
+    private \modules\admin\admin\Component $_admin;
 
     /**
      * @var string $_type 타입 (COMPONENT, LINK, BUTTON)
@@ -33,14 +33,24 @@ class Context
     private string $_title;
 
     /**
+     * @var string $_default_folder_title 기본폴더명
+     */
+    private ?string $_default_folder_title = null;
+
+    /**
+     * @var string $_default_folder_icon 기본폴더아이콘
+     */
+    private ?string $_default_folder_icon = null;
+
+    /**
      * @var string $_target 링크타겟
      */
     private string $_target = '_self';
 
     /**
-     * @var string $_icon 컨텍스트 아이콘
+     * @var ?string $_icon 컨텍스트 아이콘
      */
-    private string $_icon;
+    private ?string $_icon;
 
     /**
      * @var string $_smart 스마트폴더 여부 (none, modules, plugins, widgets, others)
@@ -53,35 +63,51 @@ class Context
     private array $_children = [];
 
     /**
-     * @var bool $is_root 최상위메뉴 여부
-     */
-    private bool $_is_root;
-
-    /**
      * 관리자 컨텍스트 구조체를 정의한다.
      *
      * @param \modules\admin\admin\Admin $admin 컨텍스트의 관리자클래스
-     * @param string $title 컨텍스트명
-     * @param string $icon 컨텍스트 아이콘
      */
-    public function __construct(\modules\admin\admin\Admin $admin, string $title, string $icon = '')
+    public function __construct(\modules\admin\admin\Component $admin)
     {
         $this->_admin = $admin;
+    }
+
+    /**
+     * 새로운 관리자 컨텍스트 구조체를 가져온다.
+     *
+     * @param \modules\admin\admin\Admin $admin 컨텍스트의 관리자클래스
+     * @return \modules\admin\dtos\Context $context
+     */
+    public static function init(\modules\admin\admin\Component $admin): \modules\admin\dtos\Context
+    {
+        return new \modules\admin\dtos\Context($admin);
+    }
+
+    /**
+     * 컨텍스트 제목을 정의한다.
+     *
+     * @param string $title 컨텍스트명
+     * @param ?string $icon 컨텍스트 아이콘 (CSS 스타일명 또는 이미지파일 경로)
+     * @return \modules\admin\dtos\Context $this
+     */
+    public function setTitle(string $title, ?string $icon = null): \modules\admin\dtos\Context
+    {
         $this->_title = $title;
         $this->_icon = $icon;
+        return $this;
     }
 
     /**
      * 컴포넌트타입 컨텍스트를 설정한다.
      *
      * @param string $path 경로
-     * @param bool $is_root 최상위메뉴 여부
+     * @return \modules\admin\dtos\Context $this
      */
-    public function setContext(string $path, bool $is_root = false): void
+    public function setContext(string $path): \modules\admin\dtos\Context
     {
         $this->_type = 'CONTEXT';
         $this->_path = $path;
-        $this->_is_root = $is_root;
+        return $this;
     }
 
     /**
@@ -89,12 +115,14 @@ class Context
      *
      * @param string $url 링크주소
      * @param string $target 대상 (_self : 현재창, _blank : 새창)
+     * @return \modules\admin\dtos\Context $this
      */
-    public function setLink(string $url, string $target = '_self'): void
+    public function setLink(string $url, string $target = '_self'): \modules\admin\dtos\Context
     {
         $this->_type = 'LINK';
         $this->_path = $url;
         $this->_target = $target;
+        return $this;
     }
 
     /**
@@ -102,22 +130,49 @@ class Context
      *
      * @param \modules\admin\dtos\Context[] $children 자식컨텍스트
      * @param string $smart 스마트폴더 여부
+     * @return \modules\admin\dtos\Context $this
      */
-    public function setFolder(array $children, string $smart = 'none'): void
+    public function setFolder(array $children, string $smart = 'none'): \modules\admin\dtos\Context
     {
         $this->_type = 'FOLDER';
         $this->_smart = $smart;
         $this->_children = $children;
+        return $this;
+    }
+
+    /**
+     * 관리자가 네비게이션 설정을 하지 않았을 때 기본적으로 담길 폴더명을 설정한다.
+     * 해당 폴더명을 가진 폴더가 없을 경우 자동으로 해당 폴더명을 생성한다.
+     *
+     * @param ?string $title 기본폴더명 (NULL 인 경우 기본적으로 폴더에 담지 않는다.)
+     * @param ?string $icon 기본폴더아이콘
+     * @return \modules\admin\dtos\Context $this
+     */
+    public function setDefaultFolder(?string $title, ?string $icon = null): \modules\admin\dtos\Context
+    {
+        $this->_default_folder_title = $title;
+        $this->_default_folder_icon = $icon;
+        return $this;
     }
 
     /**
      * 컨텍스트를 처리할 컴포넌트 관리자 클래스를 가져온다.
      *
-     * @return \Modules\admin\admin\Admin $admin
+     * @return \modules\admin\admin\Component $admin
      */
-    public function getAdmin(): \Modules\admin\admin\Admin
+    public function getAdmin(): \modules\admin\admin\Component
     {
         return $this->_admin;
+    }
+
+    /**
+     * 컨텍스트를 처리할 컴포넌트 클래스를 가져온다.
+     *
+     * @return \Component $component
+     */
+    public function getComponent(): \Component
+    {
+        return $this->_admin->getComponent();
     }
 
     /**
@@ -129,20 +184,14 @@ class Context
     {
         switch ($this->_type) {
             case 'CONTEXT':
-                $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)Admin$/';
-                if (preg_match($regExp, get_class($this->_admin), $match) == true) {
-                    $type = $match[1];
-                    $name = str_replace('\\', '/', $match[2]);
-                    if ($this->_is_root == true) {
-                        return $this->_path == '/' ? '/' : preg_replace('/\/$/', '', $this->_path);
-                    } else {
-                        return '/' . $type . '/' . $name . preg_replace('/\/$/', '', $this->_path);
-                    }
+                $component = $this->getComponent();
+                if ($component->getType() == 'module' && $component->getName() == 'admin') {
+                    return '/' . $this->_path;
                 } else {
-                    return '#';
+                    return '/' . $component->getType() . '/' . $component->getName() . '/' . $this->_path;
                 }
+                break;
 
-            // no break
             case 'LINK':
                 return $this->_path;
 
@@ -179,6 +228,25 @@ class Context
      */
     public function getIcon(bool $is_tag = false): string
     {
+        if ($this->_icon === null || strlen($this->_icon) === 0) {
+            switch ($this->_type) {
+                case 'CONTEXT':
+                    $this->_icon = $this->getComponent()->getIcon();
+                    break;
+
+                case 'LINK':
+                    $this->_icon = 'xi xi-external-link';
+                    break;
+
+                case 'FORDER':
+                    $this->_icon = 'xi xi-folder';
+                    break;
+
+                default:
+                    $this->_icon = 'xi xi-marquee-add';
+            }
+        }
+
         if ($is_tag === false) {
             return $this->_icon;
         }
@@ -226,13 +294,34 @@ class Context
     }
 
     /**
+     * 기본폴더명을 가져온다.
+     * 컨텍스트 종류가 폴더인 경우 무조건 NULL 이 반환된다.
+     *
+     * @return ?string $title
+     */
+    public function getDefaultFolderTitle(): ?string
+    {
+        return $this->_type == 'FOLDER' ? null : $this->_default_folder_title;
+    }
+
+    /**
+     * 기본폴더아이콘을 가져온다.
+     * 컨텍스트 종류가 폴더인 경우 무조건 NULL 이 반환된다.
+     *
+     * @return ?string $icon
+     */
+    public function getDefaultFolderIcon(): ?string
+    {
+        return $this->getDefaultFolderTitle() !== null ? $this->_default_folder_icon ?? 'xi xi-folder' : null;
+    }
+
+    /**
      * 컨텍스트의 콘텐츠를 가져온다.
      *
-     * @return ?string $subPath 하위경로
      * @return string $content 콘텐츠
      */
-    public function getContent(string $subPath = null): string
+    public function getContent(): string
     {
-        return $this->_admin->getContent($this->_path, $subPath);
+        return $this->_admin->getContext($this->_path);
     }
 }
