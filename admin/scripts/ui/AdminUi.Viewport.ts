@@ -189,7 +189,7 @@ namespace AdminUi {
                         handler: async () => {
                             new Aui.Window({
                                 id: this.id + '-Folder-Window',
-                                title: Aui.printText('admin.navigation.folder.add'),
+                                title: Admin.printText('admin.navigation.folder.add'),
                                 width: 400,
                                 resizable: false,
                                 items: [
@@ -247,7 +247,7 @@ namespace AdminUi {
                                                         name: 'title',
                                                         flex: true,
                                                         allowBlank: false,
-                                                        emptyText: Aui.printText('admin.navigation.folder.title'),
+                                                        emptyText: Admin.printText('admin.navigation.folder.title'),
                                                     }),
                                                 ],
                                             }),

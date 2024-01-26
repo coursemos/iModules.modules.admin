@@ -27,7 +27,7 @@ Admin.ready(async () => {
             '->',
             new Aui.Button({
                 iconClass: 'mi mi-refresh',
-                text: (await me.getText('admin.modules.modules.update_size')),
+                text: (await me.getText('admin.modules.update_size')),
             }),
         ],
         bottombar: [
@@ -45,7 +45,7 @@ Admin.ready(async () => {
         }),
         columns: [
             {
-                text: (await me.getText('admin.modules.modules.title')),
+                text: (await me.getText('admin.modules.title')),
                 dataIndex: 'title',
                 width: 200,
                 renderer: (value, record) => {
@@ -53,23 +53,23 @@ Admin.ready(async () => {
                 },
             },
             {
-                text: (await me.getText('admin.modules.modules.version')),
+                text: (await me.getText('admin.modules.version')),
                 dataIndex: 'version',
                 width: 80,
                 textAlign: 'center',
             },
             {
-                text: (await me.getText('admin.modules.modules.description')),
+                text: (await me.getText('admin.modules.description')),
                 dataIndex: 'description',
                 minWidth: 200,
             },
             {
-                text: (await me.getText('admin.modules.modules.author')),
+                text: (await me.getText('admin.modules.author')),
                 dataIndex: 'author',
                 width: 160,
             },
             {
-                text: (await me.getText('admin.modules.modules.status.title')),
+                text: (await me.getText('admin.modules.status.title')),
                 dataIndex: 'status',
                 width: 100,
                 textAlign: 'center',
@@ -83,11 +83,11 @@ Admin.ready(async () => {
                     else {
                         $dom.setStyle('color', 'var(--color-danger-500)');
                     }
-                    return me.printText('admin.modules.modules.status.' + value);
+                    return me.printText('admin.modules.status.' + value);
                 },
             },
             {
-                text: (await me.getText('admin.modules.modules.databases')),
+                text: (await me.getText('admin.modules.databases')),
                 dataIndex: 'databases',
                 width: 100,
                 textAlign: 'right',
@@ -96,7 +96,7 @@ Admin.ready(async () => {
                 },
             },
             {
-                text: (await me.getText('admin.modules.modules.attachments')),
+                text: (await me.getText('admin.modules.attachments')),
                 dataIndex: 'attachments',
                 width: 100,
                 textAlign: 'right',
@@ -112,7 +112,7 @@ Admin.ready(async () => {
             openMenu: (menu, record) => {
                 menu.setTitle(record.get('title'));
                 menu.add({
-                    text: me.printText('admin.modules.modules.show.title'),
+                    text: me.printText('admin.modules.show.title'),
                     iconClass: 'xi xi-form-checkout',
                     handler: () => {
                         me.modules.show(record.data.name);
