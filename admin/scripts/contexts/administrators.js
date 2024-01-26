@@ -12,6 +12,7 @@ Admin.ready(async () => {
     const me = Admin.getModule('admin');
     const mMember = Admin.getModule('member');
     return new Aui.Tab.Panel({
+        id: 'administrators-context',
         iconClass: 'xi xi-user-lock',
         title: (await me.getText('admin.contexts.administrators')),
         border: false,
@@ -163,13 +164,12 @@ Admin.ready(async () => {
                                 const administrators = Aui.getComponent('administrators');
                                 if (selections.length == 1) {
                                     const group_id = selections[0].get('group_id');
-                                    administrators.getStore().setParam('group_id', group_id);
-                                    administrators.getStore().loadPage(1);
-                                    administrators.enable();
-                                    if (Admin.getContextSubTree().at(0) == 'lists' &&
-                                        Admin.getContextSubTree().at(1) !== group_id) {
-                                        Admin.setContextUrl(Admin.getContextUrl('/lists/' + group_id.replace(/\//, '.')));
+                                    if (administrators.getStore().getParam('group_id') !== group_id) {
+                                        administrators.getStore().setParam('group_id', group_id);
+                                        administrators.getStore().loadPage(1);
                                     }
+                                    administrators.enable();
+                                    Aui.getComponent('administrators-contexts').properties.setUrl();
                                 }
                                 else {
                                     administrators.disable();
@@ -472,74 +472,8 @@ Admin.ready(async () => {
                     sorters: { time: 'DESC' },
                 }),
                 listeners: {
-                    openMenu: (menu, record) => {
-                        menu.setTitle(record.get('name'));
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.add_group'),
-                            iconClass: 'xi xi-user-folder',
-                            handler: () => {
-                                me.administrators.setGroups(false);
-                            },
-                        });
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.move_group'),
-                            iconClass: 'xi xi-user-add',
-                            handler: () => {
-                                me.administrators.setGroups(true);
-                            },
-                        });
-                        menu.add('-');
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.edit_permissions'),
-                            iconClass: 'xi xi-check-shieldout',
-                            handler: () => {
-                                //
-                            },
-                        });
-                        menu.add('-');
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.remove'),
-                            iconClass: 'mi mi-trash',
-                            handler: () => {
-                                //
-                            },
-                        });
-                    },
-                    openMenus: (menu, selections) => {
-                        menu.setTitle(me.printText('admin.administrators.lists.selectedCount', {
-                            count: selections.length.toString(),
-                        }));
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.add_group'),
-                            iconClass: 'xi xi-user-folder',
-                            handler: () => {
-                                me.administrators.setGroups(false);
-                            },
-                        });
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.move_group'),
-                            iconClass: 'xi xi-user-add',
-                            handler: () => {
-                                me.administrators.setGroups(true);
-                            },
-                        });
-                        menu.add('-');
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.edit_permissions'),
-                            iconClass: 'xi xi-check-shieldout',
-                            handler: () => {
-                                //
-                            },
-                        });
-                        menu.add('-');
-                        menu.add({
-                            text: me.printText('admin.administrators.lists.remove'),
-                            iconClass: 'mi mi-trash',
-                            handler: () => {
-                                //
-                            },
-                        });
-                    },
+                    openItem: (record) => { },
+                    openMenu: (menu, record) => { },
                 },
             }),
         ],
@@ -551,19 +485,11 @@ Admin.ready(async () => {
                 }
             },
             active: (panel) => {
-                if (Admin.getContextSubTree().at(0) !== panel.getId()) {
-                    Admin.setContextUrl(Admin.getContextUrl('/' + panel.getId()));
-                }
+                Aui.getComponent('administrators-contexts').properties.setUrl();
                 if (panel.getId() == 'lists') {
                     const groups = Aui.getComponent('groups');
                     if (groups.getStore().isLoaded() == false) {
                         groups.getStore().load();
-                    }
-                    else {
-                        const group_id = groups.getSelections().at(0)?.get('group_id') ?? null;
-                        if (group_id !== null) {
-                            Admin.setContextUrl(Admin.getContextUrl('/lists/' + group_id.replace(/\//, '.')));
-                        }
                     }
                 }
                 if (panel.getId() == 'logs') {
@@ -573,6 +499,19 @@ Admin.ready(async () => {
                     }
                 }
             },
+        },
+        setUrl: () => {
+            const contexts = Aui.getComponent('administrators-contexts');
+            if (Admin.getContextSubTree().at(0) !== contexts.getActiveTab().getId()) {
+                Admin.setContextUrl(Admin.getContextUrl('/' + contexts.getActiveTab().getId()));
+            }
+            if (Admin.getContextSubTree().at(0) == 'lists') {
+                const groups = Aui.getComponent('groups');
+                const group_id = groups.getSelections().at(0)?.get('group_id') ?? null;
+                if (group_id !== null && Admin.getContextSubTree().at(1) !== group_id) {
+                    Admin.setContextUrl(Admin.getContextUrl('/lists/' + group_id.replace(/\//, '.')));
+                }
+            }
         },
     });
 });
