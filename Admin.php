@@ -459,7 +459,7 @@ class Admin extends \Module
         $type = $subPath[1];
         $is_viewer = end($subPath) === 'viewer';
 
-        \Html::style($this->getBase() . '/styles/preview.css');
+        \Html::style($this->getBase() . '/admin/styles/preview.css');
         \Html::body('data-type', 'preview');
 
         if ($is_viewer === true) {
@@ -479,7 +479,7 @@ class Admin extends \Module
                 return $theme->getLayout('NONE', $theme->getPage($page));
             }
         } else {
-            \Html::script($this->getBase() . '/scripts/preview.js');
+            \Html::script($this->getBase() . '/admin/scripts/preview.js');
             \Html::body('data-preview', 'body');
 
             if ($type == 'page') {
