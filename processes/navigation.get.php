@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/navigation.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
  */
@@ -18,16 +18,14 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->isAdministrator() == false) {
+if ($me->getAdministrator()?->isAdministrator() !== true) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 
-$results->success = true;
-
 $contexts = [];
-foreach ($me->getAdminContexts() as $context) {
+foreach ($me->getAdministrator()?->getNavigation() ?? [] as $context) {
     $item = [
         'icon' => $context->getIcon(),
         'title' => $context->getTitle(),
@@ -52,5 +50,6 @@ foreach ($me->getAdminContexts() as $context) {
 
     $contexts[] = $item;
 }
+
+$results->success = true;
 $results->contexts = $contexts;
-$results->a = get_class($me);

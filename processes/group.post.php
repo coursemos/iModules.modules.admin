@@ -7,10 +7,9 @@
  * @file /modules/admin/processes/group.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 7. 17.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
@@ -19,7 +18,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->getAdmin()->checkPermission('administrators', 'edit') == false) {
+if ($me->getAdmin()->checkPermission('administrators') == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
@@ -27,7 +26,7 @@ if ($me->getAdmin()->checkPermission('administrators', 'edit') == false) {
 
 $group_id = Request::get('group_id');
 $errors = [];
-$title = $input->get('title', $errors);
+$title = Input::get('title', $errors);
 if ($title !== null) {
     $checked = $me
         ->db()
@@ -42,40 +41,23 @@ if ($title !== null) {
     }
 }
 
-$permissions = $input->get('master') ? true : [];
-if ($permissions !== true) {
-    foreach ($input->all() as $key => $value) {
-        if (in_array($key, ['group_id', 'title']) == true) {
-            continue;
-        }
+$permission = new \modules\admin\dtos\Permission();
+if (Input::get('master')) {
+    $permission->setMaster();
+}
 
-        $temp = explode('-', $key);
-        $component = $temp[0];
-        $type = isset($temp[1]) == true ? $temp[1] : null;
-        if (isset($permissions[$component]) == false) {
-            $permissions[$component] = $type === null ? true : [];
-        }
-        if ($permissions[$component] === true) {
-            continue;
-        }
-
-        $temp = explode('@', $type);
-        $type = $temp[0];
-        $permission = isset($temp[1]) == true ? $temp[1] : null;
-        if (isset($permissions[$component][$type]) == false) {
-            $permissions[$component][$type] = $permission === null ? true : [];
-        }
-        if ($permissions[$component][$type] === true) {
-            continue;
-        }
-        $permissions[$component][$type][] = $permission;
+foreach (Input::all() as $key => $value) {
+    if (in_array($key, ['group_id', 'title']) == true) {
+        continue;
     }
 
-    if (count($permissions) == 0) {
-        $results->success = false;
-        $results->message = $me->getText('admin.administrators.actions.unselected_permissions');
-        return;
-    }
+    $permission->addScopeCode($key);
+}
+
+if ($permission->getPermissions() === false) {
+    $results->success = false;
+    $results->message = $me->getText('admin.administrators.lists.actions.unselected_permissions');
+    return;
 }
 
 if (count($errors) == 0) {
@@ -83,7 +65,11 @@ if (count($errors) == 0) {
     $me->db()
         ->insert(
             $me->table('groups'),
-            ['group_id' => $group_id, 'title' => $title, 'permissions' => Format::toJson($permissions)],
+            [
+                'group_id' => $group_id,
+                'title' => $title,
+                'permissions' => Format::toJson($permission->getPermissions()),
+            ],
             ['title', 'permissions']
         )
         ->execute();

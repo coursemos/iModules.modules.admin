@@ -7,10 +7,9 @@
  * @file /modules/admin/processes/navigation.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
@@ -25,13 +24,13 @@ if ($me->isAdministrator() == false) {
     return;
 }
 
-$member = $me->getAdministrator();
-$contexts = json_encode($input->get('contexts'));
+$administrator = $me->getAdministrator();
+$contexts = json_encode(Input::get('contexts'));
 
 $me->db()
-    ->update($me->table('administrators'), ['contexts' => $contexts])
-    ->where('member_id', $member->member_id)
+    ->update($me->table('administrators'), ['navigation' => $contexts])
+    ->where('member_id', $administrator->getId())
     ->execute();
 
 $results->success = true;
-$results->contexts = $input->get('contexts');
+$results->contexts = Input::get('contexts');

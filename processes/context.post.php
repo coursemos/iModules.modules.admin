@@ -7,10 +7,9 @@
  * @file /modules/admin/processes/context.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
@@ -19,7 +18,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->getAdmin()->checkPermission('sitemap', 'context') == false) {
+if ($me->getAdmin()->checkPermission('sitemap', ['contexts']) == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
@@ -55,30 +54,30 @@ $insert['language'] = $language;
 if ($path === '/') {
     $insert['path'] = '/';
 } else {
-    if (strlen($input->get('basename')) == 0) {
+    if (strlen(Input::get('basename')) == 0) {
         $errors['basename'] = $me->getErrorText('REQUIRED');
     }
 
-    if (strpos('/', $input->get('basename')) !== false) {
+    if (strpos('/', Input::get('basename')) !== false) {
         $errors['basename'] = $me->getErrorText('NOT_ALLOWED_SLASH_IN_BASENAME');
     }
 
-    $insert['path'] = $input->get('parent');
+    $insert['path'] = Input::get('parent');
     $insert['path'] .= $insert['path'] !== '/' ? '/' : '';
-    $insert['path'] .= $input->get('basename');
+    $insert['path'] .= Input::get('basename');
 }
 
-$insert['icon'] = $input->get('icon');
-$insert['title'] = $input->get('title', $errors);
-$insert['description'] = $input->get('description');
-$insert['image'] = $input->get('image');
-$insert['type'] = $input->get('type') ?? 'EMPTY';
+$insert['icon'] = Input::get('icon');
+$insert['title'] = Input::get('title', $errors);
+$insert['description'] = Input::get('description');
+$insert['image'] = Input::get('image');
+$insert['type'] = Input::get('type') ?? 'EMPTY';
 $insert['target'] = null;
 $insert['context'] = null;
 $insert['context_configs'] = null;
 $insert['is_routing'] = 'FALSE';
 
-switch ($input->get('type')) {
+switch (Input::get('type')) {
     case 'EMPTY':
         break;
 
@@ -88,12 +87,12 @@ switch ($input->get('type')) {
     case 'PAGE':
         $site = Sites::get($host, $language);
         $insert['target'] = $site->getTheme()->getPathName();
-        $insert['context'] = $input->get('page', $errors);
-        $insert['is_routing'] = $input->get('is_routing') ? 'TRUE' : 'FALSE';
+        $insert['context'] = Input::get('page', $errors);
+        $insert['is_routing'] = Input::get('is_routing') ? 'TRUE' : 'FALSE';
         break;
 
     case 'MODULE':
-        $module = $input->get('module');
+        $module = Input::get('module');
         $insert['target'] = $module->module;
         $insert['context'] = $module->context;
         $insert['context_configs'] = Format::toJson($module->configs);
@@ -107,19 +106,19 @@ switch ($input->get('type')) {
         break;
 }
 
-if (in_array($input->get('type'), ['CHILD', 'LINK'])) {
+if (in_array(Input::get('type'), ['CHILD', 'LINK'])) {
     $insert['layout'] = null;
     $insert['header'] = null;
     $insert['footer'] = null;
 } else {
-    $insert['layout'] = $input->get('layout', $errors);
-    $insert['header'] = $input->get('header');
-    $insert['footer'] = $input->get('footer');
+    $insert['layout'] = Input::get('layout', $errors);
+    $insert['header'] = Input::get('header');
+    $insert['footer'] = Input::get('footer');
 }
 
-$insert['permission'] = $input->get('permission') ?? 'true';
-$insert['is_sitemap'] = $input->get('is_sitemap') ? 'TRUE' : 'FALSE';
-$insert['is_footer_menu'] = $input->get('is_footer_menu') ? 'TRUE' : 'FALSE';
+$insert['permission'] = Input::get('permission') ?? 'true';
+$insert['is_sitemap'] = Input::get('is_sitemap') ? 'TRUE' : 'FALSE';
+$insert['is_footer_menu'] = Input::get('is_footer_menu') ? 'TRUE' : 'FALSE';
 
 $check = iModules::db()
     ->select()
@@ -135,9 +134,9 @@ if ($check->has() == true) {
 }
 
 if (count($errors) == 0) {
-    if ($input->get('image') !== null) {
+    if (Input::get('image') !== null) {
         $mAttachment->publishFile(
-            $input->get('image'),
+            Input::get('image'),
             $me,
             'context',
             $insert['host'] . '/' . $insert['language'] . $insert['path']

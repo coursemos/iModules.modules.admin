@@ -7,17 +7,16 @@
  * @file /modules/admin/processes/module.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
 }
 
 $errors = [];
-$name = $input->get('name', $errors);
+$name = Input::get('name', $errors);
 $module = Modules::get($name);
 if ($module === null) {
     $results->success = false;
@@ -29,7 +28,7 @@ if ($module->isInstalled() == true) {
     /**
      * 관리자권한이 존재하는지 확인한다.
      */
-    if ($me->getAdmin()->checkPermission('modules', 'config') == false) {
+    if ($me->getAdmin()->checkPermission('modules', ['configs']) == false) {
         $results->success = false;
         $results->message = $me->getErrorText('FORBIDDEN');
         return;
@@ -38,14 +37,14 @@ if ($module->isInstalled() == true) {
     /**
      * 관리자권한이 존재하는지 확인한다.
      */
-    if ($me->getAdmin()->checkPermission('modules', 'install') == false) {
+    if ($me->getAdmin()->checkPermission('modules', ['install']) == false) {
         $results->success = false;
         $results->message = $me->getErrorText('FORBIDDEN');
         return;
     }
 }
 
-$configs = $input->get('configs') ? $module->getPackage()->getConfigs($input->get('configs')) : null;
+$configs = Input::get('configs') ? $module->getPackage()->getConfigs(Input::get('configs')) : null;
 
 $installable = Modules::installable($name);
 if ($installable->success == false) {

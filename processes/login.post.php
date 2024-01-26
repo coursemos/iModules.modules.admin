@@ -7,19 +7,18 @@
  * @file /modules/admin/processes/login.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 6. 24.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
 }
 
 $errors = [];
-$email = $input->get('email', $errors);
-$password = $input->get('password', $errors);
-$auto_login = $input->get('auto_login') === 'true';
+$email = Input::get('email', $errors);
+$password = Input::get('password', $errors);
+$auto_login = Input::get('auto_login') === 'true';
 
 if (count($errors) == 0) {
     /**
@@ -29,7 +28,7 @@ if (count($errors) == 0) {
     $login = $mMember->login($email, $password, $auto_login);
 
     if ($login === true) {
-        if ($me->isAdministrator() === true) {
+        if ($me->getAdministrator()?->isAdministrator() === true) {
             $results->success = true;
         } else {
             $results->success = false;

@@ -7,10 +7,9 @@
  * @file /modules/admin/processes/site.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
@@ -19,7 +18,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->getAdmin()->checkPermission('sitemap', 'site') == false) {
+if ($me->getAdmin()->checkPermission('sitemap', ['sites']) == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
@@ -53,17 +52,17 @@ $mAttachment = Modules::get('attachment');
 
 $insert = [];
 $insert['host'] = $host;
-$insert['language'] = $input->get('language', $errors) ?? '';
-$insert['title'] = $input->get('title', $errors) ?? '';
-$insert['description'] = $input->get('description') ?? '';
-$insert['theme'] = Format::toJson($input->get('theme', $errors));
-$insert['color'] = $input->get('color');
-$insert['header'] = $input->get('header');
-$insert['footer'] = $input->get('footer');
-$insert['logo'] = $input->get('logo');
-$insert['emblem'] = $input->get('emblem');
-$insert['favicon'] = $input->get('favicon');
-$insert['image'] = $input->get('image');
+$insert['language'] = Input::get('language', $errors) ?? '';
+$insert['title'] = Input::get('title', $errors) ?? '';
+$insert['description'] = Input::get('description') ?? '';
+$insert['theme'] = Format::toJson(Input::get('theme', $errors));
+$insert['color'] = Input::get('color');
+$insert['header'] = Input::get('header');
+$insert['footer'] = Input::get('footer');
+$insert['logo'] = Input::get('logo');
+$insert['emblem'] = Input::get('emblem');
+$insert['favicon'] = Input::get('favicon');
+$insert['image'] = Input::get('image');
 
 $check = iModules::db()
     ->select()
@@ -78,8 +77,8 @@ if ($check->has() == true) {
 }
 
 if (count($errors) == 0) {
-    if ($input->get('logo') !== null) {
-        $mAttachment->publishFile($input->get('logo'), $me, 'logo', $insert['host'] . '/' . $insert['language']);
+    if (Input::get('logo') !== null) {
+        $mAttachment->publishFile(Input::get('logo'), $me, 'logo', $insert['host'] . '/' . $insert['language']);
     }
 
     if ($site === null) {
@@ -92,7 +91,7 @@ if (count($errors) == 0) {
             ->insert(iModules::table('sites'), $insert)
             ->execute();
     } else {
-        if ($site->logo !== null && $input->get('logo') !== $site->logo) {
+        if ($site->logo !== null && Input::get('logo') !== $site->logo) {
             $mAttachment->deleteFile($site->logo);
         }
 

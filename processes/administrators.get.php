@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/administrators.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 7. 18.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
  */
@@ -24,11 +24,61 @@ if ($me->getAdmin()->checkPermission('administrators') == false) {
     return;
 }
 
-$group_id = Request::get('group_id') ?? 'ALL';
+$group_id = Request::get('group_id') ?? 'user';
 $sorters = Request::getJson('sorters');
 $start = Request::getInt('start') ?? 0;
 $limit = Request::getInt('limit') ?? 50;
 $keyword = Request::get('keyword');
+
+$member_ids = [];
+
+if ($group_id == 'user') {
+    $group_member_ids = $me
+        ->db()
+        ->select(['member_id'])
+        ->from($me->table('group_administrators'))
+        ->get('member_id');
+
+    $administrator_member_ids = $me
+        ->db()
+        ->select(['member_id'])
+        ->from($me->table('administrators'))
+        ->get('member_id');
+
+    $member_ids = array_unique(array_merge($group_member_ids, $administrator_member_ids));
+} elseif ($group_id == 'component') {
+    $member_ids = [];
+    foreach (\Modules::all() as $module) {
+        foreach ($module->getAdmin()?->getGroups() ?? [] as $group) {
+            $member_ids = array_merge($member_ids, $group->getAdministrators() ?? []);
+        }
+    }
+    $member_ids = array_unique($member_ids);
+} elseif (preg_match('/^component-(module|plugin|widget)-([^-]+)$/', $group_id, $matched) == true) {
+    $member_ids = [];
+    if ($matched[1] == 'module') {
+        foreach (
+            \Modules::get($matched[2])
+                ?->getAdmin()
+                ?->getGroups() ?? []
+            as $group
+        ) {
+            $member_ids = array_merge($member_ids, $group->getAdministrators() ?? []);
+        }
+    }
+    $member_ids = array_unique($member_ids);
+} else {
+    $group = $me->getAdminGroup($group_id);
+    $member_ids = $group?->getAdministrators() ?? [];
+}
+
+if (count($member_ids) == 0) {
+    $results->success = true;
+    $results->records = [];
+    return;
+}
+
+$results->member_ids = $member_ids;
 
 /**
  * @var \modules\member\Member $mMember
@@ -38,17 +88,9 @@ $mMember = Modules::get('member');
 $records = $me
     ->db()
     ->select(['m.member_id', 'm.name', 'm.email', 'm.logged_at'])
-    ->from($me->table('administrators'), 'a')
-    ->join($mMember->table('members'), 'm', 'm.member_id=a.member_id', 'LEFT');
-
-if ($group_id != 'ALL') {
-    $records->join($me->table('group_administrators'), 'ag', 'ag.member_id=a.member_id', 'LEFT');
-    if ($group_id == 'EMPTY') {
-        $records->where('ag.group_id', null);
-    } else {
-        $records->where('ag.group_id', $group_id);
-    }
-}
+    ->from($mMember->table('members'), 'm')
+    ->join($me->table('administrators'), 'a', 'a.member_id=m.member_id', 'LEFT')
+    ->where('m.member_id', $member_ids, 'IN');
 
 $total = $records->copy()->count();
 if ($sorters !== null) {
@@ -58,33 +100,12 @@ if ($sorters !== null) {
 }
 
 $records = $records->limit($start, $limit)->get();
+
+$results->q = $me->db()->getLastQuery();
 foreach ($records as &$record) {
-    $record->photo = $mMember->getMemberPhoto($record->member_id);
-    $administrator = $me->getAdministrator($record->member_id);
-    $record->groups = $me
-        ->db()
-        ->select(['g.title'])
-        ->from($me->table('group_administrators'), 'ag')
-        ->join($me->table('groups'), 'g', 'g.group_id=ag.group_id', 'LEFT')
-        ->where('ag.member_id', $record->member_id)
-        ->get('title');
-    $permissions = $administrator->permissions;
-    if ($permissions === true) {
-        $record->permissions = $permissions;
-    } else {
-        $record->permissions = [];
-        foreach ($permissions as $component => $types) {
-            $temp = explode('/', $component);
-            $type = array_shift($temp);
-            $name = implode('/', $temp);
-            if ($type == 'module') {
-                $component = Modules::get($name);
-                $record->permissions[$component->getTitle()] = $types;
-            }
-        }
-    }
+    $record = $me->getAdministrator($record->member_id)?->getJson() ?? null;
 }
 
 $results->success = true;
-$results->records = $records;
+$results->records = array_filter($records);
 $results->total = $total;

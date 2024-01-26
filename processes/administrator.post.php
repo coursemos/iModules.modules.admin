@@ -7,73 +7,52 @@
  * @file /modules/admin/processes/administrator.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 7. 17.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
 }
 
-$errors = [];
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->getAdmin()->checkPermission('administrators', 'edit') == false) {
+if ($me->getAdmin()->checkPermission('administrators', ['edit']) == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
 }
 
-$member_ids = $input->get('member_ids') ?? [];
+$errors = [];
+
+$member_ids = Input::get('member_ids') ?? [];
 if (is_array($member_ids) === false || count($member_ids) == 0) {
     $results->success = false;
-    $results->message = $me->getText('admin.administrators.actions.unselected_members');
+    $results->message = $me->getText('admin.administrators.lists.actions.unselected_members');
     return;
 }
 
-$group_ids = $input->get('group_ids') ?? [];
+$group_ids = Input::get('group_ids') ?? [];
 if (is_array($group_ids) === false) {
     $results->success = false;
     $results->message = $me->getErrorText('INVALID_DATA');
     return;
 }
 
-$mode = $input->get('mode') ?? 'permission';
+$mode = Input::get('mode') ?? 'permission';
+$permission = new \modules\admin\dtos\Permission();
 if ($mode == 'permission') {
-    $permissions = $input->get('master') ? true : [];
-    if ($permissions !== true) {
-        foreach ($input->all() as $key => $value) {
-            if ($key == 'member_ids') {
-                continue;
-            }
+    if (Input::get('master')) {
+        $permission->setMaster();
+    }
 
-            $temp = explode('-', $key);
-            $component = $temp[0];
-            $type = isset($temp[1]) == true ? $temp[1] : null;
-            if (isset($permissions[$component]) == false) {
-                $permissions[$component] = $type === null ? true : [];
-            }
-            if ($permissions[$component] === true) {
-                continue;
-            }
-
-            $temp = explode('@', $type);
-            $type = $temp[0];
-            $permission = isset($temp[1]) == true ? $temp[1] : null;
-            if (isset($permissions[$component][$type]) == false) {
-                $permissions[$component][$type] = $permission === null ? true : [];
-            }
-            if ($permissions[$component][$type] === true) {
-                continue;
-            }
-            $permissions[$component][$type][] = $permission;
+    foreach (Input::all() as $key => $value) {
+        if (in_array($key, ['mode', 'member_ids', 'group_ids']) == true) {
+            continue;
         }
 
-        if (count($permissions) == 0) {
-            $permissions = false;
-        }
+        $permission->addScopeCode($key);
     }
 }
 
@@ -88,12 +67,10 @@ foreach ($member_ids as $member_id) {
     $administrator = $me->getAdministrator($member_id);
 
     if ($mode == 'permission') {
-        $merged = $me->mergePermissions($administrator?->permissions ?? [], $permissions);
-
         $me->db()
             ->insert(
                 $me->table('administrators'),
-                ['member_id' => $member_id, 'permissions' => Format::toJson($merged)],
+                ['member_id' => $member_id, 'permissions' => Format::toJson($permission->getPermissions())],
                 ['permissions']
             )
             ->execute();

@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/groups.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 7. 19.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
  */
@@ -24,43 +24,80 @@ if ($me->getAdmin()->checkPermission('administrators') == false) {
     return;
 }
 
-$records = [
-    [
-        'group_id' => 'ALL',
-        'title' => $me->getText('admin.administrators.groups.all'),
-        'administrators' => $me
-            ->db()
-            ->select()
-            ->from($me->table('administrators'))
-            ->count(),
-        'sort' => -1,
-    ],
-];
-
-$sort = 0;
-$groups = $me
-    ->db()
-    ->select()
-    ->from($me->table('groups'))
-    ->orderBy('title', 'ASC')
-    ->get();
-foreach ($groups as $sort => $group) {
-    $group->sort = $sort;
-    $records[] = $group;
-}
-
-$records[] = [
-    'group_id' => 'EMPTY',
-    'title' => $me->getText('admin.administrators.groups.ungrouped'),
+$type = Request::get('type') ?? 'tree';
+$records = [];
+$user = [
+    'group_id' => 'user',
+    'type' => 'user',
+    'title' => $me->getText('admin.administrators.lists.groups.type.user'),
     'administrators' => $me
         ->db()
         ->select()
-        ->from($me->table('administrators'), 'a')
-        ->join($me->table('group_administrators'), 'ag', 'ag.member_id=a.member_id', 'LEFT')
-        ->where('ag.group_id', null)
+        ->from($me->table('administrators'))
         ->count(),
-    'sort' => ++$sort,
+    'sort' => 0,
+    'children' => [],
 ];
+$group_ids = $me
+    ->db()
+    ->select(['group_id'])
+    ->from($me->table('groups'))
+    ->orderBy('title', 'ASC')
+    ->get('group_id');
+foreach ($group_ids as $group_id) {
+    $group = $me->getAdminGroup($group_id);
+    if ($group !== null) {
+        $user['children'][] = $group->getJson();
+    }
+}
+$records = [$user];
+
+if ($type == 'user') {
+    $results->success = true;
+    $results->records = $user['children'];
+    return;
+}
+
+$components = [
+    'group_id' => 'component',
+    'type' => 'component',
+    'title' => $me->getText('admin.administrators.lists.groups.type.component'),
+    'administrators' => 0,
+    'sort' => 1,
+    'children' => [],
+];
+$components_member_ids = [];
+
+foreach (Modules::all() as $module) {
+    $modules = [
+        'group_id' => 'component-module-' . $module->getName(),
+        'type' => 'module',
+        'title' => $module->getTitle(),
+        'administrators' => 0,
+        'sort' => 0,
+        'children' => [],
+    ];
+
+    $modules_member_ids = [];
+    foreach ($module->getAdmin()?->getGroups() ?? [] as $group) {
+        $modules_member_ids = array_merge($modules_member_ids, $group->getAdministrators());
+        $modules['children'][] = $group->getJson();
+    }
+
+    if (count($modules['children']) > 0) {
+        $modules_member_ids = array_unique($modules_member_ids);
+        $modules['administrators'] = count($modules_member_ids);
+        $components['children'][] = $modules;
+
+        $components_member_ids = array_merge($components_member_ids, $modules_member_ids);
+    }
+}
+
+if (count($components['children']) > 0) {
+    $components_member_ids = array_unique($components_member_ids);
+    $components['administrators'] = count($components_member_ids);
+    $records[] = $components;
+}
 
 $results->success = true;
 $results->records = $records;

@@ -7,10 +7,9 @@
  * @file /modules/admin/processes/domain.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 5. 30.
+ * @modified 2024. 1. 26.
  *
  * @var \modules\admin\Admin $me
- * @var Input $input
  */
 if (defined('__IM_PROCESS__') == false) {
     exit();
@@ -19,7 +18,7 @@ if (defined('__IM_PROCESS__') == false) {
 /**
  * 관리자권한이 존재하는지 확인한다.
  */
-if ($me->getAdmin()->checkPermission('sitemap', 'domain') == false) {
+if ($me->getAdmin()->checkPermission('sitemap', ['domains']) == false) {
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
@@ -45,10 +44,10 @@ if ($host !== null) {
 $errors = [];
 
 $insert = [];
-$insert['host'] = $input->get('host', $errors) ?? '';
-$insert['alias'] = $input->get('alias') ?? '';
-$insert['is_rewrite'] = $input->get('is_rewrite') ?? 'FALSE';
-$insert['is_internationalization'] = $input->get('is_internationalization') ?? 'FALSE';
+$insert['host'] = Input::get('host', $errors) ?? '';
+$insert['alias'] = Input::get('alias') ?? '';
+$insert['is_rewrite'] = Input::get('is_rewrite') ?? 'FALSE';
+$insert['is_internationalization'] = Input::get('is_internationalization') ?? 'FALSE';
 
 $check = iModules::db()
     ->select()
