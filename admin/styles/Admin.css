@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/styles/Admin.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 html,
 body[data-type='admin'],
@@ -37,6 +37,30 @@ body[data-type='preview'] {
         i.photo {
             border-radius: 50%;
             border: 1px solid #ccc;
+        }
+
+        b.method {
+            display: inline-block;
+            margin: 0px 5px 0px 0px;
+            height: 22px;
+            line-height: 22px;
+            padding: 0px 4px;
+            border-radius: 2px;
+            color: #fff;
+            font-size: 11px;
+            background: #fca130;
+
+            &.GET {
+                background: #61affe;
+            }
+
+            &.POST {
+                background: #49cc90;
+            }
+
+            &.DELETE {
+                background: #f93e3e;
+            }
         }
 
         time {
