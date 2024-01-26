@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 26.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -24,9 +24,14 @@ class Admin extends \Module
     private static array $_contexts;
 
     /**
-     * @var array $_permissions 관리자 권한정보
+     * @var \modules\admin\dtos\Scope[] $_scopes 전체 컴포넌트의 관리자 권한범위 정보
      */
-    private static array $_permissions = [];
+    private static array $_scopes;
+
+    /**
+     * @var \modules\admin\dtos\Group[] $_groups 관리자그룹정보
+     */
+    private static array $_groups = [];
 
     /**
      * 모듈 설정을 초기화한다.
@@ -44,44 +49,20 @@ class Admin extends \Module
     }
 
     /**
-     * 전체 관리자 메뉴를 초기화한다.
+     * 현재 관리자화면의 언어코드를 가져온다.
+     *
+     * @return string $langauge
      */
-    public function initContexts(): void
+    public function getLanguage(): string
     {
-        if (isset(self::$_contexts) === false) {
-            self::$_contexts = [];
-            foreach (\Modules::all() as $module) {
-                $this->getAdminClass($module)?->init();
-            }
-
-            uksort(self::$_contexts, function ($left, $right) {
-                return $left <=> $right;
-            });
-        }
-    }
-
-    /**
-     * 관리자 컨텍스트를 추가한다.
-     */
-    public function addContext(\modules\admin\dtos\Context $context): void
-    {
-        if (isset(self::$_contexts[$context->getPath()]) == true) {
-            \ErrorHandler::print(
-                $this->error(
-                    'DUPLICATED_ADMIN_CONTEXT_PATH',
-                    $context->getPath(),
-                    self::$_contexts[$context->getPath()]
-                )
-            );
-        }
-        self::$_contexts[$context->getPath()] = $context;
+        return $this->getAdministrator()?->getLanguage() ?? \Request::languages(true);
     }
 
     /**
      * 관리자 정보를 가져온다.
      *
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return ?\modules\admin\dtos\Administrator $member
+     * @return ?\modules\admin\dtos\Administrator $administrator
      */
     public function getAdministrator(?int $member_id = null): ?\modules\admin\dtos\Administrator
     {
@@ -95,6 +76,8 @@ class Admin extends \Module
             return null;
         }
 
+        // @todo 권한이 존재하는지 확인한다.
+
         if (isset(self::$_administrators[$member_id]) == true) {
             return self::$_administrators[$member_id];
         }
@@ -104,14 +87,16 @@ class Admin extends \Module
             ->from($this->table('administrators'))
             ->where('member_id', $member_id)
             ->getOne();
-
-        if ($administrator !== null) {
-            $administrator->language ??= \Domains::get()->getLanguage();
-            $administrator->contexts = json_decode($administrator->contexts ?? 'null');
-            $administrator->permissions = json_decode($administrator->permissions ?? 'null');
+        if ($administrator === null) {
+            $administrator = new \stdClass();
+            $administrator->member_id = $member_id;
+            $administrator->language = null;
+            $administrator->navigation = null;
+            $administrator->permissions = null;
         }
 
-        self::$_administrators[$member_id] = $administrator;
+        // @todo 없으면 추가한다.
+        self::$_administrators[$member_id] = new \modules\admin\dtos\Administrator($administrator);
 
         return self::$_administrators[$member_id];
     }
@@ -119,138 +104,32 @@ class Admin extends \Module
     /**
      * 관리자 전체 컨텍스트를 가져온다.
      *
-     * @param bool $is_all_contexts 전체 컨텍스트를 경로와 함께 반환할지 여부
      * @return \modules\admin\dtos\Context[] $contexts
      */
-    public function getAdminContexts(bool $is_all_contexts = false): array
+    public function getAdminContexts(): array
     {
-        if (isset(self::$_tree) === true) {
-            return self::$_tree;
-        }
+        if (isset(self::$_contexts) == false) {
+            self::$_contexts = [];
 
-        $this->initContexts();
-        if ($is_all_contexts === true) {
-            return self::$_contexts;
-        }
-
-        $contexts = $this->getAdministrator()->contexts;
-
-        /**
-         * 메뉴설정이 없다면 기본메뉴 설정을 생성한다.
-         */
-        if ($contexts == null) {
-            $tree = ['/dashboard', '/members', '/modules', '/plugins'];
-
-            $modules = new \stdClass();
-            $modules->title = '@modules';
-            $modules->icon = 'xi xi-box';
-            $modules->smart = 'modules';
-            $modules->children = [];
-            $tree[] = $modules;
-
-            $plugins = new \stdClass();
-            $plugins->title = '@plugins';
-            $plugins->icon = 'xi xi-plug';
-            $plugins->smart = 'plugins';
-            $plugins->children = [];
-            $tree[] = $plugins;
-
-            $tree[] = '/sites';
-            $tree[] = '/administrators';
-            $tree[] = '/database';
-        } else {
-            $tree = $contexts;
-        }
-
-        /**
-         * 메뉴설정에서 스마트폴더 설정을 검색한다.
-         */
-        $exists = [];
-        $smarts = [];
-        foreach ($tree as $index => $item) {
-            if (is_object($item) == true) {
-                if ($item->smart !== null) {
-                    $smarts[$item->smart] = $index;
+            /**
+             * 모듈의 관리자 컨텍스트를 가져온다.
+             */
+            foreach (\Modules::all() as $module) {
+                foreach ($module->getAdmin()?->getContexts() ?? [] as $context) {
+                    self::$_contexts[$context->getPath()] = $context;
                 }
-
-                foreach ($item->children as $child) {
-                    $exists[] = $child;
-                }
-            } else {
-                $exists[] = $item;
-            }
-        }
-
-        /**
-         * 기존 메뉴설정에서 누락된 신규 관리자메뉴를 추가한다.
-         */
-        foreach (self::$_contexts as $path => $item) {
-            if (in_array($path, $exists) == true) {
-                continue;
             }
 
-            if (strpos($path, '/module/') === 0 && isset($smarts['modules']) == true) {
-                $tree[$smarts['modules']]->children[] = $path;
-                continue;
-            }
+            /**
+             * @todo 플러그인의 관리자 컨텍스트를 가져온다.
+             */
 
-            if (strpos($path, '/plugin/') === 0 && isset($smarts['plugins']) == true) {
-                $tree[$smarts['plugins']]->children[] = $path;
-                continue;
-            }
-
-            $tree[] = $path;
+            /**
+             * @todo 위젯의 관리자 컨텍스트를 가져온다.
+             */
         }
 
-        /**
-         * 최종 메뉴설정에서 권한여부를 확인하고 컨텍스트를 반환한다.
-         */
-        $contexts = [];
-        foreach ($tree as $item) {
-            if (is_string($item) == true) {
-                if (isset(self::$_contexts[$item]) == false) {
-                    continue;
-                }
-
-                $contexts[] = self::$_contexts[$item];
-            } else {
-                $children = [];
-                foreach ($item->children as $child) {
-                    if (isset(self::$_contexts[$child]) == false) {
-                        continue;
-                    }
-
-                    $children[] = self::$_contexts[$child];
-                }
-
-                if (strpos($item->title, '@') === 0) {
-                    if (count($children) == 0) {
-                        continue;
-                    }
-
-                    $item->title = $this->getText('admin.navigation.folder.preset.' . substr($item->title, 1));
-                }
-
-                $folder = new \modules\admin\dtos\Context($this->getAdminClass($this), $item->title, $item->icon);
-                $folder->setFolder($children, $item->smart);
-
-                $contexts[] = $folder;
-            }
-        }
-
-        self::$_tree = $contexts;
-
-        return self::$_tree;
-    }
-
-    /**
-     * 현재 사용자의 관리자 언어코드를 가져온다.
-     *
-     * @return string $langauge
-     */
-    public function getLanguage(): string
-    {
-        return $this->getAdministrator()?->language ?? \Request::languages(true);
+        return self::$_contexts;
     }
 
     /**
@@ -262,15 +141,15 @@ class Admin extends \Module
     public function getAdminContext(\Route $route): ?\modules\admin\dtos\Context
     {
         $contexts = $this->getAdminContexts();
-        $paths = array_keys(self::$_contexts);
-
+        $navigation = $this->getAdministrator()->getNavigation();
+        $paths = array_keys($contexts);
         $routes = explode('/', $route->getSubPath());
 
         /**
          * 관리자 루트인 경우, 관리자의 첫번째 컨텍스트를 반환한다.
          */
         if (count($routes) == 1) {
-            foreach ($contexts as $context) {
+            foreach ($navigation as $context) {
                 if ($context->getType() == 'FOLDER') {
                     foreach ($context->getChildren() as $child) {
                         if ($child->getType() != 'LINK') {
@@ -282,7 +161,7 @@ class Admin extends \Module
                 }
             }
 
-            return self::$_contexts['/dashboard'];
+            return $contexts['/dashboard'];
         }
 
         /**
@@ -291,7 +170,7 @@ class Admin extends \Module
         while (count($routes) > 1) {
             $path = implode('/', $routes);
             if (in_array($path, $paths) == true) {
-                return self::$_contexts[$path];
+                return $contexts[$path];
                 break;
             }
 
@@ -302,157 +181,109 @@ class Admin extends \Module
     }
 
     /**
-     * 각 컴포넌트의 관리자 클래스를 가져온다.
+     * 관리자 전체 권한범위를 가져온다.
      *
-     * @param \Component $component 컴포넌트객체
-     * @return ?\modules\admin\admin\Admin $admin
+     * @return \modules\admin\dtos\Scope[] $scope
      */
-    public function getAdminClass(\Component $component): ?\modules\admin\admin\Admin
+    public function getAdminScopes(): array
     {
-        $classPaths = explode('/', $component->getName());
-        $className = ucfirst(end($classPaths));
-        $className =
-            '\\' . $component->getType() . 's\\' . implode('\\', $classPaths) . '\\admin\\' . $className . 'Admin';
-        if (class_exists($className) == false) {
+        if (isset(self::$_scopes) == false) {
+            self::$_scopes = [];
+
+            /**
+             * 모듈의 관리자 권한범위를 가져온다.
+             */
+            self::$_scopes['module'] = [];
+            foreach (\Modules::all() as $module) {
+                $scopes = [];
+                foreach ($module->getAdmin()?->getScopes() ?? [] as $scope) {
+                    $scopes[$scope->getCode()] = $scope;
+                }
+
+                if (count($scopes) > 0) {
+                    self::$_scopes['module'][$scope->getComponent()->getName()] = $scopes;
+                }
+            }
+
+            /**
+             * @todo 플러그인의 관리자 컨텍스트를 가져온다.
+             */
+            self::$_scopes['plugin'] = [];
+
+            /**
+             * @todo 위젯의 관리자 컨텍스트를 가져온다.
+             */
+            self::$_scopes['widget'] = [];
+        }
+
+        return self::$_scopes;
+    }
+
+    /**
+     * 관리자그룹정보를 가져온다.
+     *
+     * @param string $group_id
+     * @return ?\modules\admin\dtos\Group $group
+     */
+    public function getAdminGroup(string $group_id): ?\modules\admin\dtos\Group
+    {
+        if (isset(self::$_groups[$group_id]) == true) {
+            return self::$_groups[$group_id];
+        }
+
+        self::$_groups[$group_id] = null;
+        if (
+            $group_id == 'user' ||
+            $group_id == 'component' ||
+            preg_match('/^component-(module|plugin|widget)-[^-]+$/', $group_id) == true
+        ) {
             return null;
-        }
-
-        if (isset(self::$_classes[$className]) == true) {
-            return self::$_classes[$className];
-        }
-
-        self::$_classes[$className] = new $className($this);
-        return self::$_classes[$className];
-    }
-
-    /**
-     * 사용자의 관리자 그룹 권한을 포함한 전체 관리자 권한을 가져온다.
-     *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return array|bool $permissions 권한
-     */
-    public function getAdministratorPermissions(?int $member_id = null): array|bool
-    {
-        /**
-         * @var \modules\member\Member $mMember
-         */
-        $mMember = \Modules::get('member');
-        $member_id ??= $mMember->getLogged();
-        if ($member_id === 0) {
-            return false;
-        }
-
-        if (isset(self::$_permissions[$member_id]) == true) {
-            return self::$_permissions[$member_id];
-        }
-
-        $administrator = $this->getAdministrator($member_id);
-        if ($administrator === null) {
-            $permissions = false;
         } else {
-            $permissions = $administrator->permissions;
+            $temp = explode('-', $group_id);
+            if ($temp[0] == 'component') {
+                if (count($temp) != 4) {
+                    return null;
+                }
 
-            $groups = $this->db()
-                ->select(['g.group_id', 'g.title', 'g.permissions'])
-                ->from($this->table('group_administrators'), 'ag')
-                ->join($this->table('groups'), 'g', 'g.group_id=ag.group_id', 'LEFT')
-                ->where('ag.member_id', $member_id)
-                ->orderBy('g.title', 'ASC')
-                ->get();
-
-            foreach ($groups as $group) {
-                $permissions = $this->mergePermissions($permissions, json_decode($group->permissions ?? [], true));
-            }
-        }
-
-        self::$_permissions[$member_id] = $permissions;
-
-        return self::$_permissions[$member_id];
-    }
-
-    /**
-     * 두개의 권한을 병합한다.
-     *
-     * @param array|bool $left
-     * @param array|bool $right
-     * @return array|bool $permissions
-     */
-    public function mergePermissions(array|bool $left, array|bool $right): array|bool
-    {
-        if ($left === true || $right === true) {
-            return true;
-        }
-
-        if ($left === false && $right === false) {
-            return false;
-        }
-
-        if ($left === false) {
-            return $right;
-        }
-
-        if ($right === false) {
-            return $left;
-        }
-
-        $merged = $left;
-        foreach ($merged as $component => $types) {
-            if ($types === true) {
-                continue;
-            }
-
-            if (isset($right[$component]) == true) {
-                if ($right[$component] === true) {
-                    $merged[$component] = true;
+                if ($temp[1] == 'module') {
+                    self::$_groups[$group_id] =
+                        \Modules::get($temp[2])
+                            ->getAdmin()
+                            ?->getGroup($temp[3]) ?? null;
+                }
+            } else {
+                $group = $this->db()
+                    ->select()
+                    ->from($this->table('groups'))
+                    ->where('group_id', $group_id)
+                    ->getOne();
+                if ($group === null) {
+                    self::$_groups[$group_id] = null;
                 } else {
-                    foreach ($types as $type => $permissions) {
-                        if ($permissions === true) {
-                            continue;
-                        }
-
-                        if (isset($right[$component][$type]) == true) {
-                            if ($right[$component][$type] === true) {
-                                $merged[$component][$type] = true;
-                            } else {
-                                $merged[$component][$type] = array_values(
-                                    array_unique(array_merge($permissions, $right[$component][$type]))
-                                );
-                            }
-                        }
-                    }
+                    self::$_groups[$group_id] = new \modules\admin\dtos\Group($this->getAdmin());
+                    self::$_groups[$group_id]
+                        ->setGroup($group->group_id, $group->title)
+                        ->setCount($group->administrators)
+                        ->setPermission(
+                            \modules\admin\dtos\Permission::init()->setPermissions(json_decode($group->permissions))
+                        )
+                        ->setGetter(function ($group) {
+                            /**
+                             * @var \modules\admin\admin\Admin $mAdmin
+                             */
+                            $mAdmin = $group->getAdmin();
+                            return $mAdmin
+                                ->db()
+                                ->select()
+                                ->from($mAdmin->table('group_administrators'))
+                                ->where('group_id', $group->getId())
+                                ->get('member_id');
+                        });
                 }
             }
         }
 
-        foreach ($right as $component => $types) {
-            if (isset($merged[$component]) == false) {
-                $merged[$component] = $types;
-            }
-        }
-
-        return $merged;
-    }
-
-    /**
-     * 관리자 권한이 있는지 사용자인지 확인한다.
-     *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $is_admin
-     */
-    public function isAdministrator(?int $member_id = null): bool
-    {
-        return $this->getAdministratorPermissions($member_id) !== false;
-    }
-
-    /**
-     * 최고관리자인지 확인한다.
-     *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $is_master 최고관리자 여부
-     */
-    public function isMaster(?int $member_id = null): bool
-    {
-        return $this->getAdministratorPermissions($member_id) === true;
+        return self::$_groups[$group_id];
     }
 
     /**
@@ -490,7 +321,7 @@ class Admin extends \Module
         /**
          * 관리자가 아니라면 로그인 레이아웃을 출력한다.
          */
-        if ($this->isAdministrator() == false) {
+        if ($this->getAdministrator()?->isAdministrator() !== true) {
             \Html::style($this->getBase() . '/admin/styles/Admin.css', 15);
 
             return $theme->getLayout('login');
@@ -557,7 +388,7 @@ class Admin extends \Module
                 );
             }
 
-            $scripts = $this->getAdminClass($module)?->scripts() ?? [];
+            $scripts = $module->getAdmin()?->getScripts() ?? [];
             foreach ($scripts as $script) {
                 \Cache::script('Admin.component', $script);
             }

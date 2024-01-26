@@ -1105,19 +1105,24 @@ namespace modules {
                     /**
                      * 권한필드셋을 출력한다.
                      *
-                     * @param {(Aui.Form.FieldSet)} fieldset
+                     * @param {(Aui.Form.FieldSet)} fieldset - 권한범위필드를 출력할 필드셋 객체
+                     * @param {boolean} readonly - 읽기전용여부
                      * @return {Promise<boolean>} success
                      */
-                    printPermissionFieldSet: async (fieldset: Aui.Form.FieldSet): Promise<boolean> => {
-                        const permissions = await Aui.Ajax.get(this.getProcessUrl('permissions'));
-                        if (permissions?.success !== true) {
+                    printScopesFieldSet: async (
+                        fieldset: Aui.Form.FieldSet,
+                        readonly: boolean = false
+                    ): Promise<boolean> => {
+                        const results = await Aui.Ajax.get(this.getProcessUrl('scopes'));
+                        if (results?.success !== true) {
                             return false;
                         }
 
                         fieldset.append(
                             new Aui.Form.Field.Check({
-                                boxLabel: this.printText('admin.administrators.master'),
+                                boxLabel: this.printText('admin.administrators.lists.master'),
                                 name: 'master',
+                                readonly: readonly,
                                 listeners: {
                                     change: (field, checked) => {
                                         const fieldsets = field.getParent().getItems();
@@ -1127,7 +1132,7 @@ namespace modules {
                                         });
 
                                         if (fieldset.getData('groups') !== null) {
-                                            this.administrators.checkPermissionFieldSet(
+                                            this.administrators.checkScopesFieldSet(
                                                 fieldset,
                                                 fieldset.getData('groups'),
                                                 true,
@@ -1139,17 +1144,18 @@ namespace modules {
                             })
                         );
 
-                        for (const component of permissions.components) {
+                        for (const component of results.components) {
                             fieldset.append(
                                 new Aui.Form.FieldSet({
                                     title: component.title,
-                                    items: ((types) => {
+                                    items: (() => {
                                         const items = [];
 
                                         items.push(
                                             new Aui.Form.Field.Check({
-                                                boxLabel: this.printText('admin.administrators.component_master'),
-                                                name: component.name,
+                                                boxLabel: this.printText('admin.administrators.lists.component_master'),
+                                                name: component.code,
+                                                readonly: readonly,
                                                 listeners: {
                                                     change: (field, checked) => {
                                                         const containers = field.getParent().getItems();
@@ -1159,7 +1165,7 @@ namespace modules {
                                                         });
 
                                                         if (fieldset.getData('groups') !== null) {
-                                                            this.administrators.checkPermissionFieldSet(
+                                                            this.administrators.checkScopesFieldSet(
                                                                 fieldset,
                                                                 fieldset.getData('groups'),
                                                                 true,
@@ -1171,31 +1177,32 @@ namespace modules {
                                             })
                                         );
 
-                                        for (const type of types) {
+                                        for (const scope of component.scopes) {
                                             items.push(
                                                 new Aui.Form.Field.Container({
-                                                    label: type.label,
+                                                    label: scope.title,
                                                     direction: 'column',
-                                                    items: ((permissions) => {
+                                                    items: (() => {
                                                         const items = [];
                                                         items.push(
                                                             new Aui.Form.Field.Check({
                                                                 boxLabel: this.printText(
-                                                                    'admin.administrators.type_all'
+                                                                    'admin.administrators.lists.scope_all'
                                                                 ),
-                                                                name: type.name,
+                                                                name: scope.code,
+                                                                readonly: readonly,
                                                                 listeners: {
                                                                     change: (field, checked) => {
-                                                                        const permissions = field
+                                                                        const children = field
                                                                             .getParent()
                                                                             .getItems() as Aui.Form.Field.Check[];
-                                                                        permissions.shift();
-                                                                        for (const permission of permissions) {
-                                                                            permission.setDisabled(checked);
+                                                                        children.shift();
+                                                                        for (const child of children) {
+                                                                            child.setDisabled(checked);
                                                                         }
 
                                                                         if (fieldset.getData('groups') !== null) {
-                                                                            this.administrators.checkPermissionFieldSet(
+                                                                            this.administrators.checkScopesFieldSet(
                                                                                 fieldset,
                                                                                 fieldset.getData('groups'),
                                                                                 true,
@@ -1207,23 +1214,24 @@ namespace modules {
                                                             })
                                                         );
 
-                                                        for (const permission of permissions) {
+                                                        for (const child of scope.children) {
                                                             items.push(
                                                                 new Aui.Form.Field.Check({
-                                                                    boxLabel: permission.label,
-                                                                    name: permission.name,
+                                                                    boxLabel: child.title,
+                                                                    name: child.code,
+                                                                    readonly: readonly,
                                                                 })
                                                             );
                                                         }
 
                                                         return items;
-                                                    })(type.permissions),
+                                                    })(),
                                                 })
                                             );
                                         }
 
                                         return items;
-                                    })(component.types),
+                                    })(),
                                 })
                             );
                         }
@@ -1231,15 +1239,15 @@ namespace modules {
                         return true;
                     },
                     /**
-                     * 권한필드셋을 출력한다.
+                     * 권한필드셋을 체크상태를 변경한다.
                      *
-                     * @param {(Aui.Form.FieldSet)} fieldset
-                     * @param {Object|boolean} permissions
-                     * @param {boolean} checked
-                     * @param {boolean} disabled
+                     * @param {(Aui.Form.FieldSet)} fieldset - 권한필드셋
+                     * @param {Object|boolean} permissions - 권한설정
+                     * @param {boolean} checked - 권한설정에 존재하는 체크박스를 체크할지 여부
+                     * @param {boolean} disabled - 권한설정에 존재하는 체크박스를 비활성화할지 여부
                      * @return {Promise<boolean>} success
                      */
-                    checkPermissionFieldSet: (
+                    checkScopesFieldSet: (
                         fieldset: Aui.Form.FieldSet,
                         permissions: Object | boolean,
                         checked: boolean = true,
@@ -1249,24 +1257,30 @@ namespace modules {
                             fieldset.getField('master')?.setValue(checked);
                             fieldset.getField('master')?.setDisabled(disabled);
                         } else if (typeof permissions == 'object') {
-                            for (const component in permissions) {
-                                if (permissions[component] === true) {
-                                    fieldset.getField(component)?.setValue(checked);
-                                    fieldset.getField(component)?.setDisabled(disabled);
-                                } else {
-                                    for (const type in permissions[component]) {
-                                        if (permissions[component][type] === true) {
-                                            fieldset.getField(component + '-' + type)?.setValue(checked);
-                                            fieldset.getField(component + '-' + type)?.setDisabled(disabled);
-                                        } else {
-                                            for (const permission of permissions[component][type]) {
-                                                fieldset
-                                                    .getField(component + '-' + type + '@' + permission)
-                                                    ?.setValue(checked);
-                                                fieldset
-                                                    .getField(component + '-' + type + '@' + permission)
-                                                    ?.setDisabled(disabled);
-                                            }
+                            for (const componentType in permissions) {
+                                const componentNames = permissions[componentType];
+                                for (const componentName in componentNames) {
+                                    const componentField = componentType + '/' + componentName;
+                                    const scopes = componentNames[componentName];
+                                    if (scopes === true) {
+                                        fieldset.getField(componentField)?.setValue(checked);
+                                        fieldset.getField(componentField)?.setDisabled(disabled);
+                                        continue;
+                                    }
+
+                                    for (const scope in scopes) {
+                                        const scopeField = componentField + ':' + scope;
+                                        const children = scopes[scope];
+                                        if (children === true) {
+                                            fieldset.getField(scopeField)?.setValue(checked);
+                                            fieldset.getField(scopeField)?.setDisabled(disabled);
+                                            continue;
+                                        }
+
+                                        for (const child of children) {
+                                            const childField = scopeField + '@' + child;
+                                            fieldset.getField(childField)?.setValue(checked);
+                                            fieldset.getField(childField)?.setDisabled(disabled);
                                         }
                                     }
                                 }
@@ -1284,7 +1298,7 @@ namespace modules {
                         fieldset: Aui.Form.FieldSet,
                         is_ungrouped: boolean
                     ): Promise<boolean> => {
-                        const groups = await Aui.Ajax.get(this.getProcessUrl('groups'));
+                        const groups = await Aui.Ajax.get(this.getProcessUrl('groups'), { type: 'user' });
 
                         if (groups?.success !== true) {
                             return false;
@@ -1293,7 +1307,7 @@ namespace modules {
                         if (is_ungrouped === true) {
                             fieldset.append(
                                 new Aui.Form.Field.Check({
-                                    boxLabel: this.printText('admin.administrators.groups.ungrouped'),
+                                    boxLabel: this.printText('admin.administrators.lists.groups.ungrouped'),
                                     listeners: {
                                         change: (field, checked: boolean) => {
                                             field.getParent().getItemAt(1).setDisabled(checked);
@@ -1312,10 +1326,6 @@ namespace modules {
                                         let options = {};
 
                                         for (const group of groups) {
-                                            if (['ALL', 'EMPTY'].includes(group.group_id) === true) {
-                                                continue;
-                                            }
-
                                             options[group.group_id] = group.title;
                                         }
 
@@ -1338,10 +1348,16 @@ namespace modules {
                          * @param {string} group_id - 그룹정보를 수정할 경우 수정할 group_id
                          */
                         add: (group_id: string = null): void => {
+                            const is_component = group_id?.startsWith('component-') ?? false;
+
                             new Aui.Window({
-                                title: this.printText(
-                                    'admin.administrators.groups.' + (group_id === null ? 'add' : 'edit')
-                                ),
+                                title:
+                                    is_component == true
+                                        ? 'Loading...'
+                                        : this.printText(
+                                              'admin.administrators.lists.groups.' +
+                                                  (group_id === null ? 'add' : 'edit')
+                                          ),
                                 width: 500,
                                 modal: true,
                                 resizable: false,
@@ -1352,10 +1368,16 @@ namespace modules {
                                         items: [
                                             new Aui.Form.Field.Text({
                                                 name: 'title',
-                                                emptyText: this.printText('admin.administrators.groups.title'),
+                                                emptyText: this.printText('admin.administrators.lists.groups.title'),
+                                                hidden: is_component,
                                             }),
                                             new Aui.Form.FieldSet({
-                                                title: this.printText('admin.administrators.groups.permissions'),
+                                                title: this.printText('admin.administrators.lists.groups.description'),
+                                                items: [new Aui.Text({ text: null })],
+                                                hidden: true,
+                                            }),
+                                            new Aui.Form.FieldSet({
+                                                title: this.printText('admin.administrators.lists.groups.permissions'),
                                                 disabled: true,
                                                 items: [],
                                             }),
@@ -1376,6 +1398,12 @@ namespace modules {
                                         buttonClass: 'confirm',
                                         handler: async (button) => {
                                             const window = button.getParent() as Aui.Window;
+
+                                            if (is_component == true) {
+                                                window.close();
+                                                return;
+                                            }
+
                                             const form = button.getParent().getItemAt(0) as Aui.Form.Panel;
                                             const results = await form.submit({
                                                 url: this.getProcessUrl('group'),
@@ -1403,9 +1431,13 @@ namespace modules {
                                 listeners: {
                                     show: async (window) => {
                                         const form = window.getItemAt(0) as Aui.Form.Panel;
-                                        const fieldset = form.getItemAt(1) as Aui.Form.FieldSet;
-                                        const permissions = await this.administrators.printPermissionFieldSet(fieldset);
-                                        if (permissions == true) {
+                                        const description = form.getItemAt(1) as Aui.Form.FieldSet;
+                                        const fieldset = form.getItemAt(2) as Aui.Form.FieldSet;
+                                        const scopes = await this.administrators.printScopesFieldSet(
+                                            fieldset,
+                                            is_component
+                                        );
+                                        if (scopes == true) {
                                             fieldset.enable();
                                         }
 
@@ -1416,6 +1448,20 @@ namespace modules {
                                             });
 
                                             if (results.success == true) {
+                                                if (is_component == true) {
+                                                    window.setTitle(results.data.title);
+
+                                                    (description.getItemAt(0) as Aui.Text).setHtml(
+                                                        (results.data.description
+                                                            ? results.data.description + '<br>'
+                                                            : '') +
+                                                            this.printText(
+                                                                'admin.administrators.lists.groups.descriptions.readonly'
+                                                            )
+                                                    );
+                                                    description.show();
+                                                }
+                                                this.administrators.checkScopesFieldSet(fieldset, results.permissions);
                                             } else {
                                                 window.close();
                                             }
@@ -1433,7 +1479,7 @@ namespace modules {
                         const mMember = globalThis.Admin.getModule('member') as modules.member.admin.Member;
 
                         new Aui.Window({
-                            title: this.printText('admin.administrators.add'),
+                            title: this.printText('admin.administrators.lists.add'),
                             width: 800,
                             height: 600,
                             modal: true,
@@ -1538,15 +1584,20 @@ namespace modules {
                                                     value: '0',
                                                     renderer: (value) => {
                                                         return value == '0'
-                                                            ? this.printText('admin.administrators.unselected_members')
-                                                            : this.printText('admin.administrators.selected_members', {
-                                                                  count: value,
-                                                              });
+                                                            ? this.printText(
+                                                                  'admin.administrators.lists.unselected_members'
+                                                              )
+                                                            : this.printText(
+                                                                  'admin.administrators.lists.selected_members',
+                                                                  {
+                                                                      count: value,
+                                                                  }
+                                                              );
                                                     },
                                                 }),
                                                 '->',
                                                 new Aui.Button({
-                                                    text: this.printText('admin.administrators.deselect_all'),
+                                                    text: this.printText('admin.administrators.lists.deselect_all'),
                                                     handler: (button) => {
                                                         const members = button
                                                             .getParent()
@@ -1562,14 +1613,18 @@ namespace modules {
                                                     name: 'member_ids',
                                                 }),
                                                 new Aui.Form.FieldSet({
-                                                    title: this.printText('admin.administrators.groups.groups'),
-                                                    helpText: this.printText('admin.administrators.add_group_help'),
+                                                    title: this.printText('admin.administrators.lists.groups.groups'),
+                                                    helpText: this.printText(
+                                                        'admin.administrators.lists.add_group_help'
+                                                    ),
                                                     disabled: true,
                                                     items: [],
                                                 }),
                                                 new Aui.Form.FieldSet({
-                                                    title: this.printText('admin.administrators.permissions'),
-                                                    helpText: this.printText('admin.administrators.add_group_help'),
+                                                    title: this.printText('admin.administrators.lists.permissions'),
+                                                    helpText: this.printText(
+                                                        'admin.administrators.lists.add_group_help'
+                                                    ),
                                                     disabled: true,
                                                     items: [],
                                                 }),
@@ -1604,7 +1659,7 @@ namespace modules {
                                             Aui.Message.show({
                                                 title: (await this.getText('info')) as string,
                                                 message: (await this.getText(
-                                                    'admin.administrators.actions.unselected_members'
+                                                    'admin.administrators.lists.actions.unselected_members'
                                                 )) as string,
                                                 icon: Aui.Message.INFO,
                                                 buttons: Aui.Message.OK,
@@ -1655,7 +1710,7 @@ namespace modules {
                                                     const groupPermissions = permissions.getData('groups');
                                                     if (groupPermissions !== null) {
                                                         permissions.setData('groups', null);
-                                                        this.administrators.checkPermissionFieldSet(
+                                                        this.administrators.checkScopesFieldSet(
                                                             permissions,
                                                             groupPermissions,
                                                             false,
@@ -1669,7 +1724,7 @@ namespace modules {
                                                             { group_ids: value.join(',') }
                                                         );
 
-                                                        this.administrators.checkPermissionFieldSet(
+                                                        this.administrators.checkScopesFieldSet(
                                                             permissions,
                                                             results.permissions,
                                                             true,
@@ -1685,7 +1740,7 @@ namespace modules {
                                         groups.hide();
                                     }
 
-                                    if ((await this.administrators.printPermissionFieldSet(permissions)) == true) {
+                                    if ((await this.administrators.printScopesFieldSet(permissions)) == true) {
                                         permissions.enable();
                                     }
 
@@ -1714,13 +1769,13 @@ namespace modules {
 
                         let title =
                             replacement == true
-                                ? this.printText('admin.administrators.move_group')
-                                : this.printText('admin.administrators.add_group');
+                                ? this.printText('admin.administrators.lists.move_group')
+                                : this.printText('admin.administrators.lists.add_group');
                         title += ' (';
                         if (selections.length == 1) {
                             title += selections[0].get('name');
                         } else {
-                            title += this.printText('admin.administrators.selectedCount', {
+                            title += this.printText('admin.administrators.lists.selectedCount', {
                                 count: selections.length.toString(),
                             });
                         }
@@ -1746,11 +1801,11 @@ namespace modules {
                                             value: replacement == true ? 'move_group' : 'add_group',
                                         }),
                                         new Aui.Form.FieldSet({
-                                            title: this.printText('admin.administrators.groups.groups'),
+                                            title: this.printText('admin.administrators.lists.groups.groups'),
                                             helpText:
                                                 replacement == true
-                                                    ? this.printText('admin.administrators.move_group_help')
-                                                    : this.printText('admin.administrators.add_group_help'),
+                                                    ? this.printText('admin.administrators.lists.move_group_help')
+                                                    : this.printText('admin.administrators.lists.add_group_help'),
                                             disabled: true,
                                             items: [],
                                         }),

@@ -7,299 +7,239 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2023. 8. 2.
+ * @modified 2024. 1. 26.
  */
-
 namespace modules\admin\admin;
-
-abstract class Admin
+class Admin extends \modules\admin\admin\Component
 {
     /**
-     * @var \modules\admin\Admin $_mAdmin 관리자모듈
+     * 관리자 컨텍스트 목록을 가져온다.
+     *
+     * @return \modules\admin\dtos\Context[] $contexts
      */
-    private static \modules\admin\Admin $_mAdmin;
-
-    /**
-     * 관리자 클래스를 정의한다.
-     */
-    final public function __construct(\modules\admin\Admin $admin)
+    public function getContexts(): array
     {
-        self::$_mAdmin = $admin;
+        $contexts = [];
+
+        $contexts[] = \modules\admin\dtos\Context::init($this)
+            ->setContext('dashboard')
+            ->setTitle($this->getText('admin.contexts.dashboard'), 'xi xi-presentation');
+
+        if ($this->hasPermission('modules') == true) {
+            $contexts[] = \modules\admin\dtos\Context::init($this)
+                ->setContext('modules')
+                ->setTitle($this->getText('admin.contexts.modules'), 'xi xi-box');
+        }
+
+        if ($this->hasPermission('plugins') == true) {
+            $contexts[] = \modules\admin\dtos\Context::init($this)
+                ->setContext('plugins')
+                ->setTitle($this->getText('admin.contexts.plugins'), 'xi xi-plug');
+        }
+
+        if ($this->hasPermission('widgets') == true) {
+            $contexts[] = \modules\admin\dtos\Context::init($this)
+                ->setContext('widgets')
+                ->setTitle($this->getText('admin.contexts.widgets'), 'xi xi-contents-left');
+        }
+
+        if ($this->hasPermission('modules') == true) {
+            $contexts[] = \modules\admin\dtos\Context::init($this)
+                ->setContext('sitemap')
+                ->setTitle($this->getText('admin.contexts.sitemap'), 'xi xi-sitemap');
+        }
+
+        if ($this->hasPermission('administrators') == true) {
+            $contexts[] = \modules\admin\dtos\Context::init($this)
+                ->setContext('administrators')
+                ->setTitle($this->getText('admin.contexts.administrators'), 'xi xi-user-lock');
+        }
+
+        if ($this->hasPermission('database') == true) {
+            $database = new \modules\admin\dtos\Context($this);
+            $database->setContext('database')->setTitle($this->getText('admin.contexts.database'), 'xi xi-db-full');
+            $contexts[] = $database;
+        }
+
+        return $contexts;
     }
 
     /**
-     * 관리자 컨텍스트를 초기화한다.
+     * 현재 모듈의 관리자 컨텍스트를 가져온다.
+     *
+     * @param string $path 컨텍스트 경로
+     * @return string $html
      */
-    abstract public function init(): void;
+    public function getContext(string $path): string
+    {
+        switch ($path) {
+            case 'dashboard':
+                \Html::script($this->getBase() . '/scripts/contexts/dashboard.js');
+                break;
+
+            case 'modules':
+                \Html::script($this->getBase() . '/scripts/contexts/modules.js');
+                break;
+
+            case 'sitemap':
+                \Html::script($this->getBase() . '/scripts/contexts/sitemap.js');
+                break;
+
+            case 'administrators':
+                \Html::script($this->getBase() . '/scripts/contexts/administrators.js');
+                break;
+        }
+
+        return '';
+    }
 
     /**
-     * 각 컴포넌트에서 사용할 데이터베이스 인터페이스 클래스를 가져온다.
+     * 현재 컴포넌트의 관리자 권한범위를 가져온다.
      *
-     * @param ?string $name 데이터베이스 인터페이스 고유명
-     * @param ?DatabaseConnector $connector 데이터베이스정보
-     * @return DatabaseInterface $interface
+     * @return \modules\admin\dtos\Scope[] $scopes
      */
-    final public function db(?string $name = null, ?\DatabaseConnector $connector = null): \DatabaseInterface
+    public function getScopes(): array
     {
-        return \Database::getInterface(
-            $name ?? $this->getComponent()->getType() . '/' . $this->getComponent()->getName(),
-            $connector ?? \Configs::db()
+        $scopes = [];
+
+        $scopes[] = \modules\admin\dtos\Scope::init($this)
+            ->setScope('modules', $this->getText('admin.scopes.modules.title'))
+            ->addChild('configs', $this->getText('admin.scopes.modules.configs'))
+            ->addChild('install', $this->getText('admin.scopes.modules.install'));
+
+        $scopes[] = \modules\admin\dtos\Scope::init($this)
+            ->setScope('plugins', $this->getText('admin.scopes.plugins.title'))
+            ->addChild('configs', $this->getText('admin.scopes.plugins.configs'))
+            ->addChild('install', $this->getText('admin.scopes.plugins.install'));
+
+        $scopes[] = \modules\admin\dtos\Scope::init($this)->setScope(
+            'widgets',
+            $this->getText('admin.scopes.widgets.title')
         );
-    }
 
-    /**
-     * 간략화된 테이블명으로 실제 데이터베이스 테이블명을 가져온다.
-     *
-     * @param string $table;
-     * @return string $table;
-     */
-    final public function table(string $table): string
-    {
-        return \iModules::table(
-            $this->getComponent()->getType() .
-                '_' .
-                str_replace('/', '_', $this->getComponent()->getName()) .
-                '_' .
-                $table
+        $scopes[] = \modules\admin\dtos\Scope::init($this)
+            ->setScope('sitemap', $this->getText('admin.scopes.sitemap.domains'))
+            ->addChild('domains', $this->getText('admin.scopes.sitemap.domains'))
+            ->addChild('sites', $this->getText('admin.scopes.sitemap.sites'))
+            ->addChild('contexts', $this->getText('admin.scopes.sitemap.contexts'));
+
+        $scopes[] = \modules\admin\dtos\Scope::init($this)->setScope(
+            'administrators',
+            $this->getText('admin.scopes.administrators')
         );
-    }
 
-    /**
-     * 언어팩 코드 문자열을 가져온다.
-     *
-     * @param string $text 코드
-     * @param ?array $placeHolder 치환자
-     * @return string|array $message 치환된 메시지
-     */
-    final public function getText(string $text, ?array $placeHolder = null): string|array
-    {
-        return \Language::getText(
-            $text,
-            $placeHolder,
-            ['/' . $this->getComponent()->getType() . 's/' . $this->getComponent()->getName(), '/'],
-            [$this->getAdmin()->getLanguage()]
+        $scopes[] = \modules\admin\dtos\Scope::init($this)->setScope(
+            'databases',
+            $this->getText('admin.scopes.databases')
         );
+
+        return $this->setScopes($scopes);
     }
 
     /**
-     * 관리자모듈 클래스를 가져온다.
+     * 컨텍스트 객체를 JSON 데이터로 변환한다.
      *
-     * @return \modules\admin\Admin $mAdmin
+     * @param \Context $context 변환할 컨텍스트 객체
+     * @param int $sort 정렬순서
+     * @return object $context
      */
-    final public function getAdmin(): \modules\admin\Admin
+    private function getSitemapContextToJson(\Context $context, int $sort = 0): object
     {
-        return self::$_mAdmin;
+        $json = new \stdClass();
+        $json->host = $context->getHost();
+        $json->language = $context->getLanguage();
+        $json->path = $context->getPath();
+        $json->title = $context->getTitle();
+        $json->type = $context->getType();
+        $json->layout = $context->getLayout();
+        $temp = explode('/', $context->getPath());
+        $json->display = $context->getPath() == '/' ? '/' : '/' . end($temp);
+        $json->sort = $sort;
+
+        switch ($json->type) {
+            case 'EMPTY':
+                $json->context = \Modules::get('admin')->getText('admin.sitemap.contexts.types.EMPTY');
+                break;
+
+            case 'CHILD':
+                $children = $context->getChildren(false, false);
+                $json->context = count($children) == 0 ? 'NOT_FOUND_CHILD' : $children[0]->getTitle();
+                break;
+
+            case 'PAGE':
+                $json->context = $context->getContext() . '.html';
+                break;
+
+            case 'MODULE':
+                $json->context = \Modules::get($context->getTarget())->getTitle();
+                $json->context .= '-' . \Modules::get($context->getTarget())->getContextTitle($context->getContext());
+                break;
+
+            default:
+                $json->context = '';
+        }
+
+        return $json;
     }
 
     /**
-     * 언어팩 에러코드 문자열을 가져온다.
+     * 컨텍스트의 자식 컨텍스트를 재귀적으로 가져온다.
      *
-     * @param string $code 에러코드
-     * @param ?array $placeHolder 치환자
-     * @return string $message 치환된 메시지
+     * @param \Context $parent 부모 컨텍스트
+     * @param string $mode 가져올 방식 (tree, list)
+     * @param int $sort 정렬 순서
+     * @return array $chilren
      */
-    final public function getErrorText(string $code, ?array $placeHolder = null): string
+    private function getSitemapContextChildren(\Context $parent, string $mode = 'tree', int &$sort = 0): array
     {
-        return self::getText('errors/' . $code, $placeHolder);
-    }
+        if ($parent->hasChild(false) == false) {
+            return [];
+        }
 
-    /**
-     * 컴포넌트타입 컨텍스트를 추가한다.
-     *
-     * @param string $path 경로
-     * @param string $title 컨텍스트명
-     * @param ?string $icon 컨텍스트아이콘
-     */
-    final public function addContext(string $path, string $title, string $icon = '', bool $is_root = false): void
-    {
-        $context = new \modules\admin\dtos\Context($this, $title, $icon);
-        $context->setContext($path, $is_root);
-
-        $this->getAdmin()->addContext($context);
-    }
-
-    /**
-     * 링크타입 컨텍스트를 추가한다.
-     *
-     * @param string $url 링크주소
-     * @param string $title 컨텍스트명
-     * @param string $target 링크대상 (_self : 현재창, _blank : 새창)
-     * @param ?string $icon 컨텍스트아이콘
-     */
-    final public function addLink(string $url, string $title, string $target = '_self', string $icon = ''): void
-    {
-        $context = new \modules\admin\dtos\Context($this, $title, $icon);
-        $context->setLink($url, $target);
-        $this->getAdmin()->addContext($context);
-    }
-
-    /**
-     * 컨텍스트를 처리할 컴포넌트 클래스를 가져온다.
-     *
-     * @return \Component $component
-     */
-    final public function getComponent(): \Component
-    {
-        $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)Admin$/';
-        if (preg_match($regExp, get_called_class(), $match) == true) {
-            $type = $match[1];
-            $name = str_replace('\\', '/', $match[2]);
-
-            if ($type == 'module') {
-                return \Modules::get($name);
+        $children = [];
+        if ($mode == 'tree') {
+            foreach ($parent->getChildren(false, false) as $context) {
+                $child = $this->getSitemapContextToJson($context, $sort++);
+                if ($context->hasChild(false) == true) {
+                    $child->children = $this->getSitemapContextChildren($context, $mode, $sort);
+                }
+                $children[] = $child;
+            }
+        } else {
+            foreach ($parent->getChildren(false, false) as $context) {
+                $child = $this->getSitemapContextToJson($context, $sort++);
+                $children[] = $child;
+                $children = [...$children, ...$this->getSitemapContextChildren($context, $mode, $sort)];
             }
         }
 
-        return null;
+        return $children;
     }
 
     /**
-     * 관리자 기본경로를 가져온다.
+     * 사이트의 전체 컨텍스트 목록을 가져온다.
      *
-     * @return string $base
+     * @param \Site $site 컨텍스트목록을 가져올 사이트 객체
+     * @param string $mode 가져올 방식 (tree, list)
+     * @return array $contexts
      */
-    final public function getBase(): string
+    public function getSitemapContexts(\Site $site, string $mode): array
     {
-        return $this->getComponent()->getBase() . '/admin';
-    }
+        $index = $site->getIndex();
 
-    /**
-     * 관리자 상대경로를 가져온다.
-     *
-     * @return string $dir
-     */
-    final public function getDir(): string
-    {
-        return $this->getComponent()->getDir() . '/admin';
-    }
+        $sort = 0;
+        if ($mode == 'tree') {
+            $context = $this->getSitemapContextToJson($index);
+            if ($index->hasChild(false) == true) {
+                $context->children = $this->getSitemapContextChildren($index, $mode, $sort);
+            }
 
-    /**
-     * 관리자 절대경로를 가져온다.
-     *
-     * @return string $path
-     */
-    final public function getPath(): string
-    {
-        return $this->getComponent()->getPath() . '/admin';
-    }
-
-    /**
-     * 현재 모듈 관리자에서 추가로 사용하는 자바스크립트를 가져온다.
-     * /admin/scripts/Admin.js 파일은 자동으로 불러온다.
-     *
-     * @return string[] $scripts
-     */
-    public function scripts(): array
-    {
-        return [];
-    }
-
-    /**
-     * 현재 모듈 관리자에서 추가로 사용하는 스타일시트를 가져온다.
-     * /admin/scripts/Admin.css, /admin/scripts/Admin.scss 파일은 자동으로 불러온다.
-     *
-     * @return string[] $styles
-     */
-    public function styles(): array
-    {
-        return [];
-    }
-
-    /**
-     * 현재 모듈의 관리자 권한종류를 가져온다.
-     * 각 모듈 관리자 클래스에서 재정의한다.
-     *
-     * @return array $permissions 권한
-     */
-    public function getPermissions(): array
-    {
-        /**
-         * [
-         *     '{권한타입}'=>[
-         *         'label'=>'{권한명}',
-         *         'permissions'=>[
-         *             '{세부권한명}'=>'{표시될 세부권한명}',
-         *             ...
-         *         ]
-         *     ],
-         *     ...
-         * ]
-         */
-        return [];
-    }
-
-    /**
-     * 현재 컴포넌트의 관리자 권한을 가져온다.
-     *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool|array $permissions 권한
-     */
-    final public function getAdministratorPermissions(?int $member_id = null): bool|array
-    {
-        $permissions = self::$_mAdmin->getAdministratorPermissions($member_id);
-        if (is_bool($permissions) == true) {
-            return $permissions;
+            return [$context];
+        } else {
+            return [
+                $this->getSitemapContextToJson($index, $sort++),
+                ...$this->getSitemapContextChildren($index, $mode, $sort),
+            ];
         }
-
-        $component = $this->getComponent()->getType() . '/' . $this->getComponent()->getName();
-        $permissions = isset($permissions[$component]) == true ? $permissions[$component] : false;
-        if (is_bool($permissions) == true) {
-            return $permissions;
-        }
-
-        return count($permissions) > 0 ? $permissions : false;
     }
-
-    /**
-     * 특정 권한종류에 특정 권한이 존재하는지 확인한다.
-     *
-     * @param string $permission_type 권한종류
-     * @param ?string $check 권한이 존재하는지 확인할 권한 (NULL 인 경우 어떤 권한이라도 존재하는지 확인)
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $has_permission
-     */
-    final public function checkPermission(string $permission_type, ?string $check = null, ?int $member_id = null): bool
-    {
-        $permissions = $this->getAdministratorPermissions($member_id);
-        if (is_bool($permissions) == true) {
-            return $permissions;
-        }
-
-        $permissions = isset($permissions[$permission_type]) == true ? $permissions[$permission_type] : false;
-        if (is_bool($permissions) == true) {
-            return $permissions;
-        }
-
-        return $check === null ? count($permissions) > 0 : in_array($check, $permissions) == true;
-    }
-
-    /**
-     * 모듈 관리자인지 확인한다.
-     *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $is_master 최고관리자 여부
-     */
-    final public function isAdministrator(?int $member_id = null): bool
-    {
-        return $this->getAdministratorPermissions($member_id) !== false;
-    }
-
-    /**
-     * 모듈 최고관리자인지 확인한다.
-     *
-     * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
-     * @return bool $is_master 최고관리자 여부
-     */
-    final public function isMaster(?int $member_id = null): bool
-    {
-        return $this->getAdministratorPermissions($member_id) == true;
-    }
-
-    /**
-     * 각 컨텍스트의 콘텐츠를 가져온다.
-     *
-     * @param string $path 컨텍스트 경로
-     * @param ?string $subPath 컨텍스트 하위경로
-     */
-    abstract public function getContent(string $path, ?string $subPath = null): string;
 }
