@@ -298,10 +298,10 @@ Admin.ready(async () => {
 
             if (Admin.getContextSubUrl(0) !== host) {
                 Admin.setContextSubUrl('/' + host);
+            }
 
-                if (Admin.getContextSubUrl(1) !== language) {
-                    Admin.setContextSubUrl('/' + host + '/' + language);
-                }
+            if (language !== null && Admin.getContextSubUrl(1) !== language) {
+                Admin.setContextSubUrl('/' + host + '/' + language);
             }
         },
     });

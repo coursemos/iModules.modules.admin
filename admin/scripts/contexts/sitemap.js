@@ -291,9 +291,9 @@ Admin.ready(async () => {
             const language = sites.getSelections().at(0)?.get('language') ?? null;
             if (Admin.getContextSubUrl(0) !== host) {
                 Admin.setContextSubUrl('/' + host);
-                if (Admin.getContextSubUrl(1) !== language) {
-                    Admin.setContextSubUrl('/' + host + '/' + language);
-                }
+            }
+            if (language !== null && Admin.getContextSubUrl(1) !== language) {
+                Admin.setContextSubUrl('/' + host + '/' + language);
             }
         },
     });
