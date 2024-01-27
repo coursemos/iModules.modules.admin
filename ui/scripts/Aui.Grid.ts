@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 27.
  */
 namespace Aui {
     export namespace Grid {
@@ -61,6 +61,17 @@ namespace Aui {
                  * @type {Function} update - 데이터가 변경되었 때
                  */
                 update?: (grid: Aui.Grid.Panel, store: Aui.Store) => void;
+
+                /**
+                 * @type {Function} focusMove - 셀의 포커스가 이동하였을 때
+                 */
+                focusMove?: (
+                    rowIndex: number,
+                    columnIndex: number,
+                    value: any,
+                    record: Aui.Data.Record,
+                    grid: Aui.Grid.Panel
+                ) => void;
             }
 
             export interface Selection {
@@ -405,6 +416,8 @@ namespace Aui {
                         this.getScroll().setPosition(x, null, true);
                     }
                 }
+
+                this.onFocusMove(rowIndex, columnIndex);
             }
 
             /**
@@ -1177,6 +1190,23 @@ namespace Aui {
                 this.restoreSelections();
                 this.updateHeader();
                 this.fireEvent('update', [this, this.getStore()]);
+            }
+
+            /**
+             * 셀 포커스가 이동되었을 때 이벤트를 처리한다.
+             *
+             * @param {number} rowIndex - 행 인덱스
+             * @param {number} columnIndex - 열 인덱스
+             */
+            onFocusMove(rowIndex: number, columnIndex: number): void {
+                const record = this.$getRow(rowIndex).getData('record');
+                this.fireEvent('focusMove', [
+                    rowIndex,
+                    columnIndex,
+                    record?.get(this.columns[columnIndex].dataIndex ?? ''),
+                    record,
+                    this,
+                ]);
             }
 
             /**
