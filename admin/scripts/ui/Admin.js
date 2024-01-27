@@ -155,62 +155,39 @@ var Admin;
     /**
      * 관리자 컨텍스트 URL 을 가져온한다.
      *
-     * @param {string} subUrl - 현재 컨텍스트 URL 에 추가할 경로
      * @return {string} contextUrl;
      */
-    function getContextUrl(subUrl = '') {
-        const current = new URLSearchParams(location.search);
-        let contextUrl = Admin.getUrl() + Html.get('body').getAttr('data-context-url') + subUrl;
-        const params = new URLSearchParams();
-        for (const [key, value] of current.entries()) {
-            if (key == 'route') {
-                continue;
-            }
-            params.append(key, value);
-        }
-        const search = params.toString();
-        return contextUrl + (search.length > 0 ? (Admin.isRewrite() === true ? '?' : '&') + search : '');
+    function getContextUrl() {
+        return Admin.getUrl() + Html.get('body').getAttr('data-context-url');
     }
     Admin.getContextUrl = getContextUrl;
     /**
      * 관리자 컨텍스트의 추가 URL 을 가져온한다.
      *
+     * @param {number} index - / 로 구분하여 가져올 index 위치값 (NULL 인 경우 전체경로)
      * @return {string} contextSubUrl;
      */
-    function getContextSubUrl() {
-        let contextSubUrl = '';
-        const reg = new RegExp('^\\/admin' + Html.get('body').getAttr('data-context-url').replace('/', '\\/'));
-        if (Admin.isRewrite() === true) {
-            contextSubUrl = location.pathname.replace(reg, '');
+    function getContextSubUrl(index = null) {
+        const current = location.href.split(Admin.getContextUrl());
+        const contextSubUrl = (current.length == 1 ? '/' : current[1]).replace(/(\?|&)+.*?$/, '');
+        if (index === null) {
+            return contextSubUrl;
         }
         else {
-            const params = new URLSearchParams(location.search);
-            contextSubUrl = params.get('route').replace(reg, '');
+            return contextSubUrl.replace(/^\//, '').split('/').at(index) ?? null;
         }
-        return contextSubUrl;
     }
     Admin.getContextSubUrl = getContextSubUrl;
     /**
-     * 관리자 컨텍스트의 추가 URL 을 배열형태로 가져온다.
+     * History API 를 활용하여 현재 컨텍스트 추가 URL 을 변경한다.
      *
-     * @return {string[]} path;
-     */
-    function getContextSubTree() {
-        const contextSubTree = Admin.getContextSubUrl().split('/');
-        contextSubTree.shift();
-        return contextSubTree;
-    }
-    Admin.getContextSubTree = getContextSubTree;
-    /**
-     * History API 를 활용하여 현재 컨텍스트 URL 을 변경한다.
-     *
-     * @param {string} url - 변경할 URL
+     * @param {string} subUrl - 변경할 URL
      * @param {string} title - 변경할 문서 타이틀 (NULL 인 경우 현재 문서 타이틀)
      */
-    function setContextUrl(url, title = null) {
-        window.history.replaceState({}, title ?? document.title, url);
+    function setContextSubUrl(subUrl, title = null) {
+        window.history.replaceState({}, title ?? document.title, Admin.getContextUrl() + subUrl);
     }
-    Admin.setContextUrl = setContextUrl;
+    Admin.setContextSubUrl = setContextSubUrl;
     /**
      * 프로세스 URL 경로를 가져온다.
      *

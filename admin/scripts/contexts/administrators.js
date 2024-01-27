@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/administrators.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 21.
+ * @modified 2024. 1. 27.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -84,10 +84,10 @@ Admin.ready(async () => {
                         }),
                         listeners: {
                             update: (grid) => {
-                                if (Admin.getContextSubTree().at(0) == 'lists' &&
-                                    Admin.getContextSubTree().at(1) !== undefined &&
+                                if (Admin.getContextSubUrl(0) == 'lists' &&
+                                    Admin.getContextSubUrl(1) !== null &&
                                     grid.getSelections().length == 0) {
-                                    grid.select({ group_id: Admin.getContextSubTree().at(1).replace(/\./, '/') });
+                                    grid.select({ group_id: Admin.getContextSubUrl(1).replace(/\./, '/') });
                                 }
                                 else if (grid.getSelections().length == 0) {
                                     grid.select({ group_id: 'user' });
@@ -169,7 +169,7 @@ Admin.ready(async () => {
                                         administrators.getStore().loadPage(1);
                                     }
                                     administrators.enable();
-                                    Aui.getComponent('administrators-contexts').properties.setUrl();
+                                    Aui.getComponent('administrators-context').properties.setUrl();
                                 }
                                 else {
                                     administrators.disable();
@@ -479,13 +479,13 @@ Admin.ready(async () => {
         ],
         listeners: {
             render: (tab) => {
-                const panel = Admin.getContextSubTree().at(0) ?? null;
+                const panel = Admin.getContextSubUrl(0);
                 if (panel !== null) {
                     tab.active(panel);
                 }
             },
             active: (panel) => {
-                Aui.getComponent('administrators-contexts').properties.setUrl();
+                Aui.getComponent('administrators-context').properties.setUrl();
                 if (panel.getId() == 'lists') {
                     const groups = Aui.getComponent('groups');
                     if (groups.getStore().isLoaded() == false) {
@@ -501,15 +501,15 @@ Admin.ready(async () => {
             },
         },
         setUrl: () => {
-            const contexts = Aui.getComponent('administrators-contexts');
-            if (Admin.getContextSubTree().at(0) !== contexts.getActiveTab().getId()) {
-                Admin.setContextUrl(Admin.getContextUrl('/' + contexts.getActiveTab().getId()));
+            const context = Aui.getComponent('administrators-context');
+            if (Admin.getContextSubUrl(0) !== context.getActiveTab().getId()) {
+                Admin.setContextSubUrl('/' + context.getActiveTab().getId());
             }
-            if (Admin.getContextSubTree().at(0) == 'lists') {
+            if (Admin.getContextSubUrl(0) == 'lists') {
                 const groups = Aui.getComponent('groups');
                 const group_id = groups.getSelections().at(0)?.get('group_id') ?? null;
-                if (group_id !== null && Admin.getContextSubTree().at(1) !== group_id) {
-                    Admin.setContextUrl(Admin.getContextUrl('/lists/' + group_id.replace(/\//, '.')));
+                if (group_id !== null && Admin.getContextSubUrl(1) !== group_id) {
+                    Admin.setContextSubUrl('/lists/' + group_id.replace(/\//, '.'));
                 }
             }
         },

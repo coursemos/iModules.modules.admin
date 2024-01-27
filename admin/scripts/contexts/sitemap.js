@@ -11,6 +11,7 @@
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
     return new Aui.Panel({
+        id: 'sitemap-context',
         border: false,
         layout: 'column',
         iconClass: 'xi xi xi-sitemap',
@@ -58,8 +59,8 @@ Admin.ready(async () => {
                 ],
                 listeners: {
                     update: (grid) => {
-                        if (Admin.getContextSubTree().at(0) !== undefined && grid.getSelections().length == 0) {
-                            grid.select({ host: Admin.getContextSubTree().at(0) });
+                        if (Admin.getContextSubUrl(0) !== null && grid.getSelections().length == 0) {
+                            grid.select({ host: Admin.getContextSubUrl(0) });
                         }
                     },
                     openItem: (record) => {
@@ -82,9 +83,7 @@ Admin.ready(async () => {
                             sites.getStore().setParams({ host: host });
                             sites.getStore().reload();
                             sites.enable();
-                            if (Admin.getContextSubTree().at(0) !== host) {
-                                Admin.setContextUrl(Admin.getContextUrl('/' + host));
-                            }
+                            Aui.getComponent('sitemap-context').properties.setUrl();
                         }
                         else {
                             sites.disable();
@@ -135,10 +134,10 @@ Admin.ready(async () => {
                 ],
                 listeners: {
                     update: (grid) => {
-                        if (Admin.getContextSubTree().at(1) !== undefined && grid.getSelections().length == 0) {
+                        if (Admin.getContextSubUrl(1) !== null && grid.getSelections().length == 0) {
                             grid.select({
-                                host: Admin.getContextSubTree().at(0),
-                                language: Admin.getContextSubTree().at(1),
+                                host: Admin.getContextSubUrl(0),
+                                language: Admin.getContextSubUrl(1),
                             });
                         }
                     },
@@ -166,10 +165,7 @@ Admin.ready(async () => {
                             });
                             contexts.getStore().reload();
                             contexts.enable();
-                            if (Admin.getContextSubTree().at(0) !== host ||
-                                Admin.getContextSubTree().at(1) !== language) {
-                                Admin.setContextUrl(Admin.getContextUrl('/' + host + '/' + language));
-                            }
+                            Aui.getComponent('sitemap-context').properties.setUrl();
                         }
                         else {
                             contexts.disable();
@@ -288,5 +284,17 @@ Admin.ready(async () => {
                 },
             }),
         ],
+        setUrl: () => {
+            const domains = Aui.getComponent('domains');
+            const host = domains.getSelections().at(0)?.get('host') ?? null;
+            const sites = Aui.getComponent('sites');
+            const language = sites.getSelections().at(0)?.get('language') ?? null;
+            if (Admin.getContextSubUrl(0) !== host) {
+                Admin.setContextSubUrl('/' + host);
+                if (Admin.getContextSubUrl(1) !== language) {
+                    Admin.setContextSubUrl('/' + host + '/' + language);
+                }
+            }
+        },
     });
 });
