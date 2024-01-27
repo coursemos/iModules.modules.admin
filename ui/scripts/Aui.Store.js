@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 27.
  */
 var Aui;
 (function (Aui) {
@@ -315,8 +315,9 @@ var Aui;
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
         async setFilter(field, value, operator = '=') {
-            this.filters = {};
+            this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
+            console.log('setFilter', this.filters, this.filterMode);
             await this.filter();
         }
         /**
