@@ -2247,7 +2247,7 @@ var Aui;
                     if (this.list === undefined) {
                         this.list = new Aui.Grid.Panel({
                             store: this.properties.store,
-                            parnet: this,
+                            parent: this,
                             selection: {
                                 selectable: true,
                                 display: 'row',
@@ -2270,11 +2270,7 @@ var Aui;
                                     },
                                 },
                             ],
-                            displayField: this.tagField,
-                            valueField: this.tagField,
                             class: 'tags',
-                            hideOnEmpty: true,
-                            parent: this,
                             listeners: {
                                 beforeLoad: () => {
                                     this.getList().setHeight(100);
@@ -2287,13 +2283,12 @@ var Aui;
                                     this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                 },
+                                focusMove: (_rowIndex, _columnIndex, _value, record) => {
+                                    this.$getInput().setValue(record.get(this.tagField));
+                                },
                                 selectionChange: (selections) => {
-                                    if (selections.length == 0) {
-                                        this.setValue(null);
-                                        this.$getInput().setValue('');
-                                    }
-                                    else {
-                                        this.$getInput().setValue(selections[0].get(this.tagField));
+                                    if (selections.length == 1) {
+                                        this.addTag(selections[0].get(this.tagField));
                                     }
                                 },
                                 selectionComplete: () => {
@@ -2340,6 +2335,10 @@ var Aui;
                     });
                     $tag.append($span);
                     const $button = Html.create('button', { type: 'button' });
+                    $button.on('click', () => {
+                        $tag.remove();
+                        this.updateValue();
+                    });
                     $tag.append($button);
                     return $tag;
                 }
@@ -2477,7 +2476,7 @@ var Aui;
                     if (Array.isArray(value) == false) {
                         value = null;
                     }
-                    for (const tag of value) {
+                    for (const tag of value ?? []) {
                         this.addTag(tag);
                     }
                     super.setValue(value, is_origin);
@@ -3241,6 +3240,7 @@ var Aui;
                                 },
                                 selectionComplete: () => {
                                     this.collapse();
+                                    this.$getButton().focus();
                                 },
                             },
                         };
@@ -3333,12 +3333,7 @@ var Aui;
                                 this.$search.setData('timeout', null);
                             }
                             this.match(this.$search.getValue());
-                            if (this.$search.getValue()?.length == 0) {
-                                this.$getEmptyText().show();
-                            }
-                            else {
-                                this.$getEmptyText().hide();
-                            }
+                            this.searchingMode();
                         });
                         this.$search.on('focus', () => {
                             this.searching = true;
@@ -3347,13 +3342,7 @@ var Aui;
                                 this.$search.setData('timeout', null);
                             }
                             this.expand();
-                            this.$getDisplay().hide();
-                            if (this.$search.getValue()?.length == 0) {
-                                this.$getEmptyText().show();
-                            }
-                            else {
-                                this.$getEmptyText().hide();
-                            }
+                            this.searchingMode();
                         });
                         this.$search.on('mousedown', (e) => {
                             e.stopImmediatePropagation();
@@ -3361,17 +3350,12 @@ var Aui;
                         this.$search.on('blur', () => {
                             this.searching = false;
                             this.$search.setValue('');
-                            this.match('');
                             this.$search.setData('timeout', setTimeout(() => {
-                                this.collapse();
-                                this.$getDisplay().show();
-                                if (this.value === null) {
-                                    this.$getEmptyText().show();
+                                if (Aui.getComponent(this.id) !== null) {
+                                    this.collapse();
+                                    this.searchingMode();
+                                    this.$search?.setData('timeout', null);
                                 }
-                                else {
-                                    this.$getEmptyText().hide();
-                                }
-                                this.$search.setData('timeout', null);
                             }, 200));
                         });
                         this.setKeyboardEvent(this.$search);
@@ -3496,6 +3480,7 @@ var Aui;
                                     this.$getDisplay().show();
                                 }
                                 super.setValue(value, is_origin);
+                                this.searchingMode();
                             });
                         }
                         else {
@@ -3512,6 +3497,7 @@ var Aui;
                                     this.$getDisplay().show();
                                 }
                                 super.setValue(value, is_origin);
+                                this.searchingMode();
                             });
                         }
                     }
@@ -3563,6 +3549,7 @@ var Aui;
                  * 선택목록을 확장한다.
                  */
                 expand() {
+                    this.match('');
                     this.getAbsolute().show();
                     this.loading.hide();
                     const value = this.value;
@@ -3596,12 +3583,36 @@ var Aui;
                                     this.select(index);
                                 }
                                 if (Array.isArray(index) == true) {
-                                    this.getList().focusRow(index);
+                                    this.getList().focusCell(index, 0);
                                 }
                                 else {
-                                    this.getList().focusRow(index);
+                                    this.getList().focusCell(index, 0);
                                 }
                             });
+                        }
+                    }
+                }
+                /**
+                 * 검색중인 상태인 경우 검색폼을 활성화한다.
+                 */
+                searchingMode() {
+                    if (this.searching == true) {
+                        this.$getDisplay().hide();
+                        if (this.$search.getValue()?.length == 0) {
+                            this.$getEmptyText().show();
+                        }
+                        else {
+                            this.$getEmptyText().hide();
+                        }
+                    }
+                    else {
+                        if (this.getValue() !== null) {
+                            this.$getDisplay().show();
+                            this.$getEmptyText().hide();
+                        }
+                        else {
+                            this.$getDisplay().hide();
+                            this.$getEmptyText().show();
                         }
                     }
                 }
@@ -3609,7 +3620,9 @@ var Aui;
                  * 선택목록을 최소화한다.
                  */
                 collapse() {
-                    this.getAbsolute().hide();
+                    if (this.isExpand() == true) {
+                        this.getAbsolute().hide();
+                    }
                 }
                 /**
                  * 선택목록이 확장되어 있는지 확인한다.

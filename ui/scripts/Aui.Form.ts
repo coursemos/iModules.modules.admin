@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 1. 27.
  */
 declare var moment: any;
 namespace Aui {
@@ -2894,7 +2894,7 @@ namespace Aui {
                     if (this.list === undefined) {
                         this.list = new Aui.Grid.Panel({
                             store: this.properties.store,
-                            parnet: this,
+                            parent: this,
                             selection: {
                                 selectable: true,
                                 display: 'row',
@@ -2916,11 +2916,7 @@ namespace Aui {
                                     },
                                 },
                             ],
-                            displayField: this.tagField,
-                            valueField: this.tagField,
                             class: 'tags',
-                            hideOnEmpty: true,
-                            parent: this,
                             listeners: {
                                 beforeLoad: () => {
                                     this.getList().setHeight(100);
@@ -2933,12 +2929,12 @@ namespace Aui {
                                     this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                 },
+                                focusMove: (_rowIndex, _columnIndex, _value, record) => {
+                                    this.$getInput().setValue(record.get(this.tagField));
+                                },
                                 selectionChange: (selections: Aui.Data.Record[]) => {
-                                    if (selections.length == 0) {
-                                        this.setValue(null);
-                                        this.$getInput().setValue('');
-                                    } else {
-                                        this.$getInput().setValue(selections[0].get(this.tagField));
+                                    if (selections.length == 1) {
+                                        this.addTag(selections[0].get(this.tagField));
                                     }
                                 },
                                 selectionComplete: () => {
@@ -2990,6 +2986,10 @@ namespace Aui {
                     $tag.append($span);
 
                     const $button = Html.create('button', { type: 'button' });
+                    $button.on('click', () => {
+                        $tag.remove();
+                        this.updateValue();
+                    });
                     $tag.append($button);
 
                     return $tag;
@@ -3144,7 +3144,7 @@ namespace Aui {
                         value = null;
                     }
 
-                    for (const tag of value) {
+                    for (const tag of value ?? []) {
                         this.addTag(tag);
                     }
                     super.setValue(value, is_origin);
@@ -4195,6 +4195,7 @@ namespace Aui {
                                 },
                                 selectionComplete: () => {
                                     this.collapse();
+                                    this.$getButton().focus();
                                 },
                             },
                         };
@@ -4295,11 +4296,7 @@ namespace Aui {
                                 this.$search.setData('timeout', null);
                             }
                             this.match(this.$search.getValue());
-                            if (this.$search.getValue()?.length == 0) {
-                                this.$getEmptyText().show();
-                            } else {
-                                this.$getEmptyText().hide();
-                            }
+                            this.searchingMode();
                         });
                         this.$search.on('focus', () => {
                             this.searching = true;
@@ -4308,13 +4305,7 @@ namespace Aui {
                                 this.$search.setData('timeout', null);
                             }
                             this.expand();
-
-                            this.$getDisplay().hide();
-                            if (this.$search.getValue()?.length == 0) {
-                                this.$getEmptyText().show();
-                            } else {
-                                this.$getEmptyText().hide();
-                            }
+                            this.searchingMode();
                         });
                         this.$search.on('mousedown', (e: MouseEvent) => {
                             e.stopImmediatePropagation();
@@ -4322,18 +4313,14 @@ namespace Aui {
                         this.$search.on('blur', () => {
                             this.searching = false;
                             this.$search.setValue('');
-                            this.match('');
                             this.$search.setData(
                                 'timeout',
                                 setTimeout(() => {
-                                    this.collapse();
-                                    this.$getDisplay().show();
-                                    if (this.value === null) {
-                                        this.$getEmptyText().show();
-                                    } else {
-                                        this.$getEmptyText().hide();
+                                    if (Aui.getComponent(this.id) !== null) {
+                                        this.collapse();
+                                        this.searchingMode();
+                                        this.$search?.setData('timeout', null);
                                     }
-                                    this.$search.setData('timeout', null);
                                 }, 200)
                             );
                         });
@@ -4472,6 +4459,7 @@ namespace Aui {
                                 }
 
                                 super.setValue(value, is_origin);
+                                this.searchingMode();
                             });
                         } else {
                             this.getValueToRecord(value).then((record) => {
@@ -4494,6 +4482,7 @@ namespace Aui {
                                 }
 
                                 super.setValue(value, is_origin);
+                                this.searchingMode();
                             });
                         }
                     }
@@ -4549,6 +4538,7 @@ namespace Aui {
                  * 선택목록을 확장한다.
                  */
                 expand(): void {
+                    this.match('');
                     this.getAbsolute().show();
                     this.loading.hide();
 
@@ -4585,11 +4575,33 @@ namespace Aui {
                                 }
 
                                 if (Array.isArray(index) == true) {
-                                    (this.getList() as Aui.Tree.Panel).focusRow(index as number[]);
+                                    (this.getList() as Aui.Tree.Panel).focusCell(index as number[], 0);
                                 } else {
-                                    (this.getList() as Aui.Grid.Panel).focusRow(index as number);
+                                    (this.getList() as Aui.Grid.Panel).focusCell(index as number, 0);
                                 }
                             });
+                        }
+                    }
+                }
+
+                /**
+                 * 검색중인 상태인 경우 검색폼을 활성화한다.
+                 */
+                searchingMode(): void {
+                    if (this.searching == true) {
+                        this.$getDisplay().hide();
+                        if (this.$search.getValue()?.length == 0) {
+                            this.$getEmptyText().show();
+                        } else {
+                            this.$getEmptyText().hide();
+                        }
+                    } else {
+                        if (this.getValue() !== null) {
+                            this.$getDisplay().show();
+                            this.$getEmptyText().hide();
+                        } else {
+                            this.$getDisplay().hide();
+                            this.$getEmptyText().show();
                         }
                     }
                 }
@@ -4598,7 +4610,9 @@ namespace Aui {
                  * 선택목록을 최소화한다.
                  */
                 collapse(): void {
-                    this.getAbsolute().hide();
+                    if (this.isExpand() == true) {
+                        this.getAbsolute().hide();
+                    }
                 }
 
                 /**
