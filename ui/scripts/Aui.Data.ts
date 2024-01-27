@@ -199,7 +199,7 @@ namespace Aui {
             if (Object.keys(filters).length > 0) {
                 const records: Aui.Data.Record[] = [];
                 for (const record of this.originRecords) {
-                    let matched = false;
+                    let matched = true;
                     for (const field in filters) {
                         const filter = filters[field];
                         const value = record.get(field) ?? null;
@@ -281,7 +281,11 @@ namespace Aui {
                                 passed = false;
                         }
 
-                        matched = matched || passed;
+                        if (filterMode == 'AND') {
+                            matched = matched && passed;
+                        } else {
+                            matched = passed;
+                        }
 
                         if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                             break;

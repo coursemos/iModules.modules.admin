@@ -6,7 +6,7 @@
  * @file /scripts/Aui.TreeData.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 27.
  */
 var Aui;
 (function (Aui) {
@@ -180,7 +180,7 @@ var Aui;
             if (Object.keys(filters).length > 0) {
                 const records = [];
                 for (const record of this.originRecords) {
-                    let matched = false;
+                    let matched = true;
                     for (const field in filters) {
                         const filter = filters[field];
                         const value = record.get(field) ?? null;
@@ -245,7 +245,12 @@ var Aui;
                             default:
                                 passed = false;
                         }
-                        matched = matched || passed;
+                        if (filterMode == 'AND') {
+                            matched = matched && passed;
+                        }
+                        else {
+                            matched = passed;
+                        }
                         if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                             break;
                         }
@@ -482,7 +487,7 @@ var Aui;
                 if (Object.keys(filters).length > 0) {
                     const children = [];
                     for (const record of this.originChildren) {
-                        let matched = false;
+                        let matched = true;
                         for (const field in filters) {
                             const filter = filters[field];
                             const value = record.get(field) ?? null;
@@ -547,7 +552,12 @@ var Aui;
                                 default:
                                     passed = false;
                             }
-                            matched = matched || passed;
+                            if (filterMode == 'AND') {
+                                matched = matched && passed;
+                            }
+                            else {
+                                matched = passed;
+                            }
                             if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                                 break;
                             }

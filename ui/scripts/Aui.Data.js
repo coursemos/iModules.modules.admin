@@ -169,7 +169,7 @@ var Aui;
             if (Object.keys(filters).length > 0) {
                 const records = [];
                 for (const record of this.originRecords) {
-                    let matched = false;
+                    let matched = true;
                     for (const field in filters) {
                         const filter = filters[field];
                         const value = record.get(field) ?? null;
@@ -234,7 +234,12 @@ var Aui;
                             default:
                                 passed = false;
                         }
-                        matched = matched || passed;
+                        if (filterMode == 'AND') {
+                            matched = matched && passed;
+                        }
+                        else {
+                            matched = passed;
+                        }
                         if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
                             break;
                         }
