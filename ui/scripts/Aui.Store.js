@@ -317,7 +317,6 @@ var Aui;
         async setFilter(field, value, operator = '=') {
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
-            console.log('setFilter', this.filters, this.filterMode);
             await this.filter();
         }
         /**

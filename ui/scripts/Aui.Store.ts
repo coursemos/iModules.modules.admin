@@ -413,7 +413,6 @@ namespace Aui {
         async setFilter(field: string, value: any, operator: string = '='): Promise<void> {
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
-            console.log('setFilter', this.filters, this.filterMode);
             await this.filter();
         }
 
