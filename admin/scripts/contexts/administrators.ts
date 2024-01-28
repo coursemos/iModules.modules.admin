@@ -19,6 +19,16 @@ Admin.ready(async () => {
         border: false,
         layout: 'fit',
         tabPosition: 'bottom',
+        topbar: [
+            new Aui.Button({
+                id: 'administrators_add_button',
+                iconClass: 'mi mi-plus',
+                text: (await me.getText('admin.administrators.lists.add')) as string,
+                handler: () => {
+                    me.administrators.add();
+                },
+            }),
+        ],
         items: [
             new Aui.Panel({
                 id: 'lists',
@@ -46,7 +56,7 @@ Admin.ready(async () => {
                             }),
                             new Aui.Button({
                                 iconClass: 'mi mi-plus',
-                                text: (await me.getText('admin.administrators.lists.groups.add')) as string,
+                                text: (await me.getText('admin.administrators.groups.add')) as string,
                                 handler: () => {
                                     me.administrators.groups.add();
                                 },
@@ -63,13 +73,13 @@ Admin.ready(async () => {
                         ],
                         columns: [
                             {
-                                text: (await me.getText('admin.administrators.lists.groups.title')) as string,
+                                text: (await me.getText('admin.administrators.groups.title')) as string,
                                 dataIndex: 'title',
                                 sortable: 'sort',
                                 flex: 1,
                             },
                             {
-                                text: (await me.getText('admin.administrators.lists.groups.administrators')) as string,
+                                text: (await me.getText('admin.administrators.groups.administrators')) as string,
                                 dataIndex: 'administrators',
                                 sortable: true,
                                 width: 80,
@@ -88,15 +98,18 @@ Admin.ready(async () => {
                             sorters: { index: 'ASC', sort: 'ASC' },
                         }),
                         listeners: {
-                            update: (grid) => {
+                            update: (tree) => {
                                 if (
                                     Admin.getContextSubUrl(0) == 'lists' &&
                                     Admin.getContextSubUrl(1) !== null &&
-                                    grid.getSelections().length == 0
+                                    tree.getSelections().length == 0
                                 ) {
-                                    grid.select({ group_id: Admin.getContextSubUrl(1).replace(/\./, '/') });
-                                } else if (grid.getSelections().length == 0) {
-                                    grid.select({ group_id: 'user' });
+                                    tree.select({ group_id: Admin.getContextSubUrl(1).replace(/\./, '/') });
+                                    if (tree.getSelections().length == 0) {
+                                        tree.select({ group_id: 'user' });
+                                    }
+                                } else if (tree.getSelections().length == 0) {
+                                    tree.select({ group_id: 'user' });
                                 }
                             },
                             openItem: (record) => {
@@ -108,7 +121,7 @@ Admin.ready(async () => {
                                         buttons: Aui.Message.OK,
                                         closable: true,
                                         message: Admin.printText(
-                                            'admin.administrators.lists.groups.descriptions.' + group_id
+                                            'admin.administrators.groups.descriptions.' + group_id
                                         ),
                                     });
                                     return;
@@ -132,7 +145,7 @@ Admin.ready(async () => {
 
                                 if (group_id == 'user' || group_id == 'component') {
                                     menu.add({
-                                        text: me.printText('admin.administrators.lists.groups.description'),
+                                        text: me.printText('admin.administrators.groups.description'),
                                         iconClass: 'xi xi-information-square',
                                         handler: () => {
                                             Aui.Message.show({
@@ -141,7 +154,7 @@ Admin.ready(async () => {
                                                 buttons: Aui.Message.OK,
                                                 closable: true,
                                                 message: Admin.printText(
-                                                    'admin.administrators.lists.groups.descriptions.' + group_id
+                                                    'admin.administrators.groups.descriptions.' + group_id
                                                 ),
                                             });
                                         },
@@ -166,8 +179,7 @@ Admin.ready(async () => {
 
                                 menu.add({
                                     text: me.printText(
-                                        'admin.administrators.lists.groups.' +
-                                            (is_component !== false ? 'show' : 'edit')
+                                        'admin.administrators.groups.' + (is_component !== false ? 'show' : 'edit')
                                     ),
                                     iconClass: 'xi xi-form-checkout',
                                     handler: () => {
@@ -177,16 +189,18 @@ Admin.ready(async () => {
 
                                 if (is_component === false) {
                                     menu.add({
-                                        text: me.printText('admin.administrators.lists.groups.delete'),
+                                        text: me.printText('admin.administrators.groups.delete'),
                                         iconClass: 'mi mi-trash',
                                         handler: () => {
-                                            //
+                                            me.administrators.groups.delete(record.get('group_id'));
                                         },
                                     });
                                 }
                             },
                             selectionChange: (selections) => {
                                 const administrators = Aui.getComponent('administrators') as Aui.Grid.Panel;
+                                const assign = administrators.getToolbar('top').getItemAt(2) as Aui.Button;
+
                                 if (selections.length == 1) {
                                     const group_id = selections[0].get('group_id');
                                     if (administrators.getStore().getParam('group_id') !== group_id) {
@@ -195,8 +209,15 @@ Admin.ready(async () => {
                                     }
                                     administrators.enable();
 
+                                    if (group_id == 'user' || group_id.startsWith('component') == true) {
+                                        assign.hide();
+                                    } else {
+                                        assign.show();
+                                    }
+
                                     Aui.getComponent('administrators-context').properties.setUrl();
                                 } else {
+                                    assign.hide();
                                     administrators.disable();
                                 }
                             },
@@ -223,11 +244,14 @@ Admin.ready(async () => {
                             }),
                             '->',
                             new Aui.Button({
-                                id: 'administrators_add_button',
-                                iconClass: 'mi mi-plus',
-                                text: (await me.getText('admin.administrators.lists.add')) as string,
+                                iconClass: 'xi xi-user-folder',
+                                text: (await me.getText('admin.administrators.lists.assign')) as string,
                                 handler: () => {
-                                    me.administrators.add();
+                                    const groups = Aui.getComponent('groups') as Aui.Tree.Panel;
+                                    const group_id = groups.getSelections().at(0)?.get('group_id') ?? 'user';
+                                    if (group_id != 'user' && group_id.startsWith('component') == false) {
+                                        me.administrators.assign(group_id);
+                                    }
                                 },
                             }),
                         ],
@@ -315,7 +339,7 @@ Admin.ready(async () => {
 
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.add_group'),
-                                    iconClass: 'xi xi-user-folder',
+                                    iconClass: 'xi xi-folder-plus',
                                     handler: () => {
                                         me.administrators.setGroups(false);
                                     },
@@ -323,7 +347,7 @@ Admin.ready(async () => {
 
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.move_group'),
-                                    iconClass: 'xi xi-user-add',
+                                    iconClass: 'xi xi-folder-upload',
                                     handler: () => {
                                         me.administrators.setGroups(true);
                                     },
@@ -341,11 +365,23 @@ Admin.ready(async () => {
 
                                 menu.add('-');
 
+                                const groups = Aui.getComponent('groups') as Aui.Tree.Panel;
+                                const group_id = groups.getSelections().at(0)?.get('group_id') ?? 'user';
+                                if (group_id != 'user' && group_id.startsWith('component') == false) {
+                                    menu.add({
+                                        text: me.printText('admin.administrators.lists.remove'),
+                                        iconClass: 'xi xi-folder-remove',
+                                        handler: () => {
+                                            me.administrators.delete(group_id);
+                                        },
+                                    });
+                                }
+
                                 menu.add({
-                                    text: me.printText('admin.administrators.lists.remove'),
+                                    text: me.printText('admin.administrators.lists.delete'),
                                     iconClass: 'mi mi-trash',
                                     handler: () => {
-                                        //
+                                        me.administrators.delete();
                                     },
                                 });
                             },
@@ -358,24 +394,16 @@ Admin.ready(async () => {
 
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.add_group'),
-                                    iconClass: 'xi xi-user-folder',
+                                    iconClass: 'xi xi-folder-plus',
                                     handler: () => {
-                                        const member_ids = [];
-                                        for (const record of selections) {
-                                            member_ids.push(record.get('member_id'));
-                                        }
                                         me.administrators.setGroups(false);
                                     },
                                 });
 
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.move_group'),
-                                    iconClass: 'xi xi-user-add',
+                                    iconClass: 'xi xi-folder-upload',
                                     handler: () => {
-                                        const member_ids = [];
-                                        for (const record of selections) {
-                                            member_ids.push(record.get('member_id'));
-                                        }
                                         me.administrators.setGroups(true);
                                     },
                                 });
@@ -396,46 +424,27 @@ Admin.ready(async () => {
 
                                 menu.add('-');
 
+                                const groups = Aui.getComponent('groups') as Aui.Tree.Panel;
+                                const group_id = groups.getSelections().at(0)?.get('group_id') ?? 'user';
+                                if (group_id != 'user' && group_id.startsWith('component') == false) {
+                                    menu.add({
+                                        text: me.printText('admin.administrators.lists.remove'),
+                                        iconClass: 'xi xi-folder-remove',
+                                        handler: () => {
+                                            me.administrators.delete(group_id);
+                                        },
+                                    });
+                                }
+
                                 menu.add({
-                                    text: me.printText('admin.administrators.lists.remove'),
+                                    text: me.printText('admin.administrators.lists.delete'),
                                     iconClass: 'mi mi-trash',
                                     handler: () => {
-                                        //
+                                        me.administrators.delete();
                                     },
                                 });
                             },
                         },
-                    }),
-                    new Aui.Form.Panel({
-                        id: 'permissions',
-                        border: [false, true, false, true],
-                        width: 400,
-                        disabled: true,
-                        hidden: true,
-                        topbar: [
-                            new Aui.Form.Field.Text({
-                                name: 'keyword',
-                                flex: 1,
-                                emptyText: (await me.getText('keyword')) as string,
-                            }),
-                            new Aui.Button({
-                                iconClass: 'mi mi-plus',
-                                text: (await me.getText('admin.sites.sites.add')) as string,
-                                handler: () => {
-                                    //
-                                },
-                            }),
-                        ],
-                        bottombar: [
-                            new Aui.Button({
-                                iconClass: 'mi mi-refresh',
-                                handler: (button) => {
-                                    const grid = button.getParent().getParent() as Aui.Grid.Panel;
-                                    grid.getStore().reload();
-                                },
-                            }),
-                        ],
-                        items: [],
                     }),
                 ],
             }),

@@ -328,11 +328,11 @@ namespace modules {
                             }
                         }
 
-                        Aui.Message.loading(
-                            (await this.getText('actions.installing_status')) as string,
-                            (await this.getText('actions.installing')) as string,
-                            'atom'
-                        );
+                        Aui.Message.loading({
+                            title: (await this.getText('actions.installing_status')) as string,
+                            message: (await this.getText('actions.installing')) as string,
+                            type: 'atom',
+                        });
 
                         const results = await Aui.Ajax.post(
                             this.getProcessUrl('module'),
@@ -1063,38 +1063,17 @@ namespace modules {
                                 return;
                             }
 
-                            Aui.Message.show({
-                                title: this.printText('confirm'),
+                            Aui.Message.delete({
                                 message: this.printText('admin.sitemap.contexts.delete_confirm'),
-                                icon: Aui.Message.CONFIRM,
-                                buttons: Aui.Message.DANGERCANCEL,
-                                handler: async (button) => {
-                                    if (button.action == 'ok') {
-                                        button.setLoading(true);
-
-                                        const results = await Aui.Ajax.delete(this.getProcessUrl('context'), {
-                                            host: host,
-                                            language: language,
-                                            path: path,
-                                        });
-
-                                        if (results.success == true) {
-                                            Aui.Message.show({
-                                                title: this.printText('info'),
-                                                message: this.printText('actions.success'),
-                                                buttons: Aui.Message.OK,
-                                                handler: () => {
-                                                    const contexts: Aui.Grid.Panel = Aui.getComponent(
-                                                        'contexts'
-                                                    ) as Aui.Grid.Panel;
-                                                    contexts.getStore().reload();
-                                                    Aui.Message.close();
-                                                },
-                                            });
-                                        }
-                                    } else {
-                                        Aui.Message.close();
-                                    }
+                                url: this.getProcessUrl('context'),
+                                params: {
+                                    host: host,
+                                    language: language,
+                                    path: path,
+                                },
+                                handler: async () => {
+                                    const contexts: Aui.Grid.Panel = Aui.getComponent('contexts') as Aui.Grid.Panel;
+                                    contexts.getStore().reload();
                                 },
                             });
                         },
@@ -1325,7 +1304,7 @@ namespace modules {
                         if (is_ungrouped === true) {
                             fieldset.append(
                                 new Aui.Form.Field.Check({
-                                    boxLabel: this.printText('admin.administrators.lists.groups.ungrouped'),
+                                    boxLabel: this.printText('admin.administrators.groups.ungrouped'),
                                     listeners: {
                                         change: (field, checked: boolean) => {
                                             field.getParent().getItemAt(1).setDisabled(checked);
@@ -1373,8 +1352,7 @@ namespace modules {
                                     is_component == true
                                         ? 'Loading...'
                                         : this.printText(
-                                              'admin.administrators.lists.groups.' +
-                                                  (group_id === null ? 'add' : 'edit')
+                                              'admin.administrators.groups.' + (group_id === null ? 'add' : 'edit')
                                           ),
                                 width: 500,
                                 modal: true,
@@ -1386,16 +1364,16 @@ namespace modules {
                                         items: [
                                             new Aui.Form.Field.Text({
                                                 name: 'title',
-                                                emptyText: this.printText('admin.administrators.lists.groups.title'),
+                                                emptyText: this.printText('admin.administrators.groups.title'),
                                                 hidden: is_component,
                                             }),
                                             new Aui.Form.FieldSet({
-                                                title: this.printText('admin.administrators.lists.groups.description'),
+                                                title: this.printText('admin.administrators.groups.description'),
                                                 items: [new Aui.Text({ text: null })],
                                                 hidden: true,
                                             }),
                                             new Aui.Form.FieldSet({
-                                                title: this.printText('admin.administrators.lists.groups.permissions'),
+                                                title: this.printText('admin.administrators.groups.permissions'),
                                                 disabled: true,
                                                 items: [],
                                             }),
@@ -1474,7 +1452,7 @@ namespace modules {
                                                             ? results.data.description + '<br>'
                                                             : '') +
                                                             this.printText(
-                                                                'admin.administrators.lists.groups.descriptions.readonly'
+                                                                'admin.administrators.groups.descriptions.readonly'
                                                             )
                                                     );
                                                     description.show();
@@ -1487,6 +1465,22 @@ namespace modules {
                                     },
                                 },
                             }).show();
+                        },
+                        /**
+                         * 그룹을 삭제한다.
+                         *
+                         * @param {sring} group_id - 그룹고유값
+                         */
+                        delete: (group_id: string): void => {
+                            Aui.Message.delete({
+                                message: this.printText('admin.administrators.groups.actions.delete'),
+                                url: this.getProcessUrl('group'),
+                                params: { group_id: group_id },
+                                handler: async () => {
+                                    const groups = Aui.getComponent('groups') as Aui.Tree.Panel;
+                                    await groups.getStore().reload();
+                                },
+                            });
                         },
                     },
 
@@ -1639,7 +1633,7 @@ namespace modules {
                                                     name: 'member_ids',
                                                 }),
                                                 new Aui.Form.FieldSet({
-                                                    title: this.printText('admin.administrators.lists.groups.groups'),
+                                                    title: this.printText('admin.administrators.groups.groups'),
                                                     helpText: this.printText(
                                                         'admin.administrators.lists.' +
                                                             (member_id === null ? 'add_group_help' : 'edit_group_help')
@@ -1855,11 +1849,19 @@ namespace modules {
                         }).show();
                     },
                     /**
+                     * 특정 그룹에 관리자를 추가한다.
+                     *
+                     * @param {string} group_id - 관리자를 추가할 그룹고유값
+                     */
+                    assign: (group_id: string): void => {
+                        //
+                    },
+                    /**
                      * 그룹을 지정한다.
                      *
                      * @param {boolean} replacement - 기존 그룹 대치여부
                      */
-                    setGroups: (replacement: boolean) => {
+                    setGroups: (replacement: boolean): void => {
                         const administrators = Aui.getComponent('administrators') as Aui.Grid.Panel;
                         const selections = administrators.getSelections();
                         if (selections.length == 0) {
@@ -1904,7 +1906,7 @@ namespace modules {
                                             value: replacement == true ? 'move_group' : 'add_group',
                                         }),
                                         new Aui.Form.FieldSet({
-                                            title: this.printText('admin.administrators.lists.groups.groups'),
+                                            title: this.printText('admin.administrators.groups.groups'),
                                             helpText:
                                                 replacement == true
                                                     ? this.printText('admin.administrators.lists.move_group_help')
@@ -1972,6 +1974,34 @@ namespace modules {
                                 },
                             },
                         }).show();
+                    },
+                    /**
+                     * 관리자를 그룹에서 제외하거나, 삭제한다.
+                     *
+                     * @param {sring} group_id - 관리자그룹에서 제외할 그룹고유값 (NULL 인 경우 관리자를 삭제한다.)
+                     */
+                    delete: (group_id: string = null): void => {
+                        const administrators = Aui.getComponent('administrators') as Aui.Grid.Panel;
+                        const selections = administrators.getSelections();
+                        if (selections.length == 0) {
+                            return;
+                        }
+
+                        const member_ids: number[] = selections.map((selected) => {
+                            return selected.get('member_id');
+                        });
+
+                        Aui.Message.delete({
+                            message: this.printText(
+                                'admin.administrators.lists.actions.' + (group_id === null ? 'delete' : 'remove')
+                            ),
+                            url: this.getProcessUrl('administrator'),
+                            params: { member_ids: member_ids.join(','), group_id: group_id },
+                            handler: async () => {
+                                const groups = Aui.getComponent('groups') as Aui.Tree.Panel;
+                                await groups.getStore().reload();
+                            },
+                        });
                     },
                 };
             }

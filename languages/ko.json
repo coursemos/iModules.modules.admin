@@ -204,6 +204,7 @@
             "lists": {
                 "title": "관리자목록",
                 "add": "관리자추가",
+                "assign": "현재 그룹에 관리자추가",
                 "edit": "관리자권한수정",
                 "master": "최고관리자",
                 "selected_members": "${count}명 선택됨",
@@ -221,34 +222,41 @@
                 "move_group_help": "현재 선택된 관리자의 기존 그룹을 위에서 선택한 그룹으로 대치합니다.",
                 "edit_permissions": "권한설정",
                 "edit_permission_help": "관리자가 속한 그룹에서 부여된 권한은 추가적으로 설정할 수 없습니다.",
-                "remove": "관리자에서 제외",
+                "remove": "현재 그룹에서 제외",
+                "delete": "관리자 삭제",
                 "selectedCount": "${count}명 선택됨",
                 "permissions": "개인권한",
                 "actions": {
                     "unselected_members": "먼저 관리자로 등록할 회원을 선택하여 주십시오.",
-                    "unselected_permissions": "권한이 선택되지 않았습니다."
+                    "unselected_permissions": "권한이 선택되지 않았습니다.",
+                    "remove": "선택된 관리자를 현재 선택된 그룹에서 제외하시겠습니까?<br>현재 선택된 그룹에서 부여된 권한을 모두 삭제합니다.",
+                    "delete": "선택된 관리자를 삭제하시겠습니까?<br>사용자가 정의한 모든 권한을 삭제하지만, 컴포넌트 자동화그룹에서 부여받은 권한은 삭제되지 않습니다."
+                }
+            },
+            "groups": {
+                "types": {
+                    "user": "사용자정의그룹",
+                    "component": "컴포넌트자동화그룹"
                 },
-                "groups": {
-                    "type": {
-                        "user": "사용자정의그룹",
-                        "component": "컴포넌트자동화그룹"
-                    },
-                    "descriptions": {
-                        "user": "사용자가 직접 관리자로 지정한 모든 관리자 목록을 확인합니다.",
-                        "component": "컴포넌트가 자동으로 관리자그룹을 부여한 모든 관리자 목록을 확인합니다.",
-                        "readonly": "컴포넌트가 자동으로 그룹권한을 관리하므로 그룹권한을 수정할 수 없습니다."
-                    },
-                    "add": "그룹추가",
-                    "edit": "그룹수정",
-                    "show": "그룹권한보기",
-                    "delete": "그룹삭제",
-                    "title": "그룹명",
-                    "description": "그룹설명",
-                    "administrators": "인원",
-                    "all": "전체그룹",
-                    "ungrouped": "그룹없음",
-                    "groups": "그룹",
-                    "permissions": "그룹권한"
+                "descriptions": {
+                    "user": "사용자가 직접 관리자로 지정한 모든 관리자 목록을 확인합니다.",
+                    "component": "컴포넌트가 자동으로 관리자그룹을 부여한 모든 관리자 목록을 확인합니다.",
+                    "readonly": "컴포넌트가 자동으로 그룹권한을 관리하므로 그룹권한을 수정할 수 없습니다."
+                },
+                "add": "그룹추가",
+                "edit": "그룹수정",
+                "show": "그룹권한보기",
+                "delete": "그룹삭제",
+                "title": "그룹명",
+                "description": "그룹설명",
+                "administrators": "인원",
+                "all": "전체그룹",
+                "ungrouped": "그룹없음",
+                "groups": "그룹",
+                "permissions": "그룹권한",
+                "actions": {
+                    "delete": "선택된 그룹을 삭제하시겠습니까?<br>그룹에 속한 모든 관리자가 그룹에서 할당받은 권한을 잃습니다.",
+                    "unselected_permissions": "권한이 선택되지 않았습니다."
                 }
             },
             "logs": {
