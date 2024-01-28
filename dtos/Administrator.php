@@ -161,7 +161,7 @@ class Administrator
             /**
              * 접속한 관리자 네비게이션 설정을 가져온다.
              */
-            $navigation = json_decode($this->_administrator->navigation ?? 'null');
+            $navigation = $this->_administrator->navigation;
 
             /**
              * 네비게이션 설정이 없다면 기본메뉴 설정을 생성한다.
@@ -315,7 +315,8 @@ class Administrator
         if (isset($this->_permission) == false) {
             $permission = new \modules\admin\dtos\Permission();
             $permission->setPermissions($this->_administrator->permissions);
-            if ($permission->getPermissions() == true) {
+
+            if ($permission->getPermissions() === true) {
                 $this->_permission = $permission;
                 return $this->_permission;
             }
@@ -356,6 +357,29 @@ class Administrator
     public function isMaster(): bool
     {
         return ($this->getPermission()?->getPermissions() ?? false) === true;
+    }
+
+    /**
+     * 설정하고자 하는 관리자권한에서 그룹으로 부터 받은 권한을 제외한 나머지 권한을 관리자권한으로 갱신한다.
+     *
+     * @param \modules\admin\dtos\Permission $permission 설정할 권한
+     * @return \modules\admin\dtos\Permission $permission 최종 설정권한
+     */
+    public function updatePermissions(\modules\admin\dtos\Permission $permission): \modules\admin\dtos\Permission
+    {
+        $permissions = new \modules\admin\dtos\Permission();
+        foreach ($this->getGroups() as $group) {
+            $permissions->addPermissions(
+                $group
+                    ->getGroup()
+                    ->getPermission()
+                    ->getPermissions()
+            );
+        }
+
+        $permission->separate($permissions->getPermissions());
+
+        return $permission;
     }
 
     /**

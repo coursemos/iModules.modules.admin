@@ -143,7 +143,7 @@ class Permission
     /**
      * 권한을 설정한다.
      *
-     * @param object $permissions
+     * @param bool|object $permissions
      * @return \modules\admin\dtos\Permission $this
      */
     public function setPermissions(bool|object $permissions): \modules\admin\dtos\Permission
@@ -248,6 +248,99 @@ class Permission
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * 현재 권한에서 특정 권한을 제외한다.
+     *
+     * @param object|bool $permissions 제외할 권한
+     */
+    public function separate(object|bool $permissions): void
+    {
+        if ($permissions === true) {
+            $this->_permissions = false;
+            return;
+        }
+
+        if ($permissions === false) {
+            return;
+        }
+
+        if ($this->_permissions === true || $this->_permissions === false) {
+            return;
+        }
+
+        $uniqueComponentTypes = [];
+        foreach ($permissions as $componentType => $componentNames) {
+            $uniqueComponentNames = [];
+            foreach ($componentNames as $componentName => $scopes) {
+                if (($this->_permissions->{$componentType}?->{$componentName} ?? null) === null) {
+                    continue;
+                }
+
+                if ($scopes === true) {
+                    unset($this->_permissions->{$componentType}->{$componentName});
+                    continue;
+                }
+
+                if ($this->_permissions->{$componentType}->{$componentName} === true) {
+                    continue;
+                }
+
+                $uniqueScopes = [];
+                if (is_object($scopes) === true) {
+                    foreach ($scopes as $scope => $children) {
+                        if (($this->_permissions->{$componentType}->{$componentName}->{$scope} ?? null) === null) {
+                            continue;
+                        }
+
+                        if ($children === true) {
+                            unset($this->_permissions->{$componentType}->{$componentName}->{$scope});
+                            continue;
+                        }
+
+                        if ($this->_permissions->{$componentType}->{$componentName}->{$scope} === true) {
+                            continue;
+                        }
+
+                        if (is_array($children) === true) {
+                            $uniqueChildren = [];
+                            foreach ($this->_permissions->{$componentType}->{$componentName}->{$scope} as $child) {
+                                if (in_array($child, $children) === false) {
+                                    $uniqueChildren[] = $child;
+                                }
+                            }
+
+                            if (count($uniqueChildren) === 0) {
+                                unset($this->_permissions->{$componentType}->{$componentName}->{$scope});
+                                continue;
+                            }
+
+                            $this->_permissions->{$componentType}->{$componentName}->{$scope} = $uniqueChildren;
+                            $uniqueScopes[] = $scope;
+                        }
+                    }
+                }
+
+                if (count($uniqueScopes) == 0) {
+                    unset($this->_permissions->{$componentType}->{$componentName});
+                    continue;
+                }
+
+                $uniqueComponentNames[] = $componentName;
+            }
+
+            if (count($uniqueComponentNames) == 0) {
+                unset($this->_permissions->{$componentType});
+                continue;
+            }
+
+            $uniqueComponentTypes[] = $componentType;
+        }
+
+        if (count($uniqueComponentTypes) == 0) {
+            $this->_permissions = false;
         }
     }
 }
