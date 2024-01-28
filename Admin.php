@@ -70,15 +70,14 @@ class Admin extends \Module
          * @var \modules\member\Member $mMember
          */
         $mMember = \Modules::get('member');
-        //$mMember->loginTo(84, false);
-        $member_id ??= $mMember->getLogged();
-        if ($member_id === 0) {
+        $member = $mMember->getMember($member_id);
+        if ($member->isMember() === false) {
             return null;
         }
 
-        // @todo 권한이 존재하는지 확인한다.
+        $member_id = $member->getId();
 
-        if (isset(self::$_administrators[$member_id]) == true) {
+        if ($refresh === false && isset(self::$_administrators[$member_id]) == true) {
             return self::$_administrators[$member_id];
         }
 
@@ -92,10 +91,12 @@ class Admin extends \Module
             $administrator->member_id = $member_id;
             $administrator->language = null;
             $administrator->navigation = null;
-            $administrator->permissions = null;
+            $administrator->permissions = false;
+        } else {
+            $administrator->navigation = json_decode($administrator->navigation ?? 'null');
+            $administrator->permissions = json_decode($administrator->permissions ?? 'false');
         }
 
-        // @todo 없으면 추가한다.
         self::$_administrators[$member_id] = new \modules\admin\dtos\Administrator($administrator);
 
         return self::$_administrators[$member_id];
