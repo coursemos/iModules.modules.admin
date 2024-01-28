@@ -92,6 +92,15 @@ $records = $me
     ->join($me->table('administrators'), 'a', 'a.member_id=m.member_id', 'LEFT')
     ->where('m.member_id', $member_ids, 'IN');
 
+if ($keyword !== null) {
+    $records->where('(m.member_id = ? or m.name like ? or m.nickname like ? or m.email like ?)', [
+        $keyword,
+        '%' . $keyword . '%',
+        '%' . $keyword . '%',
+        '%' . $keyword . '%',
+    ]);
+}
+
 $total = $records->copy()->count();
 if ($sorters !== null) {
     foreach ($sorters as $field => $direction) {

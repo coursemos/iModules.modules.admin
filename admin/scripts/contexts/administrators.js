@@ -38,6 +38,10 @@ Admin.ready(async () => {
                                 name: 'keyword',
                                 flex: 1,
                                 emptyText: (await me.getText('keyword')),
+                                handler: async (keyword, field) => {
+                                    const groups = field.getParent().getParent();
+                                    groups.getStore().setFilter('title', keyword, 'likecode');
+                                },
                             }),
                             new Aui.Button({
                                 iconClass: 'mi mi-plus',
@@ -188,10 +192,17 @@ Admin.ready(async () => {
                         topbar: [
                             new Aui.Form.Field.Search({
                                 name: 'keyword',
-                                flex: 1,
+                                width: 200,
                                 emptyText: (await me.getText('keyword')),
+                                handler: async (keyword, field) => {
+                                    const administrators = field.getParent().getParent();
+                                    administrators.getStore().setParam('keyword', keyword);
+                                    administrators.getStore().loadPage(1);
+                                },
                             }),
+                            '->',
                             new Aui.Button({
+                                id: 'administrators_add_button',
                                 iconClass: 'mi mi-plus',
                                 text: (await me.getText('admin.administrators.lists.add')),
                                 handler: () => {
@@ -210,6 +221,7 @@ Admin.ready(async () => {
                         ]),
                         columns: [
                             {
+                                text: '#',
                                 dataIndex: 'member_id',
                                 width: 50,
                                 headerAlign: 'center',
@@ -273,6 +285,9 @@ Admin.ready(async () => {
                             sorters: { name: 'ASC' },
                         }),
                         listeners: {
+                            openItem: (record) => {
+                                me.administrators.add(record.get('member_id'));
+                            },
                             openMenu: (menu, record) => {
                                 menu.setTitle(record.get('name'));
                                 menu.add({
@@ -294,7 +309,7 @@ Admin.ready(async () => {
                                     text: me.printText('admin.administrators.lists.edit_permissions'),
                                     iconClass: 'xi xi-check-shieldout',
                                     handler: () => {
-                                        //
+                                        me.administrators.add(record.get('member_id'));
                                     },
                                 });
                                 menu.add('-');
@@ -314,6 +329,10 @@ Admin.ready(async () => {
                                     text: me.printText('admin.administrators.lists.add_group'),
                                     iconClass: 'xi xi-user-folder',
                                     handler: () => {
+                                        const member_ids = [];
+                                        for (const record of selections) {
+                                            member_ids.push(record.get('member_id'));
+                                        }
                                         me.administrators.setGroups(false);
                                     },
                                 });
@@ -321,6 +340,10 @@ Admin.ready(async () => {
                                     text: me.printText('admin.administrators.lists.move_group'),
                                     iconClass: 'xi xi-user-add',
                                     handler: () => {
+                                        const member_ids = [];
+                                        for (const record of selections) {
+                                            member_ids.push(record.get('member_id'));
+                                        }
                                         me.administrators.setGroups(true);
                                     },
                                 });
@@ -329,7 +352,11 @@ Admin.ready(async () => {
                                     text: me.printText('admin.administrators.lists.edit_permissions'),
                                     iconClass: 'xi xi-check-shieldout',
                                     handler: () => {
-                                        //
+                                        const member_ids = [];
+                                        for (const record of selections) {
+                                            member_ids.push(record.get('member_id'));
+                                        }
+                                        me.administrators.add(member_ids);
                                     },
                                 });
                                 menu.add('-');

@@ -65,8 +65,32 @@ if ($mode == 'move_group') {
 
 foreach ($member_ids as $member_id) {
     $administrator = $me->getAdministrator($member_id);
+    if ($administrator !== null) {
+        foreach ($group_ids as $group_id) {
+            if (
+                $me
+                    ->db()
+                    ->select()
+                    ->from($me->table('group_administrators'))
+                    ->where('member_id', $member_id)
+                    ->where('group_id', $group_id)
+                    ->has() == false
+            ) {
+                $me->db()
+                    ->insert($me->table('group_administrators'), [
+                        'member_id' => $member_id,
+                        'group_id' => $group_id,
+                        'assigned_at' => time(),
+                    ])
+                    ->execute();
+            }
+        }
+    }
 
     if ($mode == 'permission') {
+        $administrator = $me->getAdministrator($member_id, true);
+        $permission = $administrator->updatePermissions($permission);
+
         $me->db()
             ->insert(
                 $me->table('administrators'),
@@ -74,32 +98,6 @@ foreach ($member_ids as $member_id) {
                 ['permissions']
             )
             ->execute();
-
-        $administrator = true;
-    }
-
-    if ($administrator === null) {
-        continue;
-    }
-
-    foreach ($group_ids as $group_id) {
-        if (
-            $me
-                ->db()
-                ->select()
-                ->from($me->table('group_administrators'))
-                ->where('member_id', $member_id)
-                ->where('group_id', $group_id)
-                ->has() == false
-        ) {
-            $me->db()
-                ->insert($me->table('group_administrators'), [
-                    'member_id' => $member_id,
-                    'group_id' => $group_id,
-                    'assigned_at' => time(),
-                ])
-                ->execute();
-        }
     }
 }
 
