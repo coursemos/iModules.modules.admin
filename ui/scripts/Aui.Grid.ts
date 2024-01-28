@@ -528,7 +528,7 @@ namespace Aui {
                 if (rowIndex === null) return;
 
                 if (this.isRowSelected(rowIndex) == true) {
-                    if (this.selections.size != 1) {
+                    if (this.selections.size !== 1) {
                         this.deselectAll(false);
                         this.selectRow(rowIndex);
                     }
@@ -550,6 +550,7 @@ namespace Aui {
                 const $row = this.$getRow(rowIndex);
                 if ($row === null) return;
 
+                if (this.isRowSelected(rowIndex) == true) return;
                 if (this.selection.multiple == false || is_multiple == false) {
                     this.deselectAll(false);
                 }

@@ -469,7 +469,7 @@ var Aui;
                 if (treeIndex === null)
                     return;
                 if (this.isRowSelected(treeIndex) == true) {
-                    if (this.selections.size != 1) {
+                    if (this.selections.size !== 1) {
                         this.deselectAll(false);
                         this.selectRow(treeIndex);
                     }
@@ -496,9 +496,9 @@ var Aui;
                 if (this.selection.multiple == false || is_multiple == false) {
                     this.deselectAll(false);
                 }
+                const record = $row.getData('record');
+                this.selections.set(record.getHash(), record);
                 this.expandRow(treeIndex.slice(0, -1)).then(() => {
-                    const record = $row.getData('record');
-                    this.selections.set(record.getHash(), record);
                     Html.get('> div[data-role=leaf]', $row).addClass('selected');
                     if (is_event == true) {
                         this.onSelectionChange();
