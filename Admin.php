@@ -554,9 +554,9 @@ class Admin extends \Module
      *
      * @param string $previous 이전설치버전 (NULL 인 경우 신규설치)
      * @param object $configs 모듈설정
-     * @return bool $success 설치성공여부
+     * @return bool|string $success 설치성공여부
      */
-    public function install(string $previous = null, object $configs = null): bool
+    public function install(string $previous = null, object $configs = null): bool|string
     {
         $success = parent::install($previous);
         if ($success == true) {
@@ -564,7 +564,6 @@ class Admin extends \Module
                 ->replace($this->table('administrators'), [
                     'member_id' => 1,
                     'language' => $this->getLanguage(),
-
                     'permissions' => 'true',
                 ])
                 ->execute();
