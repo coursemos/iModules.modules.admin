@@ -289,11 +289,12 @@ abstract class Component
      * 관리자 정보를 가져온다.
      *
      * @param ?int $member_id 회원고유값 (NULL 인 경우 현재 로그인한 사용자)
+     * @param bool $refresh 정보를 갱신할지 여부
      * @return ?\modules\admin\dtos\Administrator $administrator
      */
-    public function getAdministrator(?int $member_id = null): \modules\admin\dtos\Administrator
+    public function getAdministrator(?int $member_id = null, bool $refresh = false): ?\modules\admin\dtos\Administrator
     {
-        return $this->getAdminModule()->getAdministrator($member_id);
+        return $this->getAdminModule()->getAdministrator($member_id, $refresh);
     }
 
     /**
