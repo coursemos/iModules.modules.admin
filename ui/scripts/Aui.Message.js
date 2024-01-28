@@ -29,7 +29,7 @@ var Aui;
         /**
          * 메시지창을 연다.
          *
-         * @param {Object} properties - 설정
+         * @param {Aui.Message.Show.Properties} properties - 설정
          */
         static show(properties = null) {
             Aui.Message.close();
@@ -80,14 +80,12 @@ var Aui;
         /**
          * 로딩메시지를 연다.
          *
-         * @param {string} title - 로딩제목
-         * @param {string} message - 로딩메시지
-         * @param {Aui.Loading.Type} type - 로딩형태
+         * @param {Aui.Message.Loading.Properties} properties - 로딩설정
          */
-        static loading(title = null, message = null, type = null) {
+        static loading(properties = null) {
             Aui.Message.close();
             Aui.Message.message = new Aui.Window({
-                title: title ?? Aui.printText('actions.loading_status'),
+                title: properties?.title ?? Aui.printText('actions.loading_status'),
                 modal: true,
                 movable: false,
                 resizable: false,
@@ -97,8 +95,8 @@ var Aui;
                     show: (window) => {
                         window.$getComponent().setAttr('data-role', 'message');
                         window.setData('loading', new Aui.Loading(window, {
-                            type: type ?? 'dot',
-                            text: message ?? Aui.printText('actions.loading'),
+                            type: properties?.type ?? 'dot',
+                            text: properties?.message ?? Aui.printText('actions.loading'),
                         }));
                         window.getData('loading')?.show();
                     },
@@ -108,6 +106,62 @@ var Aui;
                 },
             });
             Aui.Message.message.show();
+        }
+        /**
+         * 삭제를 위한 메시지창을 연다.
+         *
+         * @param {Aui.Message.Delete.Properties} properties - 로딩설정
+         */
+        static delete(properties = null) {
+            Aui.Message.show({
+                title: properties?.title ?? Aui.getErrorText('CONFIRM'),
+                icon: Aui.Message.CONFIRM,
+                message: properties?.message ?? Aui.printText('actions.delete'),
+                buttons: Aui.Message.DANGERCANCEL,
+                handler: async (button) => {
+                    if (button.action == 'ok') {
+                        button.getParent().buttons.at(0).hide();
+                        button.setLoading(true);
+                        if (properties?.url !== null) {
+                            const results = await Aui.Ajax.delete(properties.url, properties.params ?? null);
+                            if (results.success == true) {
+                                Aui.Message.show({
+                                    title: Aui.getErrorText('INFO'),
+                                    icon: Aui.Message.INFO,
+                                    message: Aui.printText('actions.deleted'),
+                                    buttons: Aui.Message.OK,
+                                    handler: async () => {
+                                        if (typeof properties?.handler == 'function') {
+                                            await properties.handler(results);
+                                        }
+                                        Aui.Message.close();
+                                    },
+                                });
+                            }
+                            else {
+                                button.getParent().buttons.at(0).show();
+                                button.setLoading(false);
+                            }
+                        }
+                        else {
+                            Aui.Message.show({
+                                title: Aui.getErrorText('INFO'),
+                                message: Aui.printText('actions.deleted'),
+                                buttons: Aui.Message.OK,
+                                handler: async () => {
+                                    if (typeof properties?.handler == 'function') {
+                                        await properties.handler(null);
+                                    }
+                                    Aui.Message.close();
+                                },
+                            });
+                        }
+                    }
+                    else {
+                        Aui.Message.close();
+                    }
+                },
+            });
         }
         /**
          * 메시지창을 닫는다.

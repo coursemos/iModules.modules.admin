@@ -10,38 +10,89 @@
  */
 namespace Aui {
     export namespace Message {
-        export interface Properties extends Aui.Component.Properties {
-            /**
-             * @type {Aui.Title|string} title - 메시지창 제목
-             */
-            title?: Aui.Title | string;
+        export namespace Show {
+            export interface Properties extends Aui.Component.Properties {
+                /**
+                 * @type {Aui.Title|string} title - 메시지창 제목
+                 */
+                title?: Aui.Title | string;
 
-            /**
-             * @type {Dom} icon - 메시지창 아이콘 DOM 요소
-             */
-            icon?: Dom;
+                /**
+                 * @type {Dom} icon - 메시지창 아이콘 DOM 요소
+                 */
+                icon?: Dom;
 
-            /**
-             * @type {string} message - 메시지
-             */
-            message?: string;
+                /**
+                 * @type {string} message - 메시지
+                 */
+                message?: string;
 
-            /**
-             * @type {string} messageClass - 메시지박스 스타일시트 클래스
-             */
-            messageClass?: string;
+                /**
+                 * @type {string} messageClass - 메시지박스 스타일시트 클래스
+                 */
+                messageClass?: string;
 
-            /**
-             * @type {Object} buttons - 버튼
-             */
-            buttons?: Aui.Button.Properties[];
+                /**
+                 * @type {Object} buttons - 버튼
+                 */
+                buttons?: Aui.Button.Properties[];
 
-            /**
-             * @type {Function} handler - 메시지창 버튼 핸들러
-             */
-            handler?: (button: Aui.Button) => void;
+                /**
+                 * @type {Function} handler - 메시지창 버튼 핸들러
+                 */
+                handler?: (button: Aui.Button) => void;
+            }
+        }
+
+        export namespace Loading {
+            export interface Properties extends Aui.Component.Properties {
+                /**
+                 * @type {Aui.Title|string} title - 메시지창 제목
+                 */
+                title?: Aui.Title | string;
+
+                /**
+                 * @type {string} message - 메시지
+                 */
+                message?: string;
+
+                /**
+                 * @type {Aui.Loading.Type} type - 로딩타입
+                 */
+                type?: Aui.Loading.Type;
+            }
+        }
+
+        export namespace Delete {
+            export interface Properties extends Aui.Component.Properties {
+                /**
+                 * @type {Aui.Title|string} title - 메시지창 제목
+                 */
+                title?: Aui.Title | string;
+
+                /**
+                 * @type {string} message - 메시지
+                 */
+                message?: string;
+
+                /**
+                 * @type {string} url - 삭제를 처리할 프로세스 URL
+                 */
+                url?: string;
+
+                /**
+                 * @type {Aui.Ajax.Params} url - 삭제를 처리할 프로세스 URL 매개변수
+                 */
+                params?: Aui.Ajax.Params;
+
+                /**
+                 * @type {Function} handler - 삭제완료 후 실행할 핸들러
+                 */
+                handler?: (results: Aui.Ajax.Results) => Promise<void>;
+            }
         }
     }
+
     export class Message {
         static message: Aui.Window = null;
 
@@ -63,9 +114,9 @@ namespace Aui {
         /**
          * 메시지창을 연다.
          *
-         * @param {Object} properties - 설정
+         * @param {Aui.Message.Show.Properties} properties - 설정
          */
-        static show(properties: Aui.Message.Properties = null): void {
+        static show(properties: Aui.Message.Show.Properties = null): void {
             Aui.Message.close();
 
             const buttons: Aui.Button[] = [];
@@ -124,15 +175,13 @@ namespace Aui {
         /**
          * 로딩메시지를 연다.
          *
-         * @param {string} title - 로딩제목
-         * @param {string} message - 로딩메시지
-         * @param {Aui.Loading.Type} type - 로딩형태
+         * @param {Aui.Message.Loading.Properties} properties - 로딩설정
          */
-        static loading(title: string = null, message: string = null, type: Aui.Loading.Type = null): void {
+        static loading(properties: Aui.Message.Loading.Properties = null): void {
             Aui.Message.close();
 
             Aui.Message.message = new Aui.Window({
-                title: title ?? Aui.printText('actions.loading_status'),
+                title: properties?.title ?? Aui.printText('actions.loading_status'),
                 modal: true,
                 movable: false,
                 resizable: false,
@@ -144,8 +193,8 @@ namespace Aui {
                         window.setData(
                             'loading',
                             new Aui.Loading(window, {
-                                type: type ?? 'dot',
-                                text: message ?? Aui.printText('actions.loading'),
+                                type: properties?.type ?? 'dot',
+                                text: properties?.message ?? Aui.printText('actions.loading'),
                             })
                         );
                         window.getData('loading')?.show();
@@ -157,6 +206,62 @@ namespace Aui {
             });
 
             Aui.Message.message.show();
+        }
+
+        /**
+         * 삭제를 위한 메시지창을 연다.
+         *
+         * @param {Aui.Message.Delete.Properties} properties - 로딩설정
+         */
+        static delete(properties: Aui.Message.Delete.Properties = null): void {
+            Aui.Message.show({
+                title: properties?.title ?? Aui.getErrorText('CONFIRM'),
+                icon: Aui.Message.CONFIRM,
+                message: properties?.message ?? Aui.printText('actions.delete'),
+                buttons: Aui.Message.DANGERCANCEL,
+                handler: async (button) => {
+                    if (button.action == 'ok') {
+                        (button.getParent() as Aui.Window).buttons.at(0).hide();
+                        button.setLoading(true);
+
+                        if (properties?.url !== null) {
+                            const results = await Aui.Ajax.delete(properties.url, properties.params ?? null);
+
+                            if (results.success == true) {
+                                Aui.Message.show({
+                                    title: Aui.getErrorText('INFO'),
+                                    icon: Aui.Message.INFO,
+                                    message: Aui.printText('actions.deleted'),
+                                    buttons: Aui.Message.OK,
+                                    handler: async () => {
+                                        if (typeof properties?.handler == 'function') {
+                                            await properties.handler(results);
+                                        }
+                                        Aui.Message.close();
+                                    },
+                                });
+                            } else {
+                                (button.getParent() as Aui.Window).buttons.at(0).show();
+                                button.setLoading(false);
+                            }
+                        } else {
+                            Aui.Message.show({
+                                title: Aui.getErrorText('INFO'),
+                                message: Aui.printText('actions.deleted'),
+                                buttons: Aui.Message.OK,
+                                handler: async () => {
+                                    if (typeof properties?.handler == 'function') {
+                                        await properties.handler(null);
+                                    }
+                                    Aui.Message.close();
+                                },
+                            });
+                        }
+                    } else {
+                        Aui.Message.close();
+                    }
+                },
+            });
         }
 
         /**

@@ -14,6 +14,7 @@
     "errors": {
         "TITLE": "에러",
         "INFO": "안내",
+        "CONFIRM": "확인",
         "REQUIRED": "필수항목이 누락되었습니다.",
         "CONNECT_ERROR": "서버와 통신중에 문제가 발생하였습니다.<br>페이지를 새로고침하시거나, 다시 시도해보시기 바랍니다.",
         "INVALID_COLOR_CODE": "색상코드가 잘못입력되었습니다. #000000 형식만 입력가능합니다."
@@ -21,12 +22,15 @@
     "actions": {
         "saved": "성공적으로 저장하였습니다.",
         "saving": "데이터를 저장하고 있습니다.",
+        "delete": "정말 삭제하시겠습니까?",
+        "deleted": "성공적으로 삭제하였습니다.",
         "loading": "데이터를 불러오고 있습니다.",
         "success": "성공적으로 처리되었습니다.",
         "wait": "잠시만 기다려주시기 바랍니다.",
         "waiting_retry": "요청사항을 처리하고 있습니다.<br>잠시후 다시 시도하여 주시기 바랍니다.",
         "saving_status": "저장중",
-        "loading_status": "불러오는중"
+        "loading_status": "불러오는중",
+        "working_status": "처리중"
     },
     "components": {
         "form": {
