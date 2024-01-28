@@ -29,12 +29,23 @@ $records = [];
 $user = [
     'group_id' => 'user',
     'type' => 'user',
-    'title' => $me->getText('admin.administrators.lists.groups.type.user'),
-    'administrators' => $me
-        ->db()
-        ->select()
-        ->from($me->table('administrators'))
-        ->count(),
+    'title' => $me->getText('admin.administrators.groups.types.user'),
+    'administrators' => count(
+        array_unique(
+            array_merge(
+                $me
+                    ->db()
+                    ->select(['member_id'])
+                    ->from($me->table('administrators'))
+                    ->get('member_id'),
+                $me
+                    ->db()
+                    ->select(['member_id'])
+                    ->from($me->table('group_administrators'))
+                    ->get('member_id')
+            )
+        )
+    ),
     'sort' => 0,
     'children' => [],
 ];
@@ -61,7 +72,7 @@ if ($type == 'user') {
 $components = [
     'group_id' => 'component',
     'type' => 'component',
-    'title' => $me->getText('admin.administrators.lists.groups.type.component'),
+    'title' => $me->getText('admin.administrators.groups.types.component'),
     'administrators' => 0,
     'sort' => 1,
     'children' => [],
