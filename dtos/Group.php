@@ -267,6 +267,7 @@ class Group
         $group = new \stdClass();
         $group->group_id = $this->getGroupId();
         $group->type = $this->getType();
+        $group->component_title = $this->getComponent()->getTitle();
         $group->title = $this->_title;
         $group->administrators = $this->getCount();
         $group->sort = 0;
