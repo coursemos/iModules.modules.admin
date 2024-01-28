@@ -43,6 +43,7 @@ if ($group_id == 'user') {
         ->db()
         ->select(['member_id'])
         ->from($me->table('administrators'))
+        ->where('permissions', 'false', '!=')
         ->get('member_id');
 
     $member_ids = array_unique(array_merge($group_member_ids, $administrator_member_ids));
