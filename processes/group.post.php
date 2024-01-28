@@ -76,6 +76,7 @@ if (count($errors) == 0) {
 
     $results->success = true;
     $results->group_id = $group_id;
+    $results->permissions = $permission->getPermissions();
 } else {
     $results->success = false;
     $results->errors = $errors;
