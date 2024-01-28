@@ -5280,6 +5280,36 @@ namespace Aui {
                 }
 
                 /**
+                 * 옵션값을 추가한다.
+                 *
+                 * @param {string} value - 값
+                 * @param {string} display - 표시될 값
+                 * @param {Object} properties - 설정
+                 */
+                addOption(value: string, display: string, properties: { [key: string]: any } = null): void {
+                    if (this.options[value] === undefined) {
+                        this.options[value] = display;
+                        this.append(
+                            new Aui.Form.Field.Check({
+                                inputName: (this.name ?? this.inputName) + '[]',
+                                onValue: value,
+                                checked: properties?.checked ?? false,
+                                readonly: properties?.readonly ?? this.readonly,
+                                boxLabel: display,
+                                displayType: this.properties.displayType ?? 'input',
+                                style: this.properties.inputStyle ?? null,
+                                class: this.properties.inputClass ?? null,
+                                listeners: {
+                                    change: () => {
+                                        this.setValue(this.getValue());
+                                    },
+                                },
+                            })
+                        );
+                    }
+                }
+
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {string|string[]} value - 값
