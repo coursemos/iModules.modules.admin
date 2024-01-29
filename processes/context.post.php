@@ -135,6 +135,10 @@ if ($check->has() == true) {
 
 if (count($errors) == 0) {
     if (Input::get('image') !== null) {
+        /**
+         * @var \modules\attachment\Attachment $mAttachment
+         */
+        $mAttachment = Modules::get('attachment');
         $mAttachment->publishFile(
             Input::get('image'),
             $me,
