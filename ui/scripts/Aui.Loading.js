@@ -73,6 +73,7 @@ var Aui;
          */
         show() {
             this.$getLoading().addClass('show');
+            return this;
         }
         /**
          * 로딩메시지를 숨긴다.

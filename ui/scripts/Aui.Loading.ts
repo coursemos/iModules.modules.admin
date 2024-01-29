@@ -104,8 +104,9 @@ namespace Aui {
         /**
          * 로딩메시지를 보인다.
          */
-        show(): void {
+        show(): Aui.Loading {
             this.$getLoading().addClass('show');
+            return this;
         }
 
         /**
