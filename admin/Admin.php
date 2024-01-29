@@ -244,6 +244,59 @@ class Admin extends \modules\admin\admin\Component
     }
 
     /**
+     * 사이트 컨텍스트를 삭제한다.
+     *
+     * @param \Site $site 사이트 객체
+     * @param string $path 삭제할 컨텍스트 경로
+     */
+    public function deleteContext(\Site $site, string $path): void
+    {
+        $context = \iModules::db()
+            ->select()
+            ->from(\iModules::table('contexts'))
+            ->where('host', $site->getHost())
+            ->where('language', $site->getLanguage())
+            ->where('path', $path)
+            ->getOne();
+
+        if ($context === null) {
+            return;
+        }
+
+        if ($context->image !== null) {
+            /**
+             * @var \modules\attachment\Attachment $mAttachment
+             */
+            $mAttachment = \Modules::get('attachment');
+            $mAttachment->deleteFile($context->image);
+        }
+
+        \iModules::db()
+            ->delete(\iModules::table('contexts'))
+            ->where('host', $site->getHost())
+            ->where('language', $site->getLanguage())
+            ->where('path', $path)
+            ->execute();
+
+        $children = \iModules::db()
+            ->select(['path'])
+            ->from(\iModules::table('contexts'))
+            ->where('host', $site->getHost())
+            ->where('language', $site->getLanguage());
+
+        if ($path == '/') {
+            $children->where('path', '/', '!=');
+        } else {
+            $children->where('(path = ? or path like ?)', [$path, $path . '/%']);
+        }
+
+        $children = $children->get('path');
+        foreach ($children as $child) {
+            $this->deleteContext($site, $child);
+        }
+    }
+
+    /**
      * 관리자 그룹의 인원수를 갱신한다.
      *
      * @param string $group_id 그룹고유값 (NULL 인 경우 전체 그룹을 갱신한다.)

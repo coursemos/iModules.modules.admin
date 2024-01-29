@@ -27,31 +27,12 @@ if ($me->getAdmin()->checkPermission('sitemap', ['contexts']) == false) {
 $host = Request::get('host', true);
 $language = Request::get('language', true);
 $path = Request::get('path', true);
-$context = iModules::db()
-    ->select()
-    ->from(iModules::table('contexts'))
-    ->where('host', $host)
-    ->where('language', $language)
-    ->where('path', $path)
-    ->getOne();
 
-if ($context === null) {
-    $results->success = false;
-    $results->message = $me->getErrorText('NOT_FOUND_DATA');
-    return;
-}
-
-$deleted = iModules::db()
-    ->delete(iModules::table('contexts'))
-    ->where('host', $host)
-    ->where('language', $language);
-
-if ($path == '/') {
-    $deleted->where('path', '/', '!=');
-} else {
-    $deleted->where('(path = ? or path like ?)', [$path, $path . '/%']);
-}
-$deleted->execute();
+/**
+ * @var \modules\admin\admin\Admin $mAdmin
+ */
+$mAdmin = $me->getAdmin();
+$mAdmin->deleteContext(Sites::get($host, $language), $path);
 
 Cache::remove('contexts');
 
