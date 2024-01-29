@@ -1188,6 +1188,7 @@ var Aui;
                 field = 'text';
                 inputType = 'text';
                 emptyText;
+                inputAlign = null;
                 $input;
                 $emptyText;
                 /**
@@ -1199,6 +1200,7 @@ var Aui;
                     super(properties);
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+                    this.inputAlign = this.properties.inputAlign ?? null;
                 }
                 /**
                  * INPUT 필드 DOM 을 가져온다.
@@ -1211,6 +1213,9 @@ var Aui;
                             type: this.inputType,
                             name: this.inputName,
                         });
+                        if (this.inputAlign !== null) {
+                            this.$input.setStyle('text-align', this.inputAlign);
+                        }
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
                             this.setValue(input.value);
@@ -1976,6 +1981,9 @@ var Aui;
                             name: this.inputName,
                             step: this.step.toString(),
                         });
+                        if (this.inputAlign !== null) {
+                            this.$input.setStyle('text-align', this.inputAlign);
+                        }
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
                             this.setValue(input.value);

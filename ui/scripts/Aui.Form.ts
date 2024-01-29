@@ -1577,6 +1577,11 @@ namespace Aui {
                      * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
                      */
                     emptyText?: string;
+
+                    /**
+                     * @type {string} inputAlign - 필드내 텍스트 정렬
+                     */
+                    inputAlign?: string;
                 }
             }
 
@@ -1585,6 +1590,7 @@ namespace Aui {
                 inputType: string = 'text';
                 emptyText: string;
 
+                inputAlign: string = null;
                 $input: Dom;
                 $emptyText: Dom;
 
@@ -1598,6 +1604,8 @@ namespace Aui {
 
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+
+                    this.inputAlign = this.properties.inputAlign ?? null;
                 }
 
                 /**
@@ -1611,6 +1619,9 @@ namespace Aui {
                             type: this.inputType,
                             name: this.inputName,
                         });
+                        if (this.inputAlign !== null) {
+                            this.$input.setStyle('text-align', this.inputAlign);
+                        }
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLInputElement;
                             this.setValue(input.value);
@@ -2548,6 +2559,9 @@ namespace Aui {
                             name: this.inputName,
                             step: this.step.toString(),
                         });
+                        if (this.inputAlign !== null) {
+                            this.$input.setStyle('text-align', this.inputAlign);
+                        }
 
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLInputElement;

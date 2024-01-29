@@ -498,6 +498,12 @@ div[data-component][data-type='form'][data-role='field'] {
             > input {
                 border-color: var(--input-border-color-error) !important;
             }
+
+            > div[data-role='spinner'] {
+                border-top-color: var(--input-border-color-error) !important;
+                border-right-color: var(--input-border-color-error) !important;
+                border-bottom-color: var(--input-border-color-error) !important;
+            }
         }
     }
 

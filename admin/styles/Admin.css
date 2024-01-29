@@ -38,12 +38,14 @@ body[data-type='login'] {
             border: 1px solid #ccc;
         }
 
-        b.language {
+        b.language,
+        b.level {
             display: inline-block;
             margin: 0px 5px 0px 0px;
+            width: 22px;
+            text-align: center;
             height: 22px;
             line-height: 22px;
-            padding: 0px 4px;
             border-radius: 2px;
             color: #fff;
             font-size: 11px;
