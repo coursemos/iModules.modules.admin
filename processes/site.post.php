@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/site.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 1. 29.
  *
  * @var \modules\admin\Admin $me
  */
@@ -56,7 +56,7 @@ $insert['language'] = Input::get('language', $errors) ?? '';
 $insert['title'] = Input::get('title', $errors) ?? '';
 $insert['description'] = Input::get('description') ?? '';
 $insert['theme'] = Format::toJson(Input::get('theme', $errors));
-$insert['color'] = Input::get('color');
+$insert['color'] = Input::get('color') ?? '#0077be';
 $insert['header'] = Input::get('header');
 $insert['footer'] = Input::get('footer');
 $insert['logo'] = Input::get('logo');
@@ -82,11 +82,6 @@ if (count($errors) == 0) {
     }
 
     if ($site === null) {
-        $insert['sort'] = iModules::db()
-            ->select()
-            ->from(iModules::table('sites'))
-            ->count();
-
         iModules::db()
             ->insert(iModules::table('sites'), $insert)
             ->execute();
