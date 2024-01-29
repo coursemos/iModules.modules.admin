@@ -76,7 +76,7 @@ var Aui;
                 this.loading = new Aui.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
                     direction: 'column',
-                    message: this.properties.loadingText ?? null,
+                    text: this.properties.loadingText ?? null,
                 });
             }
             /**
@@ -812,7 +812,7 @@ var Aui;
                     this.getStore().load();
                 }
                 this.$getComponent().on('keydown', (e) => {
-                    if (e.target instanceof HTMLInputElement) {
+                    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
                         return;
                     }
                     if (e.key.indexOf('Arrow') === 0) {
@@ -851,6 +851,10 @@ var Aui;
                             this.selectRow(this.focusedRow);
                             this.onSelectionComplete();
                         }
+                    }
+                    if ((e.metaKey == true || e.ctrlKey == true) && e.key == 'a') {
+                        this.selectAll();
+                        e.preventDefault();
                     }
                 });
                 this.$getComponent().on('blur', () => {
