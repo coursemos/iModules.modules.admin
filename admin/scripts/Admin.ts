@@ -1637,17 +1637,9 @@ namespace modules {
                                             listeners: {
                                                 selectionChange: (selections, grid) => {
                                                     const form = grid.getParent().getItemAt(1) as Aui.Form.Panel;
-                                                    const text =
-                                                        selections.length == 0
-                                                            ? this.printText(
-                                                                  'admin.administrators.lists.unselected_members'
-                                                              )
-                                                            : this.printText(
-                                                                  'admin.administrators.lists.selected_members',
-                                                                  {
-                                                                      count: selections.length.toString(),
-                                                                  }
-                                                              );
+                                                    const text = Aui.printText('texts.selected_person', {
+                                                        count: selections.length.toString(),
+                                                    });
                                                     if (mode == 'assign') {
                                                         const window = grid.getParent().getParent() as Aui.Window;
                                                         window.setTitle(
@@ -1675,9 +1667,7 @@ namespace modules {
                                                 hidden: member_id !== null,
                                                 items: [
                                                     new Aui.Form.Field.Display({
-                                                        value: this.printText(
-                                                            'admin.administrators.lists.unselected_members'
-                                                        ),
+                                                        value: Aui.printText('texts.selected_person', { count: '0' }),
                                                     }),
                                                     '->',
                                                     new Aui.Button({
@@ -1763,12 +1753,14 @@ namespace modules {
                                         }
 
                                         let results: Aui.Ajax.Results;
+
+                                        const loading = new Aui.Loading(window, {
+                                            type: 'dot',
+                                            direction: 'column',
+                                            text: Aui.printText('actions.saving'),
+                                        });
                                         if (mode == 'assign') {
-                                            new Aui.Loading(window, {
-                                                type: 'column',
-                                                direction: 'column',
-                                                text: Aui.printText('actions.saving'),
-                                            }).show();
+                                            loading.show();
 
                                             results = await Aui.Ajax.post(this.getProcessUrl('administrator'), {
                                                 member_ids: member_ids,
@@ -1799,6 +1791,8 @@ namespace modules {
                                                     Aui.Message.close();
                                                 },
                                             });
+                                        } else {
+                                            loading.close();
                                         }
                                     },
                                 }),
