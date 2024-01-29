@@ -38,6 +38,19 @@ body[data-type='login'] {
             border: 1px solid #ccc;
         }
 
+        b.language {
+            display: inline-block;
+            margin: 0px 5px 0px 0px;
+            height: 22px;
+            line-height: 22px;
+            padding: 0px 4px;
+            border-radius: 2px;
+            color: #fff;
+            font-size: 11px;
+            background: #607d8b;
+            text-transform: uppercase;
+        }
+
         b.method {
             display: inline-block;
             margin: 0px 5px 0px 0px;

@@ -244,18 +244,87 @@ class Admin extends \modules\admin\admin\Component
     }
 
     /**
+     * 사이트를 삭제한다.
+     *
+     * @param string $host 삭제할 사이트 호스트명
+     * @param string $language 삭제할 사이트 언어코드
+     */
+    public function deleteSite(string $host, string $language): void
+    {
+        $domain = \iModules::db()
+            ->select()
+            ->from(\iModules::table('domains'))
+            ->where('host', $host)
+            ->getOne();
+        $site = \iModules::db()
+            ->select()
+            ->from(\iModules::table('sites'))
+            ->where('host', $host)
+            ->where('language', $language)
+            ->getOne();
+
+        if ($domain === null || $site === null) {
+            return;
+        }
+
+        /**
+         * @var \modules\attachment\Attachment $mAttachment
+         */
+        $mAttachment = \Modules::get('attachment');
+
+        if ($site->logo !== null) {
+            $mAttachment->deleteFile($site->logo);
+        }
+
+        if ($site->emblem !== null) {
+            $mAttachment->deleteFile($site->emblem);
+        }
+
+        if ($site->favicon !== null) {
+            $mAttachment->deleteFile($site->favicon);
+        }
+
+        if ($site->image !== null) {
+            $mAttachment->deleteFile($site->image);
+        }
+
+        \iModules::db()
+            ->delete(\iModules::table('sites'))
+            ->where('host', $host)
+            ->where('language', $language)
+            ->execute();
+
+        $this->deleteContext($host, $language, '/');
+
+        if ($domain->language == $language) {
+            $language = \iModules::db()
+                ->select(['language'])
+                ->from(\iModules::table('sites'))
+                ->where('host', $host)
+                ->getOne('language');
+            if ($language !== null) {
+                \iModules::db()
+                    ->update(\iModules::table('domains'), ['language' => $language])
+                    ->where('host', $host)
+                    ->execute();
+            }
+        }
+    }
+
+    /**
      * 사이트 컨텍스트를 삭제한다.
      *
-     * @param \Site $site 사이트 객체
+     * @param string $host 삭제할 컨텍스트 호스트명
+     * @param string $language 삭제할 컨텍스트 언어코드
      * @param string $path 삭제할 컨텍스트 경로
      */
-    public function deleteContext(\Site $site, string $path): void
+    public function deleteContext(string $host, string $language, string $path): void
     {
         $context = \iModules::db()
             ->select()
             ->from(\iModules::table('contexts'))
-            ->where('host', $site->getHost())
-            ->where('language', $site->getLanguage())
+            ->where('host', $host)
+            ->where('language', $language)
             ->where('path', $path)
             ->getOne();
 
@@ -273,26 +342,24 @@ class Admin extends \modules\admin\admin\Component
 
         \iModules::db()
             ->delete(\iModules::table('contexts'))
-            ->where('host', $site->getHost())
-            ->where('language', $site->getLanguage())
+            ->where('host', $host)
+            ->where('language', $language)
             ->where('path', $path)
             ->execute();
 
         $children = \iModules::db()
             ->select(['path'])
             ->from(\iModules::table('contexts'))
-            ->where('host', $site->getHost())
-            ->where('language', $site->getLanguage());
-
+            ->where('host', $host)
+            ->where('language', $language);
         if ($path == '/') {
             $children->where('path', '/', '!=');
         } else {
             $children->where('(path = ? or path like ?)', [$path, $path . '/%']);
         }
-
         $children = $children->get('path');
         foreach ($children as $child) {
-            $this->deleteContext($site, $child);
+            $this->deleteContext($host, $language, $child);
         }
     }
 

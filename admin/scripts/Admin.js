@@ -609,6 +609,30 @@ var modules;
                                 },
                             }).show();
                         },
+                        /**
+                         * 사이트를 삭제한다.
+                         *
+                         * @param {string} language - 삭제할 언어
+                         */
+                        delete: (language) => {
+                            const domains = Aui.getComponent('domains');
+                            const host = domains.getSelections().length == 1 ? domains.getSelections()[0].get('host') : null;
+                            if (host === null) {
+                                return;
+                            }
+                            Aui.Message.delete({
+                                message: this.printText('admin.sitemap.sites.actions.delete'),
+                                url: this.getProcessUrl('site'),
+                                params: {
+                                    host: host,
+                                    language: language,
+                                },
+                                handler: async () => {
+                                    const sites = Aui.getComponent('sites');
+                                    sites.getStore().reload();
+                                },
+                            });
+                        },
                     },
                     contexts: {
                         /**
@@ -963,7 +987,7 @@ var modules;
                                 return;
                             }
                             Aui.Message.delete({
-                                message: this.printText('admin.sitemap.contexts.delete_confirm'),
+                                message: this.printText('admin.sitemap.contexts.actions.delete'),
                                 url: this.getProcessUrl('context'),
                                 params: {
                                     host: host,

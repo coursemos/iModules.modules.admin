@@ -61,6 +61,9 @@ Admin.ready(async () => {
                     update: (grid) => {
                         if (Admin.getContextSubUrl(0) !== null && grid.getSelections().length == 0) {
                             grid.select({ host: Admin.getContextSubUrl(0) });
+                            if (grid.getSelections().length == 0 && grid.getStore().getCount() > 0) {
+                                grid.selectRow(0);
+                            }
                         }
                     },
                     openItem: (record) => {
@@ -130,6 +133,9 @@ Admin.ready(async () => {
                     {
                         text: (await me.getText('admin.sitemap.sites.title')),
                         dataIndex: 'title',
+                        renderer: (value, record) => {
+                            return '<b class="language">' + record.get('language') + '</b>' + value;
+                        },
                     },
                 ],
                 listeners: {
@@ -139,6 +145,9 @@ Admin.ready(async () => {
                                 host: Admin.getContextSubUrl(0),
                                 language: Admin.getContextSubUrl(1),
                             });
+                            if (grid.getSelections().length == 0 && grid.getStore().getCount() > 0) {
+                                grid.selectRow(0);
+                            }
                         }
                     },
                     openItem: (record) => {
@@ -151,6 +160,13 @@ Admin.ready(async () => {
                             iconClass: 'xi xi-form-checkout',
                             handler: () => {
                                 me.sitemap.sites.add(record.get('language'));
+                            },
+                        });
+                        menu.add({
+                            text: me.printText('admin.sitemap.sites.delete'),
+                            iconClass: 'mi mi-trash',
+                            handler: () => {
+                                me.sitemap.sites.delete(record.get('language'));
                             },
                         });
                     },
