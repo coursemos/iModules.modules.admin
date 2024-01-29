@@ -694,6 +694,8 @@ namespace Aui {
                     if (this.selections.size !== 1) {
                         this.deselectAll(false);
                         this.selectRow(treeIndex);
+                    } else {
+                        this.focusRow(treeIndex);
                     }
                 } else {
                     this.selectRow(treeIndex);
@@ -723,7 +725,7 @@ namespace Aui {
 
                 this.expandRow(treeIndex.slice(0, -1)).then(() => {
                     Html.get('> div[data-role=leaf]', $row).addClass('selected');
-
+                    this.focusRow(treeIndex);
                     if (is_event == true) {
                         this.onSelectionChange();
                     }

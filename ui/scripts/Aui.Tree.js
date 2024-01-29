@@ -473,6 +473,9 @@ var Aui;
                         this.deselectAll(false);
                         this.selectRow(treeIndex);
                     }
+                    else {
+                        this.focusRow(treeIndex);
+                    }
                 }
                 else {
                     this.selectRow(treeIndex);
@@ -500,6 +503,7 @@ var Aui;
                 this.selections.set(record.getHash(), record);
                 this.expandRow(treeIndex.slice(0, -1)).then(() => {
                     Html.get('> div[data-role=leaf]', $row).addClass('selected');
+                    this.focusRow(treeIndex);
                     if (is_event == true) {
                         this.onSelectionChange();
                     }

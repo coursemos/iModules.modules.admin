@@ -531,6 +531,8 @@ namespace Aui {
                     if (this.selections.size !== 1) {
                         this.deselectAll(false);
                         this.selectRow(rowIndex);
+                    } else {
+                        this.focusRow(rowIndex);
                     }
                 } else {
                     this.selectRow(rowIndex);
@@ -559,6 +561,7 @@ namespace Aui {
                 this.selections.set(record.getHash(), record);
 
                 $row.addClass('selected');
+                this.focusRow(rowIndex);
 
                 if (is_event == true) {
                     this.onSelectionChange();
