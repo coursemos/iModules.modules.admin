@@ -242,4 +242,36 @@ class Admin extends \modules\admin\admin\Component
             ];
         }
     }
+
+    /**
+     * 관리자 그룹의 인원수를 갱신한다.
+     *
+     * @param string $group_id 그룹고유값 (NULL 인 경우 전체 그룹을 갱신한다.)
+     */
+    public function updateGroup(string $group_id = null): void
+    {
+        if ($group_id === null) {
+            foreach (
+                $this->db()
+                    ->select(['group_id'])
+                    ->from($this->table('groups'))
+                    ->get('group_id')
+                as $group_id
+            ) {
+                $this->updateGroup($group_id);
+            }
+            return;
+        }
+
+        $administrators = $this->db()
+            ->select()
+            ->from($this->table('group_administrators'))
+            ->where('group_id', $group_id)
+            ->count();
+
+        $this->db()
+            ->update($this->table('groups'), ['administrators' => $administrators])
+            ->where('group_id', $group_id)
+            ->execute();
+    }
 }

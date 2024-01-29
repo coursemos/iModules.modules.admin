@@ -228,7 +228,7 @@ Admin.ready(async () => {
                                     const groups = Aui.getComponent('groups');
                                     const group_id = groups.getSelections().at(0)?.get('group_id') ?? 'user';
                                     if (group_id != 'user' && group_id.startsWith('component') == false) {
-                                        me.administrators.assign(group_id);
+                                        me.administrators.add(null, group_id);
                                     }
                                 },
                             }),

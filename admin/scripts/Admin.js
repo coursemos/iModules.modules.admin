@@ -1324,14 +1324,23 @@ var modules;
                      * 관리자를 추가한다.
                      *
                      * @param {number|number[]} member_id - 권한을 수정할 회원고유값
+                     * @param {string} group_id - 사용자를 추가할 그룹고유값
                      */
-                    add: (member_id = null) => {
+                    add: (member_id = null, group_id = null) => {
                         const mMember = globalThis.Admin.getModule('member');
+                        let mode = 'add';
+                        let width = 900;
+                        if (group_id !== null) {
+                            mode = 'assign';
+                            width = 500;
+                        }
+                        else if (member_id !== null) {
+                            mode = 'edit';
+                            width = 400;
+                        }
                         new Aui.Window({
-                            title: member_id === null
-                                ? this.printText('admin.administrators.lists.add')
-                                : this.printText('admin.administrators.lists.edit'),
-                            width: member_id === null ? 800 : 400,
+                            title: this.printText('admin.administrators.lists.' + mode),
+                            width: width,
                             height: 600,
                             modal: true,
                             resizable: false,
@@ -1340,13 +1349,14 @@ var modules;
                                     layout: 'column',
                                     items: [
                                         new Aui.Grid.Panel({
-                                            border: [false, true, false, false],
+                                            border: mode == 'add' ? [false, true, false, false] : false,
                                             layout: 'fit',
-                                            width: 400,
+                                            width: mode == 'add' ? 500 : null,
+                                            flex: mode == 'add' ? null : 1,
                                             selection: { selectable: true, display: 'check', keepable: true },
-                                            autoLoad: true,
+                                            autoLoad: mode != 'edit',
                                             freeze: 1,
-                                            hidden: member_id !== null,
+                                            hidden: mode == 'edit',
                                             topbar: [
                                                 new Aui.Form.Field.Search({
                                                     name: 'keyword',
@@ -1417,10 +1427,24 @@ var modules;
                                             listeners: {
                                                 selectionChange: (selections, grid) => {
                                                     const form = grid.getParent().getItemAt(1);
-                                                    const display = form
-                                                        .getToolbar('top')
-                                                        .getItemAt(0);
-                                                    display.setValue(selections.length.toString());
+                                                    const text = selections.length == 0
+                                                        ? this.printText('admin.administrators.lists.unselected_members')
+                                                        : this.printText('admin.administrators.lists.selected_members', {
+                                                            count: selections.length.toString(),
+                                                        });
+                                                    if (mode == 'assign') {
+                                                        const window = grid.getParent().getParent();
+                                                        window.setTitle(this.printText('admin.administrators.lists.' + mode) +
+                                                            ' (' +
+                                                            text +
+                                                            ')');
+                                                    }
+                                                    else {
+                                                        const display = form
+                                                            .getToolbar('top')
+                                                            .getItemAt(0);
+                                                        display.setValue(text);
+                                                    }
                                                 },
                                             },
                                         }),
@@ -1428,19 +1452,13 @@ var modules;
                                             flex: 1,
                                             layout: 'fit',
                                             border: false,
+                                            hidden: mode == 'assign',
                                             fieldDefaults: { labelPosition: 'top' },
                                             topbar: new Aui.Toolbar({
                                                 hidden: member_id !== null,
                                                 items: [
                                                     new Aui.Form.Field.Display({
-                                                        value: '0',
-                                                        renderer: (value) => {
-                                                            return value == '0'
-                                                                ? this.printText('admin.administrators.lists.unselected_members')
-                                                                : this.printText('admin.administrators.lists.selected_members', {
-                                                                    count: value,
-                                                                });
-                                                        },
+                                                        value: this.printText('admin.administrators.lists.unselected_members'),
                                                     }),
                                                     '->',
                                                     new Aui.Button({
@@ -1518,10 +1536,24 @@ var modules;
                                             });
                                             return;
                                         }
-                                        form.getField('member_ids').setValue(member_ids);
-                                        const results = await form.submit({
-                                            url: this.getProcessUrl('administrator'),
-                                        });
+                                        let results;
+                                        if (mode == 'assign') {
+                                            new Aui.Loading(window, {
+                                                type: 'column',
+                                                direction: 'column',
+                                                text: Aui.printText('actions.saving'),
+                                            }).show();
+                                            results = await Aui.Ajax.post(this.getProcessUrl('administrator'), {
+                                                member_ids: member_ids,
+                                                group_ids: [group_id],
+                                            });
+                                        }
+                                        else {
+                                            form.getField('member_ids').setValue(member_ids);
+                                            results = await form.submit({
+                                                url: this.getProcessUrl('administrator'),
+                                            });
+                                        }
                                         if (results.success == true) {
                                             Aui.Message.show({
                                                 title: (await this.getText('info')),
@@ -1625,14 +1657,6 @@ var modules;
                                 },
                             },
                         }).show();
-                    },
-                    /**
-                     * 특정 그룹에 관리자를 추가한다.
-                     *
-                     * @param {string} group_id - 관리자를 추가할 그룹고유값
-                     */
-                    assign: (group_id) => {
-                        //
                     },
                     /**
                      * 그룹을 지정한다.
@@ -1766,6 +1790,8 @@ var modules;
                             handler: async () => {
                                 const groups = Aui.getComponent('groups');
                                 await groups.getStore().reload();
+                                const administrators = Aui.getComponent('administrators');
+                                await administrators.getStore().reload();
                             },
                         });
                     },

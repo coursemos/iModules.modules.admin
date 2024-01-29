@@ -101,23 +101,10 @@ foreach ($member_ids as $member_id) {
     }
 }
 
-$groups = $me
-    ->db()
-    ->select()
-    ->from($me->table('groups'))
-    ->get();
-foreach ($groups as $group) {
-    $administrators = $me
-        ->db()
-        ->select()
-        ->from($me->table('group_administrators'))
-        ->where('group_id', $group->group_id)
-        ->count();
-
-    $me->db()
-        ->update($me->table('groups'), ['administrators' => $administrators])
-        ->where('group_id', $group->group_id)
-        ->execute();
-}
+/**
+ * @var \modules\admin\admin\Admin $mAdmin
+ */
+$mAdmin = $me->getAdmin();
+$mAdmin->updateGroup();
 
 $results->success = true;
