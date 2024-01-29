@@ -317,3 +317,17 @@ namespace Aui {
         }
     }
 }
+
+Html.ready(() => {
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+        const target = e.target;
+
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+            return;
+        }
+
+        if ((e.metaKey == true || e.ctrlKey == true) && e.key == 'a') {
+            e.preventDefault();
+        }
+    });
+});
