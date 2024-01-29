@@ -424,6 +424,24 @@ var modules;
                                 },
                             }).show();
                         },
+                        /**
+                         * 도메인을 삭제한다.
+                         *
+                         * @param {string} host - 삭제할 호스트명
+                         */
+                        delete: (host) => {
+                            Aui.Message.delete({
+                                message: this.printText('admin.sitemap.domains.actions.delete'),
+                                url: this.getProcessUrl('domain'),
+                                params: {
+                                    host: host,
+                                },
+                                handler: async () => {
+                                    const domains = Aui.getComponent('domains');
+                                    domains.getStore().reload();
+                                },
+                            });
+                        },
                     },
                     sites: {
                         /**

@@ -81,6 +81,14 @@ Admin.ready(async () => {
                                 me.sitemap.domains.add(record.get('host'));
                             },
                         });
+
+                        menu.add({
+                            text: me.printText('admin.sitemap.domains.delete'),
+                            iconClass: 'mi mi-trash',
+                            handler: () => {
+                                me.sitemap.domains.delete(record.get('host'));
+                            },
+                        });
                     },
                     selectionChange: (selections) => {
                         const sites = Aui.getComponent('sites') as Aui.Grid.Panel;

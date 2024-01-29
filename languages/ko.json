@@ -1,7 +1,9 @@
 {
     "errors": {
         "DUPLICATED_ADMIN_CONTEXT_PATH": "추가하고자 하는 관리자 경로 ${path} 가 이미 ${name}(${component})에서 사용중입니다.",
-        "PERMISSION_DENIED": "관리자 권한이 없습니다."
+        "PERMISSION_DENIED": "관리자 권한이 없습니다.",
+        "DELETE_DOMAIN_FAILED": "유일한 도메인을 삭제할 수 없습니다.",
+        "DELETE_SITE_FAILED": "도메인의 유일한 사이트를 삭제할 수 없습니다."
     },
     "buttons": {
         "install": "설치",
@@ -128,12 +130,16 @@
             "domains": {
                 "add": "도메인추가",
                 "edit": "도메인수정",
+                "delete": "도메인삭제",
                 "host": "호스트명",
                 "alias": "대체호스트명을 한줄에 한개씩 입력하여 주십시오.<br>(예: sub.domain.com 또는 *.domain.com)",
                 "options": {
                     "title": "도메인옵션",
                     "is_rewrite": "짧은주소를 사용합니다.",
                     "is_internationalization": "다국어 사이트를 활성화합니다."
+                },
+                "actions": {
+                    "delete": "선택한 도메인을 삭제하시겠습니까?<br>도메인을 삭제하면, 해당 도메인의 모든 사이트 및 모든 컨텍스트도 삭제됩니다."
                 }
             },
             "sites": {

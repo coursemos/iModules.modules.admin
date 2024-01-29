@@ -28,6 +28,19 @@ $host = Request::get('host', true);
 $language = Request::get('language', true);
 $path = Request::get('path', true);
 
+$context = \iModules::db()
+    ->select()
+    ->from(\iModules::table('sites'))
+    ->where('host', $host)
+    ->where('language', $language)
+    ->where('path', $path)
+    ->getOne();
+if ($context === null) {
+    $results->success = false;
+    $results->message = $me->getErrorText('NOT_FOUND_DATA');
+    return;
+}
+
 /**
  * @var \modules\admin\admin\Admin $mAdmin
  */
