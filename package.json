@@ -85,7 +85,7 @@
             "indexes": {
                 "group_id": "primary_key"
             },
-            "comment": "아이모듈 관리자그룹"
+            "comment": "아이모듈 관리자 그룹"
         },
         "group_administrators": {
             "columns": {
@@ -108,7 +108,7 @@
                 "member_id": "index",
                 "group_id": "index"
             },
-            "comment": "아이모듈 관리자그룹 소속회원"
+            "comment": "아이모듈 관리자 그룹 소속회원"
         },
         "logs": {
             "columns": {
