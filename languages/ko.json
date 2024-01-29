@@ -219,8 +219,6 @@
                 "assign": "현재 그룹에 관리자추가",
                 "edit": "관리자권한수정",
                 "master": "최고관리자",
-                "selected_members": "${count}명 선택됨",
-                "unselected_members": "선택회원 없음",
                 "deselect_all": "전체 선택해제",
                 "component_master": "전체관리자",
                 "name": "관리자명",

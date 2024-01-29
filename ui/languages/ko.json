@@ -1,6 +1,9 @@
 {
     "texts": {
-        "page": "페이지"
+        "page": "페이지",
+        "selected_person": "${count}명 선택됨",
+        "selected_item": "${count}개 선택됨",
+        "unselected": "선택안됨"
     },
     "buttons": {
         "ok": "확인",
