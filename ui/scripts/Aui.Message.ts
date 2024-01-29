@@ -240,7 +240,7 @@ namespace Aui {
                                         Aui.Message.close();
                                     },
                                 });
-                            } else {
+                            } else if (Aui.getComponent(button.getParent().getId()) !== null) {
                                 (button.getParent() as Aui.Window).buttons.at(0).show();
                                 button.setLoading(false);
                             }

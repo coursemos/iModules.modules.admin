@@ -138,7 +138,7 @@ var Aui;
                                     },
                                 });
                             }
-                            else {
+                            else if (Aui.getComponent(button.getParent().getId()) !== null) {
                                 button.getParent().buttons.at(0).show();
                                 button.setLoading(false);
                             }
