@@ -104,7 +104,11 @@ namespace Admin {
         text: string,
         placeHolder: { [key: string]: string } = null
     ): Promise<string | Object> {
-        return Language.getText(text, placeHolder, ['/modules/admin', '/']);
+        return Language.getText(text, placeHolder, [
+            '/module/admin/language',
+            '/modules/admin/languages',
+            '/languages',
+        ]);
     }
 
     /**
@@ -115,7 +119,11 @@ namespace Admin {
      * @return {string} message - 치환된 메시지
      */
     export async function getErrorText(error: string, placeHolder: { [key: string]: string } = null): Promise<string> {
-        return Language.getErrorText(error, placeHolder, ['/modules/admin', '/']);
+        return Language.getErrorText(error, placeHolder, [
+            '/languages/module/admin',
+            '/modules/admin/languages',
+            '/languages',
+        ]);
     }
 
     /**

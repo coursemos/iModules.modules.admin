@@ -86,7 +86,11 @@ var Admin;
      * @return {string|Object} message - 치환된 메시지
      */
     async function getText(text, placeHolder = null) {
-        return Language.getText(text, placeHolder, ['/modules/admin', '/']);
+        return Language.getText(text, placeHolder, [
+            '/module/admin/language',
+            '/modules/admin/languages',
+            '/languages',
+        ]);
     }
     Admin.getText = getText;
     /**
@@ -97,7 +101,11 @@ var Admin;
      * @return {string} message - 치환된 메시지
      */
     async function getErrorText(error, placeHolder = null) {
-        return Language.getErrorText(error, placeHolder, ['/modules/admin', '/']);
+        return Language.getErrorText(error, placeHolder, [
+            '/languages/module/admin',
+            '/modules/admin/languages',
+            '/languages',
+        ]);
     }
     Admin.getErrorText = getErrorText;
     /**

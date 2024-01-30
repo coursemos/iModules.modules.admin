@@ -51,11 +51,11 @@ var modules;
                  * @return {string|Object} message 치환된 메시지
                  */
                 async getText(text, placeHolder = null) {
-                    const paths = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.getText(text, placeHolder, paths);
                 }
                 /**
@@ -66,11 +66,11 @@ var modules;
                  * @return {string} message 치환된 메시지
                  */
                 async getErrorText(error, placeHolder = null) {
-                    const paths = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.getErrorText(error, placeHolder, paths);
                 }
                 /**
@@ -82,11 +82,11 @@ var modules;
                  * @return {string} message - 치환된 메시지
                  */
                 printText(text, placeHolder = null) {
-                    const paths = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.printText(text, placeHolder, paths);
                 }
                 /**
@@ -98,11 +98,11 @@ var modules;
                  * @return {string} message - 치환된 메시지
                  */
                 printErrorText(error, placeHolder = null) {
-                    const paths = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.printErrorText(error, placeHolder, paths);
                 }
                 /**

@@ -52,11 +52,11 @@ namespace modules {
                  * @return {string|Object} message 치환된 메시지
                  */
                 async getText(text: string, placeHolder: { [key: string]: string } = null): Promise<string | Object> {
-                    const paths: string[] = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths: string[] = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.getText(text, placeHolder, paths);
                 }
 
@@ -68,11 +68,11 @@ namespace modules {
                  * @return {string} message 치환된 메시지
                  */
                 async getErrorText(error: string, placeHolder: { [key: string]: string } = null): Promise<string> {
-                    const paths: string[] = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths: string[] = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.getErrorText(error, placeHolder, paths);
                 }
 
@@ -85,11 +85,11 @@ namespace modules {
                  * @return {string} message - 치환된 메시지
                  */
                 printText(text: string, placeHolder: { [key: string]: string } = null): string {
-                    const paths: string[] = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths: string[] = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.printText(text, placeHolder, paths);
                 }
 
@@ -102,11 +102,11 @@ namespace modules {
                  * @return {string} message - 치환된 메시지
                  */
                 printErrorText(error: string, placeHolder: { [key: string]: string } = null): string {
-                    const paths: string[] = ['/' + this.type + 's/' + this.name];
-                    if (this.type != 'module' || this.name != 'admin') {
-                        paths.push('/modules/admin');
-                    }
-                    paths.push('/');
+                    const paths: string[] = [
+                        '/' + this.type + '/' + this.name + '/language',
+                        '/' + this.type + 's/' + this.name + '/languages',
+                        '/languages',
+                    ];
                     return Language.printErrorText(error, placeHolder, paths);
                 }
 
