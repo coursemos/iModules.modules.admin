@@ -234,7 +234,6 @@
                 "edit_permission_help": "관리자가 속한 그룹에서 부여된 권한은 추가적으로 설정할 수 없습니다.",
                 "remove": "현재 그룹에서 제외",
                 "delete": "관리자 삭제",
-                "selectedCount": "${count}명 선택됨",
                 "permissions": "개인권한",
                 "actions": {
                     "unselected_members": "먼저 관리자로 등록할 회원을 선택하여 주십시오.",

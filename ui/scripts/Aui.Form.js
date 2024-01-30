@@ -3448,6 +3448,7 @@ var Aui;
                     if (value === null) {
                         this.$getEmptyText().show();
                         this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
+                        super.setValue(value, is_origin);
                     }
                     else {
                         if (this.multiple == true) {
