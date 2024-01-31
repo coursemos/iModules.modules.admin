@@ -387,7 +387,7 @@ Admin.ready(async () => {
                             },
                             openMenus: (menu, selections) => {
                                 menu.setTitle(
-                                    me.printText('admin.administrators.lists.selectedCount', {
+                                    Aui.printText('texts.selected_person', {
                                         count: selections.length.toString(),
                                     })
                                 );
