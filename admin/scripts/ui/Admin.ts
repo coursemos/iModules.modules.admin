@@ -104,11 +104,7 @@ namespace Admin {
         text: string,
         placeHolder: { [key: string]: string } = null
     ): Promise<string | Object> {
-        return Language.getText(text, placeHolder, [
-            '/module/admin/language',
-            '/modules/admin/languages',
-            '/languages',
-        ]);
+        return Language.getText(text, placeHolder, ['/module/admin/language', '/languages']);
     }
 
     /**
@@ -119,11 +115,7 @@ namespace Admin {
      * @return {string} message - 치환된 메시지
      */
     export async function getErrorText(error: string, placeHolder: { [key: string]: string } = null): Promise<string> {
-        return Language.getErrorText(error, placeHolder, [
-            '/languages/module/admin',
-            '/modules/admin/languages',
-            '/languages',
-        ]);
+        return Language.getErrorText(error, placeHolder, ['/module/admin/language', '/languages']);
     }
 
     /**
@@ -135,7 +127,7 @@ namespace Admin {
      * @return {string|Object} message - 치환된 메시지
      */
     export function printText(text: string, placeHolder: { [key: string]: string } = null): string {
-        return Language.printText(text, placeHolder, ['/modules/admin', '/']);
+        return Language.printText(text, placeHolder, ['/module/admin/language', '/languages']);
     }
 
     /**
@@ -147,7 +139,7 @@ namespace Admin {
      * @return {string|Object} message - 치환된 메시지
      */
     export function printErrorText(error: string, placeHolder: { [key: string]: string } = null): string {
-        return Language.printErrorText(error, placeHolder, ['/modules/admin', '/']);
+        return Language.printErrorText(error, placeHolder, ['/module/admin/language', '/languages']);
     }
 
     /**
