@@ -264,7 +264,7 @@ Admin.ready(async () => {
                                 },
                             },
                             {
-                                text: (await mMember.getText('admin.members.email')),
+                                text: (await mMember.getText('email')),
                                 dataIndex: 'email',
                                 sortable: true,
                                 width: 200,
@@ -286,7 +286,7 @@ Admin.ready(async () => {
                                 },
                             },
                             {
-                                text: (await mMember.getText('admin.members.logged_at')),
+                                text: (await mMember.getText('logged_at')),
                                 dataIndex: 'logged_at',
                                 width: 160,
                                 sortable: true,
