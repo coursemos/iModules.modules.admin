@@ -321,10 +321,14 @@ var Aui;
         /**
          * 스크롤바를 가져온다.
          *
+         * @param {boolean} is_rendered - 스크롤바가 정의되지 않은 경우 랜더링할 지 여부
          * @return {Aui.Scroll} scroll - 스크롤바 (스크롤 되지 않는 컴포넌트인 경우 NULL)
          */
-        getScroll() {
+        getScroll(is_rendered = true) {
             if (this.scroll == undefined) {
+                if (is_rendered == false) {
+                    return null;
+                }
                 if (this.scrollable === false) {
                     this.scroll = null;
                 }
