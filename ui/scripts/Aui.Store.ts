@@ -86,10 +86,11 @@ namespace Aui {
         remoteFilter: boolean = false;
         loaded: boolean = false;
         data: Aui.Data;
-        limit: number;
-        page: number;
+        limit: number = 0;
+        page: number = 0;
         count: number = 0;
         total: number = 0;
+        currentParams: { [key: string]: any } = null;
 
         /**
          * 데이터스토어를 생성한다.
@@ -217,6 +218,24 @@ namespace Aui {
          */
         getParam(key: string): any {
             return this.getParams()[key] ?? null;
+        }
+
+        /**
+         * 데이터 로딩이 완료되었을 시점의 매개변수를 저장한다.
+         */
+        setCurrentParams(): void {
+            this.currentParams = this.params ?? {};
+            this.currentParams.filters = this.filters;
+            this.currentParams.sorters = this.sorters;
+            this.currentParams.page = this.page;
+            this.currentParams.limit = this.limit;
+        }
+
+        /**
+         * 현재 데이터를 로딩하는데 사용한 매개변수를 가져온다.
+         */
+        getCurrentParams(): { [key: string]: any } {
+            return this.currentParams;
         }
 
         /**
@@ -482,6 +501,7 @@ namespace Aui {
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
         async onLoad(): Promise<void> {
+            this.setCurrentParams();
             this.fireEvent('load', [this, this.data]);
             await this.onUpdate();
         }
@@ -490,6 +510,7 @@ namespace Aui {
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
         async onUpdate(): Promise<void> {
+            this.setCurrentParams();
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {
                     await this.reload();

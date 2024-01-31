@@ -21,10 +21,11 @@ var Aui;
         remoteFilter = false;
         loaded = false;
         data;
-        limit;
-        page;
+        limit = 0;
+        page = 0;
         count = 0;
         total = 0;
+        currentParams = null;
         /**
          * 데이터스토어를 생성한다.
          *
@@ -139,6 +140,22 @@ var Aui;
          */
         getParam(key) {
             return this.getParams()[key] ?? null;
+        }
+        /**
+         * 데이터 로딩이 완료되었을 시점의 매개변수를 저장한다.
+         */
+        setCurrentParams() {
+            this.currentParams = this.params ?? {};
+            this.currentParams.filters = this.filters;
+            this.currentParams.sorters = this.sorters;
+            this.currentParams.page = this.page;
+            this.currentParams.limit = this.limit;
+        }
+        /**
+         * 현재 데이터를 로딩하는데 사용한 매개변수를 가져온다.
+         */
+        getCurrentParams() {
+            return this.currentParams;
         }
         /**
          * 데이터를 가져온다.
@@ -377,6 +394,7 @@ var Aui;
          * 데이터가 로딩되었을 때 이벤트를 처리한다.
          */
         async onLoad() {
+            this.setCurrentParams();
             this.fireEvent('load', [this, this.data]);
             await this.onUpdate();
         }
@@ -384,6 +402,7 @@ var Aui;
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
         async onUpdate() {
+            this.setCurrentParams();
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {
                     await this.reload();
