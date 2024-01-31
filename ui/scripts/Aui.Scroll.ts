@@ -21,6 +21,9 @@ namespace Aui {
         momentum: { x: number; y: number } = { x: 0, y: 0 };
         autoScroll: { x: number; y: number } = { x: 0, y: 0 };
 
+        storePositionData: any = null;
+        storePositionCoordinate: { x: number; y: number } = { x: 0, y: 0 };
+
         /**
          * 스크롤바 클래스를 생성한다.
          *
@@ -572,6 +575,31 @@ namespace Aui {
                 );
             } else {
                 $scrollbar.removeClass('active');
+            }
+        }
+
+        /**
+         * 스크롤 위치를 복원하기 위한 복원시점을 지정한다.
+         *
+         * @param {any} data - 스크롤 위치를 저장할 시점의 고유데이터
+         */
+        storePosition(data: any): void {
+            this.storePositionData = JSON.parse(JSON.stringify(data));
+            this.storePositionCoordinate = this.getPosition();
+        }
+
+        /**
+         * 스크롤 위치를 복원한다.
+         *
+         * @param {any} data - 스크롤 위치를 복원할 시점의 고유데이터
+         */
+        restorePosition(data: any): void {
+            if (Format.isEqual(data, this.storePositionData) == true) {
+                this.setPosition(this.storePositionCoordinate.x, this.storePositionCoordinate.y, false, false);
+                this.storePositionData = null;
+                this.storePositionCoordinate = { x: 0, y: 0 };
+            } else {
+                this.setPosition(0, 0, false, false);
             }
         }
 
