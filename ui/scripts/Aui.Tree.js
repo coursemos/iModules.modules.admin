@@ -943,7 +943,7 @@ var Aui;
                 this.freezeWidth = leftPosition;
                 this.$header.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                 this.getScroll().setTrackPosition('x', leftPosition ? leftPosition + 1 : 0);
-                this.getScroll().setTrackPosition('y', this.$header.getHeight() + 1);
+                this.getScroll().setTrackPosition('y', this.columnHeaders == true ? this.$header.getHeight() + 1 : 0);
                 this.updateColumnIndex();
                 this.updateColumnFill();
                 if (this.columnHeaders === false) {
