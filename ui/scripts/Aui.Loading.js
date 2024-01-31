@@ -34,7 +34,7 @@ var Aui;
          * @return {Dom} $loading
          */
         $getLoading() {
-            if (Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent()).getEl() == null) {
+            if (Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer()).getEl() == null) {
                 const $loading = Html.create('div', { 'data-type': 'loading', 'data-role': 'loading' });
                 const $box = Html.create('div', { 'data-role': 'box' });
                 $box.addClass(this.direction);
@@ -53,9 +53,9 @@ var Aui;
                 $text.html(this.text ?? Aui.printText('actions.loading_status'));
                 $box.append($text);
                 $loading.append($box);
-                this.component.$getContent().append($loading);
+                this.component.$getContainer().append($loading);
             }
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
             return $loading;
         }
         /**
@@ -85,7 +85,7 @@ var Aui;
          * 로딩메시지를 닫는다.
          */
         close() {
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
             if ($loading.getEl() !== null) {
                 $loading.remove();
             }

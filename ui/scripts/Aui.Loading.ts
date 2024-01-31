@@ -58,7 +58,9 @@ namespace Aui {
          * @return {Dom} $loading
          */
         $getLoading(): Dom {
-            if (Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent()).getEl() == null) {
+            if (
+                Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer()).getEl() == null
+            ) {
                 const $loading = Html.create('div', { 'data-type': 'loading', 'data-role': 'loading' });
                 const $box = Html.create('div', { 'data-role': 'box' });
                 $box.addClass(this.direction);
@@ -82,10 +84,10 @@ namespace Aui {
                 $box.append($text);
 
                 $loading.append($box);
-                this.component.$getContent().append($loading);
+                this.component.$getContainer().append($loading);
             }
 
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
 
             return $loading;
         }
@@ -120,7 +122,7 @@ namespace Aui {
          * 로딩메시지를 닫는다.
          */
         close(): void {
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContent());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
             if ($loading.getEl() !== null) {
                 $loading.remove();
             }
