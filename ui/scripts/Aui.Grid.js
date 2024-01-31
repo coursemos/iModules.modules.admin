@@ -892,6 +892,7 @@ var Aui;
              */
             onBeforeLoad() {
                 this.loading.show();
+                this.getScroll().storePosition(this.getStore().getCurrentParams());
                 if (this.selection.keepable === false) {
                     this.selections.clear();
                     this.fireEvent('selectionChange', [[], this]);
@@ -904,6 +905,7 @@ var Aui;
             onLoad() {
                 if (this.getStore().isLoaded() === false)
                     return;
+                this.getScroll().restorePosition(this.getStore().getCurrentParams());
                 this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
             }
