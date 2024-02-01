@@ -2173,9 +2173,8 @@ var Aui;
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value, is_origin = false) {
-                    value = value?.toString() ?? null;
                     if (this.renderer === null) {
-                        this.$getDisplay().html(value ?? '');
+                        this.$getDisplay().html(value?.toString() ?? '');
                     }
                     else {
                         this.$getDisplay().html(this.renderer(value, this));
@@ -3385,7 +3384,7 @@ var Aui;
                  * 필드값으로 데이터스토어의 레코드를 가져온다.
                  *
                  * @param {any} value - 필드값
-                 * @return {Promise<Aui.Data.Record | Aui.TreeData.Record>} record
+                 * @return {Promise<Aui.Data.Record>} record
                  */
                 async getValueToRecord(value) {
                     const target = {};
@@ -3413,7 +3412,7 @@ var Aui;
                  * 필드값으로 데이터스토어의 레코드를 가져온다.
                  *
                  * @param {any} value - 필드값
-                 * @return {Promise<Aui.Data.Record | Aui.TreeData.Record>} record
+                 * @return {Promise<Aui.Data.Record>} record
                  */
                 async getValueToIndex(value) {
                     const target = {};

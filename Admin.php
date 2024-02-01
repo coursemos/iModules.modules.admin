@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 2. 2.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -355,7 +355,6 @@ class Admin extends \Module
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Drag.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Resizer.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Data.js');
-        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.TreeData.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Component.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Absolute.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Store.js');

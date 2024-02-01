@@ -254,7 +254,7 @@ var Aui;
             /**
              * 선택된 항목을 배열로 가져온다.
              *
-             * @return {Aui.TreeData.Record[]} selections
+             * @return {Aui.Data.Record[]} selections
              */
             getSelections() {
                 if (this.selection.selectable == false) {
@@ -462,7 +462,7 @@ var Aui;
             /**
              * 단일 아이템을 항상 선택한다.
              *
-             * @param {Aui.TreeData.Record|Object} record - 선택할 레코드
+             * @param {Aui.Data.Record|Object} record - 선택할 레코드
              */
             select(record) {
                 const treeIndex = this.getStore().matchIndex(record);
@@ -809,7 +809,7 @@ var Aui;
              * 트리패널의 아이탬(행) DOM 을 생성하거나 가져온다.
              *
              * @param {number[]} treeIndex - 생성하거나 가져올 트리 인덱스
-             * @param {Aui.TreeData.Record} record - 행 데이터 (데이터가 NULL 이 아닌 경우 DOM 을 생성한다.)
+             * @param {Aui.Data.Record} record - 행 데이터 (데이터가 NULL 이 아닌 경우 DOM 을 생성한다.)
              */
             $getRow(treeIndex, record = null) {
                 if (record === null) {
@@ -1154,7 +1154,7 @@ var Aui;
             /**
              * 자식데이터가 변경되었을 때 이벤트를 처리한다.
              *
-             * @param {Aui.TreeData.Record} record
+             * @param {Aui.Data.Record} record
              */
             onUpdateChildren(record) {
                 const treeIndex = this.getStore().matchIndex(record);
@@ -1610,7 +1610,7 @@ var Aui;
              * 컬럼의 데이터컬럼 레이아웃을 가져온다.
              *
              * @param {any} value - 컬럼의 dataIndex 데이터
-             * @param {Aui.TreeData.Record} record - 컬럼이 속한 행의 모든 데이터셋
+             * @param {Aui.Data.Record} record - 컬럼이 속한 행의 모든 데이터셋
              * @param {number[]} treeIndex - 행 인덱스
              * @param {number} columnIndex - 열 인덱스
              * @return {Dom} $layout
@@ -1793,7 +1793,7 @@ var Aui;
              * 컬럼의 데이터컬럼 레이아웃을 가져온다.
              *
              * @param {any} value - 컬럼의 dataIndex 데이터
-             * @param {Aui.TreeData.Record} record - 컬럼이 속한 행의 모든 데이터셋
+             * @param {Aui.Data.Record} record - 컬럼이 속한 행의 모든 데이터셋
              * @param {number[]} treeIndex - 행 인덱스
              * @param {number} columnIndex - 열 인덱스
              * @return {Dom} $layout

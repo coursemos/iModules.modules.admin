@@ -73,7 +73,7 @@ var Aui;
         /**
          * 데이터셋을 가져온다.
          *
-         * @return {Aui.TreeData} data
+         * @return {Aui.Data} data
          */
         getData() {
             return this.data;
@@ -168,7 +168,7 @@ var Aui;
         /**
          * 데이터를 가져온다.
          *
-         * @return {Aui.TreeData.Record[]} records
+         * @return {Aui.Data.Record[]} records
          */
         getRecords() {
             return this.data?.getRecords() ?? [];
@@ -176,7 +176,7 @@ var Aui;
         /**
          * 특정인덱스의 데이터를 가져온다.
          *
-         * @return {Aui.TreeData.Record} record
+         * @return {Aui.Data.Record} record
          */
         get(index) {
             if (index.length == 0) {
@@ -206,14 +206,14 @@ var Aui;
         /**
          * 부모 데이터를 가져온다.
          *
-         * @param {Aui.TreeData.Record|Object} child - 부모데이터를 가져올 자식데이터
+         * @param {Aui.Data.Record|Object} child - 부모데이터를 가져올 자식데이터
          * @return {Promise<Object[]>} parents - 전체 부모레코드 배열
          */
         async getParents(child) {
             if (this.isLoaded() == false) {
                 await this.load();
             }
-            if (child instanceof Aui.TreeData.Record) {
+            if (child instanceof Aui.Data.Record) {
                 return child.getParents();
             }
             else {
@@ -268,11 +268,11 @@ var Aui;
         /**
          * 자식 데이터를 확장한다.
          *
-         * @param {number[]|Aui.TreeData.Record} index - 확장할 인덱스 또는 레코드
+         * @param {number[]|Aui.Data.Record} index - 확장할 인덱스 또는 레코드
          * @return {Promise<Aui.TreeStore>} this
          */
         async expand(index) {
-            const record = index instanceof Aui.TreeData.Record ? index : this.get(index);
+            const record = index instanceof Aui.Data.Record ? index : this.get(index);
             if (this.remoteExpander !== null) {
                 const children = await this.remoteExpander(record);
                 record.setChildren(children);
@@ -310,7 +310,7 @@ var Aui;
         /**
          * 자식데이터를 불러온다.
          *
-         * @param {Aui.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+         * @param {Aui.Data.Record} record - 자식데이터를 불러올 부모레코드
          * @return {Promise<Aui.TreeStore>} this
          */
         async loadChildren(record) {
@@ -330,8 +330,8 @@ var Aui;
          *
          * @param {Object} target - 검색대상
          * @param {number[]} treeIndex - 재귀호출을 위한 변수
-         * @param {Aui.TreeData.Record} record - 재귀호출을 위한 변수
-         * @return {Aui.TreeData.Record} record - 검색된 레코드
+         * @param {Aui.Data.Record} record - 재귀호출을 위한 변수
+         * @return {Aui.Data.Record} record - 검색된 레코드
          */
         find(target, treeIndex = [], record = null) {
             let matched = null;
@@ -381,7 +381,7 @@ var Aui;
          *
          * @param {object} target - 검색대상
          * @param {number[]} treeIndex - 재귀호출을 위한 변수
-         * @param {Aui.TreeData.Record} record - 재귀호출을 위한 변수
+         * @param {Aui.Data.Record} record - 재귀호출을 위한 변수
          * @return {number[]} index - 검색된 레코드의 인덱스
          */
         findIndex(target, treeIndex = [], record = null) {
@@ -430,10 +430,10 @@ var Aui;
         /**
          * 데이터와 일치하는 레코드를 찾는다.
          *
-         * @param {Aui.TreeData.Record|Object} matcher - 찾을 레코드
+         * @param {Aui.Data.Record|Object} matcher - 찾을 레코드
          * @param {number[]} treeIndex - 재귀호출을 위한 변수
-         * @param {Aui.TreeData.Record} record - 재귀호출을 위한 변수
-         * @return {Aui.TreeData.Record} record - 검색된 레코드
+         * @param {Aui.Data.Record} record - 재귀호출을 위한 변수
+         * @return {Aui.Data.Record} record - 검색된 레코드
          */
         match(matcher, treeIndex = [], record = null) {
             let matched = null;
@@ -475,9 +475,9 @@ var Aui;
         /**
          * 데이터와 일치하는 레코드의 인덱스를 찾는다.
          *
-         * @param {Aui.TreeData.Record|Object} matcher - 찾을 레코드
+         * @param {Aui.Data.Record|Object} matcher - 찾을 레코드
          * @param {number[]} treeIndex - 재귀호출을 위한 변수
-         * @param {Aui.TreeData.Record} record - 재귀호출을 위한 변수
+         * @param {Aui.Data.Record} record - 재귀호출을 위한 변수
          * @return {number[]} index - 검색된 데이터의 인덱스
          */
         matchIndex(matcher, treeIndex = [], record = null) {
@@ -660,7 +660,7 @@ var Aui;
         /**
          * 자식 데이터가 변경되었을 때 이벤트를 처리한다.
          *
-         * @param {Aui.TreeData.Record} record
+         * @param {Aui.Data.Record} record
          */
         async onUpdateChildren(record) {
             if (Format.isEqual(record.sorters, this.sorters) == false) {
@@ -722,7 +722,7 @@ var Aui;
                     records.push(record);
                 });
                 this.loaded = true;
-                this.data = new Aui.TreeData(records, this.fields, this.primaryKeys, this.childrenField);
+                this.data = new Aui.Data(records, this.fields, this.primaryKeys, this.childrenField);
                 this.count = records.length;
                 this.total = this.count;
                 await this.onLoad();
@@ -795,7 +795,7 @@ var Aui;
                 const results = await Aui.Ajax.get(this.url, params);
                 if (results.success == true) {
                     this.loaded = true;
-                    this.data = new Aui.TreeData(results[this.recordsField] ?? [], this.fields, this.primaryKeys, this.childrenField);
+                    this.data = new Aui.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys, this.childrenField);
                     this.count = results[this.recordsField].length;
                     this.total = results[this.totalField] ?? this.count;
                     if (this.remoteSort == true) {
@@ -816,7 +816,7 @@ var Aui;
             /**
              * 자식데이터를 불러온다.
              *
-             * @param {Aui.TreeData.Record} record - 자식데이터를 불러올 부모레코드
+             * @param {Aui.Data.Record} record - 자식데이터를 불러올 부모레코드
              * @return {Promise<Aui.TreeStore.Ajax>} this
              */
             async loadChildren(record) {

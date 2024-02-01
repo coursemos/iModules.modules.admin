@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 27.
  */
 var Aui;
 (function (Aui) {
@@ -25,8 +25,10 @@ var Aui;
          *
          * @param {Object} records - 데이터
          * @param {Object} fields - 필드명
+         * @param {string[]} primaryKeys - 레코드 고유값 필드명
+         * @param {string} childrenFields - 자식 레코드 필드명
          */
-        constructor(records, fields = [], primaryKeys = []) {
+        constructor(records, fields = [], primaryKeys = [], childrenFields = null) {
             this.fields = {};
             for (const field of fields) {
                 if (typeof field == 'string') {
@@ -39,11 +41,11 @@ var Aui;
             this.primaryKeys = primaryKeys;
             for (const record of records) {
                 for (const key in record) {
-                    if (this.fields[key] !== undefined) {
+                    if (key !== childrenFields && this.fields[key] !== undefined) {
                         record[key] = this.setType(record[key], this.fields[key]);
                     }
                 }
-                this.records.push(new Aui.Data.Record(record, this.primaryKeys));
+                this.records.push(new Aui.Data.Record(record, this.primaryKeys, childrenFields));
             }
             this.originRecords = this.records;
             this.sorting = false;
@@ -118,6 +120,9 @@ var Aui;
         async sort(sorters, execute = true) {
             if (execute === false) {
                 this.sorters = sorters;
+                for (const record of this.records) {
+                    await record.sort(sorters, execute);
+                }
                 return;
             }
             if (this.sorting == true) {
@@ -142,6 +147,9 @@ var Aui;
                 }
                 return 0;
             });
+            for (const record of this.records) {
+                await record.sort(sorters, execute);
+            }
             this.sorters = sorters;
             this.sorting = false;
         }
@@ -155,6 +163,9 @@ var Aui;
         async filter(filters, filterMode = 'AND', execute = true) {
             if (execute === false) {
                 this.filters = filters;
+                for (const record of this.records) {
+                    await record.filter(filters, filterMode, execute);
+                }
                 return;
             }
             if (this.filtering == true) {
@@ -169,82 +180,9 @@ var Aui;
             if (Object.keys(filters).length > 0) {
                 const records = [];
                 for (const record of this.originRecords) {
-                    let matched = true;
-                    for (const field in filters) {
-                        const filter = filters[field];
-                        const value = record.get(field) ?? null;
-                        let passed = true;
-                        switch (filter.operator) {
-                            case '=':
-                                if (value !== filter.value) {
-                                    passed = false;
-                                }
-                                break;
-                            case '!=':
-                                if (value === filter.value) {
-                                    passed = false;
-                                }
-                                break;
-                            case '>=':
-                                if (value < filter.value) {
-                                    passed = false;
-                                }
-                                break;
-                            case '>':
-                                if (value <= filter.value) {
-                                    passed = false;
-                                }
-                                break;
-                            case '<=':
-                                if (value > filter.value) {
-                                    passed = false;
-                                }
-                                break;
-                            case '<':
-                                if (value >= filter.value) {
-                                    passed = false;
-                                }
-                                break;
-                            case 'in':
-                                if (Array.isArray(filter.value) == false ||
-                                    Array.isArray(value) == true ||
-                                    filter.value.includes(value) == false) {
-                                    passed = false;
-                                }
-                                break;
-                            case 'inset':
-                                if (Array.isArray(value) == false ||
-                                    Array.isArray(filter.value) == true ||
-                                    value.includes(filter.value) == false) {
-                                    passed = false;
-                                }
-                                break;
-                            case 'like':
-                                if (value === null || value.search(filter.value) == -1) {
-                                    passed = false;
-                                }
-                                break;
-                            case 'likecode':
-                                const keycode = Format.keycode(filter.value);
-                                const valuecode = value === null ? null : Format.keycode(value);
-                                if (valuecode === null || valuecode.search(keycode) == -1) {
-                                    passed = false;
-                                }
-                                break;
-                            default:
-                                passed = false;
-                        }
-                        if (filterMode == 'AND') {
-                            matched = matched && passed;
-                        }
-                        else {
-                            matched = passed;
-                        }
-                        if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
-                            break;
-                        }
-                    }
-                    if (matched == true) {
+                    const matched = Format.filter(record.data, filters, filterMode);
+                    await record.filter(filters, filterMode, true);
+                    if (matched == true || record.getChildren().length > 0) {
                         records.push(record);
                     }
                 }
@@ -263,15 +201,49 @@ var Aui;
             primaryKeys = [];
             hash;
             data;
+            children;
+            originChildren;
+            childrenField;
+            parents;
+            sorting;
+            sorters;
+            filtering;
+            filters;
+            filterMode = 'AND';
             /**
              * 데이터 레코드를 생성한다.
              *
              * @param {Object} data - 데이터
-             * @param {string[]} primaryKeys - 고유값
+             * @param {string[]} primaryKeys - 레코드 고유값 필드명
+             * @param {string} childrenField - 자식 레코드 필드명
+             * @param {Aui.Data.Record[]} parents - 부모
              */
-            constructor(data, primaryKeys = []) {
+            constructor(data, primaryKeys = [], childrenField = null, parents = null) {
                 this.data = data;
                 this.primaryKeys = primaryKeys;
+                this.childrenField = childrenField;
+                this.parents = parents;
+                if (childrenField === null || this.data[childrenField] === undefined) {
+                    this.children = false;
+                }
+                else if (typeof this.data[childrenField] == 'boolean') {
+                    this.children = this.data[childrenField];
+                    delete this.data[childrenField];
+                }
+                else {
+                    const parents = this.parents?.slice() ?? [];
+                    parents.push(this);
+                    this.children = [];
+                    for (const child of this.data[childrenField]) {
+                        this.children.push(new Aui.Data.Record(child, primaryKeys, childrenField, parents));
+                    }
+                    delete this.data[childrenField];
+                }
+                this.originChildren = this.children;
+                this.sorting = false;
+                this.sorters = null;
+                this.filtering = false;
+                this.filters = null;
             }
             /**
              * 데이터를 가져온다.
@@ -281,6 +253,55 @@ var Aui;
              */
             get(key) {
                 return this.data[key] ?? null;
+            }
+            /**
+             * 전체 부모트리를 가져온다.
+             *
+             * @return {Aui.Data.Record[]} parents
+             */
+            getParents() {
+                return this.parents?.slice() ?? [];
+            }
+            /**
+             * 자식 데이터를 가져온다.
+             *
+             * @return {Aui.Data.Record[]} children
+             */
+            getChildren() {
+                if (typeof this.children == 'boolean') {
+                    return [];
+                }
+                return this.children;
+            }
+            /**
+             * 자식 데이터를 설정한다.
+             *
+             * @param {Object[]} children
+             */
+            setChildren(children) {
+                const parents = this.parents?.slice() ?? [];
+                parents.push(this);
+                this.children = [];
+                for (const child of children) {
+                    this.children.push(new Aui.Data.Record(child, this.primaryKeys, this.childrenField, parents));
+                }
+                this.originChildren = this.children;
+            }
+            /**
+             * 자식 데이터가 존재하는지 확인한다.
+             *
+             * @return {boolean} hasChild
+             */
+            hasChild() {
+                return this.children !== false;
+            }
+            /**
+             * 자식 데이터를 불러왔는지 확인한다.
+             *
+             * @return {boolean} is_expanded
+             */
+            isExpanded() {
+                return this.children !== true;
             }
             /**
              * 데이터의 모든 키값을 가져온다.
@@ -316,6 +337,98 @@ var Aui;
                     this.hash = Format.sha1(JSON.stringify(this.getPrimary()));
                 }
                 return this.hash;
+            }
+            /**
+             * 자식데이터를 정렬한다.
+             *
+             * @param {Object} sorters - 정렬기준
+             * @param {boolean} execute - 실제 정렬을 할지 여부
+             */
+            async sort(sorters, execute = true) {
+                if (execute === false) {
+                    this.sorters = sorters;
+                    for (const child of this.getChildren()) {
+                        await child.sort(sorters, execute);
+                    }
+                    return;
+                }
+                if (this.sorting == true) {
+                    return;
+                }
+                if (sorters === null) {
+                    this.sorters = null;
+                    return;
+                }
+                if (this.children instanceof Array) {
+                    this.sorting = true;
+                    this.children.sort((left, right) => {
+                        for (const field in sorters) {
+                            const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                            const leftValue = left.get(field);
+                            const rightValue = right.get(field);
+                            if (leftValue < rightValue) {
+                                return direction == 'DESC' ? 1 : -1;
+                            }
+                            else if (leftValue > rightValue) {
+                                return direction == 'ASC' ? 1 : -1;
+                            }
+                        }
+                        return 0;
+                    });
+                    for (const child of this.children) {
+                        await child.sort(sorters, execute);
+                    }
+                    this.sorters = sorters;
+                    this.sorting = false;
+                }
+            }
+            /**
+             * 자식데이터를 필터링한다.
+             *
+             * @param {Object} filters - 필터기준
+             * @param {'OR'|'AND'} filterMode - 필터모드
+             * @param {boolean} execute - 실제 필터링을 할지 여부
+             */
+            async filter(filters, filterMode = 'AND', execute = true) {
+                if (execute === false) {
+                    this.filters = filters;
+                    this.filterMode = filterMode;
+                    for (const child of this.getChildren()) {
+                        await child.filter(filters, filterMode, execute);
+                    }
+                    return;
+                }
+                if (typeof this.originChildren == 'boolean') {
+                    return;
+                }
+                if (this.filtering == true) {
+                    return;
+                }
+                if (filters === null) {
+                    this.filters = null;
+                    this.children = this.originChildren;
+                    return;
+                }
+                this.filtering = true;
+                if (Object.keys(filters).length > 0) {
+                    const children = [];
+                    for (const record of this.originChildren) {
+                        const matched = Format.filter(record.data, filters, filterMode);
+                        await record.filter(filters, filterMode, true);
+                        if (matched == true || record.getChildren().length > 0) {
+                            children.push(record);
+                        }
+                    }
+                    this.children = children;
+                }
+                else {
+                    this.children = this.originChildren;
+                }
+                for (const child of this.getChildren()) {
+                    await child.filter(filters, filterMode, execute);
+                }
+                this.filters = filters;
+                this.filtering = false;
             }
             /**
              * 현재 레코드가 특정 데이터와 일치하는지 확인한다.

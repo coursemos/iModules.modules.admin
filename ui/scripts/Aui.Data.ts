@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 1. 27.
  */
 namespace Aui {
     export class Data {
@@ -25,11 +25,14 @@ namespace Aui {
          *
          * @param {Object} records - 데이터
          * @param {Object} fields - 필드명
+         * @param {string[]} primaryKeys - 레코드 고유값 필드명
+         * @param {string} childrenFields - 자식 레코드 필드명
          */
         constructor(
             records: { [key: string]: any }[],
             fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[] = [],
-            primaryKeys: string[] = []
+            primaryKeys: string[] = [],
+            childrenFields: string = null
         ) {
             this.fields = {};
             for (const field of fields) {
@@ -44,12 +47,12 @@ namespace Aui {
 
             for (const record of records) {
                 for (const key in record) {
-                    if (this.fields[key] !== undefined) {
+                    if (key !== childrenFields && this.fields[key] !== undefined) {
                         record[key] = this.setType(record[key], this.fields[key]);
                     }
                 }
 
-                this.records.push(new Aui.Data.Record(record, this.primaryKeys));
+                this.records.push(new Aui.Data.Record(record, this.primaryKeys, childrenFields));
             }
 
             this.originRecords = this.records;
@@ -136,6 +139,9 @@ namespace Aui {
         async sort(sorters: { [field: string]: 'ASC' | 'DESC' }, execute: boolean = true): Promise<void> {
             if (execute === false) {
                 this.sorters = sorters;
+                for (const record of this.records) {
+                    await record.sort(sorters, execute);
+                }
                 return;
             }
 
@@ -164,6 +170,11 @@ namespace Aui {
 
                 return 0;
             });
+
+            for (const record of this.records) {
+                await record.sort(sorters, execute);
+            }
+
             this.sorters = sorters;
             this.sorting = false;
         }
@@ -182,6 +193,9 @@ namespace Aui {
         ): Promise<void> {
             if (execute === false) {
                 this.filters = filters;
+                for (const record of this.records) {
+                    await record.filter(filters, filterMode, execute);
+                }
                 return;
             }
 
@@ -199,100 +213,9 @@ namespace Aui {
             if (Object.keys(filters).length > 0) {
                 const records: Aui.Data.Record[] = [];
                 for (const record of this.originRecords) {
-                    let matched = true;
-                    for (const field in filters) {
-                        const filter = filters[field];
-                        const value = record.get(field) ?? null;
-
-                        let passed = true;
-                        switch (filter.operator) {
-                            case '=':
-                                if (value !== filter.value) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case '!=':
-                                if (value === filter.value) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case '>=':
-                                if (value < filter.value) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case '>':
-                                if (value <= filter.value) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case '<=':
-                                if (value > filter.value) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case '<':
-                                if (value >= filter.value) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case 'in':
-                                if (
-                                    Array.isArray(filter.value) == false ||
-                                    Array.isArray(value) == true ||
-                                    filter.value.includes(value) == false
-                                ) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case 'inset':
-                                if (
-                                    Array.isArray(value) == false ||
-                                    Array.isArray(filter.value) == true ||
-                                    value.includes(filter.value) == false
-                                ) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case 'like':
-                                if (value === null || value.search(filter.value) == -1) {
-                                    passed = false;
-                                }
-                                break;
-
-                            case 'likecode':
-                                const keycode = Format.keycode(filter.value);
-                                const valuecode = value === null ? null : Format.keycode(value);
-
-                                if (valuecode === null || valuecode.search(keycode) == -1) {
-                                    passed = false;
-                                }
-                                break;
-
-                            default:
-                                passed = false;
-                        }
-
-                        if (filterMode == 'AND') {
-                            matched = matched && passed;
-                        } else {
-                            matched = passed;
-                        }
-
-                        if ((filterMode == 'AND' && matched == false) || (filterMode == 'OR' && matched == true)) {
-                            break;
-                        }
-                    }
-
-                    if (matched == true) {
+                    const matched = Format.filter(record.data, filters, filterMode);
+                    await record.filter(filters, filterMode, true);
+                    if (matched == true || record.getChildren().length > 0) {
                         records.push(record);
                     }
                 }
@@ -312,16 +235,55 @@ namespace Aui {
             primaryKeys: string[] = [];
             hash: string;
             data: { [key: string]: any };
+            children: boolean | Aui.Data.Record[];
+            originChildren: boolean | Aui.Data.Record[];
+            childrenField: string;
+            parents: Aui.Data.Record[];
+            sorting: boolean;
+            sorters: { [field: string]: 'ASC' | 'DESC' };
+            filtering: boolean;
+            filters: { [field: string]: { value: any; operator: string } };
+            filterMode: 'OR' | 'AND' = 'AND';
 
             /**
              * 데이터 레코드를 생성한다.
              *
              * @param {Object} data - 데이터
-             * @param {string[]} primaryKeys - 고유값
+             * @param {string[]} primaryKeys - 레코드 고유값 필드명
+             * @param {string} childrenField - 자식 레코드 필드명
+             * @param {Aui.Data.Record[]} parents - 부모
              */
-            constructor(data: { [key: string]: any }, primaryKeys: string[] = []) {
+            constructor(
+                data: { [key: string]: any },
+                primaryKeys: string[] = [],
+                childrenField: string = null,
+                parents: Aui.Data.Record[] = null
+            ) {
                 this.data = data;
                 this.primaryKeys = primaryKeys;
+                this.childrenField = childrenField;
+                this.parents = parents;
+
+                if (childrenField === null || this.data[childrenField] === undefined) {
+                    this.children = false;
+                } else if (typeof this.data[childrenField] == 'boolean') {
+                    this.children = this.data[childrenField];
+                    delete this.data[childrenField];
+                } else {
+                    const parents = this.parents?.slice() ?? [];
+                    parents.push(this);
+                    this.children = [];
+                    for (const child of this.data[childrenField]) {
+                        this.children.push(new Aui.Data.Record(child, primaryKeys, childrenField, parents));
+                    }
+                    delete this.data[childrenField];
+                }
+
+                this.originChildren = this.children;
+                this.sorting = false;
+                this.sorters = null;
+                this.filtering = false;
+                this.filters = null;
             }
 
             /**
@@ -332,6 +294,61 @@ namespace Aui {
              */
             get(key: string): any {
                 return this.data[key] ?? null;
+            }
+
+            /**
+             * 전체 부모트리를 가져온다.
+             *
+             * @return {Aui.Data.Record[]} parents
+             */
+            getParents(): Aui.Data.Record[] {
+                return this.parents?.slice() ?? [];
+            }
+
+            /**
+             * 자식 데이터를 가져온다.
+             *
+             * @return {Aui.Data.Record[]} children
+             */
+            getChildren(): Aui.Data.Record[] {
+                if (typeof this.children == 'boolean') {
+                    return [];
+                }
+
+                return this.children;
+            }
+
+            /**
+             * 자식 데이터를 설정한다.
+             *
+             * @param {Object[]} children
+             */
+            setChildren(children: { [key: string]: object }[]): void {
+                const parents = this.parents?.slice() ?? [];
+                parents.push(this);
+                this.children = [];
+                for (const child of children) {
+                    this.children.push(new Aui.Data.Record(child, this.primaryKeys, this.childrenField, parents));
+                }
+                this.originChildren = this.children;
+            }
+
+            /**
+             * 자식 데이터가 존재하는지 확인한다.
+             *
+             * @return {boolean} hasChild
+             */
+            hasChild(): boolean {
+                return this.children !== false;
+            }
+
+            /**
+             * 자식 데이터를 불러왔는지 확인한다.
+             *
+             * @return {boolean} is_expanded
+             */
+            isExpanded(): boolean {
+                return this.children !== true;
             }
 
             /**
@@ -373,6 +390,116 @@ namespace Aui {
                 }
 
                 return this.hash;
+            }
+
+            /**
+             * 자식데이터를 정렬한다.
+             *
+             * @param {Object} sorters - 정렬기준
+             * @param {boolean} execute - 실제 정렬을 할지 여부
+             */
+            async sort(sorters: { [field: string]: 'ASC' | 'DESC' }, execute: boolean = true): Promise<void> {
+                if (execute === false) {
+                    this.sorters = sorters;
+                    for (const child of this.getChildren()) {
+                        await child.sort(sorters, execute);
+                    }
+                    return;
+                }
+
+                if (this.sorting == true) {
+                    return;
+                }
+
+                if (sorters === null) {
+                    this.sorters = null;
+                    return;
+                }
+
+                if (this.children instanceof Array) {
+                    this.sorting = true;
+                    this.children.sort((left: Aui.Data.Record, right: Aui.Data.Record) => {
+                        for (const field in sorters) {
+                            const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                            const leftValue = left.get(field);
+                            const rightValue = right.get(field);
+
+                            if (leftValue < rightValue) {
+                                return direction == 'DESC' ? 1 : -1;
+                            } else if (leftValue > rightValue) {
+                                return direction == 'ASC' ? 1 : -1;
+                            }
+                        }
+
+                        return 0;
+                    });
+
+                    for (const child of this.children) {
+                        await child.sort(sorters, execute);
+                    }
+
+                    this.sorters = sorters;
+                    this.sorting = false;
+                }
+            }
+
+            /**
+             * 자식데이터를 필터링한다.
+             *
+             * @param {Object} filters - 필터기준
+             * @param {'OR'|'AND'} filterMode - 필터모드
+             * @param {boolean} execute - 실제 필터링을 할지 여부
+             */
+            async filter(
+                filters: { [field: string]: { value: any; operator: string } },
+                filterMode: 'OR' | 'AND' = 'AND',
+                execute: boolean = true
+            ): Promise<void> {
+                if (execute === false) {
+                    this.filters = filters;
+                    this.filterMode = filterMode;
+                    for (const child of this.getChildren()) {
+                        await child.filter(filters, filterMode, execute);
+                    }
+                    return;
+                }
+
+                if (typeof this.originChildren == 'boolean') {
+                    return;
+                }
+
+                if (this.filtering == true) {
+                    return;
+                }
+
+                if (filters === null) {
+                    this.filters = null;
+                    this.children = this.originChildren;
+                    return;
+                }
+
+                this.filtering = true;
+                if (Object.keys(filters).length > 0) {
+                    const children: Aui.Data.Record[] = [];
+                    for (const record of this.originChildren) {
+                        const matched = Format.filter(record.data, filters, filterMode);
+                        await record.filter(filters, filterMode, true);
+                        if (matched == true || record.getChildren().length > 0) {
+                            children.push(record);
+                        }
+                    }
+
+                    this.children = children;
+                } else {
+                    this.children = this.originChildren;
+                }
+
+                for (const child of this.getChildren()) {
+                    await child.filter(filters, filterMode, execute);
+                }
+
+                this.filters = filters;
+                this.filtering = false;
             }
 
             /**

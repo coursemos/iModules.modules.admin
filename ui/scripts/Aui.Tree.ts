@@ -30,27 +30,22 @@ namespace Aui {
                 /**
                  * @type {Function} selectionChange - 선택항목이 변경되었을 때
                  */
-                selectionChange?: (selections: Aui.TreeData.Record[], tree: Aui.Tree.Panel) => void;
+                selectionChange?: (selections: Aui.Data.Record[], tree: Aui.Tree.Panel) => void;
 
                 /**
                  * @type {Function} openItem - 아이템을 오픈할 때
                  */
-                openItem?: (record: Aui.TreeData.Record, treeIndex: number[], tree: Aui.Tree.Panel) => void;
+                openItem?: (record: Aui.Data.Record, treeIndex: number[], tree: Aui.Tree.Panel) => void;
 
                 /**
                  * @type {Function} openMenu - 아이템 메뉴가 오픈될 때
                  */
-                openMenu?: (
-                    menu: Aui.Menu,
-                    record: Aui.TreeData.Record,
-                    treeIndex: number[],
-                    tree: Aui.Tree.Panel
-                ) => void;
+                openMenu?: (menu: Aui.Menu, record: Aui.Data.Record, treeIndex: number[], tree: Aui.Tree.Panel) => void;
 
                 /**
                  * @type {Function} openMenus - 다중 아이템 메뉴가 오픈될 때
                  */
-                openMenus?: (menu: Aui.Menu, selections: Aui.TreeData.Record[], tree: Aui.Tree.Panel) => void;
+                openMenus?: (menu: Aui.Menu, selections: Aui.Data.Record[], tree: Aui.Tree.Panel) => void;
 
                 /**
                  * @type {Function} load - 데이터가 로딩되었을 때
@@ -188,8 +183,8 @@ namespace Aui {
             columnHeaders: boolean;
             rowLines: boolean;
             selection: Aui.Tree.Panel.Selection;
-            selections: Map<string, Aui.TreeData.Record> = new Map();
-            expandedRows: Map<number, Map<string, Aui.TreeData.Record>> = new Map();
+            selections: Map<string, Aui.Data.Record> = new Map();
+            expandedRows: Map<number, Map<string, Aui.Data.Record>> = new Map();
 
             store: Aui.TreeStore;
             autoLoad: boolean;
@@ -247,7 +242,7 @@ namespace Aui {
                         this.expandAll(true);
                     }
                 });
-                this.store.addEvent('updateChildren', (_store: Aui.TreeStore, record: Aui.TreeData.Record) => {
+                this.store.addEvent('updateChildren', (_store: Aui.TreeStore, record: Aui.Data.Record) => {
                     this.onUpdateChildren(record);
                 });
 
@@ -452,9 +447,9 @@ namespace Aui {
             /**
              * 선택된 항목을 배열로 가져온다.
              *
-             * @return {Aui.TreeData.Record[]} selections
+             * @return {Aui.Data.Record[]} selections
              */
-            getSelections(): Aui.TreeData.Record[] {
+            getSelections(): Aui.Data.Record[] {
                 if (this.selection.selectable == false) {
                     return [];
                 }
@@ -477,7 +472,7 @@ namespace Aui {
                     return false;
                 }
 
-                const record = $row.getData('record') as Aui.TreeData.Record;
+                const record = $row.getData('record') as Aui.Data.Record;
                 return (
                     Html.get('> div[data-role=leaf]', $row).hasClass('selected') == true &&
                     this.selections.has(record.getHash())
@@ -499,7 +494,7 @@ namespace Aui {
                     return false;
                 }
 
-                const record = $row.getData('record') as Aui.TreeData.Record;
+                const record = $row.getData('record') as Aui.Data.Record;
                 return record.hasChild() == true && $row.hasClass('expanded');
             }
 
@@ -534,7 +529,7 @@ namespace Aui {
                 const $row = this.$getRow(treeIndex);
                 if ($row === null) return;
 
-                const record = $row.getData('record') as Aui.TreeData.Record;
+                const record = $row.getData('record') as Aui.Data.Record;
                 this.select(record);
                 this.fireEvent('openItem', [record, treeIndex, this]);
             }
@@ -549,7 +544,7 @@ namespace Aui {
                 const $row = this.$getRow(treeIndex);
                 if ($row === null) return;
 
-                const record = $row.getData('record') as Aui.TreeData.Record;
+                const record = $row.getData('record') as Aui.Data.Record;
                 this.select(record);
 
                 const menu = new Aui.Menu();
@@ -600,7 +595,7 @@ namespace Aui {
                         return;
                     }
 
-                    const record: Aui.TreeData.Record = $row.getData('record');
+                    const record: Aui.Data.Record = $row.getData('record');
                     if (record.isExpanded() === true) {
                         $row.addClass('expanded');
                     } else {
@@ -632,7 +627,7 @@ namespace Aui {
 
                 $row.removeClass('expanded');
 
-                const record: Aui.TreeData.Record = $row.getData('record');
+                const record: Aui.Data.Record = $row.getData('record');
                 const depth = record.getParents().length;
                 if (this.expandedRows.has(depth) == false) {
                     return;
@@ -684,9 +679,9 @@ namespace Aui {
             /**
              * 단일 아이템을 항상 선택한다.
              *
-             * @param {Aui.TreeData.Record|Object} record - 선택할 레코드
+             * @param {Aui.Data.Record|Object} record - 선택할 레코드
              */
-            select(record: Aui.TreeData.Record | { [key: string]: any }): void {
+            select(record: Aui.Data.Record | { [key: string]: any }): void {
                 const treeIndex = this.getStore().matchIndex(record);
                 if (treeIndex === null) return;
 
@@ -1070,9 +1065,9 @@ namespace Aui {
              * 트리패널의 아이탬(행) DOM 을 생성하거나 가져온다.
              *
              * @param {number[]} treeIndex - 생성하거나 가져올 트리 인덱스
-             * @param {Aui.TreeData.Record} record - 행 데이터 (데이터가 NULL 이 아닌 경우 DOM 을 생성한다.)
+             * @param {Aui.Data.Record} record - 행 데이터 (데이터가 NULL 이 아닌 경우 DOM 을 생성한다.)
              */
-            $getRow(treeIndex: number[], record: Aui.TreeData.Record = null): Dom {
+            $getRow(treeIndex: number[], record: Aui.Data.Record = null): Dom {
                 if (record === null) {
                     let $parent = this.$getBody();
                     for (const rowIndex of treeIndex) {
@@ -1161,7 +1156,7 @@ namespace Aui {
                         const $tree = Html.create('div', { 'data-role': 'tree' });
                         $row.append($tree);
 
-                        record.getChildren().forEach((child: Aui.TreeData.Record, childIndex: number) => {
+                        record.getChildren().forEach((child: Aui.Data.Record, childIndex: number) => {
                             $tree.append(this.$getRow([...treeIndex, childIndex], child));
                         });
 
@@ -1240,7 +1235,7 @@ namespace Aui {
                 const $tree = Html.create('div', { 'data-role': 'tree' });
                 this.getStore()
                     .getRecords()
-                    .forEach((record: Aui.TreeData.Record, rowIndex: number) => {
+                    .forEach((record: Aui.Data.Record, rowIndex: number) => {
                         const $row = this.$getRow([rowIndex], record);
                         $tree.append($row);
                     });
@@ -1469,9 +1464,9 @@ namespace Aui {
             /**
              * 자식데이터가 변경되었을 때 이벤트를 처리한다.
              *
-             * @param {Aui.TreeData.Record} record
+             * @param {Aui.Data.Record} record
              */
-            onUpdateChildren(record: Aui.TreeData.Record): void {
+            onUpdateChildren(record: Aui.Data.Record): void {
                 const treeIndex = this.getStore().matchIndex(record);
                 if (treeIndex == null) {
                     return;
@@ -1482,7 +1477,7 @@ namespace Aui {
                     const $tree = Html.get('div[data-role=tree]', $row);
                     $tree.empty();
 
-                    record.getChildren().forEach((child: Aui.TreeData.Record, childIndex: number) => {
+                    record.getChildren().forEach((child: Aui.Data.Record, childIndex: number) => {
                         $tree.append(this.$getRow([...treeIndex, childIndex], child));
                     });
 
@@ -1625,7 +1620,7 @@ namespace Aui {
 
                 renderer?: (
                     value: any,
-                    record: Aui.TreeData.Record,
+                    record: Aui.Data.Record,
                     $dom: Dom,
                     rowIndex: number,
                     columnIndex: number,
@@ -1656,7 +1651,7 @@ namespace Aui {
             resizer: Aui.Resizer;
             renderer: (
                 value: any,
-                record: Aui.TreeData.Record,
+                record: Aui.Data.Record,
                 $dom: Dom,
                 rowIndex: number,
                 columnIndex: number,
@@ -2061,12 +2056,12 @@ namespace Aui {
              * 컬럼의 데이터컬럼 레이아웃을 가져온다.
              *
              * @param {any} value - 컬럼의 dataIndex 데이터
-             * @param {Aui.TreeData.Record} record - 컬럼이 속한 행의 모든 데이터셋
+             * @param {Aui.Data.Record} record - 컬럼이 속한 행의 모든 데이터셋
              * @param {number[]} treeIndex - 행 인덱스
              * @param {number} columnIndex - 열 인덱스
              * @return {Dom} $layout
              */
-            $getBody(value: any, record: Aui.TreeData.Record, treeIndex: number[], columnIndex: number): Dom {
+            $getBody(value: any, record: Aui.Data.Record, treeIndex: number[], columnIndex: number): Dom {
                 const rowIndex = treeIndex.at(-1);
                 const $column = Html.create('div')
                     .setData('role', 'column')
@@ -2245,7 +2240,7 @@ namespace Aui {
 
                     this.getTree().addEvent(
                         'selectionChange',
-                        (_selections: Aui.TreeData.Record[], tree: Aui.Tree.Panel) => {
+                        (_selections: Aui.Data.Record[], tree: Aui.Tree.Panel) => {
                             const rows = Html.all('> div[data-role=row]', tree.$getBody());
                             const selected = Html.all('> div[data-role=row].selected', tree.$getBody());
 
@@ -2267,12 +2262,12 @@ namespace Aui {
              * 컬럼의 데이터컬럼 레이아웃을 가져온다.
              *
              * @param {any} value - 컬럼의 dataIndex 데이터
-             * @param {Aui.TreeData.Record} record - 컬럼이 속한 행의 모든 데이터셋
+             * @param {Aui.Data.Record} record - 컬럼이 속한 행의 모든 데이터셋
              * @param {number[]} treeIndex - 행 인덱스
              * @param {number} columnIndex - 열 인덱스
              * @return {Dom} $layout
              */
-            $getBody(value: any, record: Aui.TreeData.Record, treeIndex: number[], columnIndex: number): Dom {
+            $getBody(value: any, record: Aui.Data.Record, treeIndex: number[], columnIndex: number): Dom {
                 const rowIndex = treeIndex.at(-1);
                 const $column = Html.create('div')
                     .setData('role', 'column')
@@ -2315,7 +2310,7 @@ namespace Aui {
                 format: string = 'YYYY.MM.DD(dd)'
             ): (
                 value: any,
-                record: Aui.TreeData.Record,
+                record: Aui.Data.Record,
                 $dom: Dom,
                 rowIndex: number,
                 columnIndex: number,
@@ -2333,7 +2328,7 @@ namespace Aui {
                 format: string = 'YYYY.MM.DD(dd) HH:mm'
             ): (
                 value: any,
-                record: Aui.TreeData.Record,
+                record: Aui.Data.Record,
                 $dom: Dom,
                 rowIndex: number,
                 columnIndex: number,
@@ -2345,7 +2340,7 @@ namespace Aui {
 
             static Number(): (
                 value: any,
-                record: Aui.TreeData.Record,
+                record: Aui.Data.Record,
                 $dom: Dom,
                 rowIndex: number,
                 columnIndex: number,

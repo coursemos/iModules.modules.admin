@@ -2751,7 +2751,7 @@ namespace Aui {
                     /**
                      * @type {Function} renderer - 필드 랜더러
                      */
-                    renderer?: (value: string, field: Aui.Form.Field.Display) => string;
+                    renderer?: (value: any, field: Aui.Form.Field.Display) => string;
                 }
             }
 
@@ -2792,9 +2792,8 @@ namespace Aui {
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value: any, is_origin: boolean = false): void {
-                    value = value?.toString() ?? null;
                     if (this.renderer === null) {
-                        this.$getDisplay().html(value ?? '');
+                        this.$getDisplay().html(value?.toString() ?? '');
                     } else {
                         this.$getDisplay().html(this.renderer(value, this));
                     }
@@ -4164,11 +4163,7 @@ namespace Aui {
                                     text: 'display',
                                     dataIndex: this.listField,
                                     flex: 1,
-                                    renderer: (
-                                        value: any,
-                                        record: Aui.Data.Record | Aui.TreeData.Record,
-                                        $dom: Dom
-                                    ) => {
+                                    renderer: (value: any, record: Aui.Data.Record, $dom: Dom) => {
                                         if (this.listRenderer !== null) {
                                             return this.listRenderer(value, record, $dom);
                                         } else {
@@ -4360,9 +4355,9 @@ namespace Aui {
                  * 필드값으로 데이터스토어의 레코드를 가져온다.
                  *
                  * @param {any} value - 필드값
-                 * @return {Promise<Aui.Data.Record | Aui.TreeData.Record>} record
+                 * @return {Promise<Aui.Data.Record>} record
                  */
-                async getValueToRecord(value: any): Promise<Aui.Data.Record | Aui.TreeData.Record> {
+                async getValueToRecord(value: any): Promise<Aui.Data.Record> {
                     const target = {};
                     target[this.valueField] = value;
                     const record = this.getStore().find(target);
@@ -4392,7 +4387,7 @@ namespace Aui {
                  * 필드값으로 데이터스토어의 레코드를 가져온다.
                  *
                  * @param {any} value - 필드값
-                 * @return {Promise<Aui.Data.Record | Aui.TreeData.Record>} record
+                 * @return {Promise<Aui.Data.Record>} record
                  */
                 async getValueToIndex(value: any): Promise<number | number[]> {
                     const target = {};
@@ -4445,7 +4440,7 @@ namespace Aui {
                         }
 
                         if (Array.isArray(value) == true) {
-                            const promises: Promise<Aui.Data.Record | Aui.TreeData.Record>[] = [];
+                            const promises: Promise<Aui.Data.Record>[] = [];
                             for (const v of value) {
                                 promises.push(this.getValueToRecord(v));
                             }
