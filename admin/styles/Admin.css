@@ -119,5 +119,15 @@ body[data-type='login'] {
                 }
             }
         }
+
+        div[data-component][data-type='form'][data-role='field'] {
+            i.photo {
+                display: inline-block;
+                width: 28px;
+                height: 28px;
+                margin: -3px 5px -3px -5px;
+                vertical-align: top;
+            }
+        }
     }
 }
