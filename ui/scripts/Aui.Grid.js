@@ -1553,25 +1553,6 @@ var Aui;
             }
         }
         Grid.Check = Check;
-        class Renderer {
-            static Date(format = 'YYYY.MM.DD(dd)') {
-                return (value) => {
-                    return value === null
-                        ? ''
-                        : '<time>' + moment.unix(value).locale(Aui.getLanguage()).format(format) + '</time>';
-                };
-            }
-            static DateTime(format = 'YYYY.MM.DD(dd) HH:mm') {
-                return Aui.Grid.Renderer.Date(format);
-            }
-            static Number() {
-                return (value, _record, $dom) => {
-                    $dom.setStyle('text-align', 'right');
-                    return Format.number(value, Aui.getLanguage());
-                };
-            }
-        }
-        Grid.Renderer = Renderer;
         class Pagination extends Aui.Toolbar {
             grid = null;
             store = null;

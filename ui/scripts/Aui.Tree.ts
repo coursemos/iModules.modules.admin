@@ -2305,55 +2305,6 @@ namespace Aui {
             }
         }
 
-        export class Renderer {
-            static Date(
-                format: string = 'YYYY.MM.DD(dd)'
-            ): (
-                value: any,
-                record: Aui.Data.Record,
-                $dom: Dom,
-                rowIndex: number,
-                columnIndex: number,
-                column: Aui.Tree.Column,
-                tree: Aui.Tree.Panel
-            ) => string {
-                return (value) => {
-                    return value === null
-                        ? ''
-                        : '<time>' + moment.unix(value).locale(Aui.getLanguage()).format(format) + '</time>';
-                };
-            }
-
-            static DateTime(
-                format: string = 'YYYY.MM.DD(dd) HH:mm'
-            ): (
-                value: any,
-                record: Aui.Data.Record,
-                $dom: Dom,
-                rowIndex: number,
-                columnIndex: number,
-                column: Aui.Tree.Column,
-                tree: Aui.Tree.Panel
-            ) => string {
-                return Aui.Tree.Renderer.Date(format);
-            }
-
-            static Number(): (
-                value: any,
-                record: Aui.Data.Record,
-                $dom: Dom,
-                rowIndex: number,
-                columnIndex: number,
-                column: Aui.Tree.Column,
-                tree: Aui.Tree.Panel
-            ) => string {
-                return (value, _record, $dom) => {
-                    $dom.setStyle('text-align', 'right');
-                    return Format.number(value, Aui.getLanguage());
-                };
-            }
-        }
-
         export class Pagination extends Aui.Toolbar {
             tree: Aui.Tree.Panel = null;
             store: Aui.TreeStore = null;
