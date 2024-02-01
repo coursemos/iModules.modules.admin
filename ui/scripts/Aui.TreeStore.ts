@@ -6,7 +6,7 @@
  * @file /scripts/Aui.TreeStore.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 2.
  */
 namespace Aui {
     export namespace TreeStore {
@@ -361,6 +361,14 @@ namespace Aui {
                 records.push(record);
             }
             this.data?.add(records);
+            await this.onUpdate();
+        }
+
+        /**
+         * 모든 데이터를 삭제한다.
+         */
+        async empty(): Promise<void> {
+            this.data?.empty();
             await this.onUpdate();
         }
 

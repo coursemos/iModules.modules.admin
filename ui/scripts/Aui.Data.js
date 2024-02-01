@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 27.
+ * @modified 2024. 2. 2.
  */
 var Aui;
 (function (Aui) {
@@ -110,6 +110,12 @@ var Aui;
                 }
                 this.records.push(new Aui.Data.Record(record));
             }
+        }
+        /**
+         * 전체 데이터를 삭제한다.
+         */
+        empty() {
+            this.records = [];
         }
         /**
          * 데이터를 정렬한다.
