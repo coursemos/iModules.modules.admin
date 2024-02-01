@@ -40,6 +40,11 @@ namespace Aui {
                 tabPosition?: 'top' | 'bottom' | 'hidden';
 
                 /**
+                 * @type {'default'|'small'} tabSize - 탭바 크기
+                 */
+                tabSize?: string;
+
+                /**
                  * @type {Aui.Tab.Panel.Listeners} listeners - 이벤트리스너
                  */
                 listeners?: Aui.Tab.Panel.Listeners;
@@ -55,6 +60,7 @@ namespace Aui {
             activeTab: number;
             activeTabId: string;
             tabPosition: 'top' | 'bottom';
+            tabSize: string;
 
             bar: Aui.Tab.Bar;
 
@@ -74,11 +80,13 @@ namespace Aui {
                 } else {
                     this.tabPosition = this.properties.tabPosition ?? 'bottom';
                 }
+                this.tabSize = this.properties.tabSize ?? 'default';
                 this.scrollable = false;
 
                 this.bar = new Aui.Tab.Bar({
                     id: this.id + '-Bar',
                     position: this.tabPosition,
+                    size: this.tabSize,
                     hidden: this.properties.tabPosition == 'hidden',
                 });
                 this.bar.setParent(this);
@@ -226,6 +234,8 @@ namespace Aui {
             type: string = 'toolbar';
             role: string = 'tab';
 
+            size: string = 'default';
+
             /**
              * 탭바를 생성한다.
              *
@@ -236,6 +246,7 @@ namespace Aui {
 
                 this.border = this.properties.border ?? true;
                 this.position = this.properties.position ?? 'bottom';
+                this.size = this.properties.size ?? 'default';
             }
 
             /**
@@ -275,6 +286,9 @@ namespace Aui {
              */
             render(): void {
                 this.$component.setData('position', this.position);
+                if (this.size !== 'default') {
+                    this.$getContainer().addClass(this.size);
+                }
                 super.render();
             }
 

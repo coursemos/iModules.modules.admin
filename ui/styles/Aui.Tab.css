@@ -19,7 +19,7 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
 
         > div[data-role='top'] {
             flex-shrink: 0;
-            // @todo 좌로이동
+            /* @todo 좌로이동 */
         }
 
         > div[data-role='content'] {
@@ -68,7 +68,7 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
 
         > div[data-role='bottom'] {
             flex-shrink: 0;
-            // @todo 우로이동
+            /* @todo 우로이동 */
         }
 
         &[data-position='top'] {
@@ -85,6 +85,18 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
                     margin-bottom: 6px;
                 }
             }
+        }
+
+        &.small {
+            --tabbar-height: var(--tabbar-small-height);
+            --tabbar-background: var(--tabbar-small-background);
+            --tabbar-button-background-default: var(--tabbar-small-button-background-default);
+            --tabbar-button-background-hover: var(--tabbar-small-button-background-hover);
+            --tabbar-button-background-selected: var(--tabbar-small-button-background-selected);
+            --tabbar-button-border-color-default: var(--tabbar-small-button-border-color-default);
+            --tabbar-button-color-default: var(--tabbar-small-button-color-default);
+            --tabbar-button-color-hover: var(--tabbar-small-button-color-hover);
+            --tabbar-button-color-selected: var(--tabbar-small-button-color-selected);
         }
     }
 }

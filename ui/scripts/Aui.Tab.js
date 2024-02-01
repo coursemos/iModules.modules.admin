@@ -21,6 +21,7 @@ var Aui;
             activeTab;
             activeTabId;
             tabPosition;
+            tabSize;
             bar;
             /**
              * 탭패널을 생성한다.
@@ -37,10 +38,12 @@ var Aui;
                 else {
                     this.tabPosition = this.properties.tabPosition ?? 'bottom';
                 }
+                this.tabSize = this.properties.tabSize ?? 'default';
                 this.scrollable = false;
                 this.bar = new Aui.Tab.Bar({
                     id: this.id + '-Bar',
                     position: this.tabPosition,
+                    size: this.tabSize,
                     hidden: this.properties.tabPosition == 'hidden',
                 });
                 this.bar.setParent(this);
@@ -170,6 +173,7 @@ var Aui;
         class Bar extends Aui.Toolbar {
             type = 'toolbar';
             role = 'tab';
+            size = 'default';
             /**
              * 탭바를 생성한다.
              *
@@ -179,6 +183,7 @@ var Aui;
                 super(properties);
                 this.border = this.properties.border ?? true;
                 this.position = this.properties.position ?? 'bottom';
+                this.size = this.properties.size ?? 'default';
             }
             /**
              * 탭바의 하위 컴포넌트를 초기화한다.
@@ -212,6 +217,9 @@ var Aui;
              */
             render() {
                 this.$component.setData('position', this.position);
+                if (this.size !== 'default') {
+                    this.$getContainer().addClass(this.size);
+                }
                 super.render();
             }
             /**

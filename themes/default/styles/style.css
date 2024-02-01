@@ -173,6 +173,16 @@
     --tabbar-button-color-hover: var(--color-background);
     --tabbar-button-color-selected: var(--color-primary-500);
 
+    --tabbar-small-height: calc(var(--toolbar-height) + 1px);
+    --tabbar-small-background: var(--color-text-100);
+    --tabbar-small-button-background-default: transparent;
+    --tabbar-small-button-background-hover: var(--color-text-200);
+    --tabbar-small-button-background-selected: var(--color-background);
+    --tabbar-small-button-border-color-default: transparent;
+    --tabbar-small-button-color-default: var(--color-background);
+    --tabbar-small-button-color-hover: var(--color-background);
+    --tabbar-small-button-color-selected: var(--color-text-400);
+
     --panel-background: var(--color-background);
     --panel-border-color-default: var(--color-background-200);
     --panel-background-disabled: var(--color-background-100);
