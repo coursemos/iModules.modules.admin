@@ -82,7 +82,9 @@ Admin.ready(async () => {
                                 dataIndex: 'administrators',
                                 sortable: true,
                                 width: 80,
-                                renderer: Aui.Tree.Renderer.Number(),
+                                renderer: (value) => {
+                                    return Format.number(value);
+                                },
                             },
                         ],
                         store: new Aui.TreeStore.Ajax({
@@ -244,7 +246,7 @@ Admin.ready(async () => {
                         ]),
                         columns: [
                             {
-                                text: '#',
+                                text: '',
                                 dataIndex: 'member_id',
                                 width: 50,
                                 headerAlign: 'center',
@@ -290,9 +292,9 @@ Admin.ready(async () => {
                                 dataIndex: 'logged_at',
                                 width: 160,
                                 sortable: true,
-                                renderer: (value, ...args) => {
+                                renderer: (value) => {
                                     if (value > 0) {
-                                        return Aui.Grid.Renderer.DateTime()(value, ...args);
+                                        return Format.date('Y.m.d(D) H:i', value);
                                     }
                                     else {
                                         return '';
@@ -455,7 +457,9 @@ Admin.ready(async () => {
                         width: 180,
                         textAlign: 'center',
                         sortable: true,
-                        renderer: Aui.Grid.Renderer.DateTime('YYYY.MM.DD(dd) HH:mm:ss'),
+                        renderer: (value) => {
+                            return Format.date('Y.m.d(D) H:i:s', value);
+                        },
                     },
                     {
                         text: (await me.getText('admin.administrators.logs.name')),
