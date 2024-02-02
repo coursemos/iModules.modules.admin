@@ -1269,7 +1269,7 @@ var Aui;
                  */
                 setValue(value, is_origin = false) {
                     value = value?.toString() ?? '';
-                    if (this.$getInput().getValue() != value) {
+                    if (this.$getInput().getData('renderer') !== true && this.$getInput().getValue() != value) {
                         this.$getInput().setValue(value);
                     }
                     if (value.length > 0) {
@@ -1950,11 +1950,13 @@ var Aui;
             }
             Field.Color = Color;
             class Number extends Aui.Form.Field.Text {
-                inputType = 'number';
+                inputType = 'text';
                 step;
                 minValue;
                 maxValue;
                 spinner;
+                format;
+                locale;
                 $spinner;
                 spinTimeout;
                 /**
@@ -1964,7 +1966,10 @@ var Aui;
                  */
                 constructor(properties = null) {
                     super(properties);
-                    this.spinner = this.properties.spinner !== false;
+                    this.spinner = this.properties.spinner === true;
+                    this.format = this.properties.format === true;
+                    this.locale = this.properties.locale ?? Html.get('html').getAttr('lang') ?? 'ko';
+                    this.inputAlign = this.properties.inputAlign ?? 'right';
                     this.step = this.properties.step ?? 1;
                     this.minValue = this.properties.minValue ?? null;
                     this.maxValue = this.properties.maxnValue ?? null;
@@ -1981,12 +1986,26 @@ var Aui;
                             name: this.inputName,
                             step: this.step.toString(),
                         });
-                        if (this.inputAlign !== null) {
-                            this.$input.setStyle('text-align', this.inputAlign);
-                        }
+                        this.$input.setStyle('text-align', this.inputAlign);
+                        this.$input.setData('renderer', true);
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
-                            this.setValue(input.value);
+                            if (input.value.endsWith('.') == false && input.value.endsWith(',') == false) {
+                                this.setValue(input.value);
+                            }
+                        });
+                        this.$input.on('keydown', (e) => {
+                            if (e.key == 'Backspace' ||
+                                e.key == 'Tab' ||
+                                e.key == 'Delete' ||
+                                e.key.search(/Arrow/) > -1 ||
+                                e.metaKey == true ||
+                                e.ctrlKey == true) {
+                                return;
+                            }
+                            if (e.key.search(/[0-9\.,]/) == -1) {
+                                e.preventDefault();
+                            }
                         });
                     }
                     return this.$input;
@@ -2070,6 +2089,30 @@ var Aui;
                     return this.$spinner;
                 }
                 /**
+                 * 포맷팅된 숫자문자열을 숫자로 변환한다.
+                 *
+                 * @param {string} number - 포맷팅된 숫자
+                 * @return {number} number
+                 */
+                localeStringToFloat(number) {
+                    const parts = (1234.5).toLocaleString(this.locale).match(/(\D+)/g);
+                    let unformatted = number;
+                    if (parts) {
+                        unformatted = unformatted.split(parts[0]).join('');
+                        unformatted = unformatted.split(parts[1]).join('.');
+                        return parseFloat(unformatted);
+                    }
+                    return parseFloat(number);
+                }
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {number} value
+                 */
+                getValue() {
+                    return this.value;
+                }
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {number|string} value - 값
@@ -2077,7 +2120,7 @@ var Aui;
                  */
                 setValue(value, is_origin = false) {
                     if (typeof value == 'string') {
-                        value = parseFloat(value);
+                        value = this.localeStringToFloat(value);
                     }
                     if (typeof value != 'number' || isNaN(value) == true) {
                         return;
@@ -2087,6 +2130,9 @@ var Aui;
                     }
                     if (this.maxValue !== null) {
                         value = Math.min(this.maxValue, value);
+                    }
+                    if (this.format == true) {
+                        this.$getInput().setValue(Format.number(value, this.locale));
                     }
                     super.setValue(value, is_origin);
                 }
@@ -2187,6 +2233,7 @@ var Aui;
                 renderContent() {
                     const $display = this.$getDisplay();
                     this.$getContent().append($display);
+                    this.setValue(this.value);
                 }
             }
             Field.Display = Display;
