@@ -13,6 +13,7 @@ var Aui;
     class Loading extends Aui.Base {
         component;
         type;
+        modal;
         direction;
         text;
         /**
@@ -25,8 +26,22 @@ var Aui;
             super(properties);
             this.component = component;
             this.type = this.properties.type;
+            this.modal = this.modal === false;
             this.direction = this.properties.direction ?? 'column';
             this.text = this.properties.text ?? null;
+        }
+        /**
+         * 로딩메시지 DOM 이 추가되는 DOM 을 가져온다.
+         *
+         * @return {Dom} $appended
+         */
+        $getAppended() {
+            if (this.modal == true) {
+                return this.component.$getContainer();
+            }
+            else {
+                return this.component.$getContent();
+            }
         }
         /**
          * 로딩메시지 DOM 을 가져온다.
@@ -34,7 +49,7 @@ var Aui;
          * @return {Dom} $loading
          */
         $getLoading() {
-            if (Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer()).getEl() == null) {
+            if (Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended()).getEl() == null) {
                 const $loading = Html.create('div', { 'data-type': 'loading', 'data-role': 'loading' });
                 const $box = Html.create('div', { 'data-role': 'box' });
                 $box.addClass(this.direction);
@@ -53,9 +68,9 @@ var Aui;
                 $text.html(this.text ?? Aui.printText('actions.loading_status'));
                 $box.append($text);
                 $loading.append($box);
-                this.component.$getContainer().append($loading);
+                this.$getAppended().append($loading);
             }
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended());
             return $loading;
         }
         /**
@@ -85,7 +100,7 @@ var Aui;
          * 로딩메시지를 닫는다.
          */
         close() {
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended());
             if ($loading.getEl() !== null) {
                 $loading.remove();
             }

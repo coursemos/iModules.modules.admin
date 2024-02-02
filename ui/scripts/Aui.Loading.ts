@@ -19,6 +19,11 @@ namespace Aui {
             type: Aui.Loading.Type;
 
             /**
+             * @type {boolean} modal - 로딩메세지가 객체를 덮을지 여부
+             */
+            modal?: boolean;
+
+            /**
              * @type {direction} direction - 로딩아이콘 및 로딩메시지의 위치방향
              */
             direction?: 'column' | 'row';
@@ -34,6 +39,7 @@ namespace Aui {
         component: Aui.Component;
 
         type: Aui.Loading.Type;
+        modal: boolean;
         direction: 'column' | 'row';
         text: string;
 
@@ -48,8 +54,22 @@ namespace Aui {
 
             this.component = component;
             this.type = this.properties.type;
+            this.modal = this.modal === false;
             this.direction = this.properties.direction ?? 'column';
             this.text = this.properties.text ?? null;
+        }
+
+        /**
+         * 로딩메시지 DOM 이 추가되는 DOM 을 가져온다.
+         *
+         * @return {Dom} $appended
+         */
+        $getAppended(): Dom {
+            if (this.modal == true) {
+                return this.component.$getContainer();
+            } else {
+                return this.component.$getContent();
+            }
         }
 
         /**
@@ -58,9 +78,7 @@ namespace Aui {
          * @return {Dom} $loading
          */
         $getLoading(): Dom {
-            if (
-                Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer()).getEl() == null
-            ) {
+            if (Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended()).getEl() == null) {
                 const $loading = Html.create('div', { 'data-type': 'loading', 'data-role': 'loading' });
                 const $box = Html.create('div', { 'data-role': 'box' });
                 $box.addClass(this.direction);
@@ -84,10 +102,10 @@ namespace Aui {
                 $box.append($text);
 
                 $loading.append($box);
-                this.component.$getContainer().append($loading);
+                this.$getAppended().append($loading);
             }
 
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended());
 
             return $loading;
         }
@@ -122,7 +140,7 @@ namespace Aui {
          * 로딩메시지를 닫는다.
          */
         close(): void {
-            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.component.$getContainer());
+            const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended());
             if ($loading.getEl() !== null) {
                 $loading.remove();
             }

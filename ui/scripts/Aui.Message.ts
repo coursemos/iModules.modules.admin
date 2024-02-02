@@ -194,6 +194,7 @@ namespace Aui {
                             'loading',
                             new Aui.Loading(window, {
                                 type: properties?.type ?? 'dot',
+                                modal: false,
                                 text: properties?.message ?? Aui.printText('actions.loading'),
                             })
                         );

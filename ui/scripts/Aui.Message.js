@@ -96,6 +96,7 @@ var Aui;
                         window.$getComponent().setAttr('data-role', 'message');
                         window.setData('loading', new Aui.Loading(window, {
                             type: properties?.type ?? 'dot',
+                            modal: false,
                             text: properties?.message ?? Aui.printText('actions.loading'),
                         }));
                         window.getData('loading')?.show();
