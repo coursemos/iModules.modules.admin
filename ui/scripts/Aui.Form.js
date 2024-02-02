@@ -2233,7 +2233,7 @@ var Aui;
                 renderContent() {
                     const $display = this.$getDisplay();
                     this.$getContent().append($display);
-                    this.setValue(this.value);
+                    this.setValue(this.value ?? null);
                 }
             }
             Field.Display = Display;
