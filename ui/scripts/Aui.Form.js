@@ -4100,6 +4100,7 @@ var Aui;
                 gap;
                 columns;
                 options;
+                $inputs;
                 /**
                  * 체크박스그룹필드 클래스 생성한다.
                  *
@@ -4138,6 +4139,19 @@ var Aui;
                     super.initItems();
                 }
                 /**
+                 * 선택항목이 추가될 DOM 객체를 가져온다.
+                 *
+                 * @return {Dom} $inputs
+                 */
+                $getInputs() {
+                    if (this.$inputs === undefined) {
+                        this.$inputs = Html.create('div', { 'data-role': 'inputs' });
+                        this.$inputs.setStyle('grid-template-columns', 'repeat(' + this.columns + ', 1fr)');
+                        this.$inputs.setStyle('grid-gap', this.gap + 'px');
+                    }
+                    return this.$inputs;
+                }
+                /**
                  * 옵션값을 추가한다.
                  *
                  * @param {string} value - 값
@@ -4162,6 +4176,33 @@ var Aui;
                                 },
                             },
                         }));
+                    }
+                }
+                /**
+                 * 자식 컴포넌트를 추가한다.
+                 *
+                 * @param {Aui.Component} item - 추가할 컴포넌트
+                 * @param {number} position - 추가할 위치 (NULL 인 경우 제일 마지막 위치)
+                 */
+                append(item, position = null) {
+                    if (this.items === null) {
+                        this.items = [];
+                    }
+                    item.setParent(this);
+                    if (position === null || position >= (this.items.length ?? 0)) {
+                        this.items.push(item);
+                    }
+                    else if (position < 0 && Math.abs(position) >= (this.items.length ?? 0)) {
+                        this.items.unshift(item);
+                    }
+                    else {
+                        this.items.splice(position, 0, item);
+                    }
+                    if (this.isRendered() == true) {
+                        this.$getInputs().append(item.$getComponent(), position);
+                        if (item.isRenderable() == true) {
+                            item.render();
+                        }
                     }
                 }
                 /**
@@ -4218,13 +4259,11 @@ var Aui;
                  */
                 renderContent() {
                     const $content = this.$getContent();
-                    const $inputs = Html.create('div', { 'data-role': 'inputs' });
+                    const $inputs = this.$getInputs();
                     for (const item of this.items) {
                         $inputs.append(item.$getComponent());
                         item.render();
                     }
-                    $inputs.setStyle('grid-template-columns', 'repeat(' + Math.min(this.items.length, this.columns) + ', 1fr)');
-                    $inputs.setStyle('grid-gap', this.gap + 'px');
                     $content.append($inputs);
                 }
             }
