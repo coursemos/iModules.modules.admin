@@ -89,7 +89,7 @@ var Aui;
         /**
          * 전체페이지를 가져온다.
          *
-         * @returns {number} totalPage
+         * @return {number} totalPage
          */
         getTotalPage() {
             return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;

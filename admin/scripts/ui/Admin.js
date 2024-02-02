@@ -16,7 +16,7 @@ var Admin;
      * 모듈의 관리자 클래스를 가져온다.
      *
      * @param {string} name - 모듈명
-     * @returns {modules.admin.admin.Component} - 모듈 관리자 클래스
+     * @return {modules.admin.admin.Component} - 모듈 관리자 클래스
      */
     function getModule(name) {
         if (Admin.modules.has(name) == false) {

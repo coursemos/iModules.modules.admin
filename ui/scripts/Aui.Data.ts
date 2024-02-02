@@ -389,7 +389,7 @@ namespace Aui {
             /**
              * 데이터의 고유값 해시(SHA1)를 가져온다.
              *
-             * @returns {string} hash
+             * @return {string} hash
              */
             getHash(): string {
                 if (this.hash === undefined) {

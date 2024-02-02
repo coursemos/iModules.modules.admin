@@ -182,7 +182,7 @@ var Aui;
         /**
          * 버튼값을 가져온다.
          *
-         * @returns {string|number} value
+         * @return {string|number} value
          */
         getValue() {
             return this.value;
@@ -190,7 +190,7 @@ var Aui;
         /**
          * 버튼이 눌린 상태인지 가져온다.
          *
-         * @returns {boolean} pressed
+         * @return {boolean} pressed
          */
         isPressed() {
             return this.pressed;

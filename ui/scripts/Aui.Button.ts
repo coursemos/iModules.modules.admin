@@ -273,7 +273,7 @@ namespace Aui {
         /**
          * 버튼값을 가져온다.
          *
-         * @returns {string|number} value
+         * @return {string|number} value
          */
         getValue(): string | number {
             return this.value;
@@ -282,7 +282,7 @@ namespace Aui {
         /**
          * 버튼이 눌린 상태인지 가져온다.
          *
-         * @returns {boolean} pressed
+         * @return {boolean} pressed
          */
         isPressed(): boolean {
             return this.pressed;

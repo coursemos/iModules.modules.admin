@@ -43,7 +43,7 @@ var Aui;
          *
          * @param {number} index - 가져올 인덱스
          * @param {string} path - 해당 인덱스의 경로
-         * @returns {Aui.Grid.Panel} tree - 트리 패널
+         * @return {Aui.Grid.Panel} tree - 트리 패널
          */
         getTreeAt(index, path = null) {
             if (this.getItemAt(index) === null) {
