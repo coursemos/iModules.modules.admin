@@ -1364,6 +1364,7 @@ namespace Aui {
             textVerticalAlign: string;
             columns: Aui.Grid.Column[];
             resizer: Aui.Resizer;
+            menu: Aui.Menu;
             renderer: (
                 value: any,
                 record: Aui.Data.Record,
@@ -1398,6 +1399,9 @@ namespace Aui {
                 this.textVerticalAlign = this.properties.textVerticalAlign ?? 'middle';
                 this.columns = [];
                 this.renderer = this.properties.renderer ?? null;
+
+                // @todo 메뉴설정
+                this.menu = null;
 
                 for (let column of properties?.columns ?? []) {
                     if (!(column instanceof Aui.Grid.Column)) {
@@ -1672,6 +1676,10 @@ namespace Aui {
                     $label.addClass(this.headerAlign);
                     $label.html(this.text);
 
+                    if (this.grid.getStore().getPrimaryKeys().includes(this.dataIndex) == true) {
+                        $label.append(Html.create('i', { 'data-role': 'keys' }));
+                    }
+
                     if (this.sortable !== false) {
                         const $sorter = Html.create('i', { 'data-role': 'sorter' });
                         $label.prepend($sorter);
@@ -1694,8 +1702,10 @@ namespace Aui {
                     $label.setData('dataindex', this.dataIndex);
                     $header.append($label);
 
-                    const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
-                    $header.append($button);
+                    if (this.menu !== null) {
+                        const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
+                        $header.append($button);
+                    }
                 }
 
                 if (this.isHidden() == true) {
@@ -2124,9 +2134,11 @@ namespace Aui {
             getPageInput(): Aui.Form.Field.Number {
                 if (this.pageInput === undefined) {
                     this.pageInput = new Aui.Form.Field.Number({
+                        value: 1,
                         minValue: 1,
                         width: 50,
                         spinner: false,
+                        format: false,
                     });
 
                     this.pageInput.$getInput().on('keydown', (e: KeyboardEvent) => {

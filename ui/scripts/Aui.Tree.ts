@@ -1649,6 +1649,7 @@ namespace Aui {
             textVerticalAlign: string;
             columns: Aui.Tree.Column[];
             resizer: Aui.Resizer;
+            menu: Aui.Menu;
             renderer: (
                 value: any,
                 record: Aui.Data.Record,
@@ -1683,6 +1684,9 @@ namespace Aui {
                 this.textVerticalAlign = this.properties.textVerticalAlign ?? 'middle';
                 this.columns = [];
                 this.renderer = this.properties.renderer ?? null;
+
+                // @todo 메뉴설정
+                this.menu = null;
 
                 for (let column of properties?.columns ?? []) {
                     if (!(column instanceof Aui.Tree.Column)) {
@@ -1956,6 +1960,9 @@ namespace Aui {
                     const $label = Html.create('label');
                     $label.addClass(this.headerAlign);
                     $label.html(this.text);
+                    if (this.tree.getStore().getPrimaryKeys().includes(this.dataIndex) == true) {
+                        $label.append(Html.create('i', { 'data-role': 'keys' }));
+                    }
 
                     if (this.sortable !== false) {
                         const $sorter = Html.create('i', { 'data-role': 'sorter' });
@@ -1979,8 +1986,10 @@ namespace Aui {
                     $label.setData('dataindex', this.dataIndex);
                     $header.append($label);
 
-                    const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
-                    $header.append($button);
+                    if (this.menu !== null) {
+                        const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
+                        $header.append($button);
+                    }
                 }
 
                 if (this.isHidden() == true) {
