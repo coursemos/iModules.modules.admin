@@ -2754,6 +2754,8 @@ namespace Aui {
 
                     if (this.format == true) {
                         this.$getInput().setValue(Format.number(value, this.locale));
+                    } else {
+                        this.$getInput().setValue(value.toString());
                     }
 
                     super.setValue(value, is_origin);
