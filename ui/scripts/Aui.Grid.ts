@@ -1677,7 +1677,9 @@ namespace Aui {
                     $label.html(this.text);
 
                     if (this.grid.getStore().getPrimaryKeys().includes(this.dataIndex) == true) {
-                        $label.append(Html.create('i', { 'data-role': 'keys' }));
+                        $label.append(
+                            Html.create('i', { 'data-role': 'keys', 'class': this.text?.length > 0 ? 'text' : '' })
+                        );
                     }
 
                     if (this.sortable !== false) {
