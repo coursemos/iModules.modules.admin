@@ -378,6 +378,7 @@ namespace Aui {
         pressedButton: Aui.Button;
         toggle: boolean;
         value: string | number;
+        rawValue: string | number;
 
         /**
          * 분할버튼을 생성한다.
@@ -389,7 +390,8 @@ namespace Aui {
 
             this.direction = this.properties.direction ?? 'row';
             this.toggle = this.properties.toggle === true;
-            this.value = this.properties.value ?? null;
+            this.value = null;
+            this.rawValue = this.properties.value ?? null;
         }
 
         /**
@@ -474,11 +476,11 @@ namespace Aui {
         render(): void {
             this.$getContent().addClass(this.direction);
 
-            if (this.value !== null) {
-                this.setValue(this.value);
-            }
-
             super.render();
+
+            if (this.rawValue !== null) {
+                this.setValue(this.rawValue);
+            }
         }
     }
 }

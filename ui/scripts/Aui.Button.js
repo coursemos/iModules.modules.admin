@@ -242,6 +242,7 @@ var Aui;
         pressedButton;
         toggle;
         value;
+        rawValue;
         /**
          * 분할버튼을 생성한다.
          *
@@ -251,7 +252,8 @@ var Aui;
             super(properties);
             this.direction = this.properties.direction ?? 'row';
             this.toggle = this.properties.toggle === true;
-            this.value = this.properties.value ?? null;
+            this.value = null;
+            this.rawValue = this.properties.value ?? null;
         }
         /**
          * 분할버튼의 각 버튼을 초기화한다.
@@ -323,10 +325,10 @@ var Aui;
          */
         render() {
             this.$getContent().addClass(this.direction);
-            if (this.value !== null) {
-                this.setValue(this.value);
-            }
             super.render();
+            if (this.rawValue !== null) {
+                this.setValue(this.rawValue);
+            }
         }
     }
     Aui.SegmentedButton = SegmentedButton;
