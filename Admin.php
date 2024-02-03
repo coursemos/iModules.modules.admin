@@ -371,6 +371,7 @@ class Admin extends \Module
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Form.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Window.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Message.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.ProgressBar.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Viewport.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Menu.js');
         \Html::script(\Cache::script('Aui'), 10);
@@ -414,6 +415,7 @@ class Admin extends \Module
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Form.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Window.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Message.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.ProgressBar.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Viewport.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Menu.css');
         \Html::style(\Cache::style('Aui'), 10);

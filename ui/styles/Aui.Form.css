@@ -759,6 +759,7 @@ div[data-component][data-type='form'][data-role='field'] {
                         }
 
                         > progress {
+                            appearance: none;
                             width: 80%;
                             height: 8px;
                             border: 1px solid rgba(0, 0, 0, 0.6);
