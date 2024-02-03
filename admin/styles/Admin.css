@@ -8,6 +8,7 @@
  * @license MIT License
  * @modified 2024. 1. 26.
  */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 html,
 body[data-type='admin'],
 body[data-type='login'] {
@@ -99,6 +100,32 @@ body[data-type='login'] {
             line-height: 1;
             font-variant-numeric: tabular-nums;
             text-align: center;
+        }
+
+        div[data-role='column'] {
+            &.monospace {
+                > div[data-role='view'] {
+                    font-family: 'Roboto Mono', monospace !important;
+                    letter-spacing: -0.5px;
+                }
+            }
+
+            &.numeric {
+                > div[data-role='view'] {
+                    font-variant-numeric: tabular-nums;
+                    text-align: right;
+                }
+            }
+
+            &.small {
+                > div[data-role='view'] {
+                    font-size: 0.8rem !important;
+                }
+            }
+        }
+
+        > div[data-role='view'] {
+            font-size: 0.8rem !important;
         }
 
         div[data-component][data-type='form'][data-role='field'].context_type {
