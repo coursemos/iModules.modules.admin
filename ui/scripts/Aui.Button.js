@@ -182,10 +182,18 @@ var Aui;
         /**
          * 버튼값을 가져온다.
          *
-         * @return {string|number} value
+         * @return {any} value
          */
         getValue() {
             return this.value;
+        }
+        /**
+         * 버튼값을 지정한다.
+         *
+         * @return {any} value
+         */
+        setValue(value) {
+            this.value = value;
         }
         /**
          * 버튼이 눌린 상태인지 가져온다.

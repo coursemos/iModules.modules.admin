@@ -64,9 +64,9 @@ namespace Aui {
             pressed?: boolean;
 
             /**
-             * @type {string|number} value - 버튼값
+             * @type {any} value - 버튼값
              */
-            value?: string | number;
+            value?: any;
 
             /**
              * @type {Function} handler - 버튼 클릭 핸들러
@@ -101,7 +101,7 @@ namespace Aui {
         tabIndex: number;
         toggle: boolean;
         pressed: boolean;
-        value: string | number;
+        value: any;
         handler: Function;
 
         menu: Aui.Menu;
@@ -273,10 +273,19 @@ namespace Aui {
         /**
          * 버튼값을 가져온다.
          *
-         * @return {string|number} value
+         * @return {any} value
          */
-        getValue(): string | number {
+        getValue(): any {
             return this.value;
+        }
+
+        /**
+         * 버튼값을 지정한다.
+         *
+         * @return {any} value
+         */
+        setValue(value: any): any {
+            this.value = value;
         }
 
         /**
