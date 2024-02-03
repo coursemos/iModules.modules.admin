@@ -1244,6 +1244,7 @@ var Aui;
             textWrap;
             textAlign;
             textVerticalAlign;
+            textClass;
             columns;
             resizer;
             menu;
@@ -1269,6 +1270,7 @@ var Aui;
                 this.textWrap = this.properties.textWrap ?? true;
                 this.textAlign = this.properties.textAlign ?? 'left';
                 this.textVerticalAlign = this.properties.textVerticalAlign ?? 'middle';
+                this.textClass = this.properties.textClass ?? null;
                 this.columns = [];
                 this.renderer = this.properties.renderer ?? null;
                 // @todo 메뉴설정
@@ -1643,6 +1645,9 @@ var Aui;
                     $column.setStyle('width', this.minWidth + 'px');
                 }
                 $column.addClass(this.textAlign);
+                if (this.textClass !== null) {
+                    $column.addClass(...this.textClass.split(' '));
+                }
                 $column.on('pointerdown', (e) => {
                     const $column = Html.el(e.currentTarget);
                     this.tree.focusCell($column.getData('tree'), $column.getData('column'));

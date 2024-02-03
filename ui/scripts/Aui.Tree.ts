@@ -1614,6 +1614,11 @@ namespace Aui {
                 textVerticalAlign?: 'top' | 'middle' | 'bottom';
 
                 /**
+                 * @type {string} textClass - 데이터 스타일시트
+                 */
+                textClass?: string;
+
+                /**
                  * @type {(Aui.Tree.Column | Aui.Tree.Column.Properties)[]} columns - 하위컬럼
                  */
                 columns?: (Aui.Tree.Column | Aui.Tree.Column.Properties)[];
@@ -1647,6 +1652,7 @@ namespace Aui {
             textWrap: boolean;
             textAlign: string;
             textVerticalAlign: string;
+            textClass: string;
             columns: Aui.Tree.Column[];
             resizer: Aui.Resizer;
             menu: Aui.Menu;
@@ -1682,6 +1688,7 @@ namespace Aui {
                 this.textWrap = this.properties.textWrap ?? true;
                 this.textAlign = this.properties.textAlign ?? 'left';
                 this.textVerticalAlign = this.properties.textVerticalAlign ?? 'middle';
+                this.textClass = this.properties.textClass ?? null;
                 this.columns = [];
                 this.renderer = this.properties.renderer ?? null;
 
@@ -2093,6 +2100,10 @@ namespace Aui {
                 }
 
                 $column.addClass(this.textAlign);
+
+                if (this.textClass !== null) {
+                    $column.addClass(...this.textClass.split(' '));
+                }
 
                 $column.on('pointerdown', (e: PointerEvent) => {
                     const $column = Html.el(e.currentTarget);
