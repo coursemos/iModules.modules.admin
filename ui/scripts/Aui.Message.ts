@@ -63,6 +63,50 @@ namespace Aui {
             }
         }
 
+        export namespace Progress {
+            export interface Properties extends Aui.Component.Properties {
+                /**
+                 * @type {Aui.Title|string} title - 메시지창 제목
+                 */
+                title?: Aui.Title | string;
+
+                /**
+                 * @type {string} message - 메시지
+                 */
+                message?: string;
+
+                /**
+                 * @type {string} method - 프로그래스바를 호출할 메소드
+                 */
+                method?: 'GET' | 'POST' | 'DELETE';
+
+                /**
+                 * @type {string} url - 프로그래스바를 호출할 URL
+                 */
+                url: string;
+
+                /**
+                 * @type {Aui.Ajax.Params} url - 프로그래스바를 호출할 URL 매개변수
+                 */
+                params?: Ajax.Params;
+
+                /**
+                 * @type {Aui.Ajax.Data} url - 프로그래스바를 호출할 데이터
+                 */
+                data?: Aui.Ajax.Data;
+
+                /**
+                 * @type {Function} handler - 삭제완료 후 실행할 핸들러
+                 */
+                progress: (progressBar: Aui.ProgressBar, results: globalThis.Progress.Results) => void;
+
+                /**
+                 * @type {Function} handler - 삭제완료 후 실행할 핸들러
+                 */
+                handler?: (button: Aui.Button, results: Aui.Ajax.Results) => Promise<void>;
+            }
+        }
+
         export namespace Delete {
             export interface Properties extends Aui.Component.Properties {
                 /**
@@ -210,6 +254,111 @@ namespace Aui {
         }
 
         /**
+         * 로딩메시지를 연다.
+         *
+         * @param {Aui.Message.Progress.Properties} properties - 로딩설정
+         */
+        static progress(properties: Aui.Message.Progress.Properties = null): void {
+            const progress = Progress.init();
+
+            const width = Aui.Message.message?.$getComponent()?.getWidth() ?? 402;
+
+            Aui.Message.close();
+
+            Aui.Message.message = new Aui.Window({
+                title: properties?.title ?? Aui.printText('actions.progress_status'),
+                modal: true,
+                movable: false,
+                resizable: false,
+                closable: false,
+                scrollable: false,
+                width: width - 2,
+                padding: 10,
+                items: [
+                    new Aui.ProgressBar({
+                        message: properties?.message ?? null,
+                        loading: true,
+                    }),
+                ],
+                buttons: [
+                    new Aui.Button({
+                        text: Aui.printText('buttons.cancel'),
+                        handler: () => {
+                            progress.abort();
+                            Aui.Message.close();
+                        },
+                    }),
+                    new Aui.Button({
+                        text: Aui.printText('buttons.ok'),
+                        buttonClass: 'confirm',
+                        handler: async (button) => {
+                            if (typeof properties?.handler == 'function') {
+                                await properties.handler(button, button.value);
+                            }
+                            Aui.Message.close();
+                        },
+                    }),
+                ],
+                listeners: {
+                    show: (window) => {
+                        const button = window.buttons.at(1) as Aui.Button;
+                        button.setLoading(true);
+                        const method = (properties.method ?? 'GET').toUpperCase();
+                        const url = properties.url;
+                        const params = (properties.params ?? null) as Ajax.Params;
+                        const data = properties.data ?? null;
+
+                        const callback = (results: Progress.Results) => {
+                            const progressBar = window.getItemAt(0) as Aui.ProgressBar;
+                            progressBar.setMax(results.total);
+                            progressBar.setValue(results.current);
+
+                            if (typeof properties.progress == 'function') {
+                                properties.progress(progressBar, results);
+                            }
+
+                            if (results.end == true) {
+                                if (results.success == true) {
+                                    button.setValue(results);
+                                    button.setLoading(false);
+                                } else {
+                                    Aui.Message.show({
+                                        title: Aui.getErrorText('TITLE'),
+                                        message: Aui.getErrorText('CONNECT_ERROR'),
+                                        icon: Aui.Message.ERROR,
+                                        buttons: Aui.Message.OK,
+                                        handler: async (button) => {
+                                            if (typeof properties?.handler == 'function') {
+                                                await properties.handler(button, results);
+                                            }
+                                            Aui.Message.close();
+                                        },
+                                    });
+                                }
+                            }
+                        };
+
+                        const progress = Progress.init();
+                        switch (method) {
+                            case 'POST':
+                                progress.post(url, data, params, callback);
+                                break;
+
+                            case 'DELETE':
+                                progress.delete(url, params, callback);
+                                break;
+
+                            default:
+                                progress.get(url, params, callback);
+                        }
+                    },
+                },
+            });
+
+            Aui.Message.message.show();
+        }
+
+        /**
          * 삭제를 위한 메시지창을 연다.
          *
          * @param {Aui.Message.Delete.Properties} properties - 로딩설정
@@ -249,6 +398,7 @@ namespace Aui {
                             Aui.Message.show({
                                 title: Aui.getErrorText('INFO'),
                                 message: Aui.printText('actions.deleted'),
+                                icon: Aui.Message.INFO,
                                 buttons: Aui.Message.OK,
                                 handler: async () => {
                                     if (typeof properties?.handler == 'function') {

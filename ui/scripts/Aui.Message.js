@@ -109,6 +109,101 @@ var Aui;
             Aui.Message.message.show();
         }
         /**
+         * 로딩메시지를 연다.
+         *
+         * @param {Aui.Message.Progress.Properties} properties - 로딩설정
+         */
+        static progress(properties = null) {
+            const progress = Progress.init();
+            const width = Aui.Message.message?.$getComponent()?.getWidth() ?? 402;
+            Aui.Message.close();
+            Aui.Message.message = new Aui.Window({
+                title: properties?.title ?? Aui.printText('actions.progress_status'),
+                modal: true,
+                movable: false,
+                resizable: false,
+                closable: false,
+                scrollable: false,
+                width: width - 2,
+                padding: 10,
+                items: [
+                    new Aui.ProgressBar({
+                        message: properties?.message ?? null,
+                        loading: true,
+                    }),
+                ],
+                buttons: [
+                    new Aui.Button({
+                        text: Aui.printText('buttons.cancel'),
+                        handler: () => {
+                            progress.abort();
+                            Aui.Message.close();
+                        },
+                    }),
+                    new Aui.Button({
+                        text: Aui.printText('buttons.ok'),
+                        buttonClass: 'confirm',
+                        handler: async (button) => {
+                            if (typeof properties?.handler == 'function') {
+                                await properties.handler(button, button.value);
+                            }
+                            Aui.Message.close();
+                        },
+                    }),
+                ],
+                listeners: {
+                    show: (window) => {
+                        const button = window.buttons.at(1);
+                        button.setLoading(true);
+                        const method = (properties.method ?? 'GET').toUpperCase();
+                        const url = properties.url;
+                        const params = (properties.params ?? null);
+                        const data = properties.data ?? null;
+                        const callback = (results) => {
+                            const progressBar = window.getItemAt(0);
+                            progressBar.setMax(results.total);
+                            progressBar.setValue(results.current);
+                            if (typeof properties.progress == 'function') {
+                                properties.progress(progressBar, results);
+                            }
+                            if (results.end == true) {
+                                if (results.success == true) {
+                                    button.setValue(results);
+                                    button.setLoading(false);
+                                }
+                                else {
+                                    Aui.Message.show({
+                                        title: Aui.getErrorText('TITLE'),
+                                        message: Aui.getErrorText('CONNECT_ERROR'),
+                                        icon: Aui.Message.ERROR,
+                                        buttons: Aui.Message.OK,
+                                        handler: async (button) => {
+                                            if (typeof properties?.handler == 'function') {
+                                                await properties.handler(button, results);
+                                            }
+                                            Aui.Message.close();
+                                        },
+                                    });
+                                }
+                            }
+                        };
+                        const progress = Progress.init();
+                        switch (method) {
+                            case 'POST':
+                                progress.post(url, data, params, callback);
+                                break;
+                            case 'DELETE':
+                                progress.delete(url, params, callback);
+                                break;
+                            default:
+                                progress.get(url, params, callback);
+                        }
+                    },
+                },
+            });
+            Aui.Message.message.show();
+        }
+        /**
          * 삭제를 위한 메시지창을 연다.
          *
          * @param {Aui.Message.Delete.Properties} properties - 로딩설정
@@ -148,6 +243,7 @@ var Aui;
                             Aui.Message.show({
                                 title: Aui.getErrorText('INFO'),
                                 message: Aui.printText('actions.deleted'),
+                                icon: Aui.Message.INFO,
                                 buttons: Aui.Message.OK,
                                 handler: async () => {
                                     if (typeof properties?.handler == 'function') {
