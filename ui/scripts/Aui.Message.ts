@@ -325,7 +325,7 @@ namespace Aui {
                                 } else {
                                     Aui.Message.show({
                                         title: Aui.getErrorText('TITLE'),
-                                        message: Aui.getErrorText('CONNECT_ERROR'),
+                                        message: results?.message ?? Aui.getErrorText('CONNECT_ERROR'),
                                         icon: Aui.Message.ERROR,
                                         buttons: Aui.Message.OK,
                                         handler: async (button) => {
