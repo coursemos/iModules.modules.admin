@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/site.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 29.
+ * @modified 2024. 2. 4.
  *
  * @var \modules\admin\Admin $me
  */
@@ -77,24 +77,36 @@ if ($check->has() == true) {
 }
 
 if (count($errors) == 0) {
-    if (Input::get('logo') !== null) {
-        $mAttachment->publishFile(Input::get('logo'), $me, 'logo', $insert['host'] . '/' . $insert['language']);
-    }
-
     if ($site === null) {
         iModules::db()
             ->insert(iModules::table('sites'), $insert)
             ->execute();
     } else {
-        if ($site->logo !== null && Input::get('logo') !== $site->logo) {
-            $mAttachment->deleteFile($site->logo);
-        }
-
         iModules::db()
             ->update(iModules::table('sites'), $insert)
             ->where('host', $site->host)
             ->where('language', $site->language)
             ->execute();
+    }
+
+    $mAttachment->publishFile(Input::get('logo'), $me, 'logo', $insert['host'] . '/' . $insert['language'], true);
+    if (Input::get('logo') !== null) {
+        $mAttachment->getAttachment(Input::get('logo'))->setName('logo', false);
+    }
+
+    $mAttachment->publishFile(Input::get('emblem'), $me, 'emblem', $insert['host'] . '/' . $insert['language'], true);
+    if (Input::get('emblem') !== null) {
+        $mAttachment->getAttachment(Input::get('emblem'))->setName('emblem', false);
+    }
+
+    $mAttachment->publishFile(Input::get('favicon'), $me, 'favicon', $insert['host'] . '/' . $insert['language'], true);
+    if (Input::get('favicon') !== null) {
+        $mAttachment->getAttachment(Input::get('favicon'))->setName('favicon', false);
+    }
+
+    $mAttachment->publishFile(Input::get('image'), $me, 'image', $insert['host'] . '/' . $insert['language'], true);
+    if (Input::get('image') !== null) {
+        $mAttachment->getAttachment(Input::get('image'))->setName('image', false);
     }
 
     Cache::remove('sites');
