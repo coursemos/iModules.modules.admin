@@ -34,7 +34,8 @@
         "progress_status": "진행중",
         "saving_status": "저장중",
         "loading_status": "불러오는중",
-        "working_status": "처리중"
+        "working_status": "처리중",
+        "complete_status": "완료"
     },
     "components": {
         "form": {
