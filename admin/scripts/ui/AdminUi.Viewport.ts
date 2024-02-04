@@ -202,7 +202,7 @@ namespace AdminUi {
                                                 items: [
                                                     new Aui.Form.Field.Select({
                                                         name: 'icon',
-                                                        store: new Aui.Store.Array({
+                                                        store: new Aui.Store.Local({
                                                             fields: ['value'],
                                                             records: [
                                                                 ['xi xi-folder'],
@@ -253,7 +253,7 @@ namespace AdminUi {
                                             }),
                                             new Aui.Form.Field.Select({
                                                 name: 'smart',
-                                                store: new Aui.Store.Array({
+                                                store: new Aui.Store.Local({
                                                     fields: ['display', 'value'],
                                                     records: [],
                                                     listeners: {
@@ -386,7 +386,7 @@ namespace AdminUi {
                     const $content = this.$getContent();
                     $content.empty();
 
-                    const results = await Aui.Ajax.get(this.getUrl);
+                    const results = await Ajax.get(this.getUrl);
                     if (results.success == true) {
                         this.contexts = [];
                         for (let context of results.contexts) {
@@ -414,7 +414,7 @@ namespace AdminUi {
                  */
                 async saveContexts(): Promise<boolean> {
                     const contexts = this.sorter.getContexts();
-                    const save = await Aui.Ajax.post(this.saveUrl, {
+                    const save = await Ajax.post(this.saveUrl, {
                         contexts: contexts,
                     });
                     if (save.success == true) {

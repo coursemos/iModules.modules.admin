@@ -232,14 +232,14 @@ namespace modules {
                      * 모듈설정을 확인한다.
                      *
                      * @param {string} name - 모듈명
-                     * @param {Aui.Ajax.Results} configs - 모듈정보
+                     * @param {Ajax.Results} configs - 모듈정보
                      */
-                    setConfigs: async (name: string, configs: Aui.Ajax.Results = null): Promise<void> => {
+                    setConfigs: async (name: string, configs: Ajax.Results = null): Promise<void> => {
                         let response = configs;
 
                         if (response === null) {
                             Aui.Message.loading();
-                            response = await Aui.Ajax.get(this.getProcessUrl('module'), { name: name });
+                            response = await Ajax.get(this.getProcessUrl('module'), { name: name });
                             Aui.Message.close();
                         }
 
@@ -319,7 +319,7 @@ namespace modules {
                     install: async (name: string, configs: { [key: string]: any } = null): Promise<boolean> => {
                         if (configs === null) {
                             Aui.Message.loading();
-                            const response = await Aui.Ajax.get(this.getProcessUrl('module'), { name: name });
+                            const response = await Ajax.get(this.getProcessUrl('module'), { name: name });
 
                             if (response.data.properties.includes('CONFIGS') == true) {
                                 Aui.Message.close();
@@ -334,7 +334,7 @@ namespace modules {
                             type: 'atom',
                         });
 
-                        const results = await Aui.Ajax.post(
+                        const results = await Ajax.post(
                             this.getProcessUrl('module'),
                             { name: name, configs: configs },
                             {},
@@ -381,7 +381,7 @@ namespace modules {
                                                             new Aui.Form.Field.Select({
                                                                 name: 'is_https',
                                                                 value: 'TRUE',
-                                                                store: new Aui.Store.Array({
+                                                                store: new Aui.Store.Local({
                                                                     fields: ['display', 'value'],
                                                                     records: [
                                                                         ['https://', 'TRUE'],
@@ -541,7 +541,7 @@ namespace modules {
                                                         items: [
                                                             new Aui.Form.Field.Select({
                                                                 name: 'language',
-                                                                store: new Aui.Store.Ajax({
+                                                                store: new Aui.Store.Remote({
                                                                     url: this.getProcessUrl('languages'),
                                                                 }),
                                                                 displayField: 'name',
@@ -801,7 +801,7 @@ namespace modules {
                                                                     return new Aui.Form.Field.Select({
                                                                         name: 'parent',
                                                                         width: 200,
-                                                                        store: new Aui.TreeStore.Ajax({
+                                                                        store: new Aui.TreeStore.Remote({
                                                                             url: this.getProcessUrl('contexts'),
                                                                             params: {
                                                                                 host: host,
@@ -977,7 +977,7 @@ namespace modules {
                                                         valueField: 'name',
                                                         displayField: 'title',
                                                         allowBlank: false,
-                                                        store: new Aui.Store.Ajax({
+                                                        store: new Aui.Store.Remote({
                                                             url: this.getProcessUrl('layouts'),
                                                             autoLoad: false,
                                                             params: { host: host, language: language },
@@ -1136,7 +1136,7 @@ namespace modules {
                         fieldset: Aui.Form.FieldSet,
                         readonly: boolean = false
                     ): Promise<boolean> => {
-                        const results = await Aui.Ajax.get(this.getProcessUrl('scopes'));
+                        const results = await Ajax.get(this.getProcessUrl('scopes'));
                         if (results?.success !== true) {
                             return false;
                         }
@@ -1339,7 +1339,7 @@ namespace modules {
                         fieldset: Aui.Form.FieldSet,
                         is_ungrouped: boolean
                     ): Promise<boolean> => {
-                        const groups = await Aui.Ajax.get(this.getProcessUrl('groups'), { type: 'user' });
+                        const groups = await Ajax.get(this.getProcessUrl('groups'), { type: 'user' });
 
                         if (groups?.success !== true) {
                             return false;
@@ -1616,7 +1616,7 @@ namespace modules {
                                                     width: 150,
                                                 },
                                             ],
-                                            store: new Aui.Store.Ajax({
+                                            store: new Aui.Store.Remote({
                                                 url: mMember.getProcessUrl('members'),
                                                 fields: [
                                                     { name: 'member_id', type: 'int' },
@@ -1752,7 +1752,7 @@ namespace modules {
                                             return;
                                         }
 
-                                        let results: Aui.Ajax.Results;
+                                        let results: Ajax.Results;
 
                                         const loading = new Aui.Loading(window, {
                                             type: 'dot',
@@ -1762,7 +1762,7 @@ namespace modules {
                                         if (mode == 'assign') {
                                             loading.show();
 
-                                            results = await Aui.Ajax.post(this.getProcessUrl('administrator'), {
+                                            results = await Ajax.post(this.getProcessUrl('administrator'), {
                                                 member_ids: member_ids,
                                                 group_ids: [group_id],
                                             });
@@ -1824,7 +1824,7 @@ namespace modules {
                                                     }
 
                                                     if (value !== null) {
-                                                        const results = await Aui.Ajax.get(
+                                                        const results = await Ajax.get(
                                                             this.getProcessUrl('group.permissions'),
                                                             { group_ids: value.join(',') }
                                                         );
@@ -1852,7 +1852,7 @@ namespace modules {
 
                                     if (member_id !== null) {
                                         if (typeof member_id == 'number') {
-                                            const results = await Aui.Ajax.get(this.getProcessUrl('administrator'), {
+                                            const results = await Ajax.get(this.getProcessUrl('administrator'), {
                                                 member_id: member_id,
                                             });
 

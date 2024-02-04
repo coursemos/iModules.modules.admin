@@ -3,7 +3,7 @@
  *
  * 프로그래스바 스타일시트를 정의한다.
  * 
- * @file /styles/Aui.ProgressBar.css
+ * @file /styles/Aui.Progress.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2024. 2. 3.
@@ -16,6 +16,7 @@ div[data-component][data-type='progress'][data-role='progress'] {
             min-height: var(--text-height);
             font-family: var(--font-family-default);
             font-size: var(--font-size-default);
+            font-variant-numeric: tabular-nums;
 
             &:empty {
                 display: none;
@@ -33,14 +34,17 @@ div[data-component][data-type='progress'][data-role='progress'] {
                 background: var(--color-background-100);
             }
 
-            &::-webkit-progress-value {
-                transition: width ease-in 0.2s;
-                background: var(--color-primary-500);
+            &:not(.loading) {
+                &::-webkit-progress-value {
+                    transition: width ease-in 0.2s;
+                    background: var(--color-primary-500);
+                }
             }
 
             &.loading {
                 &::-webkit-progress-value {
                     width: 20%;
+                    background: var(--color-primary-500);
                     animation: progress-loading infinite 2s;
                 }
             }

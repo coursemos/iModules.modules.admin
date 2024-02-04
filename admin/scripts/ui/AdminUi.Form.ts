@@ -39,7 +39,7 @@ namespace AdminUi {
                             label: field.label ?? null,
                             value: field.value ?? null,
                             allowBlank: field.allowBlank ?? true,
-                            store: new Aui.Store.Array({
+                            store: new Aui.Store.Local({
                                 fields: ['display', 'value'],
                                 records: ((options: { [value: string]: string }) => {
                                     const records = [];
@@ -321,7 +321,7 @@ namespace AdminUi {
                 language: string;
 
                 $pages: Dom;
-                store: Aui.Store.Ajax;
+                store: Aui.Store.Remote;
                 rawValue: any;
 
                 loading: Aui.Loading;
@@ -368,7 +368,7 @@ namespace AdminUi {
                  */
                 getStore(): Aui.Store {
                     if (this.store === undefined) {
-                        this.store = new Aui.Store.Ajax({
+                        this.store = new Aui.Store.Remote({
                             url: Admin.getProcessUrl('module', 'admin', 'pages'),
                             params: { host: this.host, language: this.language },
                             listeners: {
@@ -547,7 +547,7 @@ namespace AdminUi {
                     if (this.modules === undefined) {
                         this.modules = new Aui.Form.Field.Select({
                             id: 'abc',
-                            store: new Aui.Store.Ajax({
+                            store: new Aui.Store.Remote({
                                 url: Admin.getProcessUrl('module', 'admin', 'modules'),
                                 filters: {
                                     properties: {
@@ -603,7 +603,7 @@ namespace AdminUi {
                             },
                             listeners: {
                                 change: (_field: Aui.Form.Field.Select, value: string) => {
-                                    const store = this.getContexts().getStore() as Aui.Store.Ajax;
+                                    const store = this.getContexts().getStore() as Aui.Store.Remote;
                                     store.setParam('module', value);
                                     store.reload();
                                 },
@@ -622,7 +622,7 @@ namespace AdminUi {
                 getContexts(): Aui.Form.Field.Select {
                     if (this.contexts === undefined) {
                         this.contexts = new Aui.Form.Field.Select({
-                            store: new Aui.Store.Ajax({
+                            store: new Aui.Store.Remote({
                                 url: Admin.getProcessUrl('module', 'admin', 'module.contexts'),
                             }),
                             valueField: 'name',
@@ -631,7 +631,7 @@ namespace AdminUi {
                             search: true,
                             disabled: true,
                             listeners: {
-                                update: (store: Aui.Store.Ajax, field: Aui.Form.Field.Select) => {
+                                update: (store: Aui.Store.Remote, field: Aui.Form.Field.Select) => {
                                     field.setDisabled(store.getCount() == 0);
                                     if (this.rawValue.module == this.getModules().getValue()) {
                                         field.setValue(this.rawValue.context);
@@ -648,7 +648,7 @@ namespace AdminUi {
                                     this.getForm()?.setLoading(this, true);
                                     field.disable();
 
-                                    const configs = await Aui.Ajax.get(
+                                    const configs = await Ajax.get(
                                         Admin.getProcessUrl('module', 'admin', 'module.context'),
                                         {
                                             module: this.getModules().getValue(),
@@ -1003,7 +1003,7 @@ namespace AdminUi {
                         this.select = new Aui.Form.Field.Select({
                             name: this.name,
                             flex: true,
-                            store: new Aui.Store.Ajax({
+                            store: new Aui.Store.Remote({
                                 url: this.listUrl,
                                 params: this.listParams,
                             }),
@@ -1035,7 +1035,7 @@ namespace AdminUi {
                                     this.getForm()?.setLoading(this, true);
                                     field.disable();
 
-                                    const configs = await Aui.Ajax.get(this.configsUrl, this.getConfigsParams(value));
+                                    const configs = await Ajax.get(this.configsUrl, this.getConfigsParams(value));
                                     this.getFieldSet().empty();
 
                                     if ((configs?.fields?.length ?? 0) == 0) {

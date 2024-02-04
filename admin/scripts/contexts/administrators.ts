@@ -88,7 +88,7 @@ Admin.ready(async () => {
                                 },
                             },
                         ],
-                        store: new Aui.TreeStore.Ajax({
+                        store: new Aui.TreeStore.Remote({
                             url: me.getProcessUrl('groups'),
                             primaryKeys: ['group_id'],
                             fields: [
@@ -325,7 +325,7 @@ Admin.ready(async () => {
                                 },
                             },
                         ],
-                        store: new Aui.Store.Ajax({
+                        store: new Aui.Store.Remote({
                             url: me.getProcessUrl('administrators'),
                             primaryKeys: ['member_id'],
                             limit: 50,
@@ -464,7 +464,7 @@ Admin.ready(async () => {
                     }),
                     new Aui.Form.Field.Select({
                         width: 95,
-                        store: new Aui.Store.Array({
+                        store: new Aui.Store.Local({
                             fields: ['value'],
                             records: [['HTTP'], ['GET'], ['POST'], ['PUT'], ['DELETE']],
                         }),
@@ -542,7 +542,7 @@ Admin.ready(async () => {
                         width: 110,
                     },
                 ],
-                store: new Aui.Store.Ajax({
+                store: new Aui.Store.Remote({
                     url: me.getProcessUrl('logs'),
                     params: { method: 'HTTP' },
                     primaryKeys: ['time', 'member_id'],

@@ -86,24 +86,24 @@ namespace Aui {
                 url: string;
 
                 /**
-                 * @type {Aui.Ajax.Params} url - 프로그래스바를 호출할 URL 매개변수
+                 * @type {Ajax.Params} url - 프로그래스바를 호출할 URL 매개변수
                  */
                 params?: Ajax.Params;
 
                 /**
-                 * @type {Aui.Ajax.Data} url - 프로그래스바를 호출할 데이터
+                 * @type {Ajax.Data} url - 프로그래스바를 호출할 데이터
                  */
-                data?: Aui.Ajax.Data;
+                data?: Ajax.Data;
 
                 /**
                  * @type {Function} handler - 삭제완료 후 실행할 핸들러
                  */
-                progress: (progressBar: Aui.ProgressBar, results: globalThis.Progress.Results) => void;
+                progress: (progress: Aui.Progress, results: Ajax.Progress.Results) => void;
 
                 /**
                  * @type {Function} handler - 삭제완료 후 실행할 핸들러
                  */
-                handler?: (button: Aui.Button, results: Aui.Ajax.Results) => Promise<void>;
+                handler?: (button: Aui.Button, results: Ajax.Results) => Promise<void>;
             }
         }
 
@@ -125,14 +125,14 @@ namespace Aui {
                 url?: string;
 
                 /**
-                 * @type {Aui.Ajax.Params} url - 삭제를 처리할 프로세스 URL 매개변수
+                 * @type {Ajax.Params} url - 삭제를 처리할 프로세스 URL 매개변수
                  */
-                params?: Aui.Ajax.Params;
+                params?: Ajax.Params;
 
                 /**
                  * @type {Function} handler - 삭제완료 후 실행할 핸들러
                  */
-                handler?: (results: Aui.Ajax.Results) => Promise<void>;
+                handler?: (results: Ajax.Results) => Promise<void>;
             }
         }
     }
@@ -259,7 +259,7 @@ namespace Aui {
          * @param {Aui.Message.Progress.Properties} properties - 로딩설정
          */
         static progress(properties: Aui.Message.Progress.Properties = null): void {
-            const progress = Progress.init();
+            const progress: Ajax.Progress = Ajax.Progress.init();
 
             const width = Aui.Message.message?.$getComponent()?.getWidth() ?? 402;
 
@@ -275,7 +275,7 @@ namespace Aui {
                 width: width - 2,
                 padding: 10,
                 items: [
-                    new Aui.ProgressBar({
+                    new Aui.Progress({
                         message: properties?.message ?? null,
                         loading: true,
                     }),
@@ -300,7 +300,7 @@ namespace Aui {
                     }),
                 ],
                 listeners: {
-                    show: (window) => {
+                    show: async (window) => {
                         const button = window.buttons.at(1) as Aui.Button;
                         button.setLoading(true);
                         const method = (properties.method ?? 'GET').toUpperCase();
@@ -308,19 +308,20 @@ namespace Aui {
                         const params = (properties.params ?? null) as Ajax.Params;
                         const data = properties.data ?? null;
 
-                        const callback = (results: Progress.Results) => {
-                            const progressBar = window.getItemAt(0) as Aui.ProgressBar;
-                            progressBar.setMax(results.total);
-                            progressBar.setValue(results.current);
+                        const callback = (results: Ajax.Progress.Results) => {
+                            const progress = window.getItemAt(0) as Aui.Progress;
+                            progress.setMax(results.total);
+                            progress.setValue(results.current);
 
                             if (typeof properties.progress == 'function') {
-                                properties.progress(progressBar, results);
+                                properties.progress(progress, results);
                             }
 
                             if (results.end == true) {
                                 if (results.success == true) {
                                     button.setValue(results);
                                     button.setLoading(false);
+                                    window.setTitle(Aui.printText('actions.complete_status'));
                                 } else {
                                     Aui.Message.show({
                                         title: Aui.getErrorText('TITLE'),
@@ -338,7 +339,8 @@ namespace Aui {
                             }
                         };
 
-                        const progress = Progress.init();
+                        const progress = Ajax.Progress.init();
+                        await iModules.sleep(2000);
                         switch (method) {
                             case 'POST':
                                 progress.post(url, data, params, callback);
@@ -375,7 +377,7 @@ namespace Aui {
                         button.setLoading(true);
 
                         if (properties?.url !== null) {
-                            const results = await Aui.Ajax.delete(properties.url, properties.params ?? null);
+                            const results = await Ajax.delete(properties.url, properties.params ?? null);
 
                             if (results.success == true) {
                                 Aui.Message.show({

@@ -280,6 +280,16 @@ var Aui;
     Aui.Base = Base;
 })(Aui || (Aui = {}));
 Html.ready(() => {
+    Ajax.setErrorHandler(async (e) => {
+        Aui.Message.show({
+            icon: Aui.Message.ERROR,
+            title: Aui.getErrorText('TITLE'),
+            message: e?.message ?? Aui.getErrorText('CONNECT_ERROR'),
+            buttons: Aui.Message.OK,
+            closable: true,
+        });
+        console.log(e);
+    });
     document.addEventListener('keydown', (e) => {
         const target = e.target;
         if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {

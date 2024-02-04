@@ -39,7 +39,7 @@ Admin.ready(async () => {
                 },
             }),
         ],
-        store: new Aui.Store.Ajax({
+        store: new Aui.Store.Remote({
             url: me.getProcessUrl('modules'),
             primaryKeys: ['name'],
         }),

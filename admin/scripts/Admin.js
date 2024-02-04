@@ -192,13 +192,13 @@ var modules;
                      * 모듈설정을 확인한다.
                      *
                      * @param {string} name - 모듈명
-                     * @param {Aui.Ajax.Results} configs - 모듈정보
+                     * @param {Ajax.Results} configs - 모듈정보
                      */
                     setConfigs: async (name, configs = null) => {
                         let response = configs;
                         if (response === null) {
                             Aui.Message.loading();
-                            response = await Aui.Ajax.get(this.getProcessUrl('module'), { name: name });
+                            response = await Ajax.get(this.getProcessUrl('module'), { name: name });
                             Aui.Message.close();
                         }
                         if (response.data.properties.includes('CONFIGS') == true) {
@@ -275,7 +275,7 @@ var modules;
                     install: async (name, configs = null) => {
                         if (configs === null) {
                             Aui.Message.loading();
-                            const response = await Aui.Ajax.get(this.getProcessUrl('module'), { name: name });
+                            const response = await Ajax.get(this.getProcessUrl('module'), { name: name });
                             if (response.data.properties.includes('CONFIGS') == true) {
                                 Aui.Message.close();
                                 this.modules.setConfigs(name, response);
@@ -287,7 +287,7 @@ var modules;
                             message: (await this.getText('actions.installing')),
                             type: 'atom',
                         });
-                        const results = await Aui.Ajax.post(this.getProcessUrl('module'), { name: name, configs: configs }, {}, false);
+                        const results = await Ajax.post(this.getProcessUrl('module'), { name: name, configs: configs }, {}, false);
                         if (results.success == true) {
                             Aui.Message.close();
                             Aui.getComponent('modules')?.getStore().reload();
@@ -328,7 +328,7 @@ var modules;
                                                             new Aui.Form.Field.Select({
                                                                 name: 'is_https',
                                                                 value: 'TRUE',
-                                                                store: new Aui.Store.Array({
+                                                                store: new Aui.Store.Local({
                                                                     fields: ['display', 'value'],
                                                                     records: [
                                                                         ['https://', 'TRUE'],
@@ -480,7 +480,7 @@ var modules;
                                                         items: [
                                                             new Aui.Form.Field.Select({
                                                                 name: 'language',
-                                                                store: new Aui.Store.Ajax({
+                                                                store: new Aui.Store.Remote({
                                                                     url: this.getProcessUrl('languages'),
                                                                 }),
                                                                 displayField: 'name',
@@ -723,7 +723,7 @@ var modules;
                                                                     return new Aui.Form.Field.Select({
                                                                         name: 'parent',
                                                                         width: 200,
-                                                                        store: new Aui.TreeStore.Ajax({
+                                                                        store: new Aui.TreeStore.Remote({
                                                                             url: this.getProcessUrl('contexts'),
                                                                             params: {
                                                                                 host: host,
@@ -886,7 +886,7 @@ var modules;
                                                         valueField: 'name',
                                                         displayField: 'title',
                                                         allowBlank: false,
-                                                        store: new Aui.Store.Ajax({
+                                                        store: new Aui.Store.Remote({
                                                             url: this.getProcessUrl('layouts'),
                                                             autoLoad: false,
                                                             params: { host: host, language: language },
@@ -1029,7 +1029,7 @@ var modules;
                      * @return {Promise<boolean>} success
                      */
                     printScopesFieldSet: async (fieldset, readonly = false) => {
-                        const results = await Aui.Ajax.get(this.getProcessUrl('scopes'));
+                        const results = await Ajax.get(this.getProcessUrl('scopes'));
                         if (results?.success !== true) {
                             return false;
                         }
@@ -1199,7 +1199,7 @@ var modules;
                      * @return {Promise<boolean>} success
                      */
                     printGroupFieldSet: async (fieldset, is_ungrouped) => {
-                        const groups = await Aui.Ajax.get(this.getProcessUrl('groups'), { type: 'user' });
+                        const groups = await Ajax.get(this.getProcessUrl('groups'), { type: 'user' });
                         if (groups?.success !== true) {
                             return false;
                         }
@@ -1448,7 +1448,7 @@ var modules;
                                                     width: 150,
                                                 },
                                             ],
-                                            store: new Aui.Store.Ajax({
+                                            store: new Aui.Store.Remote({
                                                 url: mMember.getProcessUrl('members'),
                                                 fields: [
                                                     { name: 'member_id', type: 'int' },
@@ -1584,7 +1584,7 @@ var modules;
                                         });
                                         if (mode == 'assign') {
                                             loading.show();
-                                            results = await Aui.Ajax.post(this.getProcessUrl('administrator'), {
+                                            results = await Ajax.post(this.getProcessUrl('administrator'), {
                                                 member_ids: member_ids,
                                                 group_ids: [group_id],
                                             });
@@ -1633,7 +1633,7 @@ var modules;
                                                     this.administrators.checkScopesFieldSet(permissions, groupPermissions, false, false);
                                                 }
                                                 if (value !== null) {
-                                                    const results = await Aui.Ajax.get(this.getProcessUrl('group.permissions'), { group_ids: value.join(',') });
+                                                    const results = await Ajax.get(this.getProcessUrl('group.permissions'), { group_ids: value.join(',') });
                                                     this.administrators.checkScopesFieldSet(permissions, results.permissions, true, true);
                                                     permissions.setData('groups', results.permissions);
                                                 }
@@ -1649,7 +1649,7 @@ var modules;
                                     }
                                     if (member_id !== null) {
                                         if (typeof member_id == 'number') {
-                                            const results = await Aui.Ajax.get(this.getProcessUrl('administrator'), {
+                                            const results = await Ajax.get(this.getProcessUrl('administrator'), {
                                                 member_id: member_id,
                                             });
                                             if (results.success == true) {

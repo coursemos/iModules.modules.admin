@@ -61,7 +61,7 @@ var Aui;
                                 },
                             },
                         ],
-                        store: new Aui.Store.Ajax({
+                        store: new Aui.Store.Remote({
                             url: this.explorerUrl,
                             params: { index: index, path: path },
                         }),

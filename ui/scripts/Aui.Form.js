@@ -171,11 +171,11 @@ var Aui;
              * 폼 패널 데이터를 불러온다.
              *
              * @param {Aui.Form.Request} request - 요청정보
-             * @return {Promise<Aui.Ajax.results>} results
+             * @return {Promise<Ajax.results>} results
              */
             async load({ url, params = null, message = null }) {
                 this.setLoading(this, true, message ?? true);
-                const response = await Aui.Ajax.get(url, params);
+                const response = await Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
                         this.getField(name)?.setValue(response.data[name], true);
@@ -189,7 +189,7 @@ var Aui;
              * 폼 패널을 전송한다.
              *
              * @param {Aui.Form.Request} request - 요청정보
-             * @return {Promise<Aui.Ajax.results>} results
+             * @return {Promise<Ajax.results>} results
              */
             async submit({ url, params = null, message = null }) {
                 if (this.isLoading() === true) {
@@ -208,7 +208,7 @@ var Aui;
                 }
                 this.setLoading(this, true, message ?? Aui.printText('actions.saving_status'));
                 const data = this.getValues();
-                const response = await Aui.Ajax.post(url, data, params, false);
+                const response = await Ajax.post(url, data, params, false);
                 if (response.success == false && typeof response.errors == 'object') {
                     for (const name in response.errors) {
                         this.getField(name)?.setError(true, response.errors[name]);

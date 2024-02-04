@@ -101,7 +101,7 @@ namespace Aui {
                                 },
                             },
                         ],
-                        store: new Aui.Store.Ajax({
+                        store: new Aui.Store.Remote({
                             url: this.explorerUrl,
                             params: { index: index, path: path },
                         }),
@@ -109,7 +109,7 @@ namespace Aui {
                         listeners: {
                             selectionChange: (selections: Aui.Data.Record[], grid: Aui.Grid.Panel) => {
                                 if (selections.length == 1) {
-                                    const store = grid.getStore() as Aui.Store.Ajax;
+                                    const store = grid.getStore() as Aui.Store.Remote;
                                     const index = parseInt(store.getParam('index'), 10);
 
                                     this.removeTreeAt(index);

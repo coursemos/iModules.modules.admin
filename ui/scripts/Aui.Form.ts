@@ -21,12 +21,12 @@ namespace Aui {
                 /**
                  * @var {Function} load - 폼 데이터가 로딩되었을 때
                  */
-                load?: (panel: Aui.Form.Panel, response: Aui.Ajax.Results) => void;
+                load?: (panel: Aui.Form.Panel, response: Ajax.Results) => void;
 
                 /**
                  * @var {Function} submit - 폼 데이터가 전송되었을 때
                  */
-                submit?: (panel: Aui.Form.Panel, response: Aui.Ajax.Results) => void;
+                submit?: (panel: Aui.Form.Panel, response: Ajax.Results) => void;
             }
 
             export interface Properties extends Aui.Panel.Properties {
@@ -244,12 +244,12 @@ namespace Aui {
              * 폼 패널 데이터를 불러온다.
              *
              * @param {Aui.Form.Request} request - 요청정보
-             * @return {Promise<Aui.Ajax.results>} results
+             * @return {Promise<Ajax.results>} results
              */
-            async load({ url, params = null, message = null }: Aui.Form.Request): Promise<Aui.Ajax.Results> {
+            async load({ url, params = null, message = null }: Aui.Form.Request): Promise<Ajax.Results> {
                 this.setLoading(this, true, message ?? true);
 
-                const response = await Aui.Ajax.get(url, params);
+                const response = await Ajax.get(url, params);
                 if (response.success == true) {
                     for (const name in response.data) {
                         this.getField(name)?.setValue(response.data[name], true);
@@ -266,9 +266,9 @@ namespace Aui {
              * 폼 패널을 전송한다.
              *
              * @param {Aui.Form.Request} request - 요청정보
-             * @return {Promise<Aui.Ajax.results>} results
+             * @return {Promise<Ajax.results>} results
              */
-            async submit({ url, params = null, message = null }: Aui.Form.Request): Promise<Aui.Ajax.Results> {
+            async submit({ url, params = null, message = null }: Aui.Form.Request): Promise<Ajax.Results> {
                 if (this.isLoading() === true) {
                     Aui.Message.show({
                         title: Aui.getErrorText('INFO'),
@@ -288,7 +288,7 @@ namespace Aui {
                 this.setLoading(this, true, message ?? Aui.printText('actions.saving_status'));
 
                 const data = this.getValues();
-                const response = await Aui.Ajax.post(url, data, params, false);
+                const response = await Ajax.post(url, data, params, false);
                 if (response.success == false && typeof response.errors == 'object') {
                     for (const name in response.errors) {
                         this.getField(name)?.setError(true, response.errors[name]);
@@ -2911,7 +2911,7 @@ namespace Aui {
 
                 absolute: Aui.Absolute;
                 list: Aui.Grid.Panel;
-                store: Aui.Store.Ajax;
+                store: Aui.Store.Remote;
                 tagField: string;
                 listField: string;
 

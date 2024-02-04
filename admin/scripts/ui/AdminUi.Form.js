@@ -22,7 +22,7 @@ var AdminUi;
                             label: field.label ?? null,
                             value: field.value ?? null,
                             allowBlank: field.allowBlank ?? true,
-                            store: new Aui.Store.Array({
+                            store: new Aui.Store.Local({
                                 fields: ['display', 'value'],
                                 records: ((options) => {
                                     const records = [];
@@ -295,7 +295,7 @@ var AdminUi;
                  */
                 getStore() {
                     if (this.store === undefined) {
-                        this.store = new Aui.Store.Ajax({
+                        this.store = new Aui.Store.Remote({
                             url: Admin.getProcessUrl('module', 'admin', 'pages'),
                             params: { host: this.host, language: this.language },
                             listeners: {
@@ -442,7 +442,7 @@ var AdminUi;
                     if (this.modules === undefined) {
                         this.modules = new Aui.Form.Field.Select({
                             id: 'abc',
-                            store: new Aui.Store.Ajax({
+                            store: new Aui.Store.Remote({
                                 url: Admin.getProcessUrl('module', 'admin', 'modules'),
                                 filters: {
                                     properties: {
@@ -510,7 +510,7 @@ var AdminUi;
                 getContexts() {
                     if (this.contexts === undefined) {
                         this.contexts = new Aui.Form.Field.Select({
-                            store: new Aui.Store.Ajax({
+                            store: new Aui.Store.Remote({
                                 url: Admin.getProcessUrl('module', 'admin', 'module.contexts'),
                             }),
                             valueField: 'name',
@@ -534,7 +534,7 @@ var AdminUi;
                                     }
                                     this.getForm()?.setLoading(this, true);
                                     field.disable();
-                                    const configs = await Aui.Ajax.get(Admin.getProcessUrl('module', 'admin', 'module.context'), {
+                                    const configs = await Ajax.get(Admin.getProcessUrl('module', 'admin', 'module.context'), {
                                         module: this.getModules().getValue(),
                                         context: value,
                                     });
@@ -819,7 +819,7 @@ var AdminUi;
                         this.select = new Aui.Form.Field.Select({
                             name: this.name,
                             flex: true,
-                            store: new Aui.Store.Ajax({
+                            store: new Aui.Store.Remote({
                                 url: this.listUrl,
                                 params: this.listParams,
                             }),
@@ -849,7 +849,7 @@ var AdminUi;
                                     }
                                     this.getForm()?.setLoading(this, true);
                                     field.disable();
-                                    const configs = await Aui.Ajax.get(this.configsUrl, this.getConfigsParams(value));
+                                    const configs = await Ajax.get(this.configsUrl, this.getConfigsParams(value));
                                     this.getFieldSet().empty();
                                     if ((configs?.fields?.length ?? 0) == 0) {
                                         this.getFieldSet().hide();

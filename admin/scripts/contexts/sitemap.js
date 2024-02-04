@@ -47,7 +47,7 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
-                store: new Aui.Store.Ajax({
+                store: new Aui.Store.Remote({
                     url: me.getProcessUrl('domains'),
                     primaryKeys: ['host'],
                 }),
@@ -132,7 +132,7 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
-                store: new Aui.Store.Ajax({
+                store: new Aui.Store.Remote({
                     url: me.getProcessUrl('sites'),
                     primaryKeys: ['host', 'language'],
                 }),
@@ -249,7 +249,7 @@ Admin.ready(async () => {
                         },
                     }),
                 ],
-                store: new Aui.TreeStore.Ajax({
+                store: new Aui.TreeStore.Remote({
                     url: me.getProcessUrl('contexts'),
                     primaryKeys: ['host', 'language', 'path'],
                     params: {
