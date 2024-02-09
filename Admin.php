@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 2.
+ * @modified 2024. 2. 9.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -440,6 +440,12 @@ class Admin extends \Module
             }
         }
         \Html::style(\Cache::style('Admin.Component'), 20);
+
+        /**
+         * @var \modules\wysiwyg\Wysiwyg $mWysiwyg 위지윅에디터를 위한 스크립트를 불러온다.
+         */
+        $mWysiwyg = \Modules::get('wysiwyg');
+        $mWysiwyg->preload();
 
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));
