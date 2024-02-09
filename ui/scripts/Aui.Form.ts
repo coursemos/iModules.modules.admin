@@ -3572,7 +3572,6 @@ namespace Aui {
 
                 accept: string;
                 multiple: boolean;
-                attachment: modules.attachment.Attachment;
                 uploader: modules.attachment.Uploader;
                 $files: Dom;
 
@@ -3610,26 +3609,13 @@ namespace Aui {
                 }
 
                 /**
-                 * 첨부파일 모듈 클래스를 가져온다.
-                 *
-                 * @return {modules.attachment.Attachment} attachment
-                 */
-                getAttachment(): modules.attachment.Attachment {
-                    if (this.attachment === undefined) {
-                        this.attachment = Modules.get('attachment') as modules.attachment.Attachment;
-                    }
-
-                    return this.attachment;
-                }
-
-                /**
                  * 업로더를 가져온다.
                  *
                  * @return {modules.attachment.Uploader} uploader
                  */
                 getUploader(): modules.attachment.Uploader {
                     if (this.uploader === undefined) {
-                        this.uploader = this.getAttachment().set(this.$getContent(), {
+                        this.uploader = new modules.attachment.Uploader(this.$getContent(), {
                             accept: this.accept,
                             multiple: this.multiple,
                             listeners: {

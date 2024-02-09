@@ -2792,7 +2792,6 @@ var Aui;
                 field = 'file';
                 accept;
                 multiple;
-                attachment;
                 uploader;
                 $files;
                 button;
@@ -2825,24 +2824,13 @@ var Aui;
                     return this.button;
                 }
                 /**
-                 * 첨부파일 모듈 클래스를 가져온다.
-                 *
-                 * @return {modules.attachment.Attachment} attachment
-                 */
-                getAttachment() {
-                    if (this.attachment === undefined) {
-                        this.attachment = Modules.get('attachment');
-                    }
-                    return this.attachment;
-                }
-                /**
                  * 업로더를 가져온다.
                  *
                  * @return {modules.attachment.Uploader} uploader
                  */
                 getUploader() {
                     if (this.uploader === undefined) {
-                        this.uploader = this.getAttachment().set(this.$getContent(), {
+                        this.uploader = new modules.attachment.Uploader(this.$getContent(), {
                             accept: this.accept,
                             multiple: this.multiple,
                             listeners: {
