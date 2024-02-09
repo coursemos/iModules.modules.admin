@@ -309,12 +309,18 @@ namespace Aui {
                         const data = properties.data ?? null;
 
                         const callback = (results: Ajax.Progress.Results) => {
+                            if (Aui.getComponent(window.getId()) === null) {
+                                return;
+                            }
+
                             const progress = window.getItemAt(0) as Aui.Progress;
                             progress.setMax(results.total);
                             progress.setValue(results.current);
 
                             if (typeof properties.progress == 'function') {
-                                properties.progress(progress, results);
+                                if (results.success == true) {
+                                    properties.progress(progress, results);
+                                }
                             }
 
                             if (results.end == true) {

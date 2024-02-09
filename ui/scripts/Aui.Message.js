@@ -160,11 +160,16 @@ var Aui;
                         const params = (properties.params ?? null);
                         const data = properties.data ?? null;
                         const callback = (results) => {
+                            if (Aui.getComponent(window.getId()) === null) {
+                                return;
+                            }
                             const progress = window.getItemAt(0);
                             progress.setMax(results.total);
                             progress.setValue(results.current);
                             if (typeof properties.progress == 'function') {
-                                properties.progress(progress, results);
+                                if (results.success == true) {
+                                    properties.progress(progress, results);
+                                }
                             }
                             if (results.end == true) {
                                 if (results.success == true) {
