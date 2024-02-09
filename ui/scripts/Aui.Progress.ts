@@ -112,7 +112,7 @@ namespace Aui {
                 this.setLoading(false);
             }
             this.value = value;
-            this.$getProgress().setAttr('value', this.value.toString());
+            this.$getProgress().setAttr('value', (this.max === 0 ? 1 : this.value).toString());
         }
 
         /**
@@ -132,7 +132,7 @@ namespace Aui {
          */
         setMax(max: number): void {
             this.max = max;
-            this.$getProgress().setAttr('max', this.max.toString());
+            this.$getProgress().setAttr('max', Math.max(this.max, 1).toString());
         }
 
         /**

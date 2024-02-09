@@ -74,7 +74,7 @@ var Aui;
                 this.setLoading(false);
             }
             this.value = value;
-            this.$getProgress().setAttr('value', this.value.toString());
+            this.$getProgress().setAttr('value', (this.max === 0 ? 1 : this.value).toString());
         }
         /**
          * 프로그래스바 시작점을 변경한다.
@@ -92,7 +92,7 @@ var Aui;
          */
         setMax(max) {
             this.max = max;
-            this.$getProgress().setAttr('max', this.max.toString());
+            this.$getProgress().setAttr('max', Math.max(this.max, 1).toString());
         }
         /**
          * 프로그래스바 값을 가져온다.
