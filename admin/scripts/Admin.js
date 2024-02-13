@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 14.
  */
 var modules;
 (function (modules) {
@@ -34,7 +34,7 @@ var modules;
                                     fieldDefaults: { labelWidth: 100, labelAlign: 'right' },
                                     items: [
                                         new Aui.Form.FieldSet({
-                                            title: this.printText('admin.modules.modules.show.defaults'),
+                                            title: this.printText('admin.modules.show.defaults'),
                                             items: [
                                                 new Aui.Form.Field.Container({
                                                     direction: 'row',
@@ -87,19 +87,19 @@ var modules;
                                                             direction: 'column',
                                                             items: [
                                                                 new Aui.Form.Field.Display({
-                                                                    label: this.printText('admin.modules.modules.author'),
+                                                                    label: this.printText('admin.modules.author'),
                                                                     name: 'author',
                                                                 }),
                                                                 new Aui.Form.Field.Display({
-                                                                    label: this.printText('admin.modules.modules.homepage'),
+                                                                    label: this.printText('admin.modules.homepage'),
                                                                     name: 'homepage',
                                                                 }),
                                                                 new Aui.Form.Field.Display({
-                                                                    label: this.printText('admin.modules.modules.language'),
+                                                                    label: this.printText('admin.modules.language'),
                                                                     name: 'language',
                                                                 }),
                                                                 new Aui.Form.Field.Display({
-                                                                    label: this.printText('admin.modules.modules.hash'),
+                                                                    label: this.printText('admin.modules.hash'),
                                                                     name: 'hash',
                                                                 }),
                                                             ],
@@ -109,7 +109,7 @@ var modules;
                                             ],
                                         }),
                                         new Aui.Form.FieldSet({
-                                            title: this.printText('admin.modules.modules.show.details'),
+                                            title: this.printText('admin.modules.show.details'),
                                             items: [
                                                 new Aui.Form.Field.Display({
                                                     name: 'description',
@@ -117,20 +117,20 @@ var modules;
                                             ],
                                         }),
                                         new Aui.Form.FieldSet({
-                                            title: this.printText('admin.modules.modules.show.properties.title'),
+                                            title: this.printText('admin.modules.show.properties.title'),
                                             items: [
                                                 new Aui.Form.Field.CheckGroup({
                                                     name: 'properties',
                                                     readonly: true,
                                                     columns: 4,
                                                     options: {
-                                                        GLOBAL: this.printText('admin.modules.modules.show.properties.GLOBAL'),
-                                                        ADMIN: this.printText('admin.modules.modules.show.properties.ADMIN'),
-                                                        CONTEXT: this.printText('admin.modules.modules.show.properties.CONTEXT'),
-                                                        WIDGET: this.printText('admin.modules.modules.show.properties.WIDGET'),
-                                                        THEME: this.printText('admin.modules.modules.show.properties.THEME'),
-                                                        CRON: this.printText('admin.modules.modules.show.properties.CRON'),
-                                                        CONFIGS: this.printText('admin.modules.modules.show.properties.CONFIGS'),
+                                                        GLOBAL: this.printText('admin.modules.show.properties.GLOBAL'),
+                                                        ADMIN: this.printText('admin.modules.show.properties.ADMIN'),
+                                                        CONTEXT: this.printText('admin.modules.show.properties.CONTEXT'),
+                                                        WIDGET: this.printText('admin.modules.show.properties.WIDGET'),
+                                                        THEME: this.printText('admin.modules.show.properties.THEME'),
+                                                        CRON: this.printText('admin.modules.show.properties.CRON'),
+                                                        CONFIGS: this.printText('admin.modules.show.properties.CONFIGS'),
                                                     },
                                                 }),
                                             ],
