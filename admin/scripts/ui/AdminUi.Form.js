@@ -76,6 +76,13 @@ var AdminUi;
                             value: field.value ?? null,
                             allowBlank: field.allowBlank ?? true,
                         });
+                    case 'textarea':
+                        return new Aui.Form.Field.TextArea({
+                            name: field.name ?? null,
+                            label: field.label ?? null,
+                            value: field.value ?? null,
+                            allowBlank: field.allowBlank ?? true,
+                        });
                     default:
                         return new Aui.Form.Field.Text({
                             name: field.name ?? null,
