@@ -69,6 +69,25 @@ var Admin;
     }
     Admin.session = session;
     /**
+     * 로컬 스토리지의 데이터를 처리한다.
+     *
+     * @param {string} key - 데이터키
+     * @param {any} value - 저장할 데이터 (undefined 인 경우 저장된 데이터를 가져온다.)
+     * @return {any} data - 데이터를 가져올 경우 해당 데이터값
+     */
+    function storage(key, value = undefined) {
+        const storage = window.localStorage?.getItem('iModules-Admin-Storage') ?? null;
+        const datas = session !== null ? JSON.parse(storage) : {};
+        if (value === undefined) {
+            return datas[key] ?? null;
+        }
+        else {
+            datas[key] = value;
+            window.localStorage?.setItem('iModules-Admin-Storage', JSON.stringify(datas));
+        }
+    }
+    Admin.storage = storage;
+    /**
      * 현재 언어코드를 가져온다.
      *
      * @return {string} language
