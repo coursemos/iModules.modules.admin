@@ -338,6 +338,10 @@ Html.ready(() => {
             return;
         }
 
+        if (target instanceof HTMLElement && target.getAttribute('contenteditable') == 'true') {
+            return;
+        }
+
         if ((e.metaKey == true || e.ctrlKey == true) && e.key == 'a') {
             e.preventDefault();
         }
