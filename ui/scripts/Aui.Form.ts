@@ -4969,6 +4969,126 @@ namespace Aui {
                 }
             }
 
+            export namespace Editor {
+                export interface Properties extends Aui.Form.Field.Base.Properties {
+                    /**
+                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
+                     */
+                    emptyText?: string;
+
+                    /**
+                     * @type {number} minHeight - 에디터최소높이
+                     */
+                    minHeight?: number;
+                }
+            }
+
+            export class Editor extends Aui.Form.Field.Base {
+                field: string = 'editor';
+                rows: number;
+                emptyText: string;
+
+                $input: Dom;
+                $emptyText: Dom;
+                minHeight: number;
+
+                editor: modules.wysiwyg.Editor;
+
+                /**
+                 * 에디터 클래스 생성한다.
+                 *
+                 * @param {Aui.Form.Field.Editor.Properties} properties - 객체설정
+                 */
+                constructor(properties: Aui.Form.Field.TextArea.Properties = null) {
+                    super(properties);
+
+                    this.emptyText = this.properties.emptyText ?? '';
+                    this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+                    this.minHeight = this.properties.minHeight ?? 200;
+                }
+
+                /**
+                 * INPUT 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput(): Dom {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('textarea', {
+                            name: this.inputName,
+                        });
+                    }
+
+                    return this.$input;
+                }
+
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성여부
+                 * @return {Aui.Form.Field.TextArea} this
+                 */
+                setDisabled(disabled: boolean): this {
+                    if (disabled == true) {
+                        this.$getInput().setAttr('disabled', 'disabled');
+                    } else {
+                        this.$getInput().removeAttr('disabled');
+                    }
+
+                    super.setDisabled(disabled);
+
+                    return this;
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {Object} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value: { content: string; attachments: string[] }, is_origin: boolean = false): void {
+                    this.editor.setValue(value);
+
+                    super.setValue(value, is_origin);
+                }
+
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {Object} value - 값
+                 */
+                getValue(): { content: string; attachments: string[] } {
+                    return this.editor.getValue();
+                }
+
+                /**
+                 * 필드태그를 랜더링한다.
+                 */
+                renderContent(): void {
+                    const $input = this.$getInput();
+                    this.$getContent().append($input);
+                }
+
+                /**
+                 * 필드 레이아웃을 업데이트한다.
+                 */
+                updateLayout(): void {
+                    super.updateLayout();
+                }
+
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                render(): void {
+                    super.render();
+
+                    this.$getContent().setAttr('data-module', 'wysiwyg');
+                    this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
+                        heightMin: this.minHeight,
+                    });
+                }
+            }
+
             export namespace Explorer {
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**

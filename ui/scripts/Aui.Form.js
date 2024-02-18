@@ -3915,6 +3915,97 @@ var Aui;
                 }
             }
             Field.TextArea = TextArea;
+            class Editor extends Aui.Form.Field.Base {
+                field = 'editor';
+                rows;
+                emptyText;
+                $input;
+                $emptyText;
+                minHeight;
+                editor;
+                /**
+                 * 에디터 클래스 생성한다.
+                 *
+                 * @param {Aui.Form.Field.Editor.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.emptyText = this.properties.emptyText ?? '';
+                    this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+                    this.minHeight = this.properties.minHeight ?? 200;
+                }
+                /**
+                 * INPUT 필드 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $input
+                 */
+                $getInput() {
+                    if (this.$input === undefined) {
+                        this.$input = Html.create('textarea', {
+                            name: this.inputName,
+                        });
+                    }
+                    return this.$input;
+                }
+                /**
+                 * 필드 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성여부
+                 * @return {Aui.Form.Field.TextArea} this
+                 */
+                setDisabled(disabled) {
+                    if (disabled == true) {
+                        this.$getInput().setAttr('disabled', 'disabled');
+                    }
+                    else {
+                        this.$getInput().removeAttr('disabled');
+                    }
+                    super.setDisabled(disabled);
+                    return this;
+                }
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value, is_origin = false) {
+                    this.editor.setValue(value);
+                    super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {Object} data
+                 */
+                getValue() {
+                    return this.editor.getValue();
+                }
+                /**
+                 * 필드태그를 랜더링한다.
+                 */
+                renderContent() {
+                    const $input = this.$getInput();
+                    this.$getContent().append($input);
+                }
+                /**
+                 * 필드 레이아웃을 업데이트한다.
+                 */
+                updateLayout() {
+                    super.updateLayout();
+                }
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                render() {
+                    super.render();
+                    this.$getContent().setAttr('data-module', 'wysiwyg');
+                    this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
+                        heightMin: this.minHeight,
+                    });
+                }
+            }
+            Field.Editor = Editor;
             class Explorer extends Aui.Form.Field.Base {
                 field = 'explorer';
                 explorer;
