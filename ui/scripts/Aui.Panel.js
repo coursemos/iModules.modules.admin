@@ -171,14 +171,6 @@ var Aui;
                     }
                 });
             }
-            /**
-             * sticky 요소를 위해 padding 을 border 로 처리하도록 한다.
-             */
-            if (this.padding !== null) {
-                const border = typeof this.padding == 'number' ? this.padding + 'px' : this.padding;
-                this.$getContent().setStyle('border', border + ' solid transparent');
-                this.padding = null;
-            }
             super.render();
         }
     }
