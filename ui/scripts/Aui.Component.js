@@ -585,7 +585,8 @@ var Aui;
                 }
                 if (this.getLayoutType() == 'column-item') {
                     if (this.properties.flex !== undefined && this.properties.flex > 0) {
-                        this.$getComponent().setStyle('flex', this.properties.flex);
+                        this.$getComponent().setStyle('flex-grow', this.properties.flex);
+                        this.$getComponent().setStyle('flex-basis', 0);
                         this.$getComponent().setStyle('flex-shrink', 0);
                         if (this.properties.minWidth !== undefined && this.properties.minWidth > 0) {
                             this.$getComponent().setStyle('min-width', this.properties.minWidth + 'px');
@@ -603,15 +604,27 @@ var Aui;
             }
             if (this.padding !== null) {
                 if (typeof this.padding == 'number') {
-                    this.padding = this.padding + 'px';
+                    if (this.padding > 0) {
+                        this.$getContent().setStyle('padding', this.padding + 'px');
+                    }
                 }
-                this.$getContent().setStyle('padding', this.padding);
+                else {
+                    if (this.padding.reduce((a, b) => a + b, 0) > 0) {
+                        this.$getContent().setStyle('padding', this.padding.map((a) => a + 'px').join(' '));
+                    }
+                }
             }
             if (this.margin !== null) {
                 if (typeof this.margin == 'number') {
-                    this.margin = this.margin + 'px';
+                    if (this.margin > 0) {
+                        this.$getComponent().setStyle('padding', this.margin + 'px');
+                    }
                 }
-                this.$getComponent().setStyle('padding', this.margin);
+                else {
+                    if (this.margin.reduce((a, b) => a + b, 0) > 0) {
+                        this.$getComponent().setStyle('padding', this.margin.map((a) => a + 'px').join(' '));
+                    }
+                }
             }
         }
         /**

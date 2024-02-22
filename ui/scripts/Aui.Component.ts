@@ -64,14 +64,14 @@ namespace Aui {
             maxHeight?: string | number;
 
             /**
-             * @type {string|number} padding - 컴포넌트 내부 여백
+             * @type {number|number[]} padding - 컴포넌트 내부 여백
              */
-            padding?: string | number;
+            padding?: number | number[];
 
             /**
-             * @type {string|number} margin - 컴포넌트 외부 여백
+             * @type {number|number[]} margin - 컴포넌트 외부 여백
              */
-            margin?: string | number;
+            margin?: number | number[];
 
             /**
              * @type {string} style - 컴포넌트 스타일정의
@@ -127,8 +127,8 @@ namespace Aui {
         height: string | number;
         maxWidth: string | number;
         maxHeight: string | number;
-        padding: string | number;
-        margin: string | number;
+        padding: number | number[];
+        margin: number | number[];
         style: string;
         class: string;
         hidden: boolean;
@@ -768,7 +768,8 @@ namespace Aui {
 
                 if (this.getLayoutType() == 'column-item') {
                     if (this.properties.flex !== undefined && this.properties.flex > 0) {
-                        this.$getComponent().setStyle('flex', this.properties.flex);
+                        this.$getComponent().setStyle('flex-grow', this.properties.flex);
+                        this.$getComponent().setStyle('flex-basis', 0);
                         this.$getComponent().setStyle('flex-shrink', 0);
 
                         if (this.properties.minWidth !== undefined && this.properties.minWidth > 0) {
@@ -788,16 +789,26 @@ namespace Aui {
 
             if (this.padding !== null) {
                 if (typeof this.padding == 'number') {
-                    this.padding = this.padding + 'px';
+                    if (this.padding > 0) {
+                        this.$getContent().setStyle('padding', this.padding + 'px');
+                    }
+                } else {
+                    if (this.padding.reduce((a, b) => a + b, 0) > 0) {
+                        this.$getContent().setStyle('padding', this.padding.map((a) => a + 'px').join(' '));
+                    }
                 }
-                this.$getContent().setStyle('padding', this.padding);
             }
 
             if (this.margin !== null) {
                 if (typeof this.margin == 'number') {
-                    this.margin = this.margin + 'px';
+                    if (this.margin > 0) {
+                        this.$getComponent().setStyle('padding', this.margin + 'px');
+                    }
+                } else {
+                    if (this.margin.reduce((a, b) => a + b, 0) > 0) {
+                        this.$getComponent().setStyle('padding', this.margin.map((a) => a + 'px').join(' '));
+                    }
                 }
-                this.$getComponent().setStyle('padding', this.margin);
             }
         }
 
