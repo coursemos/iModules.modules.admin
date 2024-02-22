@@ -237,6 +237,8 @@ var Aui;
             title;
             fieldDefaults;
             helpText;
+            collapsible;
+            collapsed;
             /**
              * 기본필드 클래스 생성한다.
              *
@@ -249,6 +251,8 @@ var Aui;
                 this.title = this.properties.title ?? null;
                 this.fieldDefaults = this.properties.fieldDefaults ?? null;
                 this.helpText = this.properties.helpText ?? null;
+                this.collapsible = this.properties.collapsible === true;
+                this.collapsed = this.properties.collapsed === true;
                 this.padding = this.properties.padding ?? '10px';
                 this.$setTop();
                 if (this.helpText !== null) {
@@ -370,6 +374,43 @@ var Aui;
                 return this;
             }
             /**
+             * 필드셋 축소/확장 여부를 토글한다.
+             */
+            toggleCollapse(animated = false) {
+                if (this.$getContainer().hasClass('collapsed') == true) {
+                    this.expand(animated);
+                }
+                else {
+                    this.collapse(animated);
+                }
+            }
+            /**
+             * 필드셋을 확장한다.
+             */
+            expand(animated = false) {
+                this.$getContainer().removeClass('collapsed');
+                if (animated == true) {
+                    const height = this.$getContent().getOuterHeight();
+                    this.$getContainer().animate([{ height: 21 }, { height: height }], { duration: 200, easing: 'ease-in-out' }, () => {
+                        this.$getContainer().removeClass('collapsed');
+                    });
+                }
+            }
+            /**
+             * 필드셋을 축소한다.
+             */
+            collapse(animated = false) {
+                if (animated == true) {
+                    const height = this.$getContent().getOuterHeight();
+                    this.$getContainer().animate([{ height: height }, { height: 21 }], { duration: 200, easing: 'ease-in-out' }, () => {
+                        this.$getContainer().addClass('collapsed');
+                    });
+                }
+                else {
+                    this.$getContainer().addClass('collapsed');
+                }
+            }
+            /**
              * 자식 컴포넌트를 추가한다.
              *
              * @param {Aui.Component} item - 추가할 컴포넌트
@@ -390,6 +431,11 @@ var Aui;
                     const $legend = Html.create('legend');
                     $legend.html(this.title);
                     $top.append($legend);
+                    if (this.collapsible == true) {
+                        $legend.on('click', () => {
+                            this.toggleCollapse(true);
+                        });
+                    }
                 }
             }
             /**
@@ -410,6 +456,12 @@ var Aui;
                 super.render();
                 const paddingTop = parseInt(this.$getContent().getStyle('padding-top').replace('/px$/', ''), 10);
                 this.$getContent().setStyle('padding-top', Math.max(paddingTop, 16) + 'px');
+                if (this.collapsible == true) {
+                    this.$getContainer().addClass('collapsible');
+                }
+                if (this.collapsed == true) {
+                    this.$getContainer().addClass('collapsed');
+                }
             }
         }
         Form.FieldSet = FieldSet;
@@ -1102,6 +1154,7 @@ var Aui;
                         $fields.append(item.$getComponent());
                         if (item.properties.flex !== undefined) {
                             item.$getComponent().setStyle('flex-grow', item.properties.flex === true ? 1 : item.properties.flex);
+                            item.$getComponent().setStyle('flex-basis', 0);
                             item.$getComponent().addClass('flex');
                         }
                         if (item.isRenderable() == true) {
@@ -1215,6 +1268,9 @@ var Aui;
                         });
                         if (this.inputAlign !== null) {
                             this.$input.setStyle('text-align', this.inputAlign);
+                        }
+                        if (this.readonly == true) {
+                            this.$input.setAttr('readonly', 'readonly');
                         }
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
@@ -1987,6 +2043,9 @@ var Aui;
                             step: this.step.toString(),
                         });
                         this.$input.setStyle('text-align', this.inputAlign);
+                        if (this.readonly == true) {
+                            this.$input.setAttr('readonly', 'readonly');
+                        }
                         this.$input.setData('renderer', true);
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
@@ -2203,6 +2262,7 @@ var Aui;
                 constructor(properties = null) {
                     super(properties);
                     this.renderer = this.properties.renderer ?? null;
+                    this.value = this.properties.value ?? null;
                 }
                 /**
                  * DISPLAY 필드 DOM 을 가져온다.
@@ -2223,7 +2283,7 @@ var Aui;
                  */
                 setValue(value, is_origin = false) {
                     if (this.renderer === null) {
-                        this.$getDisplay().html(value?.toString() ?? '');
+                        this.$getDisplay().html((value ?? this.value)?.toString() ?? '');
                     }
                     else {
                         this.$getDisplay().html(this.renderer(value, this));
@@ -3966,7 +4026,7 @@ var Aui;
                 /**
                  * 필드값을 지정한다.
                  *
-                 * @param {any} value - 값
+                 * @param {Object} value - 값
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value, is_origin = false) {
@@ -3976,7 +4036,7 @@ var Aui;
                 /**
                  * 필드값을 가져온다.
                  *
-                 * @return {Object} data
+                 * @return {Object} value - 값
                  */
                 getValue() {
                     return this.editor.getValue();

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 27.
+ * @modified 2024. 2. 23.
  */
 declare var moment: any;
 namespace Aui {
@@ -363,6 +363,16 @@ namespace Aui {
                 helpText?: string;
 
                 /**
+                 * @type {boolean} collapsible - 축소가능여부
+                 */
+                collapsible?: boolean;
+
+                /**
+                 * @type {boolean} collapsed - 축소여부
+                 */
+                collapsed?: boolean;
+
+                /**
                  * @type {Aui.Form.FieldDefaults} fieldDefaults - 필드셋 내부 필드 기본 설정
                  */
                 fieldDefaults?: Aui.Form.FieldDefaults;
@@ -374,6 +384,8 @@ namespace Aui {
             fieldDefaults: Aui.Form.FieldDefaults;
 
             helpText: string;
+            collapsible: boolean;
+            collapsed: boolean;
 
             /**
              * 기본필드 클래스 생성한다.
@@ -388,6 +400,8 @@ namespace Aui {
                 this.title = this.properties.title ?? null;
                 this.fieldDefaults = this.properties.fieldDefaults ?? null;
                 this.helpText = this.properties.helpText ?? null;
+                this.collapsible = this.properties.collapsible === true;
+                this.collapsed = this.properties.collapsed === true;
                 this.padding = this.properties.padding ?? '10px';
 
                 this.$setTop();
@@ -534,6 +548,53 @@ namespace Aui {
             }
 
             /**
+             * 필드셋 축소/확장 여부를 토글한다.
+             */
+            toggleCollapse(animated: boolean = false): void {
+                if (this.$getContainer().hasClass('collapsed') == true) {
+                    this.expand(animated);
+                } else {
+                    this.collapse(animated);
+                }
+            }
+
+            /**
+             * 필드셋을 확장한다.
+             */
+            expand(animated: boolean = false): void {
+                this.$getContainer().removeClass('collapsed');
+
+                if (animated == true) {
+                    const height = this.$getContent().getOuterHeight();
+                    this.$getContainer().animate(
+                        [{ height: 21 }, { height: height }],
+                        { duration: 200, easing: 'ease-in-out' },
+                        () => {
+                            this.$getContainer().removeClass('collapsed');
+                        }
+                    );
+                }
+            }
+
+            /**
+             * 필드셋을 축소한다.
+             */
+            collapse(animated: boolean = false): void {
+                if (animated == true) {
+                    const height = this.$getContent().getOuterHeight();
+                    this.$getContainer().animate(
+                        [{ height: height }, { height: 21 }],
+                        { duration: 200, easing: 'ease-in-out' },
+                        () => {
+                            this.$getContainer().addClass('collapsed');
+                        }
+                    );
+                } else {
+                    this.$getContainer().addClass('collapsed');
+                }
+            }
+
+            /**
              * 자식 컴포넌트를 추가한다.
              *
              * @param {Aui.Component} item - 추가할 컴포넌트
@@ -557,6 +618,12 @@ namespace Aui {
                     const $legend = Html.create('legend');
                     $legend.html(this.title);
                     $top.append($legend);
+
+                    if (this.collapsible == true) {
+                        $legend.on('click', () => {
+                            this.toggleCollapse(true);
+                        });
+                    }
                 }
             }
 
@@ -580,6 +647,14 @@ namespace Aui {
 
                 const paddingTop = parseInt(this.$getContent().getStyle('padding-top').replace('/px$/', ''), 10);
                 this.$getContent().setStyle('padding-top', Math.max(paddingTop, 16) + 'px');
+
+                if (this.collapsible == true) {
+                    this.$getContainer().addClass('collapsible');
+                }
+
+                if (this.collapsed == true) {
+                    this.$getContainer().addClass('collapsed');
+                }
             }
         }
 
@@ -1475,6 +1550,7 @@ namespace Aui {
                                 'flex-grow',
                                 item.properties.flex === true ? 1 : item.properties.flex
                             );
+                            item.$getComponent().setStyle('flex-basis', 0);
                             item.$getComponent().addClass('flex');
                         }
 
@@ -1621,6 +1697,9 @@ namespace Aui {
                         });
                         if (this.inputAlign !== null) {
                             this.$input.setStyle('text-align', this.inputAlign);
+                        }
+                        if (this.readonly == true) {
+                            this.$input.setAttr('readonly', 'readonly');
                         }
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLInputElement;
@@ -2579,6 +2658,9 @@ namespace Aui {
                             step: this.step.toString(),
                         });
                         this.$input.setStyle('text-align', this.inputAlign);
+                        if (this.readonly == true) {
+                            this.$input.setAttr('readonly', 'readonly');
+                        }
                         this.$input.setData('renderer', true);
 
                         this.$input.on('input', (e: InputEvent) => {
@@ -2842,6 +2924,7 @@ namespace Aui {
                     super(properties);
 
                     this.renderer = this.properties.renderer ?? null;
+                    this.value = this.properties.value ?? null;
                 }
 
                 /**
@@ -2865,7 +2948,7 @@ namespace Aui {
                  */
                 setValue(value: any, is_origin: boolean = false): void {
                     if (this.renderer === null) {
-                        this.$getDisplay().html(value?.toString() ?? '');
+                        this.$getDisplay().html((value ?? this.value)?.toString() ?? '');
                     } else {
                         this.$getDisplay().html(this.renderer(value, this));
                     }
