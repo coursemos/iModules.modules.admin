@@ -5169,6 +5169,18 @@ namespace Aui {
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
                         heightMin: this.minHeight,
                     });
+
+                    if (typeof this.getParent().padding == 'number') {
+                        this.$getContent().setStyleProperty(
+                            '--editor-toolbar-header-cover-height',
+                            (this.getParent().padding as number) + 'px'
+                        );
+                    } else {
+                        this.$getContent().setStyleProperty(
+                            '--editor-toolbar-header-cover-height',
+                            this.getParent().padding[0] + 'px'
+                        );
+                    }
                 }
             }
 
