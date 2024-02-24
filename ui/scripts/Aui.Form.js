@@ -3325,12 +3325,15 @@ var Aui;
                             listeners: {
                                 beforeLoad: () => {
                                     this.onBeforeLoad();
-                                    this.getList().setHeight(100);
+                                    this.getList().setHeight(80);
                                 },
                                 load: () => {
                                     this.onLoad();
                                 },
                                 update: () => {
+                                    if (this.getList().getStore().isLoaded() == true) {
+                                        this.getAbsolute().setVisibility(this.getList().getStore().getCount() == 0);
+                                    }
                                     this.getList().setMaxWidth(null);
                                     this.getList().setMaxHeight(null);
                                     this.getAbsolute().updatePosition();
@@ -3391,7 +3394,7 @@ var Aui;
                         else {
                             this.$button.setAttr('tabindex', '0');
                         }
-                        this.$button.on('mousedown', (e) => {
+                        this.$button.on('pointerdown', (e) => {
                             const $button = Html.el(e.currentTarget);
                             if (this.isExpand() == true) {
                                 this.collapse();
@@ -3441,7 +3444,10 @@ var Aui;
                  */
                 $getSearch() {
                     if (this.$search === undefined) {
-                        this.$search = Html.create('input', { 'type': 'search', 'tabindex': '0' });
+                        this.$search = Html.create('input', {
+                            'type': 'search',
+                            'tabindex': '0',
+                        });
                         this.$search.on('input', () => {
                             this.searching = true;
                             if (this.$search.getData('timeout') !== null) {
@@ -3449,30 +3455,23 @@ var Aui;
                                 this.$search.setData('timeout', null);
                             }
                             this.match(this.$search.getValue());
+                            this.expand();
                             this.searchingMode();
                         });
                         this.$search.on('focus', () => {
                             this.searching = true;
-                            if (this.$search.getData('timeout') !== null) {
-                                clearTimeout(this.$search.getData('timeout'));
-                                this.$search.setData('timeout', null);
-                            }
                             this.expand();
                             this.searchingMode();
                         });
-                        this.$search.on('mousedown', (e) => {
+                        this.$search.on('pointerdown', (e) => {
+                            this.searching = true;
+                            this.expand();
                             e.stopImmediatePropagation();
                         });
                         this.$search.on('blur', () => {
                             this.searching = false;
                             this.$search.setValue('');
-                            this.$search.setData('timeout', setTimeout(() => {
-                                if (Aui.getComponent(this.id) !== null) {
-                                    this.collapse();
-                                    this.searchingMode();
-                                    this.$search?.setData('timeout', null);
-                                }
-                            }, 200));
+                            this.searchingMode();
                         });
                         this.setKeyboardEvent(this.$search);
                     }
