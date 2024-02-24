@@ -644,7 +644,7 @@ var Aui;
                     this.onFocus();
                 }
                 /**
-                 * 필드에 포커스를 해지한다.
+                 * 필드에 포커스를 해제한다.
                  */
                 blur() {
                     this.onBlur();
@@ -1311,6 +1311,12 @@ var Aui;
                             const input = e.currentTarget;
                             this.setValue(input.value);
                         });
+                        this.$input.on('focus', () => {
+                            this.onFocus();
+                        });
+                        this.$input.on('blur', () => {
+                            this.onBlur();
+                        });
                     }
                     return this.$input;
                 }
@@ -1370,6 +1376,18 @@ var Aui;
                         this.$getEmptyText().show();
                     }
                     super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.$getInput().focus();
+                }
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur() {
+                    this.$getInput().blur();
                 }
                 /**
                  * INPUT 태그를 랜더링한다.
@@ -1573,6 +1591,18 @@ var Aui;
                  */
                 isExpand() {
                     return this.getAbsolute().isShow();
+                }
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.$getInput().focus();
+                }
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur() {
+                    this.$getInput().blur();
                 }
                 /**
                  * 필드값을 지정한다.
@@ -1921,6 +1951,18 @@ var Aui;
                     }
                 }
                 /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.$getInput().focus();
+                }
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur() {
+                    this.$getInput().blur();
+                }
+                /**
                  * INPUT 태그를 랜더링한다.
                  */
                 renderContent() {
@@ -1987,6 +2029,18 @@ var Aui;
                         this.$preview = Html.create('i', { 'data-role': 'preview' });
                     }
                     return this.$preview;
+                }
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.$getInput().focus();
+                }
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur() {
+                    this.$getInput().blur();
                 }
                 /**
                  * 필드값을 지정한다.
@@ -2197,6 +2251,18 @@ var Aui;
                         return parseFloat(unformatted);
                     }
                     return parseFloat(number);
+                }
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.$getInput().focus();
+                }
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur() {
+                    this.$getInput().blur();
                 }
                 /**
                  * 필드값을 가져온다.
@@ -2425,7 +2491,7 @@ var Aui;
                             class: 'tags',
                             listeners: {
                                 beforeLoad: () => {
-                                    this.getList().setHeight(100);
+                                    this.getList().setHeight(80);
                                 },
                                 update: () => {
                                     this.getList().setMaxWidth(null);
@@ -3432,6 +3498,7 @@ var Aui;
                         });
                         this.$button.on('blur', () => {
                             this.collapse();
+                            this.onBlur();
                         });
                         this.setKeyboardEvent(this.$button);
                         const $display = this.$getDisplay();
@@ -3884,10 +3951,23 @@ var Aui;
                     this.fireEvent('update', [this.getStore(), this]);
                 }
                 /**
+                 * 포커스가 해제되었을 때 이벤트를 처리한다.
+                 */
+                onBlur() {
+                    if (this.isExpand() == true) {
+                        return;
+                    }
+                    if (this.searching == true) {
+                        return;
+                    }
+                    this.fireEvent('blur', [this]);
+                }
+                /**
                  * 컴포넌트를 제거한다.
                  */
                 remove() {
                     this.getAbsolute().remove();
+                    this.getList().remove();
                     super.remove();
                 }
             }
@@ -3966,6 +4046,18 @@ var Aui;
                     }
                     super.setDisabled(disabled);
                     return this;
+                }
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.$getInput().focus();
+                }
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur() {
+                    this.$getInput().blur();
                 }
                 /**
                  * 필드값을 지정한다.

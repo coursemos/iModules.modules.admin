@@ -939,7 +939,7 @@ namespace Aui {
                 }
 
                 /**
-                 * 필드에 포커스를 해지한다.
+                 * 필드에 포커스를 해제한다.
                  */
                 blur(): void {
                     this.onBlur();
@@ -1733,6 +1733,12 @@ namespace Aui {
                             const input = e.currentTarget as HTMLInputElement;
                             this.setValue(input.value);
                         });
+                        this.$input.on('focus', () => {
+                            this.onFocus();
+                        });
+                        this.$input.on('blur', () => {
+                            this.onBlur();
+                        });
                     }
 
                     return this.$input;
@@ -1801,6 +1807,20 @@ namespace Aui {
                     }
 
                     super.setValue(value, is_origin);
+                }
+
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.$getInput().focus();
+                }
+
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur(): void {
+                    this.$getInput().blur();
                 }
 
                 /**
@@ -2044,6 +2064,20 @@ namespace Aui {
                  */
                 isExpand(): boolean {
                     return this.getAbsolute().isShow();
+                }
+
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.$getInput().focus();
+                }
+
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur(): void {
+                    this.$getInput().blur();
                 }
 
                 /**
@@ -2478,6 +2512,20 @@ namespace Aui {
                 }
 
                 /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.$getInput().focus();
+                }
+
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur(): void {
+                    this.$getInput().blur();
+                }
+
+                /**
                  * INPUT 태그를 랜더링한다.
                  */
                 renderContent(): void {
@@ -2561,6 +2609,20 @@ namespace Aui {
                     }
 
                     return this.$preview;
+                }
+
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.$getInput().focus();
+                }
+
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur(): void {
+                    this.$getInput().blur();
                 }
 
                 /**
@@ -2828,6 +2890,20 @@ namespace Aui {
                     }
 
                     return parseFloat(number);
+                }
+
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.$getInput().focus();
+                }
+
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur(): void {
+                    this.$getInput().blur();
                 }
 
                 /**
@@ -3116,7 +3192,7 @@ namespace Aui {
                             class: 'tags',
                             listeners: {
                                 beforeLoad: () => {
-                                    this.getList().setHeight(100);
+                                    this.getList().setHeight(80);
                                 },
                                 update: () => {
                                     this.getList().setMaxWidth(null);
@@ -4428,6 +4504,7 @@ namespace Aui {
                         });
                         this.$button.on('blur', () => {
                             this.collapse();
+                            this.onBlur();
                         });
                         this.setKeyboardEvent(this.$button);
 
@@ -4921,6 +4998,21 @@ namespace Aui {
                 }
 
                 /**
+                 * 포커스가 해제되었을 때 이벤트를 처리한다.
+                 */
+                onBlur(): void {
+                    if (this.isExpand() == true) {
+                        return;
+                    }
+
+                    if (this.searching == true) {
+                        return;
+                    }
+
+                    this.fireEvent('blur', [this]);
+                }
+
+                /**
                  * 컴포넌트를 제거한다.
                  */
                 remove(): void {
@@ -5030,6 +5122,20 @@ namespace Aui {
                     super.setDisabled(disabled);
 
                     return this;
+                }
+
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.$getInput().focus();
+                }
+
+                /**
+                 * 필드에 포커스를 해제한다.
+                 */
+                blur(): void {
+                    this.$getInput().blur();
                 }
 
                 /**
@@ -6102,35 +6208,6 @@ namespace Aui {
                     );
                     $inputs.setStyle('grid-gap', this.gap + 'px');
                     $content.append($inputs);
-                }
-            }
-
-            export namespace Theme {
-                export interface Properties extends Aui.Form.Field.Base.Properties {
-                    /**
-                     * @type {string} listUrl - 페이지를 불러올 URL
-                     */
-                    listUrl: string;
-
-                    /**
-                     * @type {Object} listParams - 페이지를 불러올 URL 매개변수
-                     */
-                    listParams?: { [key: string]: any };
-
-                    /**
-                     * @type {string} configUrl - 컨텍스트설정을 불러올 URL
-                     */
-                    configUrl: string;
-
-                    /**
-                     * @type {Object} configParams - 컨텍스트설정을 불러올 URL 매개변수
-                     */
-                    configParams?: { [key: string]: any };
-
-                    /**
-                     * @type {number} gap - 설정필드간 간격
-                     */
-                    gap?: number;
                 }
             }
         }
