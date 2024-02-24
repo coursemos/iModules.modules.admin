@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/AdminUi.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 24.
  */
 var AdminUi;
 (function (AdminUi) {
@@ -448,7 +448,6 @@ var AdminUi;
                 getModules() {
                     if (this.modules === undefined) {
                         this.modules = new Aui.Form.Field.Select({
-                            id: 'abc',
                             store: new Aui.Store.Remote({
                                 url: Admin.getProcessUrl('module', 'admin', 'modules'),
                                 filters: {
@@ -500,6 +499,8 @@ var AdminUi;
                             },
                             listeners: {
                                 change: (_field, value) => {
+                                    this.rawValue ??= { module: null, context: null, configs: {} };
+                                    this.rawValue.module = value;
                                     const store = this.getContexts().getStore();
                                     store.setParam('module', value);
                                     store.reload();
@@ -529,7 +530,9 @@ var AdminUi;
                                 update: (store, field) => {
                                     field.setDisabled(store.getCount() == 0);
                                     if (this.rawValue.module == this.getModules().getValue()) {
-                                        field.setValue(this.rawValue.context);
+                                        if (this.rawValue.context !== this.getContexts().getValue()) {
+                                            field.setValue(this.rawValue.context);
+                                        }
                                     }
                                 },
                                 change: async (field, value) => {
@@ -539,6 +542,7 @@ var AdminUi;
                                         this.getFieldSet().hide();
                                         return;
                                     }
+                                    this.rawValue.context = value;
                                     this.getForm()?.setLoading(this, true);
                                     field.disable();
                                     const configs = await Ajax.get(Admin.getProcessUrl('module', 'admin', 'module.context'), {

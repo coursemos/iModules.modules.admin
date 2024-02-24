@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/AdminUi.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 24.
  */
 namespace AdminUi {
     export namespace Form {
@@ -554,7 +554,6 @@ namespace AdminUi {
                 getModules(): Aui.Form.Field.Select {
                     if (this.modules === undefined) {
                         this.modules = new Aui.Form.Field.Select({
-                            id: 'abc',
                             store: new Aui.Store.Remote({
                                 url: Admin.getProcessUrl('module', 'admin', 'modules'),
                                 filters: {
@@ -611,6 +610,8 @@ namespace AdminUi {
                             },
                             listeners: {
                                 change: (_field: Aui.Form.Field.Select, value: string) => {
+                                    this.rawValue ??= { module: null, context: null, configs: {} };
+                                    this.rawValue.module = value;
                                     const store = this.getContexts().getStore() as Aui.Store.Remote;
                                     store.setParam('module', value);
                                     store.reload();
@@ -642,7 +643,9 @@ namespace AdminUi {
                                 update: (store: Aui.Store.Remote, field: Aui.Form.Field.Select) => {
                                     field.setDisabled(store.getCount() == 0);
                                     if (this.rawValue.module == this.getModules().getValue()) {
-                                        field.setValue(this.rawValue.context);
+                                        if (this.rawValue.context !== this.getContexts().getValue()) {
+                                            field.setValue(this.rawValue.context);
+                                        }
                                     }
                                 },
                                 change: async (field: Aui.Form.Field.Select, value: string) => {
@@ -652,6 +655,8 @@ namespace AdminUi {
                                         this.getFieldSet().hide();
                                         return;
                                     }
+
+                                    this.rawValue.context = value;
 
                                     this.getForm()?.setLoading(this, true);
                                     field.disable();
