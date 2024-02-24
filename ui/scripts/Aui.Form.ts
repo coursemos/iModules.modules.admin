@@ -4254,6 +4254,16 @@ namespace Aui {
                     listClass?: string;
 
                     /**
+                     * @var {boolean} expandOnFocus - 포커스 지정시 자동으로 확장할지 여부
+                     */
+                    expandOnFocus?: boolean;
+
+                    /**
+                     * @var {boolean} expandOnFocus - 엔터키로 확장할지 여부
+                     */
+                    expandOnEnter?: boolean;
+
+                    /**
                      * @type {string} loadingType - 로딩메시지 타입
                      */
                     loadingType?: Aui.Loading.Type;
@@ -4305,6 +4315,9 @@ namespace Aui {
                 absolute: Aui.Absolute;
                 list: Aui.Grid.Panel | Aui.Tree.Panel;
 
+                expandOnFocus: boolean;
+                expandOnEnter: boolean;
+
                 loading: Aui.Loading;
 
                 /**
@@ -4332,6 +4345,9 @@ namespace Aui {
 
                     this.rawValue = this.properties.value ?? null;
                     this.value = null;
+
+                    this.expandOnFocus = this.properties.expandOnFocus === true;
+                    this.expandOnEnter = this.properties.expandOnEnter !== false;
 
                     this.renderer =
                         this.properties.renderer ??
@@ -4514,6 +4530,13 @@ namespace Aui {
                             e.stopImmediatePropagation();
                             $button.getEl().focus();
                         });
+                        this.$button.on('click', (e: MouseEvent) => {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        });
+                        this.$button.on('focus', () => {
+                            this.onFocus();
+                        });
                         this.$button.on('blur', () => {
                             this.collapse();
                             this.onBlur();
@@ -4569,8 +4592,8 @@ namespace Aui {
                                 clearTimeout(this.$search.getData('timeout'));
                                 this.$search.setData('timeout', null);
                             }
-                            this.match(this.$search.getValue());
                             this.expand();
+                            this.match(this.$search.getValue());
                             this.searchingMode();
                         });
                         this.$search.on('focus', () => {
@@ -4776,9 +4799,13 @@ namespace Aui {
                     $target.on('keydown', (e: KeyboardEvent) => {
                         if (e.key == 'ArrowDown' || e.key == 'ArrowUp' || e.key == 'Enter' || e.key == ' ') {
                             if (this.isExpand() == false) {
+                                if (e.key == 'Enter' && this.expandOnEnter == false) {
+                                    return;
+                                }
                                 this.expand();
+                            } else {
+                                this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
                             }
-                            this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
                             e.preventDefault();
                             e.stopPropagation();
                         }
@@ -4792,6 +4819,9 @@ namespace Aui {
                         }
 
                         if (e.key == 'Enter') {
+                            if (this.isExpand() == false) {
+                                return;
+                            }
                             this.$getButton().focus();
                             e.preventDefault();
                             e.stopPropagation();
@@ -4803,7 +4833,10 @@ namespace Aui {
                  * 선택목록을 확장한다.
                  */
                 expand(): void {
-                    this.match('');
+                    if (this.isExpand() == true) {
+                        return;
+                    }
+
                     this.getAbsolute().show();
                     this.loading.hide();
 
@@ -4847,6 +4880,8 @@ namespace Aui {
                             });
                         }
                     }
+
+                    this.fireEvent('expand', [this]);
                 }
 
                 /**
@@ -4877,6 +4912,9 @@ namespace Aui {
                 collapse(): void {
                     if (this.isExpand() == true) {
                         this.getAbsolute().hide();
+                        this.match('');
+
+                        this.fireEvent('collapse', [this]);
                     }
                 }
 
@@ -4906,6 +4944,10 @@ namespace Aui {
                  * @param {string} keyword - 검색어
                  */
                 match(keyword: string): void {
+                    if ((this.getStore().getFilter(this.searchField)?.value ?? '') === (keyword ?? '')) {
+                        return;
+                    }
+
                     if (keyword.length > 0) {
                         if (this.value === null) {
                             this.$getEmptyText().hide();
@@ -5010,9 +5052,19 @@ namespace Aui {
                 }
 
                 /**
+                 * 포커스가 지정되었을 때 이벤트를 처리한다.
+                 */
+                onFocus(): void {
+                    if (this.expandOnFocus === true) {
+                        this.expand();
+                    }
+                    super.onFocus();
+                }
+
+                /**
                  * 포커스가 해제되었을 때 이벤트를 처리한다.
                  */
-                onBlur(): void {
+                async onBlur(): Promise<void> {
                     if (this.isExpand() == true) {
                         return;
                     }

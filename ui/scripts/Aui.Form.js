@@ -3307,6 +3307,8 @@ var Aui;
                 $search;
                 absolute;
                 list;
+                expandOnFocus;
+                expandOnEnter;
                 loading;
                 /**
                  * 선택항목필드 클래스 생성한다.
@@ -3329,6 +3331,8 @@ var Aui;
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
                     this.rawValue = this.properties.value ?? null;
                     this.value = null;
+                    this.expandOnFocus = this.properties.expandOnFocus === true;
+                    this.expandOnEnter = this.properties.expandOnEnter !== false;
                     this.renderer =
                         this.properties.renderer ??
                             ((display) => {
@@ -3508,6 +3512,13 @@ var Aui;
                             e.stopImmediatePropagation();
                             $button.getEl().focus();
                         });
+                        this.$button.on('click', (e) => {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        });
+                        this.$button.on('focus', () => {
+                            this.onFocus();
+                        });
                         this.$button.on('blur', () => {
                             this.collapse();
                             this.onBlur();
@@ -3557,8 +3568,8 @@ var Aui;
                                 clearTimeout(this.$search.getData('timeout'));
                                 this.$search.setData('timeout', null);
                             }
-                            this.match(this.$search.getValue());
                             this.expand();
+                            this.match(this.$search.getValue());
                             this.searchingMode();
                         });
                         this.$search.on('focus', () => {
@@ -3744,9 +3755,14 @@ var Aui;
                     $target.on('keydown', (e) => {
                         if (e.key == 'ArrowDown' || e.key == 'ArrowUp' || e.key == 'Enter' || e.key == ' ') {
                             if (this.isExpand() == false) {
+                                if (e.key == 'Enter' && this.expandOnEnter == false) {
+                                    return;
+                                }
                                 this.expand();
                             }
-                            this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
+                            else {
+                                this.getList().$getComponent().getEl().dispatchEvent(new KeyboardEvent('keydown', e));
+                            }
                             e.preventDefault();
                             e.stopPropagation();
                         }
@@ -3758,6 +3774,9 @@ var Aui;
                             }
                         }
                         if (e.key == 'Enter') {
+                            if (this.isExpand() == false) {
+                                return;
+                            }
                             this.$getButton().focus();
                             e.preventDefault();
                             e.stopPropagation();
@@ -3768,7 +3787,9 @@ var Aui;
                  * 선택목록을 확장한다.
                  */
                 expand() {
-                    this.match('');
+                    if (this.isExpand() == true) {
+                        return;
+                    }
                     this.getAbsolute().show();
                     this.loading.hide();
                     const value = this.value;
@@ -3810,6 +3831,7 @@ var Aui;
                             });
                         }
                     }
+                    this.fireEvent('expand', [this]);
                 }
                 /**
                  * 검색중인 상태인 경우 검색폼을 활성화한다.
@@ -3841,6 +3863,8 @@ var Aui;
                 collapse() {
                     if (this.isExpand() == true) {
                         this.getAbsolute().hide();
+                        this.match('');
+                        this.fireEvent('collapse', [this]);
                     }
                 }
                 /**
@@ -3868,6 +3892,9 @@ var Aui;
                  * @param {string} keyword - 검색어
                  */
                 match(keyword) {
+                    if ((this.getStore().getFilter(this.searchField)?.value ?? '') === (keyword ?? '')) {
+                        return;
+                    }
                     if (keyword.length > 0) {
                         if (this.value === null) {
                             this.$getEmptyText().hide();
@@ -3963,9 +3990,18 @@ var Aui;
                     this.fireEvent('update', [this.getStore(), this]);
                 }
                 /**
+                 * 포커스가 지정되었을 때 이벤트를 처리한다.
+                 */
+                onFocus() {
+                    if (this.expandOnFocus === true) {
+                        this.expand();
+                    }
+                    super.onFocus();
+                }
+                /**
                  * 포커스가 해제되었을 때 이벤트를 처리한다.
                  */
-                onBlur() {
+                async onBlur() {
                     if (this.isExpand() == true) {
                         return;
                     }
