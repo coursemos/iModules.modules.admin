@@ -2441,8 +2441,17 @@ var Aui;
                             hideOnClick: true,
                             parent: this,
                             listeners: {
-                                show: (absolute) => {
-                                    this.getList().setMaxHeight(absolute.getPosition().maxHeight);
+                                render: () => {
+                                    this.getAbsolute()
+                                        .$getContainer()
+                                        .setStyle('border-color', 'var(--input-border-color-focus)');
+                                },
+                                show: () => {
+                                    this.getList().setMaxWidth(null);
+                                    this.getList().setMaxHeight(null);
+                                    this.getAbsolute().updatePosition();
+                                    this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
+                                    this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.$getContent().addClass('expand');
                                 },
                                 hide: () => {
@@ -2494,6 +2503,9 @@ var Aui;
                                     this.getList().setHeight(80);
                                 },
                                 update: () => {
+                                    if (this.getList().getStore().isLoaded() == true) {
+                                        this.getAbsolute().setVisibility(this.getList().getStore().getCount() == 0);
+                                    }
                                     this.getList().setMaxWidth(null);
                                     this.getList().setMaxHeight(null);
                                     this.getAbsolute().updatePosition();
