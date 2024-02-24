@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Absolute.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -193,6 +193,19 @@ var Aui;
             }
         }
         /**
+         * visibility 를 설정한다.
+         *
+         * @param {boolean} hidden - 숨김여부
+         */
+        setVisibility(hidden) {
+            if (hidden == true) {
+                this.$getComponent().addClass('hidden');
+            }
+            else {
+                this.$getComponent().removeClass('hidden');
+            }
+        }
+        /**
          * 모든 절대위치 컴포넌트를 숨긴다.
          */
         static hideAll() {
@@ -245,12 +258,12 @@ var Aui;
     Aui.Absolute = Absolute;
 })(Aui || (Aui = {}));
 Html.ready(() => {
-    Html.get('body').on('mousedown', (e) => {
+    Html.get('body').on('pointerdown', (e) => {
         const $target = Html.el(e.target);
         Aui.Absolute.$absolute.forEach(($dom, id) => {
             if ($target.isSame($dom) === false && $target.getParents('div[data-component=' + id + ']') === null) {
                 const absolute = Aui.get(id);
-                absolute.hide();
+                absolute?.hide();
             }
         });
     });

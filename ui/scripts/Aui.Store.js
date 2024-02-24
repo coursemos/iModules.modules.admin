@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 2.
+ * @modified 2024. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -409,6 +409,9 @@ var Aui;
          * 데이터가 변경되었을 때 이벤트를 처리한다.
          */
         async onUpdate() {
+            if (this.isLoaded() == false) {
+                return;
+            }
             this.setCurrentParams();
             if (Format.isEqual(this.data?.sorters, this.sorters) == false) {
                 if (this.remoteSort == true) {

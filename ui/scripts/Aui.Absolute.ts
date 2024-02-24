@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Absolute.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 24.
  */
 namespace Aui {
     export namespace Absolute {
@@ -266,6 +266,19 @@ namespace Aui {
         }
 
         /**
+         * visibility 를 설정한다.
+         *
+         * @param {boolean} hidden - 숨김여부
+         */
+        setVisibility(hidden: boolean): void {
+            if (hidden == true) {
+                this.$getComponent().addClass('hidden');
+            } else {
+                this.$getComponent().removeClass('hidden');
+            }
+        }
+
+        /**
          * 모든 절대위치 컴포넌트를 숨긴다.
          */
         static hideAll(): void {
@@ -322,12 +335,12 @@ namespace Aui {
 }
 
 Html.ready(() => {
-    Html.get('body').on('mousedown', (e: MouseEvent) => {
+    Html.get('body').on('pointerdown', (e: PointerEvent) => {
         const $target = Html.el(e.target);
         Aui.Absolute.$absolute.forEach(($dom: Dom, id: string) => {
             if ($target.isSame($dom) === false && $target.getParents('div[data-component=' + id + ']') === null) {
                 const absolute = Aui.get(id) as Aui.Absolute;
-                absolute.hide();
+                absolute?.hide();
             }
         });
     });
