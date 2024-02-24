@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 27.
+ * @modified 2024. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -470,7 +470,7 @@ var Aui;
                     return;
                 if (this.isRowSelected(treeIndex) == true) {
                     if (this.selections.size !== 1) {
-                        this.deselectAll(false);
+                        this.resetSelections(false);
                         this.selectRow(treeIndex);
                     }
                     else {
@@ -497,7 +497,7 @@ var Aui;
                 if (this.isRowSelected(treeIndex) == true)
                     return;
                 if (this.selection.multiple == false || is_multiple == false) {
-                    this.deselectAll(false);
+                    this.resetSelections(false);
                 }
                 const record = $row.getData('record');
                 this.selections.set(record.getHash(), record);
@@ -852,7 +852,6 @@ var Aui;
                     $leaf.on('click', (e) => {
                         if (this.selection.selectable == true) {
                             if (this.selection.display == 'check') {
-                                this.deselectAll(false);
                                 this.selectRow(treeIndex, false);
                             }
                             else if (this.selection.deselectable == true && this.isRowSelected(treeIndex) == true) {
@@ -1649,8 +1648,7 @@ var Aui;
                     $column.addClass(...this.textClass.split(' '));
                 }
                 $column.on('pointerdown', (e) => {
-                    const $column = Html.el(e.currentTarget);
-                    this.tree.focusCell($column.getData('tree'), $column.getData('column'));
+                    this.tree.focusCell(treeIndex, columnIndex);
                 });
                 if (columnIndex == 0) {
                     $column.addClass('header');

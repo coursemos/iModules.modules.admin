@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 27.
+ * @modified 2024. 2. 24.
  */
 namespace Aui {
     export namespace Grid {
@@ -387,10 +387,10 @@ namespace Aui {
             focusCell(rowIndex: number, columnIndex: number): void {
                 if (this.isRendered() == false) return;
 
-                const $column = Html.get(
-                    'div[data-role=column][data-row="' + rowIndex + '"][data-column="' + columnIndex + '"]',
-                    this.$body
-                );
+                const $row = this.$getRow(rowIndex);
+                if ($row === null) return;
+
+                const $column = Html.get('div[data-role=column][data-column="' + columnIndex + '"]', $row);
                 if ($column.getEl() == null) return;
 
                 this.blurCell();
@@ -529,7 +529,7 @@ namespace Aui {
 
                 if (this.isRowSelected(rowIndex) == true) {
                     if (this.selections.size !== 1) {
-                        this.deselectAll(false);
+                        this.resetSelections(false);
                         this.selectRow(rowIndex);
                     } else {
                         this.focusRow(rowIndex);
@@ -554,7 +554,7 @@ namespace Aui {
 
                 if (this.isRowSelected(rowIndex) == true) return;
                 if (this.selection.multiple == false || is_multiple == false) {
-                    this.deselectAll(false);
+                    this.resetSelections(false);
                 }
 
                 const record = $row.getData('record');
@@ -933,7 +933,6 @@ namespace Aui {
                                 if (e.metaKey == true || e.ctrlKey == true) {
                                     this.selectRow(rowIndex, true);
                                 } else {
-                                    this.deselectAll(false);
                                     this.selectRow(rowIndex, false);
                                 }
                             } else if (this.selection.deselectable == true && this.isRowSelected(rowIndex) == true) {
@@ -1338,6 +1337,9 @@ namespace Aui {
                  */
                 columns?: (Aui.Grid.Column | Aui.Grid.Column.Properties)[];
 
+                /**
+                 * @type {Function} renderer - 컬럼 랜더러
+                 */
                 renderer?: (
                     value: any,
                     record: Aui.Data.Record,
@@ -1820,21 +1822,20 @@ namespace Aui {
                 }
 
                 $column.on('pointerdown', (e: PointerEvent) => {
-                    const $column = Html.el(e.currentTarget);
-
                     if (e.shiftKey == true && this.grid.selection.multiple == true && this.grid.focusedRow !== null) {
-                        this.grid.selectRange(this.grid.focusedRow, $column.getData('row'));
+                        this.grid.selectRange(this.grid.focusedRow, rowIndex);
                     }
-                    this.grid.focusCell($column.getData('row'), $column.getData('column'));
+                    this.grid.focusCell(rowIndex, columnIndex);
                 });
 
                 $column.on('click', (e: PointerEvent) => {
                     const $column = Html.el(e.currentTarget);
 
+                $column.on('click', (e: PointerEvent) => {
                     if (
                         e.shiftKey == true &&
                         this.grid.selection.multiple == true &&
-                        this.grid.focusedRow == $column.getData('row')
+                        this.grid.focusedRow == rowIndex
                     ) {
                         e.preventDefault();
                         e.stopImmediatePropagation();

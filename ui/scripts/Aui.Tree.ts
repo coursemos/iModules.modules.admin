@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 27.
+ * @modified 2024. 2. 24.
  */
 namespace Aui {
     export namespace Tree {
@@ -687,7 +687,7 @@ namespace Aui {
 
                 if (this.isRowSelected(treeIndex) == true) {
                     if (this.selections.size !== 1) {
-                        this.deselectAll(false);
+                        this.resetSelections(false);
                         this.selectRow(treeIndex);
                     } else {
                         this.focusRow(treeIndex);
@@ -712,7 +712,7 @@ namespace Aui {
 
                 if (this.isRowSelected(treeIndex) == true) return;
                 if (this.selection.multiple == false || is_multiple == false) {
-                    this.deselectAll(false);
+                    this.resetSelections(false);
                 }
 
                 const record = $row.getData('record');
@@ -1113,7 +1113,6 @@ namespace Aui {
                     $leaf.on('click', (e: PointerEvent) => {
                         if (this.selection.selectable == true) {
                             if (this.selection.display == 'check') {
-                                this.deselectAll(false);
                                 this.selectRow(treeIndex, false);
                             } else if (this.selection.deselectable == true && this.isRowSelected(treeIndex) == true) {
                                 this.deselectRow(treeIndex);
@@ -2106,8 +2105,7 @@ namespace Aui {
                 }
 
                 $column.on('pointerdown', (e: PointerEvent) => {
-                    const $column = Html.el(e.currentTarget);
-                    this.tree.focusCell($column.getData('tree'), $column.getData('column'));
+                    this.tree.focusCell(treeIndex, columnIndex);
                 });
 
                 if (columnIndex == 0) {

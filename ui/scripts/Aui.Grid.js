@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 27.
+ * @modified 2024. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -331,7 +331,7 @@ var Aui;
                     return;
                 if (this.isRowSelected(rowIndex) == true) {
                     if (this.selections.size !== 1) {
-                        this.deselectAll(false);
+                        this.resetSelections(false);
                         this.selectRow(rowIndex);
                     }
                     else {
@@ -358,7 +358,7 @@ var Aui;
                 if (this.isRowSelected(rowIndex) == true)
                     return;
                 if (this.selection.multiple == false || is_multiple == false) {
-                    this.deselectAll(false);
+                    this.resetSelections(false);
                 }
                 const record = $row.getData('record');
                 this.selections.set(record.getHash(), record);
@@ -1393,15 +1393,14 @@ var Aui;
                 $column.on('pointerdown', (e) => {
                     const $column = Html.el(e.currentTarget);
                     if (e.shiftKey == true && this.grid.selection.multiple == true && this.grid.focusedRow !== null) {
-                        this.grid.selectRange(this.grid.focusedRow, $column.getData('row'));
+                        this.grid.selectRange(this.grid.focusedRow, rowIndex);
                     }
-                    this.grid.focusCell($column.getData('row'), $column.getData('column'));
+                    this.grid.focusCell(rowIndex, columnIndex);
                 });
                 $column.on('click', (e) => {
-                    const $column = Html.el(e.currentTarget);
                     if (e.shiftKey == true &&
                         this.grid.selection.multiple == true &&
-                        this.grid.focusedRow == $column.getData('row')) {
+                        this.grid.focusedRow == rowIndex) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
                     }
