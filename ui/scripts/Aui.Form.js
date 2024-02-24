@@ -1,3 +1,13 @@
+/**
+ * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
+ *
+ * 폼 클래스를 정의한다.
+ *
+ * @file /scripts/Aui.Form.ts
+ * @author Arzz <arzz@arzz.com>
+ * @license MIT License
+ * @modified 2024. 2. 24.
+ */
 var Aui;
 (function (Aui) {
     let Form;
@@ -253,7 +263,10 @@ var Aui;
                 this.helpText = this.properties.helpText ?? null;
                 this.collapsible = this.properties.collapsible === true;
                 this.collapsed = this.properties.collapsed === true;
-                this.padding = this.properties.padding ?? '10px';
+                this.padding = this.properties.padding ?? [20, 10, 10, 10];
+                if (typeof this.padding == 'number') {
+                    this.padding = [this.padding + 10, this.padding, this.padding, this.padding];
+                }
                 this.$setTop();
                 if (this.helpText !== null) {
                     this.$setBottom();
@@ -454,8 +467,6 @@ var Aui;
              */
             render() {
                 super.render();
-                const paddingTop = parseInt(this.$getContent().getStyle('padding-top').replace('/px$/', ''), 10);
-                this.$getContent().setStyle('padding-top', Math.max(paddingTop, 16) + 'px');
                 if (this.collapsible == true) {
                     this.$getContainer().addClass('collapsible');
                 }
