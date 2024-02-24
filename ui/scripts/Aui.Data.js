@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 2.
+ * @modified 2024. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -207,6 +207,7 @@ var Aui;
             primaryKeys = [];
             hash;
             data;
+            origin = null;
             children;
             originChildren;
             childrenField;
@@ -216,6 +217,7 @@ var Aui;
             filtering;
             filters;
             filterMode = 'AND';
+            observer = null;
             /**
              * 데이터 레코드를 생성한다.
              *
@@ -259,6 +261,30 @@ var Aui;
              */
             get(key) {
                 return this.data[key] ?? null;
+            }
+            /**
+             * 데이터를 변경한다.
+             *
+             * @param {string} key - 변경할 데이터키
+             * @param {any} value - 변경할 데이터
+             */
+            set(key, value) {
+                this.origin ??= JSON.parse(JSON.stringify(this.data));
+                this.data[key] = value;
+                if (this.observer !== null) {
+                    this.observer(key, value, this.origin[key] ?? null);
+                }
+            }
+            /**
+             * 데이터가 수정된 상태인지 확인한다.
+             *
+             * @return {boolean} is_dirty
+             */
+            isDirty() {
+                if (this.origin === null) {
+                    return false;
+                }
+                return Format.isEqual(this.data, this.origin) === false;
             }
             /**
              * 전체 부모트리를 가져온다.
@@ -343,6 +369,9 @@ var Aui;
                     this.hash = Format.sha1(JSON.stringify(this.getPrimary()));
                 }
                 return this.hash;
+            }
+            setObserver(observer) {
+                this.observer = observer;
             }
             /**
              * 자식데이터를 정렬한다.

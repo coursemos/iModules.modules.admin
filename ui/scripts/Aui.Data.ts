@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 2.
+ * @modified 2024. 2. 24.
  */
 namespace Aui {
     export class Data {
@@ -242,6 +242,7 @@ namespace Aui {
             primaryKeys: string[] = [];
             hash: string;
             data: { [key: string]: any };
+            origin: { [key: string]: any } = null;
             children: boolean | Aui.Data.Record[];
             originChildren: boolean | Aui.Data.Record[];
             childrenField: string;
@@ -251,6 +252,7 @@ namespace Aui {
             filtering: boolean;
             filters: { [field: string]: { value: any; operator: string } };
             filterMode: 'OR' | 'AND' = 'AND';
+            observer: (key: string, value: any, origin: any) => void = null;
 
             /**
              * 데이터 레코드를 생성한다.
@@ -301,6 +303,34 @@ namespace Aui {
              */
             get(key: string): any {
                 return this.data[key] ?? null;
+            }
+
+            /**
+             * 데이터를 변경한다.
+             *
+             * @param {string} key - 변경할 데이터키
+             * @param {any} value - 변경할 데이터
+             */
+            set(key: string, value: any): void {
+                this.origin ??= JSON.parse(JSON.stringify(this.data));
+                this.data[key] = value;
+
+                if (this.observer !== null) {
+                    this.observer(key, value, this.origin[key] ?? null);
+                }
+            }
+
+            /**
+             * 데이터가 수정된 상태인지 확인한다.
+             *
+             * @return {boolean} is_dirty
+             */
+            isDirty(): boolean {
+                if (this.origin === null) {
+                    return false;
+                }
+
+                return Format.isEqual(this.data, this.origin) === false;
             }
 
             /**
@@ -397,6 +427,10 @@ namespace Aui {
                 }
 
                 return this.hash;
+            }
+
+            setObserver(observer: (key: string, value: any, origin: any) => void): void {
+                this.observer = observer;
             }
 
             /**
