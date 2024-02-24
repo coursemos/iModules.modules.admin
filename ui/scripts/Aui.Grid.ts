@@ -189,6 +189,8 @@ namespace Aui {
 
             focusedRow: number = null;
             focusedCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
+            editingField: Aui.Form.Field.Base = null;
+            editingCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
 
             loading: Aui.Loading;
 
@@ -393,6 +395,13 @@ namespace Aui {
                 const $column = Html.get('div[data-role=column][data-column="' + columnIndex + '"]', $row);
                 if ($column.getEl() == null) return;
 
+                if (this.editingField !== null) {
+                    if (this.editingCell.rowIndex !== rowIndex || this.editingCell.columnIndex !== columnIndex) {
+                        this.completeEdit();
+                        return;
+                    }
+                }
+
                 this.blurCell();
                 this.focusRow(rowIndex);
                 $column.addClass('focused');
@@ -424,11 +433,123 @@ namespace Aui {
              * 포커스된 셀을 포커스를 해제한다.
              */
             blurCell(): void {
+                if (this.editingCell.rowIndex !== null || this.editingCell.columnIndex !== null) {
+                    return;
+                }
+
                 this.blurRow();
                 this.focusedCell.rowIndex = null;
                 this.focusedCell.columnIndex = null;
 
                 Html.all('div[data-role=column].focused', this.$body).removeClass('focused');
+            }
+
+            /**
+             * 특정 셀을 데이터 수정모드로 변경한다.
+             *
+             * @param {number} rowIndex
+             * @param {number} columnIndex
+             */
+            editCell(rowIndex: number, columnIndex: number): void {
+                if (this.isRendered() == false) return;
+
+                if (this.editingCell.rowIndex === rowIndex && this.editingCell.columnIndex === columnIndex) {
+                    return;
+                }
+
+                if (this.editingField !== null) {
+                    this.completeEdit();
+                    return;
+                }
+
+                const $row = this.$getRow(rowIndex);
+                if ($row === null) return;
+
+                const $column = Html.get('div[data-role=column][data-column="' + columnIndex + '"]', $row);
+                if ($column.getEl() == null) return;
+
+                const column = this.columns[columnIndex];
+                if (column.editor === null) {
+                    return;
+                }
+
+                const record = $column.getData('record') as Aui.Data.Record;
+                this.editingField = this.columns[columnIndex].editor(
+                    record.get(column.dataIndex ?? '') ?? '',
+                    record,
+                    rowIndex,
+                    columnIndex,
+                    this
+                );
+                if (this.editingField === null) {
+                    return;
+                }
+
+                this.editingCell.rowIndex = rowIndex;
+                this.editingCell.columnIndex = columnIndex;
+
+                this.editingField.addEvent('blur', () => {
+                    this.completeEdit();
+                });
+                this.editingField.$getComponent().on('keydown', (e: KeyboardEvent) => {
+                    if (e.key == 'Enter') {
+                        this.completeEdit();
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }
+
+                    if (e.key == 'Escape') {
+                        this.completeEdit(true);
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                    }
+                });
+
+                Html.get('div[data-role=view]', $column).hide();
+                $column.append(this.editingField.$getComponent());
+                this.editingField.render();
+                this.focusCell(rowIndex, columnIndex);
+                this.editingField.focus();
+            }
+
+            /**
+             * 셀 에디트 모드를 종료한다.
+             *
+             * @param {boolean} is_rollback - 롤백여부
+             */
+            completeEdit(is_rollback: boolean = false): void {
+                if (this.editingField === null) {
+                    return;
+                }
+
+                const rowIndex = this.editingCell.rowIndex;
+                const columnIndex = this.editingCell.columnIndex;
+
+                const $row = this.$getRow(rowIndex ?? -1);
+                if ($row === null) return;
+
+                const $column = Html.get('div[data-role=column][data-column="' + columnIndex ?? 0 + '"]', $row);
+                if ($column.getEl() == null) return;
+
+                const column = this.columns[columnIndex ?? 0];
+                const value = this.editingField.getValue();
+
+                this.editingCell.rowIndex = null;
+                this.editingCell.columnIndex = null;
+
+                this.editingField.remove();
+                this.editingField = null;
+
+                if (is_rollback === true) {
+                    Html.get('div[data-role=view]', $column).show();
+                } else {
+                    this.getStore().get(rowIndex).set(column.dataIndex, value);
+                }
+
+                setTimeout(() => {
+                    this.focusCell(rowIndex, columnIndex);
+                    this.$getComponent().focus();
+                }, 100);
             }
 
             /**
@@ -905,6 +1026,10 @@ namespace Aui {
                 if (record === null) {
                     return Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex);
                 } else {
+                    record.setObserver((dataIndex, value, originValue) => {
+                        this.updateRow(rowIndex);
+                    });
+
                     let leftPosition = 0;
                     const $row = Html.create('div')
                         .setData('role', 'row')
@@ -989,6 +1114,19 @@ namespace Aui {
                         }
                     }
                 });
+            }
+
+            /**
+             * 특정행의 데이터가 변경되었을 때 해당 행을 갱신한다.
+             *
+             * @param {number} rowIndex - 업데이트할 행 인덱스
+             */
+            updateRow(rowIndex: number): void {
+                const $row = this.$getRow(rowIndex);
+                if ($row === null) return;
+
+                const record = this.getStore().get(rowIndex);
+                $row.replaceWith(this.$getRow(rowIndex, record));
             }
 
             /**
@@ -1084,6 +1222,10 @@ namespace Aui {
                     }
 
                     if (e.key.indexOf('Arrow') === 0) {
+                        if (this.editingCell.rowIndex !== null || this.editingCell.columnIndex !== null) {
+                            return;
+                        }
+
                         let rowIndex: number = 0;
                         let columnIndex: number = 0;
                         switch (e.key) {
@@ -1122,6 +1264,27 @@ namespace Aui {
 
                         this.focusCell(rowIndex, columnIndex);
                         e.preventDefault();
+                        return;
+                    }
+
+                    if (e.key == 'Enter') {
+                        if (this.focusedCell.columnIndex !== null) {
+                            const column = this.columns[this.focusedCell.columnIndex];
+                            if (column.editor !== null) {
+                                if (
+                                    this.editingCell.rowIndex === this.focusedCell.rowIndex &&
+                                    this.editingCell.columnIndex == this.focusedCell.columnIndex
+                                ) {
+                                    this.completeEdit();
+                                } else {
+                                    this.editCell(this.focusedCell.rowIndex, this.focusedCell.columnIndex);
+                                }
+
+                                e.preventDefault();
+                                e.stopImmediatePropagation();
+                                return;
+                            }
+                        }
                     }
 
                     if (e.key == ' ' || e.key == 'Enter') {
@@ -1140,29 +1303,6 @@ namespace Aui {
                 this.$getComponent().on('blur', () => {
                     this.blurCell();
                 });
-
-                /**
-                 * @todo 고민필요
-                 *
-                this.$getComponent().on('copy', (e: ClipboardEvent) => {
-                    if (this.focusedCell.rowIndex !== null && this.focusedCell.columnIndex !== null) {
-                        const $column = Html.get(
-                            'div[data-role=column][data-row="' +
-                                this.focusedCell.rowIndex +
-                                '"][data-column="' +
-                                this.focusedCell.columnIndex +
-                                '"]',
-                            this.$body
-                        );
-                        if ($column == null) return;
-
-                        navigator.clipboard.writeText($column.getData('value'));
-                    }
-
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                });
-                */
             }
 
             /**
@@ -1349,6 +1489,22 @@ namespace Aui {
                     column: Aui.Grid.Column,
                     grid: Aui.Grid.Panel
                 ) => string;
+
+                /**
+                 * @type {Function} editor - 컬럼 에디터
+                 */
+                editor?: (
+                    value: any,
+                    record: Aui.Data.Record,
+                    rowIndex: number,
+                    columnIndex: number,
+                    grid: Aui.Grid.Panel
+                ) => Aui.Form.Field.Base;
+
+                /**
+                 * @type {number} clicksToEdit - 에디터 모드로 전환하기 위해 필요한 클릭수
+                 */
+                clicksToEdit?: number;
             }
         }
 
@@ -1382,6 +1538,14 @@ namespace Aui {
                 column: Aui.Grid.Column,
                 grid: Aui.Grid.Panel
             ) => string;
+            editor: (
+                value: any,
+                record: Aui.Data.Record,
+                rowIndex: number,
+                columnIndex: number,
+                grid: Aui.Grid.Panel
+            ) => Aui.Form.Field.Base;
+            clicksToEdit: number;
 
             /**
              * 그리드패널 컬럼객체를 생성한다.
@@ -1408,6 +1572,8 @@ namespace Aui {
                 this.textClass = this.properties.textClass ?? null;
                 this.columns = [];
                 this.renderer = this.properties.renderer ?? null;
+                this.editor = this.properties.editor ?? null;
+                this.clicksToEdit = Math.max(1, Math.min(2, this.properties.clicksToEdit ?? 2));
 
                 // @todo 메뉴설정
                 this.menu = null;
@@ -1828,19 +1994,34 @@ namespace Aui {
                     this.grid.focusCell(rowIndex, columnIndex);
                 });
 
-                $column.on('click', (e: PointerEvent) => {
-                    const $column = Html.el(e.currentTarget);
+                if (this.editor === null || this.clicksToEdit == 2) {
+                    $column.on('click', (e: PointerEvent) => {
+                        if (
+                            e.shiftKey == true &&
+                            this.grid.selection.multiple == true &&
+                            this.grid.focusedRow == rowIndex
+                        ) {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        }
+                    });
+                }
 
-                $column.on('click', (e: PointerEvent) => {
-                    if (
-                        e.shiftKey == true &&
-                        this.grid.selection.multiple == true &&
-                        this.grid.focusedRow == rowIndex
-                    ) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
+                if (this.editor !== null) {
+                    if (this.clicksToEdit == 1) {
+                        $column.on('click', (e: MouseEvent) => {
+                            this.grid.editCell(rowIndex, columnIndex);
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        });
+                    } else {
+                        $column.on('dblclick', (e: MouseEvent) => {
+                            this.grid.editCell(rowIndex, columnIndex);
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                        });
                     }
-                });
+                }
 
                 const $view = Html.create('div').setData('role', 'view');
                 if (this.renderer !== null) {
