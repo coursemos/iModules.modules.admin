@@ -638,6 +638,18 @@ var Aui;
                     }
                 }
                 /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.onFocus();
+                }
+                /**
+                 * 필드에 포커스를 해지한다.
+                 */
+                blur() {
+                    this.onBlur();
+                }
+                /**
                  * 필드값 변경여부를 가져온다.
                  *
                  * @return {boolean} is_dirty
@@ -862,6 +874,18 @@ var Aui;
                  */
                 onChange() {
                     this.fireEvent('change', [this, this.getValue(), this.getRawValue(), this.pValue, this.oValue]);
+                }
+                /**
+                 * 포커스 지정시 이벤트를 처리한다.
+                 */
+                onFocus() {
+                    this.fireEvent('focus', [this]);
+                }
+                /**
+                 * 포커스 해제시 이벤트를 처리한다.
+                 */
+                onBlur() {
+                    this.fireEvent('blur', [this]);
                 }
             }
             Field.Base = Base;

@@ -932,6 +932,20 @@ namespace Aui {
                 }
 
                 /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.onFocus();
+                }
+
+                /**
+                 * 필드에 포커스를 해지한다.
+                 */
+                blur(): void {
+                    this.onBlur();
+                }
+
+                /**
                  * 필드값 변경여부를 가져온다.
                  *
                  * @return {boolean} is_dirty
@@ -1183,6 +1197,20 @@ namespace Aui {
                  */
                 onChange(): void {
                     this.fireEvent('change', [this, this.getValue(), this.getRawValue(), this.pValue, this.oValue]);
+                }
+
+                /**
+                 * 포커스 지정시 이벤트를 처리한다.
+                 */
+                onFocus(): void {
+                    this.fireEvent('focus', [this]);
+                }
+
+                /**
+                 * 포커스 해제시 이벤트를 처리한다.
+                 */
+                onBlur(): void {
+                    this.fireEvent('blur', [this]);
                 }
             }
 
