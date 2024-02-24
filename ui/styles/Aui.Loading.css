@@ -6,7 +6,7 @@
  * @file /styles/Aui.Loading.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 23.
  */
 @keyframes loading-indicator-column {
     0% {
@@ -234,5 +234,9 @@ div[data-type='loading'][data-role='loading'] {
 
     &.show {
         visibility: visible;
+    }
+
+    &.hide {
+        display: none;
     }
 }

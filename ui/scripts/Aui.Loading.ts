@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Loading.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 23.
  */
 namespace Aui {
     export namespace Loading {
@@ -103,6 +103,7 @@ namespace Aui {
 
                 $loading.append($box);
                 this.$getAppended().append($loading);
+                $loading.addClass('hide');
             }
 
             const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended());
@@ -125,7 +126,7 @@ namespace Aui {
          * 로딩메시지를 보인다.
          */
         show(): Aui.Loading {
-            this.$getLoading().addClass('show');
+            this.$getLoading().removeClass('hide').addClass('show');
             return this;
         }
 
@@ -133,7 +134,7 @@ namespace Aui {
          * 로딩메시지를 숨긴다.
          */
         hide(): void {
-            this.$getLoading().removeClass('show');
+            this.$getLoading().addClass('hide');
         }
 
         /**

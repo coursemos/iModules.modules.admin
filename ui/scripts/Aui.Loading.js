@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Loading.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 23.
  */
 var Aui;
 (function (Aui) {
@@ -69,6 +69,7 @@ var Aui;
                 $box.append($text);
                 $loading.append($box);
                 this.$getAppended().append($loading);
+                $loading.addClass('hide');
             }
             const $loading = Html.get('> div[data-type=loading][data-role=loading]', this.$getAppended());
             return $loading;
@@ -87,14 +88,14 @@ var Aui;
          * 로딩메시지를 보인다.
          */
         show() {
-            this.$getLoading().addClass('show');
+            this.$getLoading().removeClass('hide').addClass('show');
             return this;
         }
         /**
          * 로딩메시지를 숨긴다.
          */
         hide() {
-            this.$getLoading().removeClass('show');
+            this.$getLoading().addClass('hide');
         }
         /**
          * 로딩메시지를 닫는다.

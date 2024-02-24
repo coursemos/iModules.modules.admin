@@ -51,5 +51,9 @@ section[data-role='admin'][data-type='absolutes'] {
                 flex-shrink: 1;
             }
         }
+
+        &.hidden {
+            visibility: hidden;
+        }
     }
 }
