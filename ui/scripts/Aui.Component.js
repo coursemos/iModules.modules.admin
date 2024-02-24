@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -608,7 +608,7 @@ var Aui;
                         this.$getContent().setStyle('padding', this.padding + 'px');
                     }
                 }
-                else {
+                else if (Array.isArray(this.padding) == true) {
                     if (this.padding.reduce((a, b) => a + b, 0) > 0) {
                         this.$getContent().setStyle('padding', this.padding.map((a) => a + 'px').join(' '));
                     }
