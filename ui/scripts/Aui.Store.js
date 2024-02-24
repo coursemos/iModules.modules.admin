@@ -355,6 +355,16 @@ var Aui;
             await this.filter();
         }
         /**
+         * 특정필드의 필터를 가져온다.
+         *
+         * @param {string} field
+         * @return {Object} filters
+         */
+        getFilter(field) {
+            const filters = this.getFilters() ?? {};
+            return filters[field] ?? null;
+        }
+        /**
          * 현재 필터를 가져온다.
          *
          * @return {Object} filters
@@ -1136,6 +1146,16 @@ var Aui;
             this.filters = filters;
             this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
             await this.filter();
+        }
+        /**
+         * 특정필드의 필터를 가져온다.
+         *
+         * @param {string} field
+         * @return {Object} filters
+         */
+        getFilter(field) {
+            const filters = this.getFilters() ?? {};
+            return filters[field] ?? null;
         }
         /**
          * 현재 필터를 가져온다.
