@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 25.
  */
 namespace Aui {
     export namespace Menu {
@@ -64,6 +64,8 @@ namespace Aui {
         title: Aui.Title;
         once: boolean;
 
+        submenu: Aui.Menu;
+
         /**
          * 메뉴를 생성한다.
          *
@@ -95,6 +97,7 @@ namespace Aui {
             }
 
             this.$scrollable = this.$getContent();
+            this.submenu = null;
         }
 
         /**
@@ -114,6 +117,20 @@ namespace Aui {
             }
 
             super.initItems();
+        }
+
+        /**
+         * 서브메뉴인 경우 해당 메뉴를 출력하는 메뉴아이템을 등록한다.
+         *
+         * @param {Aui.Component} parent - 부모객체
+         */
+        setParent(parent: Aui.Component): this {
+            super.setParent(parent);
+
+            if (parent instanceof Aui.Menu.Item) {
+                this.$getComponent().addClass('submenu');
+            }
+            return this;
         }
 
         /**
@@ -219,6 +236,24 @@ namespace Aui {
             const targetRect = this.getTargetRect();
             const absoluteRect = this.getMenuRect();
             const windowRect = { width: window.innerWidth, height: window.innerHeight };
+
+            /**
+             * 대상의 DOM 을 기준으로 좌/우 위치에 보여줄 경우
+             */
+            if (this.direction == 'x') {
+                if (targetRect.right + absoluteRect.width > windowRect.width) {
+                    position.right = targetRect.left;
+                } else {
+                    position.left = targetRect.right;
+                }
+
+                if (targetRect.top + absoluteRect.height > windowRect.height) {
+                    position.top = Math.max(10, windowRect.height - absoluteRect.height);
+                } else {
+                    position.top = targetRect.top;
+                }
+                position.maxHeight = windowRect.height - 20;
+            }
 
             /**
              * 대상의 DOM 을 기준으로 상/하 위치에 보여줄 경우
@@ -327,17 +362,26 @@ namespace Aui {
             super.show();
             this.$getComponent().focus();
 
-            Aui.Menu.menu = this;
-            Aui.Menu.observe();
+            if (this.isSubmenu() === false) {
+                Aui.Menu.menu = this;
+                Aui.Menu.observe();
+            }
         }
 
         /**
          * 메뉴를 숨긴다.
          */
         hide(): void {
-            Aui.Menu.menu = null;
-            Aui.Menu.$menu.empty();
-            Aui.Menu.$menu.hide();
+            if (this.isSubmenu() === false) {
+                Aui.Menu.menu = null;
+                Aui.Menu.$menu.empty();
+                Aui.Menu.$menu.hide();
+            }
+
+            if (this.submenu !== null) {
+                this.submenu.hide();
+                this.submenu = null;
+            }
 
             super.hide();
             if (this.once == true) {
@@ -350,6 +394,9 @@ namespace Aui {
          */
         close(): void {
             this.hide();
+            if (this.isSubmenu() == true) {
+                (this.getParent().getParent() as Aui.Menu).close();
+            }
         }
 
         /**
@@ -358,6 +405,15 @@ namespace Aui {
         remove(): void {
             this.title?.remove();
             super.remove();
+        }
+
+        /**
+         * 서브메뉴인지 확인한다.
+         *
+         * @return {boolean} is_submenu
+         */
+        isSubmenu(): boolean {
+            return this.getParent() instanceof Aui.Menu.Item;
         }
 
         /**
@@ -450,9 +506,19 @@ namespace Aui {
                 iconClass?: string;
 
                 /**
+                 * @type {Aui.Menu} menu - 서브메뉴
+                 */
+                menu?: Aui.Menu;
+
+                /**
+                 * @type {(Aui.Menu.Item|Aui.Menu.Item.Properties|'-')[]} menus - 서브메뉴아이템
+                 */
+                menus?: (Aui.Menu.Item | Aui.Menu.Item.Properties | '-')[];
+
+                /**
                  * @type {Function} handler - 메뉴 클릭 핸들러
                  */
-                handler?: (item: Aui.Menu.Item) => void;
+                handler?: (item: Aui.Menu.Item) => Promise<boolean>;
             }
         }
 
@@ -461,8 +527,9 @@ namespace Aui {
             role: string = 'item';
             text: string;
             iconClass: string;
-            handler: Function;
+            handler: (item: Aui.Menu.Item) => Promise<boolean>;
 
+            menu: Aui.Menu;
             $button: Dom;
 
             /**
@@ -479,6 +546,24 @@ namespace Aui {
                 this.text = this.properties.text ?? '';
                 this.iconClass = this.properties.iconClass ?? null;
                 this.handler = this.properties.handler ?? null;
+                this.menu = this.properties.menu ?? null;
+
+                if (this.properties.menus?.length > 0) {
+                    this.menu = new Aui.Menu(this.properties.menus);
+                }
+
+                if (this.menu !== null) {
+                    this.menu.setParent(this);
+                    this.menu.addEvent('show', () => {
+                        this.$getButton().addClass('opened');
+                        this.getParent().submenu = this.menu;
+                    });
+
+                    this.menu.addEvent('hide', () => {
+                        this.$getButton().removeClass('opened');
+                        this.getParent().submenu = null;
+                    });
+                }
             }
 
             /**
@@ -501,6 +586,9 @@ namespace Aui {
                     this.$button.on('click', () => {
                         this.onClick();
                     });
+                    this.$button.on('mouseover', () => {
+                        this.openSubmenu();
+                    });
                 }
 
                 return this.$button;
@@ -521,6 +609,11 @@ namespace Aui {
 
                     const $text = Html.create('span').html(this.text);
                     this.$getButton().append($text);
+
+                    if (this.menu !== null) {
+                        const $submenu = Html.create('i').addClass('mi', 'mi-right');
+                        this.$getButton().append($submenu);
+                    }
                     this.$getContent().append(this.$button);
                 }
             }
@@ -545,14 +638,35 @@ namespace Aui {
             }
 
             /**
+             * 서브메뉴를 오픈한다.
+             */
+            openSubmenu(): void {
+                if (this.getParent().submenu?.getId() !== this.menu?.getId()) {
+                    this.getParent().submenu?.hide();
+                }
+
+                if (this.menu !== null && this.getParent().submenu?.getId() !== this.menu.getId()) {
+                    this.menu?.showAt(this.$getComponent(), 'x');
+                }
+            }
+
+            /**
              * 버튼 클릭이벤트를 처리한다.
              */
             onClick(): void {
                 if (this.handler !== null) {
-                    this.handler(this);
+                    this.handler(this).then((is_close) => {
+                        if (is_close !== false) {
+                            this.getParent().close();
+                        }
+                    });
+                } else {
+                    if (this.menu === null) {
+                        this.getParent().close();
+                    } else {
+                        this.openSubmenu();
+                    }
                 }
-
-                this.getParent().hide();
             }
         }
     }

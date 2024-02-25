@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 25.
  */
 var Aui;
 (function (Aui) {
@@ -24,6 +24,7 @@ var Aui;
         y;
         title;
         once;
+        submenu;
         /**
          * 메뉴를 생성한다.
          *
@@ -50,6 +51,7 @@ var Aui;
                 this.title.setIconClass(this.properties.iconClass);
             }
             this.$scrollable = this.$getContent();
+            this.submenu = null;
         }
         /**
          * 메뉴아이템을 정의한다.
@@ -67,6 +69,18 @@ var Aui;
                 }
             }
             super.initItems();
+        }
+        /**
+         * 서브메뉴인 경우 해당 메뉴를 출력하는 메뉴아이템을 등록한다.
+         *
+         * @param {Aui.Component} parent - 부모객체
+         */
+        setParent(parent) {
+            super.setParent(parent);
+            if (parent instanceof Aui.Menu.Item) {
+                this.$getComponent().addClass('submenu');
+            }
+            return this;
         }
         /**
          * 메뉴 랜더링 영역을 가져온다.
@@ -142,6 +156,24 @@ var Aui;
             const targetRect = this.getTargetRect();
             const absoluteRect = this.getMenuRect();
             const windowRect = { width: window.innerWidth, height: window.innerHeight };
+            /**
+             * 대상의 DOM 을 기준으로 좌/우 위치에 보여줄 경우
+             */
+            if (this.direction == 'x') {
+                if (targetRect.right + absoluteRect.width > windowRect.width) {
+                    position.right = targetRect.left;
+                }
+                else {
+                    position.left = targetRect.right;
+                }
+                if (targetRect.top + absoluteRect.height > windowRect.height) {
+                    position.top = Math.max(10, windowRect.height - absoluteRect.height);
+                }
+                else {
+                    position.top = targetRect.top;
+                }
+                position.maxHeight = windowRect.height - 20;
+            }
             /**
              * 대상의 DOM 을 기준으로 상/하 위치에 보여줄 경우
              */
@@ -240,16 +272,24 @@ var Aui;
             }
             super.show();
             this.$getComponent().focus();
-            Aui.Menu.menu = this;
-            Aui.Menu.observe();
+            if (this.isSubmenu() === false) {
+                Aui.Menu.menu = this;
+                Aui.Menu.observe();
+            }
         }
         /**
          * 메뉴를 숨긴다.
          */
         hide() {
-            Aui.Menu.menu = null;
-            Aui.Menu.$menu.empty();
-            Aui.Menu.$menu.hide();
+            if (this.isSubmenu() === false) {
+                Aui.Menu.menu = null;
+                Aui.Menu.$menu.empty();
+                Aui.Menu.$menu.hide();
+            }
+            if (this.submenu !== null) {
+                this.submenu.hide();
+                this.submenu = null;
+            }
             super.hide();
             if (this.once == true) {
                 this.remove();
@@ -260,6 +300,9 @@ var Aui;
          */
         close() {
             this.hide();
+            if (this.isSubmenu() == true) {
+                this.getParent().getParent().close();
+            }
         }
         /**
          * 컴포넌트를 제거한다.
@@ -267,6 +310,14 @@ var Aui;
         remove() {
             this.title?.remove();
             super.remove();
+        }
+        /**
+         * 서브메뉴인지 확인한다.
+         *
+         * @return {boolean} is_submenu
+         */
+        isSubmenu() {
+            return this.getParent() instanceof Aui.Menu.Item;
         }
         /**
          * 출력중인 메뉴가 존재하는지 확인한다.
@@ -341,6 +392,7 @@ var Aui;
             text;
             iconClass;
             handler;
+            menu;
             $button;
             /**
              * 메뉴아이템을 생성한다.
@@ -355,6 +407,21 @@ var Aui;
                 this.text = this.properties.text ?? '';
                 this.iconClass = this.properties.iconClass ?? null;
                 this.handler = this.properties.handler ?? null;
+                this.menu = this.properties.menu ?? null;
+                if (this.properties.menus?.length > 0) {
+                    this.menu = new Aui.Menu(this.properties.menus);
+                }
+                if (this.menu !== null) {
+                    this.menu.setParent(this);
+                    this.menu.addEvent('show', () => {
+                        this.$getButton().addClass('opened');
+                        this.getParent().submenu = this.menu;
+                    });
+                    this.menu.addEvent('hide', () => {
+                        this.$getButton().removeClass('opened');
+                        this.getParent().submenu = null;
+                    });
+                }
             }
             /**
              * 메뉴를 가져온다.
@@ -375,6 +442,9 @@ var Aui;
                     this.$button.on('click', () => {
                         this.onClick();
                     });
+                    this.$button.on('mouseover', () => {
+                        this.openSubmenu();
+                    });
                 }
                 return this.$button;
             }
@@ -393,6 +463,10 @@ var Aui;
                     this.$getButton().append($icon);
                     const $text = Html.create('span').html(this.text);
                     this.$getButton().append($text);
+                    if (this.menu !== null) {
+                        const $submenu = Html.create('i').addClass('mi', 'mi-right');
+                        this.$getButton().append($submenu);
+                    }
                     this.$getContent().append(this.$button);
                 }
             }
@@ -413,13 +487,35 @@ var Aui;
                 }
             }
             /**
+             * 서브메뉴를 오픈한다.
+             */
+            openSubmenu() {
+                if (this.getParent().submenu?.getId() !== this.menu?.getId()) {
+                    this.getParent().submenu?.hide();
+                }
+                if (this.menu !== null && this.getParent().submenu?.getId() !== this.menu.getId()) {
+                    this.menu?.showAt(this.$getComponent(), 'x');
+                }
+            }
+            /**
              * 버튼 클릭이벤트를 처리한다.
              */
             onClick() {
                 if (this.handler !== null) {
-                    this.handler(this);
+                    this.handler(this).then((is_close) => {
+                        if (is_close !== false) {
+                            this.getParent().close();
+                        }
+                    });
                 }
-                this.getParent().hide();
+                else {
+                    if (this.menu === null) {
+                        this.getParent().close();
+                    }
+                    else {
+                        this.openSubmenu();
+                    }
+                }
             }
         }
         Menu.Item = Item;

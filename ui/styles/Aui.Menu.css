@@ -6,7 +6,7 @@
  * @file /styles/Aui.Menu.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 25.
  */
 div[data-component][data-type='menu'][data-role='menu'] {
     position: absolute;
@@ -34,6 +34,10 @@ div[data-component][data-type='menu'][data-role='menu'] {
             flex-grow: 1;
         }
     }
+
+    &.submenu {
+        margin-top: -1px;
+    }
 }
 
 div[data-component][data-type='menu'][data-role='item'] {
@@ -50,14 +54,17 @@ div[data-component][data-type='menu'][data-role='item'] {
                 font-size: 0;
                 text-align: left;
                 line-break: 1;
-                display: block;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
                 font-family: var(--font-family-default);
                 font-size: var(--font-size-default);
                 color: var(--menu-item-color-default);
                 cursor: pointer;
 
                 > i.icon {
-                    display: inline-block;
+                    flex-shrink: 0;
+                    flex-grow: 0;
                     width: var(--menu-item-height);
                     height: var(--menu-item-height);
                     text-align: center;
@@ -68,8 +75,8 @@ div[data-component][data-type='menu'][data-role='item'] {
                 }
 
                 > span {
-                    display: inline-block;
-                    width: calc(100% - var(--menu-item-height));
+                    flex-shrink: 1;
+                    flex-grow: 0;
                     height: var(--menu-item-height);
                     padding-top: var(--padding-default);
                     padding-bottom: var(--padding-default);
@@ -78,8 +85,8 @@ div[data-component][data-type='menu'][data-role='item'] {
                     line-height: calc(var(--menu-item-height) - var(--padding-default) * 2);
                     vertical-align: top;
                     box-sizing: border-box;
-
                     position: relative;
+
                     &::before {
                         width: 1px;
                         height: var(--menu-item-height);
@@ -92,7 +99,16 @@ div[data-component][data-type='menu'][data-role='item'] {
                     }
                 }
 
-                &:hover {
+                > i {
+                    flex-shrink: 0;
+                    flex-grow: 0;
+                    width: 16px;
+                    height: var(--menu-item-height);
+                    line-height: var(--menu-item-height);
+                }
+
+                &:hover,
+                &.opened {
                     background: var(--menu-item-background-hover);
                     color: var(--menu-item-color-hover);
                 }
