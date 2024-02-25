@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/administrators.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 27.
+ * @modified 2024. 2. 25.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -149,7 +149,7 @@ Admin.ready(async () => {
                                     menu.add({
                                         text: me.printText('admin.administrators.groups.description'),
                                         iconClass: 'xi xi-information-square',
-                                        handler: () => {
+                                        handler: async () => {
                                             Aui.Message.show({
                                                 title: Aui.getErrorText('INFO'),
                                                 icon: Aui.Message.INFO,
@@ -159,6 +159,7 @@ Admin.ready(async () => {
                                                     'admin.administrators.groups.descriptions.' + group_id
                                                 ),
                                             });
+                                            return true;
                                         },
                                     });
                                     return;
@@ -172,8 +173,9 @@ Admin.ready(async () => {
                                     menu.add({
                                         text: me.printText('admin.' + componentType + 's.show.title'),
                                         iconClass: 'xi xi-information-square',
-                                        handler: () => {
+                                        handler: async () => {
                                             me[componentType + 's'].show(componentName);
+                                            return true;
                                         },
                                     });
                                     return;
@@ -184,8 +186,9 @@ Admin.ready(async () => {
                                         'admin.administrators.groups.' + (is_component !== false ? 'show' : 'edit')
                                     ),
                                     iconClass: 'xi xi-form-checkout',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.groups.add(record.get('group_id'));
+                                        return true;
                                     },
                                 });
 
@@ -193,8 +196,9 @@ Admin.ready(async () => {
                                     menu.add({
                                         text: me.printText('admin.administrators.groups.delete'),
                                         iconClass: 'mi mi-trash',
-                                        handler: () => {
+                                        handler: async () => {
                                             me.administrators.groups.delete(record.get('group_id'));
+                                            return true;
                                         },
                                     });
                                 }
@@ -342,16 +346,18 @@ Admin.ready(async () => {
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.add_group'),
                                     iconClass: 'xi xi-folder-plus',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.setGroups(false);
+                                        return true;
                                     },
                                 });
 
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.move_group'),
                                     iconClass: 'xi xi-folder-upload',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.setGroups(true);
+                                        return true;
                                     },
                                 });
 
@@ -360,8 +366,9 @@ Admin.ready(async () => {
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.edit_permissions'),
                                     iconClass: 'xi xi-check-shieldout',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.add(record.get('member_id'));
+                                        return true;
                                     },
                                 });
 
@@ -373,8 +380,9 @@ Admin.ready(async () => {
                                     menu.add({
                                         text: me.printText('admin.administrators.lists.remove'),
                                         iconClass: 'xi xi-folder-remove',
-                                        handler: () => {
+                                        handler: async () => {
                                             me.administrators.delete(group_id);
+                                            return true;
                                         },
                                     });
                                 }
@@ -382,8 +390,9 @@ Admin.ready(async () => {
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.delete'),
                                     iconClass: 'mi mi-trash',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.delete();
+                                        return true;
                                     },
                                 });
                             },
@@ -397,16 +406,18 @@ Admin.ready(async () => {
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.add_group'),
                                     iconClass: 'xi xi-folder-plus',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.setGroups(false);
+                                        return true;
                                     },
                                 });
 
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.move_group'),
                                     iconClass: 'xi xi-folder-upload',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.setGroups(true);
+                                        return true;
                                     },
                                 });
 
@@ -415,12 +426,13 @@ Admin.ready(async () => {
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.edit_permissions'),
                                     iconClass: 'xi xi-check-shieldout',
-                                    handler: () => {
+                                    handler: async () => {
                                         const member_ids = [];
                                         for (const record of selections) {
                                             member_ids.push(record.get('member_id'));
                                         }
                                         me.administrators.add(member_ids);
+                                        return true;
                                     },
                                 });
 
@@ -432,8 +444,9 @@ Admin.ready(async () => {
                                     menu.add({
                                         text: me.printText('admin.administrators.lists.remove'),
                                         iconClass: 'xi xi-folder-remove',
-                                        handler: () => {
+                                        handler: async () => {
                                             me.administrators.delete(group_id);
+                                            return true;
                                         },
                                     });
                                 }
@@ -441,8 +454,9 @@ Admin.ready(async () => {
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.delete'),
                                     iconClass: 'mi mi-trash',
-                                    handler: () => {
+                                    handler: async () => {
                                         me.administrators.delete();
+                                        return true;
                                     },
                                 });
                             },

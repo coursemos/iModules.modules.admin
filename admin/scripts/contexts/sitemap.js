@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 25.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -74,15 +74,17 @@ Admin.ready(async () => {
                         menu.add({
                             text: me.printText('admin.sitemap.domains.edit'),
                             iconClass: 'xi xi-form-checkout',
-                            handler: () => {
+                            handler: async () => {
                                 me.sitemap.domains.add(record.get('host'));
+                                return true;
                             },
                         });
                         menu.add({
                             text: me.printText('admin.sitemap.domains.delete'),
                             iconClass: 'mi mi-trash',
-                            handler: () => {
+                            handler: async () => {
                                 me.sitemap.domains.delete(record.get('host'));
+                                return true;
                             },
                         });
                     },
@@ -165,15 +167,17 @@ Admin.ready(async () => {
                         menu.add({
                             text: me.printText('admin.sitemap.sites.edit'),
                             iconClass: 'xi xi-form-checkout',
-                            handler: () => {
+                            handler: async () => {
                                 me.sitemap.sites.add(record.get('language'));
+                                return true;
                             },
                         });
                         menu.add({
                             text: me.printText('admin.sitemap.sites.delete'),
                             iconClass: 'mi mi-trash',
-                            handler: () => {
+                            handler: async () => {
                                 me.sitemap.sites.delete(record.get('language'));
+                                return true;
                             },
                         });
                     },
@@ -292,15 +296,17 @@ Admin.ready(async () => {
                         menu.add({
                             text: me.printText('admin.sitemap.contexts.edit'),
                             iconClass: 'xi xi-form-checkout',
-                            handler: () => {
+                            handler: async () => {
                                 me.sitemap.contexts.add(record.get('path'));
+                                return true;
                             },
                         });
                         menu.add({
                             text: me.printText('admin.sitemap.contexts.delete'),
                             iconClass: 'mi mi-trash',
-                            handler: () => {
+                            handler: async () => {
                                 me.sitemap.contexts.delete(record.get('path'));
+                                return true;
                             },
                         });
                     },

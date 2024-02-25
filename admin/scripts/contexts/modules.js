@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 25.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -114,32 +114,36 @@ Admin.ready(async () => {
                 menu.add({
                     text: me.printText('admin.modules.show.title'),
                     iconClass: 'xi xi-form-checkout',
-                    handler: () => {
+                    handler: async () => {
                         me.modules.show(record.data.name);
+                        return true;
                     },
                 });
                 menu.add({
                     text: me.printText('buttons.configs'),
                     iconClass: 'xi xi-cog',
                     hidden: record.data.properties.includes('CONFIGS') === false,
-                    handler: () => {
+                    handler: async () => {
                         me.modules.setConfigs(record.data.name);
+                        return true;
                     },
                 });
                 menu.add({
                     text: me.printText('buttons.install'),
                     iconClass: 'xi xi-new',
                     hidden: record.data.status !== 'NOT_INSTALLED',
-                    handler: () => {
+                    handler: async () => {
                         me.modules.install(record.data.name);
+                        return true;
                     },
                 });
                 menu.add({
                     text: me.printText('buttons.update'),
                     iconClass: 'xi xi-update',
                     hidden: record.data.status !== 'NEED_UPDATE',
-                    handler: () => {
+                    handler: async () => {
                         me.modules.install(record.data.name);
+                        return true;
                     },
                 });
             },
