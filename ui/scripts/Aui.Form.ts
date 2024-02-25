@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 2. 25.
  */
 namespace Aui {
     export namespace Form {
@@ -3544,8 +3544,9 @@ namespace Aui {
                                             new Aui.Menu.Item({
                                                 text: block.text,
                                                 iconClass: block.iconClass ?? null,
-                                                handler: () => {
+                                                handler: async () => {
                                                     this.addBlock(type, block.field());
+                                                    return true;
                                                 },
                                             })
                                         );
