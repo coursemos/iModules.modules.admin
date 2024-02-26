@@ -270,6 +270,9 @@ var Aui;
             for (const key in position) {
                 this.$getComponent().setStyle(key, position[key] + 'px');
             }
+            for (const item of this.items) {
+                item.fireEvent('show', [item]);
+            }
             super.show();
             this.$getComponent().focus();
             if (this.isSubmenu() === false) {
@@ -281,6 +284,9 @@ var Aui;
          * 메뉴를 숨긴다.
          */
         hide() {
+            for (const item of this.items) {
+                item.fireEvent('hide', [item]);
+            }
             if (this.isSubmenu() === false) {
                 Aui.Menu.menu = null;
                 Aui.Menu.$menu.empty();

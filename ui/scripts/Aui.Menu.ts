@@ -359,6 +359,10 @@ namespace Aui {
                 this.$getComponent().setStyle(key, position[key] + 'px');
             }
 
+            for (const item of this.items) {
+                item.fireEvent('show', [item]);
+            }
+
             super.show();
             this.$getComponent().focus();
 
@@ -372,6 +376,10 @@ namespace Aui {
          * 메뉴를 숨긴다.
          */
         hide(): void {
+            for (const item of this.items) {
+                item.fireEvent('hide', [item]);
+            }
+
             if (this.isSubmenu() === false) {
                 Aui.Menu.menu = null;
                 Aui.Menu.$menu.empty();
