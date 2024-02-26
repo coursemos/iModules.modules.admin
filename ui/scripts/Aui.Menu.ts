@@ -572,6 +572,10 @@ namespace Aui {
                         this.getParent().submenu = null;
                     });
                 }
+
+                if (properties.items?.length > 0) {
+                    this.$setTop();
+                }
             }
 
             /**
@@ -602,27 +606,41 @@ namespace Aui {
                 return this.$button;
             }
 
+            renderTop(): void {
+                if (this.items.length == 0) {
+                    return;
+                }
+
+                if (this.iconClass !== null) {
+                    this.$getTop().addClass(...this.iconClass.split(' '));
+                }
+            }
+
             /**
              * 레이아웃을 렌더링한다.
              */
             renderContent(): void {
-                if (this.text == '-') {
-                    this.$getContent().addClass('separator');
+                if (this.items.length == 0) {
+                    if (this.text == '-') {
+                        this.$getContent().addClass('separator');
+                    } else {
+                        const $icon = Html.create('i').addClass('icon');
+                        if (this.iconClass !== null) {
+                            $icon.addClass(...this.iconClass.split(' '));
+                        }
+                        this.$getButton().append($icon);
+
+                        const $text = Html.create('span').html(this.text);
+                        this.$getButton().append($text);
+
+                        if (this.menu !== null) {
+                            const $submenu = Html.create('i').addClass('mi', 'mi-right');
+                            this.$getButton().append($submenu);
+                        }
+                        this.$getContent().append(this.$button);
+                    }
                 } else {
-                    const $icon = Html.create('i').addClass('icon');
-                    if (this.iconClass !== null) {
-                        $icon.addClass(...this.iconClass.split(' '));
-                    }
-                    this.$getButton().append($icon);
-
-                    const $text = Html.create('span').html(this.text);
-                    this.$getButton().append($text);
-
-                    if (this.menu !== null) {
-                        const $submenu = Html.create('i').addClass('mi', 'mi-right');
-                        this.$getButton().append($submenu);
-                    }
-                    this.$getContent().append(this.$button);
+                    super.renderContent();
                 }
             }
 
