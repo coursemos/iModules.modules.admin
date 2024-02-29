@@ -1442,9 +1442,10 @@ namespace Aui {
             export class Base {
                 column: Aui.Grid.Column;
                 dataIndex: string;
+                is_alternative: boolean;
 
                 /**
-                 * 그리드패널 컬럼객체를 생성한다.
+                 * 컬럼 필터객체를 생성한다.
                  *
                  * @param {Aui.Grid.Filter.Properties} properties - 객체설정
                  */
@@ -1453,13 +1454,31 @@ namespace Aui {
                 }
 
                 /**
-                 * 그리드를 설정한다.
+                 * 컬럼을 설정한다.
                  *
-                 * @param {Aui.Grid.Panel} grid
+                 * @param {Aui.Grid.Column} column - 필터를 적용할 컬럼
+                 * @param {boolean} is_alternative - 대체행 여부
+                 * @return {Aui.Grid.Filter.Base} this
                  */
-                setColumn(column: Aui.Grid.Column): this {
+                setColumn(column: Aui.Grid.Column, is_alternative: boolean = false): this {
                     this.column = column;
+                    this.is_alternative = is_alternative;
                     return this;
+                }
+
+                /**
+                 * 필터를 적용할 dataIndex 를 가져온다.
+                 *
+                 * @return {string} dataIndex
+                 */
+                getDataIndex(): string {
+                    if (this.dataIndex !== null) {
+                        return this.dataIndex;
+                    }
+
+                    return this.is_alternative == true && this.column.alternative !== null
+                        ? this.column.alternative.dataIndex
+                        : this.column.dataIndex;
                 }
 
                 /**
@@ -1468,10 +1487,7 @@ namespace Aui {
                  * @return {Object} filter
                  */
                 getFilter(): { value: any; operator: string } {
-                    return this.column
-                        .getGrid()
-                        .getStore()
-                        .getFilter(this.dataIndex ?? this.column.dataIndex);
+                    return this.column.getGrid().getStore().getFilter(this.getDataIndex());
                 }
 
                 /**
@@ -1481,20 +1497,14 @@ namespace Aui {
                  * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
                  */
                 setFilter(value: any, operator: string = '='): void {
-                    this.column
-                        .getGrid()
-                        .getStore()
-                        .setFilter(this.dataIndex ?? this.column.dataIndex, value, operator);
+                    this.column.getGrid().getStore().setFilter(this.getDataIndex(), value, operator);
                 }
 
                 /**
                  * 필터를 초기화한다.
                  */
                 resetFilter(): void {
-                    this.column
-                        .getGrid()
-                        .getStore()
-                        .resetFilter(this.dataIndex ?? this.column.dataIndex);
+                    this.column.getGrid().getStore().resetFilter(this.getDataIndex());
                 }
 
                 /**
@@ -1689,6 +1699,27 @@ namespace Aui {
                  * @type {Aui.Grid.Filter.Base} filter - 컬럼필터
                  */
                 filter?: Aui.Grid.Filter.Base;
+
+                /**
+                 * @type {Object} alternative - 대체행
+                 */
+                alternative?: {
+                    dataIndex?: string;
+                    text?: string;
+                    sortable?: boolean;
+                    menu?: Aui.Menu;
+                    header?: boolean;
+                    renderer?: (
+                        value: any,
+                        record: Aui.Data.Record,
+                        $dom: Dom,
+                        rowIndex: number,
+                        columnIndex: number,
+                        column: Aui.Grid.Column,
+                        grid: Aui.Grid.Panel
+                    ) => string;
+                    filter?: Aui.Grid.Filter.Base;
+                };
             }
         }
 
@@ -1733,6 +1764,24 @@ namespace Aui {
             clicksToEdit: number;
             filter: Aui.Grid.Filter.Base;
 
+            alternative: {
+                dataIndex: string;
+                text: string;
+                sortable: boolean;
+                menu: Aui.Menu;
+                header: boolean;
+                renderer: (
+                    value: any,
+                    record: Aui.Data.Record,
+                    $dom: Dom,
+                    rowIndex: number,
+                    columnIndex: number,
+                    column: Aui.Grid.Column,
+                    grid: Aui.Grid.Panel
+                ) => string;
+                filter: Aui.Grid.Filter.Base;
+            };
+
             $header: Dom;
 
             /**
@@ -1763,27 +1812,47 @@ namespace Aui {
                 this.editor = this.properties.editor ?? null;
                 this.clicksToEdit = Math.max(1, Math.min(2, this.properties.clicksToEdit ?? 2));
                 this.filter = this.properties.filter ?? null;
+                this.alternative = this.properties.alternative ?? null;
 
                 this.menu = null;
                 if (this.filter !== null) {
                     this.filter.setColumn(this);
                     this.menu ??= new Aui.Menu();
                     this.menu.add(this.filter.getLayout());
-                    this.menu.add('-');
-                    this.menu.add({
-                        iconClass: 'mi mi-trash',
-                        text: '안녕',
-                    });
                 }
 
                 if (this.menu !== null) {
-                    this.menu.addEvent('show', () => {
-                        this.$getHeader().addClass('menu');
+                    this.menu.addEvent('show', (menu: Aui.Menu) => {
+                        (menu.$target as Dom).getParent().addClass('menu');
                     });
 
-                    this.menu.addEvent('hide', () => {
-                        this.$getHeader().removeClass('menu');
+                    this.menu.addEvent('hide', (menu: Aui.Menu) => {
+                        (menu.$target as Dom).getParent().removeClass('menu');
                     });
+                }
+
+                if (this.alternative !== null) {
+                    this.alternative.header = this.alternative.header !== false;
+                    this.alternative.filter ??= null;
+                    this.alternative.sortable ??= false;
+                    this.alternative.renderer ??= null;
+
+                    this.alternative.menu ??= null;
+                    if (this.alternative.filter !== null) {
+                        this.alternative.filter.setColumn(this, true);
+                        this.alternative.menu ??= new Aui.Menu();
+                        this.alternative.menu.add(this.alternative.filter.getLayout());
+                    }
+
+                    if (this.alternative.menu !== null) {
+                        this.alternative.menu.addEvent('show', (menu: Aui.Menu) => {
+                            (menu.$target as Dom).getParent().addClass('menu');
+                        });
+
+                        this.alternative.menu.addEvent('hide', (menu: Aui.Menu) => {
+                            (menu.$target as Dom).getParent().removeClass('menu');
+                        });
+                    }
                 }
 
                 for (let column of properties?.columns ?? []) {
@@ -2059,10 +2128,13 @@ namespace Aui {
                             $header.setStyle('flexBasis', this.minWidth + 'px');
                         }
 
-                        $header.addClass(this.headerVerticalAlign);
+                        const $inner = Html.create('div', { 'data-role': 'inner' });
+
+                        const $title = Html.create('div', { 'data-role': 'title' });
 
                         const $label = Html.create('label');
                         $label.addClass(this.headerAlign);
+                        $label.addClass(this.headerVerticalAlign);
                         $label.html(this.text);
 
                         if (this.grid.getStore().getPrimaryKeys().includes(this.dataIndex) == true) {
@@ -2091,15 +2163,72 @@ namespace Aui {
 
                         $label.setData('sortable', this.sortable);
                         $label.setData('dataindex', this.dataIndex);
-                        $header.append($label);
+                        $title.append($label);
 
                         if (this.menu !== null) {
                             const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
-                            $header.append($button);
+                            $title.append($button);
                             $button.on('click', () => {
                                 this.menu.showAt($button, 'y');
                             });
                         }
+
+                        $inner.append($title);
+
+                        if (this.alternative !== null && this.alternative.header === true) {
+                            const $alternative = Html.create('div', { 'data-role': 'title' });
+
+                            const $label = Html.create('label');
+                            $label.addClass(this.headerAlign);
+                            $label.addClass(this.headerVerticalAlign);
+                            $label.html(this.alternative.text);
+
+                            if (this.grid.getStore().getPrimaryKeys().includes(this.alternative.dataIndex) == true) {
+                                $label.append(
+                                    Html.create('i', {
+                                        'data-role': 'keys',
+                                        'class': this.alternative.text?.length > 0 ? 'text' : '',
+                                    })
+                                );
+                            }
+
+                            if (this.alternative.sortable !== false) {
+                                const $sorter = Html.create('i', { 'data-role': 'sorter' });
+                                $label.prepend($sorter);
+                                $label.on('click', () => {
+                                    const field =
+                                        typeof this.alternative.sortable === 'string'
+                                            ? this.alternative.sortable
+                                            : this.alternative.dataIndex;
+                                    const sorters = this.getGrid().getStore().getSorters() ?? {};
+                                    const direction = (sorters[field] ?? 'DESC') == 'DESC' ? 'ASC' : 'DESC';
+
+                                    if (Object.keys(sorters).length > 1) {
+                                        // @todo multisort 여부 확인
+                                        sorters[field] = direction;
+                                        this.getGrid().getStore().multiSort(sorters);
+                                    } else {
+                                        this.getGrid().getStore().sort(field, direction);
+                                    }
+                                });
+                            }
+
+                            $label.setData('sortable', this.alternative.sortable);
+                            $label.setData('dataindex', this.alternative.dataIndex);
+                            $alternative.append($label);
+
+                            if (this.alternative.menu !== null) {
+                                const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
+                                $alternative.append($button);
+                                $button.on('click', () => {
+                                    this.alternative.menu.showAt($button, 'y');
+                                });
+                            }
+
+                            $inner.append($alternative);
+                        }
+
+                        $header.append($inner);
                     }
 
                     if (this.isHidden() == true) {
@@ -2269,6 +2398,27 @@ namespace Aui {
                 }
 
                 $column.append($view);
+
+                if (this.alternative !== null) {
+                    const alternative = record.get(this.alternative.dataIndex);
+                    const $alternative = Html.create('div').setData('role', 'view').addClass('alternative');
+                    if (this.alternative.renderer !== null) {
+                        $alternative.html(
+                            this.alternative.renderer(
+                                alternative,
+                                record,
+                                $column,
+                                rowIndex,
+                                columnIndex,
+                                this,
+                                this.getGrid()
+                            )
+                        );
+                    } else {
+                        $alternative.html(alternative);
+                    }
+                    $column.append($alternative);
+                }
 
                 if (this.isHidden() == true) {
                     $column.setStyle('display', 'none');
