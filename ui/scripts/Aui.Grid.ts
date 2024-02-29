@@ -316,6 +316,37 @@ namespace Aui {
             }
 
             /**
+             * 그리드패널의 전체 제목컬럼을 가져온다.
+             *
+             * @return {Aui.Grid.Column[]} headers
+             */
+            getHeaders(): Aui.Grid.Column[] {
+                return this.headers;
+            }
+
+            /**
+             * 그리드패널의 특정 순서의 제목컬럼을 가져온다.
+             *
+             * @return {Aui.Grid.Column} header
+             */
+            getHeaderByIndex(headerIndex: number | number[]): Aui.Grid.Column {
+                if (typeof headerIndex === 'number') {
+                    return this.headers[headerIndex];
+                } else {
+                    let header: Aui.Grid.Column = this.headers[headerIndex.shift()];
+                    for (const index of headerIndex) {
+                        let children = header.getChildren();
+                        header = children[index] ?? null;
+                        if (header === null) {
+                            return null;
+                        }
+                    }
+
+                    return header;
+                }
+            }
+
+            /**
              * 그리드패널의 전체 컬럼을 가져온다.
              *
              * @return {Aui.Grid.Column[]} columns
@@ -1137,7 +1168,7 @@ namespace Aui {
                 this.freezeColumn = 0;
 
                 this.headers.forEach((header: Aui.Grid.Column, headerIndex: number) => {
-                    const $header = header.$getHeader();
+                    const $header = header.$getHeader(headerIndex);
                     this.$header.append($header);
 
                     if (headerIndex < this.freeze) {
@@ -1400,6 +1431,154 @@ namespace Aui {
             }
         }
 
+        export namespace Filter {
+            export interface Properties {
+                /**
+                 * @type {string} dataIndex - 필터를 할 데이터인텍스
+                 */
+                dataIndex?: string;
+            }
+
+            export class Base {
+                column: Aui.Grid.Column;
+                dataIndex: string;
+
+                /**
+                 * 그리드패널 컬럼객체를 생성한다.
+                 *
+                 * @param {Aui.Grid.Filter.Properties} properties - 객체설정
+                 */
+                constructor(properties: Aui.Grid.Filter.Properties = null) {
+                    this.dataIndex = properties?.dataIndex ?? null;
+                }
+
+                /**
+                 * 그리드를 설정한다.
+                 *
+                 * @param {Aui.Grid.Panel} grid
+                 */
+                setColumn(column: Aui.Grid.Column): this {
+                    this.column = column;
+                    return this;
+                }
+
+                /**
+                 * 필터를 적용한다.
+                 *
+                 * @return {Object} filter
+                 */
+                getFilter(): { value: any; operator: string } {
+                    return this.column
+                        .getGrid()
+                        .getStore()
+                        .getFilter(this.dataIndex ?? this.column.dataIndex);
+                }
+
+                /**
+                 * 필터를 적용한다.
+                 *
+                 * @param {any} value - 필터링에 사용할 기준값
+                 * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
+                 */
+                setFilter(value: any, operator: string = '='): void {
+                    this.column
+                        .getGrid()
+                        .getStore()
+                        .setFilter(this.dataIndex ?? this.column.dataIndex, value, operator);
+                }
+
+                /**
+                 * 필터를 초기화한다.
+                 */
+                resetFilter(): void {
+                    this.column
+                        .getGrid()
+                        .getStore()
+                        .resetFilter(this.dataIndex ?? this.column.dataIndex);
+                }
+
+                /**
+                 * 필터메뉴를 가져온다.
+                 *
+                 * @return Aui.Menu.Item
+                 */
+                getLayout(): Aui.Menu.Item {
+                    return null;
+                }
+            }
+
+            export class Text extends Aui.Grid.Filter.Base {
+                /**
+                 * 필터메뉴를 가져온다.
+                 *
+                 * @return Aui.Menu.Item
+                 */
+                getLayout(): Aui.Menu.Item {
+                    return new Aui.Menu.Item({
+                        iconClass: 'xi xi-funnel',
+                        items: [
+                            new Aui.Form.Panel({
+                                width: 200,
+                                border: false,
+                                padding: 0,
+                                items: [
+                                    new Aui.Form.Field.Select({
+                                        name: 'operator',
+                                        store: new Aui.Store.Local({
+                                            fields: ['value', 'display'],
+                                            records: [
+                                                ['=', '다음과 일치'],
+                                                ['like', '다음을 포함'],
+                                                ['startswith', '다음으로 시작'],
+                                            ],
+                                        }),
+                                        value: 'like',
+                                        //
+                                    }),
+                                    new Aui.Form.Field.Text({
+                                        name: 'value',
+                                    }),
+                                    new Aui.Form.Field.Container({
+                                        items: [
+                                            new Aui.Form.Field.Display({
+                                                flex: 1,
+                                            }),
+                                            new Aui.Button({
+                                                text: '필터적용',
+                                                handler: (button) => {
+                                                    const form = (
+                                                        button.getParent() as Aui.Form.Field.Container
+                                                    ).getForm();
+                                                    if (form.getField('value').getValue()?.length > 0) {
+                                                        this.setFilter(
+                                                            form.getField('value').getValue(),
+                                                            form.getField('operator').getValue()
+                                                        );
+                                                    } else {
+                                                        this.resetFilter();
+                                                    }
+                                                    const menu = form.getParent().getParent() as Aui.Menu;
+                                                    menu.close();
+                                                },
+                                            }),
+                                        ],
+                                    }),
+                                ],
+                            }),
+                        ],
+                        listeners: {
+                            show: (item) => {
+                                const form = item.getItemAt(0) as Aui.Form.Panel;
+                                form.getField('operator').setValue(this.getFilter()?.operator ?? 'like');
+                                form.getField('value').setValue(this.getFilter()?.value ?? '');
+                                console.log('show', this.getFilter());
+                            },
+                        },
+                    });
+                }
+            }
+        }
+
         export namespace Column {
             export interface Properties extends Aui.Base.Properties {
                 /**
@@ -1505,6 +1684,11 @@ namespace Aui {
                  * @type {number} clicksToEdit - 에디터 모드로 전환하기 위해 필요한 클릭수
                  */
                 clicksToEdit?: number;
+
+                /**
+                 * @type {Aui.Grid.Filter.Base} filter - 컬럼필터
+                 */
+                filter?: Aui.Grid.Filter.Base;
             }
         }
 
@@ -1522,6 +1706,7 @@ namespace Aui {
             headerWrap: boolean;
             headerAlign: string;
             headerVerticalAlign: string;
+            headerIndex: number[] = [];
             textWrap: boolean;
             textAlign: string;
             textVerticalAlign: string;
@@ -1546,6 +1731,9 @@ namespace Aui {
                 grid: Aui.Grid.Panel
             ) => Aui.Form.Field.Base;
             clicksToEdit: number;
+            filter: Aui.Grid.Filter.Base;
+
+            $header: Dom;
 
             /**
              * 그리드패널 컬럼객체를 생성한다.
@@ -1574,9 +1762,29 @@ namespace Aui {
                 this.renderer = this.properties.renderer ?? null;
                 this.editor = this.properties.editor ?? null;
                 this.clicksToEdit = Math.max(1, Math.min(2, this.properties.clicksToEdit ?? 2));
+                this.filter = this.properties.filter ?? null;
 
-                // @todo 메뉴설정
                 this.menu = null;
+                if (this.filter !== null) {
+                    this.filter.setColumn(this);
+                    this.menu ??= new Aui.Menu();
+                    this.menu.add(this.filter.getLayout());
+                    this.menu.add('-');
+                    this.menu.add({
+                        iconClass: 'mi mi-trash',
+                        text: '안녕',
+                    });
+                }
+
+                if (this.menu !== null) {
+                    this.menu.addEvent('show', () => {
+                        this.$getHeader().addClass('menu');
+                    });
+
+                    this.menu.addEvent('hide', () => {
+                        this.$getHeader().removeClass('menu');
+                    });
+                }
 
                 for (let column of properties?.columns ?? []) {
                     if (!(column instanceof Aui.Grid.Column)) {
@@ -1804,154 +2012,184 @@ namespace Aui {
             /**
              * 컬럼의 헤더컬럼 레이아웃을 가져온다.
              *
+             * @param {number} headerIndex - 헤더인덱스
+             * @param {number} parentHeaderIndex - 부모헤더 인덱스
              * @return {Dom} $layout
              */
-            $getHeader(): Dom {
-                const $header = Html.create('div').setData('component', this.id);
-                if (this.hasChild() == true) {
-                    $header.setData('role', 'merge');
+            $getHeader(headerIndex: number = null, parentHeaderIndex: number[] = []): Dom {
+                if (headerIndex !== null) {
+                    this.headerIndex.push(...parentHeaderIndex);
+                    this.headerIndex.push(headerIndex);
+                    const $header = Html.create('div').setData('component', this.id);
+                    if (this.hasChild() == true) {
+                        $header.setData('role', 'merge');
 
-                    if (this.getChildrenFlexGrow() > 0) {
-                        $header.setStyle('width', this.getChildrenFlexBasis() + 'px');
-                        $header.setStyle('flexGrow', this.getChildrenFlexGrow());
-                        $header.setStyle('flexBasis', this.getChildrenFlexBasis() + 'px');
-                    }
+                        if (this.getChildrenFlexGrow() > 0) {
+                            $header.setStyle('width', this.getChildrenFlexBasis() + 'px');
+                            $header.setStyle('flexGrow', this.getChildrenFlexGrow());
+                            $header.setStyle('flexBasis', this.getChildrenFlexBasis() + 'px');
+                        }
 
-                    const $group = Html.create('div');
-                    $group.setData('role', 'group');
+                        const $group = Html.create('div');
+                        $group.setData('role', 'group');
 
-                    const $text = Html.create('div').setData('role', 'text');
-                    $text.addClass(this.headerAlign);
-                    $text.html(this.text);
-                    $group.append($text);
+                        const $text = Html.create('div').setData('role', 'text');
+                        $text.addClass(this.headerAlign);
+                        $text.html(this.text);
+                        $group.append($text);
 
-                    let $children = Html.create('div').setData('role', 'columns');
-                    for (let child of this.getChildren()) {
-                        $children.append(child.$getHeader());
-                    }
-                    $group.append($children);
+                        let $children = Html.create('div').setData('role', 'columns');
+                        let childIndex = 0;
+                        for (let child of this.getChildren()) {
+                            $children.append(child.$getHeader(childIndex++, this.headerIndex));
+                        }
+                        $group.append($children);
 
-                    $header.append($group);
-                } else {
-                    $header.setData('role', 'column');
-                    if (this.width) {
-                        $header.setStyle('width', this.width + 'px');
+                        $header.append($group);
                     } else {
-                        $header.setStyle('flexGrow', 1);
+                        $header.setData('role', 'column');
+                        if (this.width) {
+                            $header.setStyle('width', this.width + 'px');
+                        } else {
+                            $header.setStyle('flexGrow', 1);
+                        }
+
+                        if (this.minWidth) {
+                            $header.setStyle('width', this.minWidth + 'px');
+                            $header.setStyle('flexBasis', this.minWidth + 'px');
+                        }
+
+                        $header.addClass(this.headerVerticalAlign);
+
+                        const $label = Html.create('label');
+                        $label.addClass(this.headerAlign);
+                        $label.html(this.text);
+
+                        if (this.grid.getStore().getPrimaryKeys().includes(this.dataIndex) == true) {
+                            $label.append(
+                                Html.create('i', { 'data-role': 'keys', 'class': this.text?.length > 0 ? 'text' : '' })
+                            );
+                        }
+
+                        if (this.sortable !== false) {
+                            const $sorter = Html.create('i', { 'data-role': 'sorter' });
+                            $label.prepend($sorter);
+                            $label.on('click', () => {
+                                const field = typeof this.sortable === 'string' ? this.sortable : this.dataIndex;
+                                const sorters = this.getGrid().getStore().getSorters() ?? {};
+                                const direction = (sorters[field] ?? 'DESC') == 'DESC' ? 'ASC' : 'DESC';
+
+                                if (Object.keys(sorters).length > 1) {
+                                    // @todo multisort 여부 확인
+                                    sorters[field] = direction;
+                                    this.getGrid().getStore().multiSort(sorters);
+                                } else {
+                                    this.getGrid().getStore().sort(field, direction);
+                                }
+                            });
+                        }
+
+                        $label.setData('sortable', this.sortable);
+                        $label.setData('dataindex', this.dataIndex);
+                        $header.append($label);
+
+                        if (this.menu !== null) {
+                            const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
+                            $header.append($button);
+                            $button.on('click', () => {
+                                this.menu.showAt($button, 'y');
+                            });
+                        }
                     }
 
-                    if (this.minWidth) {
-                        $header.setStyle('width', this.minWidth + 'px');
-                        $header.setStyle('flexBasis', this.minWidth + 'px');
+                    if (this.isHidden() == true) {
+                        $header.setStyle('display', 'none');
                     }
 
-                    $header.addClass(this.headerVerticalAlign);
+                    if (this.isResizable() == true) {
+                        this.resizer = new Aui.Resizer($header, this.grid.$content, {
+                            directions: [false, true, false, false],
+                            minWidth: 50,
+                            maxWidth: 900,
+                            listeners: {
+                                mouseenter: () => {
+                                    this.grid.$getHeader().addClass('locked');
+                                },
+                                mouseleave: () => {
+                                    this.grid.$getHeader().removeClass('locked');
+                                },
+                                start: () => {
+                                    this.grid.$getHeader().addClass('resizing');
+                                    this.grid.getScroll().setScrollable(false);
+                                },
+                                resize: (_$target: Dom, rect: DOMRect, position: { x: number; y: number }) => {
+                                    this.grid.$getHeader().addClass('locked');
 
-                    const $label = Html.create('label');
-                    $label.addClass(this.headerAlign);
-                    $label.html(this.text);
+                                    /**
+                                     * 그리드 패널 우측으로 벗어났을 경우, 그리드패널을 우측으로 스크롤한다.
+                                     */
+                                    const offset = this.grid.$content.getOffset();
+                                    const width = this.grid.$content.getOuterWidth();
+                                    const scroll = this.grid.getScroll().getPosition();
+                                    const x = Math.max(0, position.x);
 
-                    if (this.grid.getStore().getPrimaryKeys().includes(this.dataIndex) == true) {
-                        $label.append(
-                            Html.create('i', { 'data-role': 'keys', 'class': this.text?.length > 0 ? 'text' : '' })
-                        );
-                    }
-
-                    if (this.sortable !== false) {
-                        const $sorter = Html.create('i', { 'data-role': 'sorter' });
-                        $label.prepend($sorter);
-                        $label.on('click', () => {
-                            const field = typeof this.sortable === 'string' ? this.sortable : this.dataIndex;
-                            const sorters = this.getGrid().getStore().getSorters() ?? {};
-                            const direction = (sorters[field] ?? 'DESC') == 'DESC' ? 'ASC' : 'DESC';
-
-                            if (Object.keys(sorters).length > 1) {
-                                // @todo multisort 여부 확인
-                                sorters[field] = direction;
-                                this.getGrid().getStore().multiSort(sorters);
-                            } else {
-                                this.getGrid().getStore().sort(field, direction);
-                            }
+                                    if (x > offset.left + width - 15) {
+                                        if (rect.right < width + scroll.x - 50) {
+                                            this.grid.getScroll().setAutoScroll(0, 0);
+                                        } else {
+                                            const speed = Math.min(
+                                                Math.ceil((x - (offset.left + width - 15)) / 30),
+                                                15
+                                            );
+                                            this.grid.getScroll().setAutoScroll(speed, 0);
+                                        }
+                                    } else if (
+                                        this.isFreezeColumn() == false &&
+                                        x < offset.left + this.grid.freezeWidth + 15
+                                    ) {
+                                        if (rect.left > this.grid.freezeWidth + scroll.x + 50) {
+                                            this.grid.getScroll().setAutoScroll(0, 0);
+                                        } else {
+                                            const speed = Math.max(
+                                                Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30),
+                                                -15
+                                            );
+                                            this.grid.getScroll().setAutoScroll(speed, 0);
+                                        }
+                                    } else {
+                                        this.grid.getScroll().setAutoScroll(0, 0);
+                                    }
+                                },
+                                end: (_$target: Dom, rect: DOMRect) => {
+                                    this.setWidth(rect.width);
+                                    this.grid.getScroll().setAutoScroll(0, 0);
+                                    this.grid.getScroll().setScrollable(this.grid.scrollable);
+                                    this.grid.$getHeader().removeClass('locked');
+                                    this.grid.$getHeader().removeClass('resizing');
+                                },
+                            },
                         });
                     }
 
-                    $label.setData('sortable', this.sortable);
-                    $label.setData('dataindex', this.dataIndex);
-                    $header.append($label);
-
-                    if (this.menu !== null) {
-                        const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
-                        $header.append($button);
-                    }
+                    this.$header = $header;
                 }
 
-                if (this.isHidden() == true) {
-                    $header.setStyle('display', 'none');
+                return this.$header;
+            }
+
+            /**
+             * 컬럼이 자식컬럼인 경우 현재 컬럼을 그룹핑하고 있는 부모 그룹헤더를 가져온다.
+             *
+             * @return {Dom} - $parent
+             */
+            $getParentHeader(): Dom {
+                if (this.headerIndex.length > 1) {
+                    const parent = [...this.headerIndex];
+                    parent.pop();
+                    return this.getGrid().getHeaderByIndex(parent).$getHeader();
                 }
 
-                if (this.isResizable() == true) {
-                    this.resizer = new Aui.Resizer($header, this.grid.$content, {
-                        directions: [false, true, false, false],
-                        minWidth: 50,
-                        maxWidth: 900,
-                        listeners: {
-                            mouseenter: () => {
-                                this.grid.$getHeader().addClass('locked');
-                            },
-                            mouseleave: () => {
-                                this.grid.$getHeader().removeClass('locked');
-                            },
-                            start: () => {
-                                this.grid.$getHeader().addClass('resizing');
-                                this.grid.getScroll().setScrollable(false);
-                            },
-                            resize: (_$target: Dom, rect: DOMRect, position: { x: number; y: number }) => {
-                                this.grid.$getHeader().addClass('locked');
-
-                                /**
-                                 * 그리드 패널 우측으로 벗어났을 경우, 그리드패널을 우측으로 스크롤한다.
-                                 */
-                                const offset = this.grid.$content.getOffset();
-                                const width = this.grid.$content.getOuterWidth();
-                                const scroll = this.grid.getScroll().getPosition();
-                                const x = Math.max(0, position.x);
-
-                                if (x > offset.left + width - 15) {
-                                    if (rect.right < width + scroll.x - 50) {
-                                        this.grid.getScroll().setAutoScroll(0, 0);
-                                    } else {
-                                        const speed = Math.min(Math.ceil((x - (offset.left + width - 15)) / 30), 15);
-                                        this.grid.getScroll().setAutoScroll(speed, 0);
-                                    }
-                                } else if (
-                                    this.isFreezeColumn() == false &&
-                                    x < offset.left + this.grid.freezeWidth + 15
-                                ) {
-                                    if (rect.left > this.grid.freezeWidth + scroll.x + 50) {
-                                        this.grid.getScroll().setAutoScroll(0, 0);
-                                    } else {
-                                        const speed = Math.max(
-                                            Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30),
-                                            -15
-                                        );
-                                        this.grid.getScroll().setAutoScroll(speed, 0);
-                                    }
-                                } else {
-                                    this.grid.getScroll().setAutoScroll(0, 0);
-                                }
-                            },
-                            end: (_$target: Dom, rect: DOMRect) => {
-                                this.setWidth(rect.width);
-                                this.grid.getScroll().setAutoScroll(0, 0);
-                                this.grid.getScroll().setScrollable(this.grid.scrollable);
-                                this.grid.$getHeader().removeClass('locked');
-                                this.grid.$getHeader().removeClass('resizing');
-                            },
-                        },
-                    });
-                }
-
-                return $header;
+                return null;
             }
 
             /**
