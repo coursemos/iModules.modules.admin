@@ -352,10 +352,23 @@ div[data-component][data-type='panel'][data-role='grid'] {
                 }
 
                 &:not(.locked) {
-                    div[data-role='column']:hover {
-                        background: var(--grid-header-background-hover);
-                        > button {
-                            display: block;
+                    div[data-role='column'] {
+                        &:hover {
+                            background: var(--grid-header-background-hover);
+                            > button {
+                                display: block;
+                            }
+                        }
+
+                        &.menu {
+                            background: var(--grid-header-background-hover);
+                            > button {
+                                display: block;
+
+                                &::before {
+                                    content: '\e905';
+                                }
+                            }
                         }
                     }
                 }
