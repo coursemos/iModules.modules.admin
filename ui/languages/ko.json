@@ -71,5 +71,16 @@
                 "values": "${display}외 ${count}개"
             }
         }
+    },
+    "filters": {
+        "text": {
+            "=": "다음과 일치",
+            "like": "다음을 포함",
+            "likesall": "다음을 모두 포함",
+            "likes": "다음 중 일부를 포함"
+        },
+        "set": "필터적용",
+        "reset": "필터해제",
+        "likes_help": "띄어쓰기로 키워드를 구분"
     }
 }

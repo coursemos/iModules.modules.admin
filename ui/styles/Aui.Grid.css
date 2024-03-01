@@ -282,6 +282,11 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                         content: '\ec31';
                                     }
                                 }
+
+                                &.filtered {
+                                    font-weight: bold;
+                                    text-decoration: underline;
+                                }
                             }
 
                             > button {
@@ -298,6 +303,15 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     content: '\e906';
                                     color: var(--grid-header-button-color-default);
                                     font-size: var(--font-size-default);
+                                }
+                            }
+
+                            > label.filtered + button {
+                                display: block;
+
+                                &::before {
+                                    font-family: xeicon;
+                                    content: '\e7f7';
                                 }
                             }
                         }
@@ -381,6 +395,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                         display: block;
 
                                         &::before {
+                                            font-family: moimz;
                                             content: '\e905';
                                         }
                                     }

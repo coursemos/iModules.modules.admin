@@ -224,7 +224,6 @@ namespace Aui {
                 this.selection.keepable = this.selection.keepable ?? false;
 
                 if (this.selection.display == 'check') {
-                    this.selection.multiple = true;
                     this.selection.deselectable = true;
                     this.freeze = this.freeze + 1;
                 }
@@ -1162,6 +1161,15 @@ namespace Aui {
                         }
                     }
                 });
+
+                const filters = this.getStore().getFilters();
+                $labels.forEach(($label) => {
+                    if (filters?.[$label.getData('dataindex')] !== undefined) {
+                        $label.addClass('filtered');
+                    } else {
+                        $label.removeClass('filtered');
+                    }
+                });
             }
 
             /**
@@ -1460,6 +1468,7 @@ namespace Aui {
                 column: Aui.Grid.Column;
                 dataIndex: string;
                 is_alternative: boolean;
+                menu: Aui.Menu.Item;
 
                 /**
                  * 컬럼 필터객체를 생성한다.
@@ -1525,83 +1534,325 @@ namespace Aui {
                 }
 
                 /**
-                 * 필터메뉴를 가져온다.
-                 *
-                 * @return Aui.Menu.Item
+                 * 메뉴를 닫는다.
                  */
-                getLayout(): Aui.Menu.Item {
-                    return null;
+                close(): void {
+                    this.menu.getParent().close();
                 }
-            }
 
-            export class Text extends Aui.Grid.Filter.Base {
                 /**
                  * 필터메뉴를 가져온다.
                  *
                  * @return Aui.Menu.Item
                  */
                 getLayout(): Aui.Menu.Item {
-                    return new Aui.Menu.Item({
-                        iconClass: 'xi xi-funnel',
-                        items: [
-                            new Aui.Form.Panel({
-                                width: 200,
-                                border: false,
-                                padding: 0,
-                                items: [
-                                    new Aui.Form.Field.Select({
-                                        name: 'operator',
-                                        store: new Aui.Store.Local({
-                                            fields: ['value', 'display'],
-                                            records: [
-                                                ['=', '다음과 일치'],
-                                                ['like', '다음을 포함'],
-                                                ['startswith', '다음으로 시작'],
+                    return this.menu ?? null;
+                }
+            }
+
+            export namespace Text {
+                export interface Properties extends Aui.Grid.Filter.Properties {
+                    /**
+                     * @type {boolean} is_equal - 완전일치여부
+                     */
+                    is_equal?: boolean;
+                }
+            }
+
+            export class Text extends Aui.Grid.Filter.Base {
+                is_equal: boolean;
+
+                /**
+                 * 컬럼 필터객체를 생성한다.
+                 *
+                 * @param {Aui.Grid.Filter.Text.Properties} properties - 객체설정
+                 */
+                constructor(properties: Aui.Grid.Filter.Text.Properties = null) {
+                    super(properties);
+
+                    this.is_equal = properties?.is_equal === true;
+                }
+
+                /**
+                 * 필터메뉴를 가져온다.
+                 *
+                 * @return Aui.Menu.Item
+                 */
+                getLayout(): Aui.Menu.Item {
+                    if (this.menu === undefined) {
+                        this.menu = new Aui.Menu.Item({
+                            iconClass: 'xi xi-funnel',
+                            items: [
+                                new Aui.Form.Panel({
+                                    width: 200,
+                                    border: false,
+                                    padding: 0,
+                                    items: [
+                                        new Aui.Form.Field.Select({
+                                            name: 'operator',
+                                            hidden: this.is_equal,
+                                            store: new Aui.Store.Local({
+                                                fields: ['value', 'display'],
+                                                records: (() => {
+                                                    const records: [string, string][] = [];
+                                                    const filters = Aui.getText('filters.text') as {
+                                                        [key: string]: string;
+                                                    };
+                                                    for (const code in filters) {
+                                                        records.push([code, filters[code]]);
+                                                    }
+                                                    return records;
+                                                })(),
+                                            }),
+                                            value: this.is_equal == true ? '=' : 'like',
+                                            listeners: {
+                                                change: (field, value) => {
+                                                    const valueField = field
+                                                        .getForm()
+                                                        .getField('value') as Aui.Form.Field.Text;
+                                                    if (value == 'likesall' || value == 'likes') {
+                                                        valueField.setHelpText(Aui.printText('filters.likes_help'));
+                                                    } else {
+                                                        valueField.setHelpText(null);
+                                                    }
+                                                },
+                                            },
+                                        }),
+                                        new Aui.Form.Field.Text({
+                                            name: 'value',
+                                        }),
+                                        new Aui.Form.Field.Container({
+                                            items: [
+                                                new Aui.Form.Field.Display({
+                                                    flex: 1,
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.reset'),
+                                                    handler: () => {
+                                                        this.resetFilter();
+                                                        this.close();
+                                                    },
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.set'),
+                                                    buttonClass: 'confirm',
+                                                    handler: (button) => {
+                                                        const form = (
+                                                            button.getParent() as Aui.Form.Field.Container
+                                                        ).getForm();
+                                                        if (form.getField('value').getValue()?.length > 0) {
+                                                            this.setFilter(
+                                                                form.getField('value').getValue(),
+                                                                form.getField('operator').getValue()
+                                                            );
+                                                        } else {
+                                                            this.resetFilter();
+                                                        }
+
+                                                        this.close();
+                                                    },
+                                                }),
                                             ],
                                         }),
-                                        value: 'like',
-                                        //
+                                    ],
+                                }),
+                            ],
+                            listeners: {
+                                show: (item) => {
+                                    const form = item.getItemAt(0) as Aui.Form.Panel;
+                                    if (this.is_equal == true) {
+                                        form.getField('operator').setValue('=');
+                                    } else {
+                                        form.getField('operator').setValue(this.getFilter()?.operator ?? 'like');
+                                    }
+                                    form.getField('value').setValue(this.getFilter()?.value ?? '');
+                                },
+                            },
+                        });
+                    }
+
+                    return this.menu;
+                }
+            }
+
+            export namespace List {
+                export interface Properties extends Aui.Grid.Filter.Properties {
+                    /**
+                     * @type {Aui.Store|Aui.TreeStore} store - 스토어
+                     */
+                    store: Aui.Store | Aui.TreeStore;
+
+                    /**
+                     * @type {string} displayField - 표시될 필드명
+                     */
+                    displayField?: string;
+
+                    /**
+                     * @type {string} valueField - 필터값 필드명
+                     */
+                    valueField?: string;
+
+                    /**
+                     * @type {boolean} multiple - 다중선택여부
+                     */
+                    multiple?: boolean;
+
+                    /**
+                     * @type {Function} renderer - 컬럼 랜더러
+                     */
+                    renderer?: (
+                        value: any,
+                        record: Aui.Data.Record,
+                        $dom: Dom,
+                        rowIndex: number,
+                        columnIndex: number,
+                        column: Aui.Grid.Column,
+                        grid: Aui.Grid.Panel
+                    ) => string;
+                }
+            }
+
+            export class List extends Aui.Grid.Filter.Base {
+                store: Aui.Store | Aui.TreeStore;
+                displayField: string;
+                valueField: string;
+                multiple: boolean;
+                list: Aui.Grid.Panel | Aui.Tree.Panel;
+                renderer: (
+                    value: any,
+                    record: Aui.Data.Record,
+                    $dom: Dom,
+                    rowIndex: number,
+                    columnIndex: number,
+                    column: Aui.Grid.Column,
+                    grid: Aui.Grid.Panel
+                ) => string;
+
+                /**
+                 * 컬럼 필터객체를 생성한다.
+                 *
+                 * @param {Aui.Grid.Filter.List.Properties} properties - 객체설정
+                 */
+                constructor(properties: Aui.Grid.Filter.List.Properties = null) {
+                    super(properties);
+
+                    this.store = properties?.store ?? null;
+                    this.displayField = properties?.displayField ?? 'display';
+                    this.valueField = properties?.valueField ?? 'value';
+                    this.multiple = properties?.multiple === true;
+                    this.renderer = properties?.renderer ?? null;
+                }
+
+                /**
+                 * 목록을 가져온다.
+                 */
+                getList(): Aui.Grid.Panel | Aui.Tree.Panel {
+                    if (this.list === undefined) {
+                        if (this.store == null) {
+                            this.list = null;
+                        }
+
+                        if (this.store instanceof Aui.Store) {
+                            this.list = new Aui.Grid.Panel({
+                                width: 200,
+                                maxHeight: 200,
+                                columnHeaders: false,
+                                rowLines: false,
+                                store: this.store,
+                                selection: { selectable: true, display: 'check', multiple: this.multiple },
+                                columns: [
+                                    {
+                                        dataIndex: this.displayField,
+                                        flex: 1,
+                                        renderer: this.renderer,
+                                    },
+                                ],
+                                bottombar: [
+                                    '->',
+                                    new Aui.Button({
+                                        text: Aui.printText('filters.reset'),
+                                        handler: () => {
+                                            this.resetFilter();
+                                            this.close();
+                                        },
                                     }),
-                                    new Aui.Form.Field.Text({
-                                        name: 'value',
-                                    }),
-                                    new Aui.Form.Field.Container({
-                                        items: [
-                                            new Aui.Form.Field.Display({
-                                                flex: 1,
-                                            }),
-                                            new Aui.Button({
-                                                text: '필터적용',
-                                                handler: (button) => {
-                                                    const form = (
-                                                        button.getParent() as Aui.Form.Field.Container
-                                                    ).getForm();
-                                                    if (form.getField('value').getValue()?.length > 0) {
-                                                        this.setFilter(
-                                                            form.getField('value').getValue(),
-                                                            form.getField('operator').getValue()
-                                                        );
-                                                    } else {
-                                                        this.resetFilter();
+                                    new Aui.Button({
+                                        text: Aui.printText('filters.set'),
+                                        buttonClass: 'confirm',
+                                        handler: () => {
+                                            const selections = this.getList().getSelections();
+                                            if (selections.length == 0) {
+                                                this.resetFilter();
+                                            } else {
+                                                if (this.multiple == true) {
+                                                    const values = [];
+                                                    for (const record of selections) {
+                                                        values.push(record.get(this.valueField));
                                                     }
-                                                    const menu = form.getParent().getParent() as Aui.Menu;
-                                                    menu.close();
-                                                },
-                                            }),
-                                        ],
+                                                    this.setFilter(values, 'in');
+                                                } else {
+                                                    this.setFilter(selections[0].get(this.valueField), '=');
+                                                }
+                                            }
+
+                                            this.close();
+                                        },
                                     }),
                                 ],
-                            }),
-                        ],
-                        listeners: {
-                            show: (item) => {
-                                const form = item.getItemAt(0) as Aui.Form.Panel;
-                                form.getField('operator').setValue(this.getFilter()?.operator ?? 'like');
-                                form.getField('value').setValue(this.getFilter()?.value ?? '');
-                                console.log('show', this.getFilter());
+                            });
+                        }
+                    }
+                    return this.list;
+                }
+
+                /**
+                 * 필터메뉴를 가져온다.
+                 *
+                 * @return Aui.Menu.Item
+                 */
+                getLayout(): Aui.Menu.Item {
+                    if (this.menu === undefined) {
+                        this.menu = new Aui.Menu.Item({
+                            iconClass: 'xi xi-funnel',
+                            items: [this.getList()],
+                            listeners: {
+                                show: async (item) => {
+                                    this.getList().setParent(item);
+                                    if (this.getList().getStore().isLoaded() == false) {
+                                        await this.getList().getStore().load();
+                                    }
+
+                                    const value = this.getFilter()?.value ?? null;
+                                    if (value !== null) {
+                                        const values = [];
+                                        if (Array.isArray(value) == false) {
+                                            values.push(value);
+                                        } else {
+                                            values.push(...value);
+                                        }
+
+                                        for (const value of values) {
+                                            const record = {};
+                                            record[this.valueField] = value;
+                                            const index = this.getList().getStore().findIndex(record);
+                                            if (index !== null) {
+                                                if (this.store instanceof Aui.Store) {
+                                                    (this.getList() as Aui.Grid.Panel).selectRow(index as number, true);
+                                                } else {
+                                                    (this.getList() as Aui.Tree.Panel).selectRow(
+                                                        index as number[],
+                                                        true
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
                             },
-                        },
-                    });
+                        });
+                    }
+
+                    return this.menu;
                 }
             }
         }
