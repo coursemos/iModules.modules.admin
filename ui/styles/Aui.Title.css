@@ -6,7 +6,7 @@
  * @file /styles/Aui.Title.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 1.
  */
 div[data-component][data-type='title'][data-role='title'] {
     > div[data-role='container'] {
@@ -23,11 +23,13 @@ div[data-component][data-type='title'][data-role='title'] {
 
         > div[data-role='content'] {
             flex-grow: 1;
+            flex-shrink: 1;
             font-weight: normal;
             height: var(--title-height);
             padding: var(--padding-large);
             box-sizing: border-box;
             font-size: 0;
+            overflow: hidden;
 
             > i {
                 display: inline-block;
@@ -50,6 +52,8 @@ div[data-component][data-type='title'][data-role='title'] {
                 line-height: calc(var(--title-height) - var(--padding-large) * 2);
                 font-family: var(--font-family-default);
                 padding-left: var(--padding-default);
+                padding-right: var(--padding-default);
+                overflow: hidden;
                 box-sizing: border-box;
                 white-space: nowrap;
                 text-overflow: ellipsis;
