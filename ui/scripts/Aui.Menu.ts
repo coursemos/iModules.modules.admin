@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 25.
+ * @modified 2024. 3. 1.
  */
 namespace Aui {
     export namespace Menu {
@@ -502,6 +502,18 @@ namespace Aui {
 
     export namespace Menu {
         export namespace Item {
+            export interface Listeners extends Aui.Component.Listeners {
+                /**
+                 * @type {Function} show - 메뉴아이템이 보일 때
+                 */
+                show?: (item: Aui.Menu.Item) => void;
+
+                /**
+                 * @type {Function} show - 메뉴아이템이 숨겨질 때
+                 */
+                hide?: (item: Aui.Menu.Item) => void;
+            }
+
             export interface Properties extends Aui.Component.Properties {
                 /**
                  * @type {string} text - 메뉴명
@@ -527,6 +539,11 @@ namespace Aui {
                  * @type {Function} handler - 메뉴 클릭 핸들러
                  */
                 handler?: (item: Aui.Menu.Item) => Promise<boolean>;
+
+                /**
+                 * @type {Aui.Menu.Item.Listeners} listeners - 이벤트리스너
+                 */
+                listeners?: Aui.Menu.Item.Listeners;
             }
         }
 
