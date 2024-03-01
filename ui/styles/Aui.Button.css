@@ -6,7 +6,7 @@
  * @file /styles/Aui.Button.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 2. 27.
  */
 div[data-component][data-type='button'][data-role='button'] {
     > div[data-role='container'] {
@@ -30,7 +30,7 @@ div[data-component][data-type='button'][data-role='button'] {
                     font-style: normal;
                     width: calc(var(--text-height) - 2px);
                     height: calc(var(--text-height) - 2px);
-                    line-height: calc(var(--text-height) - 2px - 1px);
+                    line-height: calc(var(--text-height) - 2px);
                     vertical-align: middle;
                     text-align: center;
                     font-size: inherit;
