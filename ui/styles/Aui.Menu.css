@@ -20,6 +20,7 @@ div[data-component][data-type='menu'][data-role='menu'] {
         width: 100%;
         display: flex;
         flex-direction: column;
+        max-width: 280px;
 
         > div[data-role='top'] {
             --title-color: var(--menu-title-color);
@@ -103,7 +104,7 @@ div[data-component][data-type='menu'][data-role='item'] {
 
                     > span {
                         flex-shrink: 1;
-                        flex-grow: 0;
+                        flex-grow: 1;
                         height: var(--menu-item-height);
                         padding-top: var(--padding-default);
                         padding-bottom: var(--padding-default);
@@ -113,6 +114,9 @@ div[data-component][data-type='menu'][data-role='item'] {
                         vertical-align: top;
                         box-sizing: border-box;
                         position: relative;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
 
                         &::before {
                             width: 1px;
