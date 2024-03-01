@@ -520,6 +520,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             width: 100%;
                             flex-grow: 1;
                             flex-shrink: 0;
+                            flex-basis: 50%;
                             font-size: var(--font-size-default);
                             font-family: var(--font-family-default);
                             padding-top: var(--padding-default);

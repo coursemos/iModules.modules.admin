@@ -35,6 +35,7 @@ var Aui;
             focusedCell = { rowIndex: null, columnIndex: null };
             editingField = null;
             editingCell = { rowIndex: null, columnIndex: null };
+            setRowClass;
             loading;
             /**
              * 그리드패널을 생성한다.
@@ -80,6 +81,7 @@ var Aui;
                     direction: 'column',
                     text: this.properties.loadingText ?? null,
                 });
+                this.setRowClass = this.properties.setRowClass ?? null;
             }
             /**
              * 그리드패널 헤더의 하위 컴포넌트를 초기화한다.
@@ -801,6 +803,12 @@ var Aui;
                         .setData('role', 'row')
                         .setData('index', rowIndex)
                         .setData('record', record, false);
+                    if (this.setRowClass !== null) {
+                        const rowClass = this.setRowClass(record, rowIndex) ?? '';
+                        if (rowClass.length > 0) {
+                            $row.addClass(...rowClass.split(' '));
+                        }
+                    }
                     this.getColumns().forEach((column, columnIndex) => {
                         const value = record.get(column.dataIndex);
                         const $column = column.$getBody(value, record, rowIndex, columnIndex);

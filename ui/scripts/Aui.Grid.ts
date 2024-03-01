@@ -128,6 +128,11 @@ namespace Aui {
                 columnHeaders?: boolean;
 
                 /**
+                 * @type {Function} setRowClass - 컬럼 행 클래스 정의함수
+                 */
+                setRowClass?: (record: Aui.Data.Record, rowIndex: number) => string;
+
+                /**
                  * @type {boolean} rowLines - 행간 구분선 표시여부
                  */
                 rowLines?: boolean;
@@ -192,6 +197,8 @@ namespace Aui {
             editingField: Aui.Form.Field.Base = null;
             editingCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
 
+            setRowClass: (record: Aui.Data.Record, rowIndex: number) => string;
+
             loading: Aui.Loading;
 
             /**
@@ -245,6 +252,8 @@ namespace Aui {
                     direction: 'column',
                     text: this.properties.loadingText ?? null,
                 });
+
+                this.setRowClass = this.properties.setRowClass ?? null;
             }
 
             /**
@@ -1066,6 +1075,14 @@ namespace Aui {
                         .setData('role', 'row')
                         .setData('index', rowIndex)
                         .setData('record', record, false);
+
+                    if (this.setRowClass !== null) {
+                        const rowClass = this.setRowClass(record, rowIndex) ?? '';
+                        if (rowClass.length > 0) {
+                            $row.addClass(...rowClass.split(' '));
+                        }
+                    }
+
                     this.getColumns().forEach((column: Aui.Grid.Column, columnIndex: number) => {
                         const value = record.get(column.dataIndex);
                         const $column = column.$getBody(value, record, rowIndex, columnIndex);
