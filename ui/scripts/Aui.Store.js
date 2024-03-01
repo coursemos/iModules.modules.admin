@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 3. 1.
  */
 var Aui;
 (function (Aui) {
@@ -355,6 +355,24 @@ var Aui;
             await this.filter();
         }
         /**
+         * 필터를 초기화한다.
+         *
+         * @param {string} field - 필터를 제거할 필드명
+         */
+        async resetFilter(field) {
+            if (this.filters !== null && this.filters[field] !== undefined) {
+                delete this.filters[field];
+            }
+            await this.filter();
+        }
+        /**
+         * 모든 필터를 초기화한다.
+         */
+        async resetFilters() {
+            this.filters = null;
+            await this.filter();
+        }
+        /**
          * 특정필드의 필터를 가져온다.
          *
          * @param {string} field
@@ -371,13 +389,6 @@ var Aui;
          */
         getFilters() {
             return this.data?.filters ?? this.filters;
-        }
-        /**
-         * 모든 필터를 초기화한다.
-         */
-        async resetFilter() {
-            this.filters = null;
-            await this.filter();
         }
         /**
          * 필터모드를 변경한다.
@@ -1148,6 +1159,24 @@ var Aui;
             await this.filter();
         }
         /**
+         * 필터를 초기화한다.
+         *
+         * @param {string} field - 필터를 제거할 필드명
+         */
+        async resetFilter(field) {
+            if (this.filters !== null && this.filters[field] !== undefined) {
+                delete this.filters[field];
+            }
+            await this.filter();
+        }
+        /**
+         * 모든 필터를 초기화한다.
+         */
+        async resetFilters() {
+            this.filters = null;
+            await this.filter();
+        }
+        /**
          * 특정필드의 필터를 가져온다.
          *
          * @param {string} field
@@ -1172,13 +1201,6 @@ var Aui;
          */
         async removeFilter(field) {
             delete this.filters[field];
-            await this.filter();
-        }
-        /**
-         * 모든 필터를 초기화한다.
-         */
-        async resetFilter() {
-            this.filters = null;
             await this.filter();
         }
         /**

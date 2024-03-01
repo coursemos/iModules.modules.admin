@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 3. 1.
  */
 namespace Aui {
     export namespace Store {
@@ -459,6 +459,26 @@ namespace Aui {
         }
 
         /**
+         * 필터를 초기화한다.
+         *
+         * @param {string} field - 필터를 제거할 필드명
+         */
+        async resetFilter(field: string): Promise<void> {
+            if (this.filters !== null && this.filters[field] !== undefined) {
+                delete this.filters[field];
+            }
+            await this.filter();
+        }
+
+        /**
+         * 모든 필터를 초기화한다.
+         */
+        async resetFilters(): Promise<void> {
+            this.filters = null;
+            await this.filter();
+        }
+
+        /**
          * 특정필드의 필터를 가져온다.
          *
          * @param {string} field
@@ -476,14 +496,6 @@ namespace Aui {
          */
         getFilters(): { [field: string]: { value: any; operator: string } } {
             return this.data?.filters ?? this.filters;
-        }
-
-        /**
-         * 모든 필터를 초기화한다.
-         */
-        async resetFilter(): Promise<void> {
-            this.filters = null;
-            await this.filter();
         }
 
         /**
@@ -1485,6 +1497,26 @@ namespace Aui {
         }
 
         /**
+         * 필터를 초기화한다.
+         *
+         * @param {string} field - 필터를 제거할 필드명
+         */
+        async resetFilter(field: string): Promise<void> {
+            if (this.filters !== null && this.filters[field] !== undefined) {
+                delete this.filters[field];
+            }
+            await this.filter();
+        }
+
+        /**
+         * 모든 필터를 초기화한다.
+         */
+        async resetFilters(): Promise<void> {
+            this.filters = null;
+            await this.filter();
+        }
+
+        /**
          * 특정필드의 필터를 가져온다.
          *
          * @param {string} field
@@ -1511,14 +1543,6 @@ namespace Aui {
          */
         async removeFilter(field: string): Promise<void> {
             delete this.filters[field];
-            await this.filter();
-        }
-
-        /**
-         * 모든 필터를 초기화한다.
-         */
-        async resetFilter(): Promise<void> {
-            this.filters = null;
             await this.filter();
         }
 
