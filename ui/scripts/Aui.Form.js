@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 25.
+ * @modified 2024. 3. 1.
  */
 var Aui;
 (function (Aui) {
@@ -2685,7 +2685,7 @@ var Aui;
                  */
                 collapse() {
                     this.getList()?.deselectAll();
-                    this.getStore().resetFilter();
+                    this.getStore().resetFilters();
                     this.getAbsolute()?.hide();
                 }
                 /**
