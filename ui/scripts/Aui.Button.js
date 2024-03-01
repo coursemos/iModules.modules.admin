@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 1.
  */
 var Aui;
 (function (Aui) {
@@ -250,7 +250,6 @@ var Aui;
         pressedButton;
         toggle;
         value;
-        rawValue;
         /**
          * 분할버튼을 생성한다.
          *
@@ -260,8 +259,7 @@ var Aui;
             super(properties);
             this.direction = this.properties.direction ?? 'row';
             this.toggle = this.properties.toggle === true;
-            this.value = null;
-            this.rawValue = this.properties.value ?? null;
+            this.value = this.properties.value ?? null;
         }
         /**
          * 분할버튼의 각 버튼을 초기화한다.
@@ -280,18 +278,20 @@ var Aui;
                     if (item.isPressed() === true) {
                         pressed = item;
                     }
-                    item.addEvent('click', (button) => {
-                        if (button.isPressed() == true && this.toggle == false) {
-                            button.setPressed(true);
-                            return;
-                        }
-                        if (button.isPressed() == false) {
-                            this.setValue(button.getValue());
-                        }
-                        else {
-                            this.setValue(null);
-                        }
-                    });
+                    if (item.handler === null) {
+                        item.addEvent('click', (button) => {
+                            if (button.isPressed() == true && this.toggle == false) {
+                                button.setPressed(true);
+                                return;
+                            }
+                            if (button.isPressed() == false) {
+                                this.setValue(button.getValue());
+                            }
+                            else {
+                                this.setValue(null);
+                            }
+                        });
+                    }
                     this.items.push(item);
                 }
             }
@@ -306,10 +306,6 @@ var Aui;
          * @param {string|number} value - 변경할 값
          */
         setValue(value) {
-            if (this.value === value) {
-                return;
-            }
-            this.value = value;
             for (const button of this.items) {
                 if (button.isPressed() == true && button.getValue() !== value) {
                     button.setPressed(false);
@@ -318,7 +314,10 @@ var Aui;
                     button.setPressed(true);
                 }
             }
-            this.fireEvent('change', [this, this.value]);
+            if (this.value !== value) {
+                this.value = value;
+                this.fireEvent('change', [this, value]);
+            }
         }
         /**
          * 선택된 값을 가져온다.
@@ -334,8 +333,8 @@ var Aui;
         render() {
             this.$getContent().addClass(this.direction);
             super.render();
-            if (this.rawValue !== null) {
-                this.setValue(this.rawValue);
+            if (this.value !== null) {
+                this.setValue(this.value);
             }
         }
     }

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 1.
  */
 namespace Aui {
     export namespace Button {
@@ -387,7 +387,6 @@ namespace Aui {
         pressedButton: Aui.Button;
         toggle: boolean;
         value: string | number;
-        rawValue: string | number;
 
         /**
          * 분할버튼을 생성한다.
@@ -399,8 +398,7 @@ namespace Aui {
 
             this.direction = this.properties.direction ?? 'row';
             this.toggle = this.properties.toggle === true;
-            this.value = null;
-            this.rawValue = this.properties.value ?? null;
+            this.value = this.properties.value ?? null;
         }
 
         /**
@@ -421,18 +419,20 @@ namespace Aui {
                         pressed = item;
                     }
 
-                    item.addEvent('click', (button: Aui.Button) => {
-                        if (button.isPressed() == true && this.toggle == false) {
-                            button.setPressed(true);
-                            return;
-                        }
+                    if (item.handler === null) {
+                        item.addEvent('click', (button: Aui.Button) => {
+                            if (button.isPressed() == true && this.toggle == false) {
+                                button.setPressed(true);
+                                return;
+                            }
 
-                        if (button.isPressed() == false) {
-                            this.setValue(button.getValue());
-                        } else {
-                            this.setValue(null);
-                        }
-                    });
+                            if (button.isPressed() == false) {
+                                this.setValue(button.getValue());
+                            } else {
+                                this.setValue(null);
+                            }
+                        });
+                    }
 
                     this.items.push(item);
                 }
@@ -451,12 +451,6 @@ namespace Aui {
          * @param {string|number} value - 변경할 값
          */
         setValue(value: string | number): void {
-            if (this.value === value) {
-                return;
-            }
-
-            this.value = value;
-
             for (const button of this.items as Aui.Button[]) {
                 if (button.isPressed() == true && button.getValue() !== value) {
                     button.setPressed(false);
@@ -467,7 +461,10 @@ namespace Aui {
                 }
             }
 
-            this.fireEvent('change', [this, this.value]);
+            if (this.value !== value) {
+                this.value = value;
+                this.fireEvent('change', [this, value]);
+            }
         }
 
         /**
@@ -487,8 +484,8 @@ namespace Aui {
 
             super.render();
 
-            if (this.rawValue !== null) {
-                this.setValue(this.rawValue);
+            if (this.value !== null) {
+                this.setValue(this.value);
             }
         }
     }
