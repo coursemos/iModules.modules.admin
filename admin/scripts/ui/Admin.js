@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 1.
  */
 var Admin;
 (function (Admin) {
@@ -193,7 +193,8 @@ var Admin;
             return contextSubUrl;
         }
         else {
-            return contextSubUrl.replace(/^\//, '').split('/').at(index) ?? null;
+            const path = contextSubUrl.replace(/^\//, '').split('/').at(index) ?? '';
+            return path.length == 0 ? null : path;
         }
     }
     Admin.getContextSubUrl = getContextSubUrl;
