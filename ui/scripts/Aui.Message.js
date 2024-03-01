@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 3. 1.
  */
 var Aui;
 (function (Aui) {
@@ -115,7 +115,6 @@ var Aui;
          */
         static progress(properties = null) {
             const progress = Ajax.Progress.init();
-            const width = Aui.Message.message?.$getComponent()?.getWidth() ?? 402;
             Aui.Message.close();
             Aui.Message.message = new Aui.Window({
                 title: properties?.title ?? Aui.printText('actions.progress_status'),
@@ -124,7 +123,7 @@ var Aui;
                 resizable: false,
                 closable: false,
                 scrollable: false,
-                width: width - 2,
+                width: 400,
                 padding: 10,
                 items: [
                     new Aui.Progress({
