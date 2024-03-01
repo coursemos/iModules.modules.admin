@@ -79,6 +79,25 @@ var Aui;
                 return this.bar;
             }
             /**
+             * 자식 컴포넌트를 추가한다.
+             *
+             * @param {Aui.Panel} item - 추가할 컴포넌트
+             * @param {number} position - 추가할 위치 (NULL 인 경우 제일 마지막 위치)
+             */
+            append(item, position = null) {
+                item.hide();
+                item.getTitle()?.setHidden(true);
+                super.append(item, position);
+                this.getBar().append(new Aui.Button({
+                    tabId: item.getId(),
+                    text: item.properties.title ?? null,
+                    iconClass: item.properties.iconClass ?? null,
+                    handler: (button) => {
+                        button.getParent().active(button.properties.tabId);
+                    },
+                }), position);
+            }
+            /**
              * 특정탭을 가져온다.
              *
              * @param {string|number} id - 가져올 탭 고유값 또는 탭 인덱스
@@ -118,7 +137,7 @@ var Aui;
                     return;
                 if (tab.getId() !== this.activeTabId) {
                     this.activeTabId = tab.getId();
-                    for (const item of this.getItems()) {
+                    for (const item of this.getItems() ?? []) {
                         item.hide();
                     }
                     tab.show();
@@ -228,7 +247,7 @@ var Aui;
              * @param {string} tabId - 활성화할 탭 고유값
              */
             active(tabId) {
-                for (let item of this.items) {
+                for (let item of this.items ?? []) {
                     if (item.properties.tabId == tabId) {
                         item.setPressed(true);
                     }
