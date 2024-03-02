@@ -326,6 +326,8 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             height: 100%;
                             position: relative;
                             padding: 0;
+                            background: var(--grid-header-background-default);
+                            border: 0;
 
                             &::before {
                                 position: absolute;

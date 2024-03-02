@@ -53,11 +53,11 @@ var Aui;
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
                 this.selection.display = this.selection.display ?? 'row';
-                this.selection.multiple = this.selection.multiple ?? false;
-                this.selection.deselectable = this.selection.deselectable ?? false;
+                this.selection.multiple = this.selection.multiple ?? (this.selection.display == 'check' ? true : false);
+                this.selection.deselectable =
+                    this.selection.deselectable ?? (this.selection.display == 'check' ? true : false);
                 this.selection.keepable = this.selection.keepable ?? false;
                 if (this.selection.display == 'check') {
-                    this.selection.deselectable = true;
                     this.freeze = this.freeze + 1;
                 }
                 this.store = this.properties.store ?? new Aui.Store();
@@ -477,7 +477,7 @@ var Aui;
             /**
              * 아이템을 선택한다.
              *
-             * @param {number} index - 아이탬(행) 인덱스
+             * @param {number} rowIndex - 아이탬(행) 인덱스
              * @param {boolean} is_multiple - 다중선택여부
              * @param {boolean} is_event - 이벤트 발생여부
              */
@@ -495,8 +495,8 @@ var Aui;
                 const record = $row.getData('record');
                 this.selections.set(record.getHash(), record);
                 $row.addClass('selected');
-                this.focusRow(rowIndex);
                 if (is_event == true) {
+                    this.focusRow(rowIndex);
                     this.onSelectionChange();
                 }
             }
@@ -794,7 +794,7 @@ var Aui;
                     return Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex);
                 }
                 else {
-                    record.setObserver((dataIndex, value, originValue) => {
+                    record.setObserver(() => {
                         this.updateRow(rowIndex);
                     });
                     let leftPosition = 0;
@@ -1203,7 +1203,7 @@ var Aui;
                 /**
                  * 필터메뉴를 가져온다.
                  *
-                 * @return Aui.Menu.Item
+                 * @return {Aui.Menu.Item} menu
                  */
                 getLayout() {
                     return this.menu ?? null;
@@ -1224,7 +1224,7 @@ var Aui;
                 /**
                  * 필터메뉴를 가져온다.
                  *
-                 * @return Aui.Menu.Item
+                 * @return {Aui.Menu.Item} menu
                  */
                 getLayout() {
                     if (this.menu === undefined) {
@@ -1322,6 +1322,7 @@ var Aui;
                 displayField;
                 valueField;
                 multiple;
+                search;
                 list;
                 renderer;
                 /**
@@ -1335,10 +1336,13 @@ var Aui;
                     this.displayField = properties?.displayField ?? 'display';
                     this.valueField = properties?.valueField ?? 'value';
                     this.multiple = properties?.multiple === true;
+                    this.search = properties?.search === true;
                     this.renderer = properties?.renderer ?? null;
                 }
                 /**
                  * 목록을 가져온다.
+                 *
+                 * @return {Aui.Grid.Panel|Aui.Tree.Panel} list
                  */
                 getList() {
                     if (this.list === undefined) {
@@ -1348,18 +1352,28 @@ var Aui;
                         if (this.store instanceof Aui.Store) {
                             this.list = new Aui.Grid.Panel({
                                 width: 200,
-                                maxHeight: 200,
+                                maxHeight: 300,
                                 columnHeaders: false,
                                 rowLines: false,
                                 store: this.store,
                                 selection: { selectable: true, display: 'check', multiple: this.multiple },
-                                columns: [
-                                    {
-                                        dataIndex: this.displayField,
-                                        flex: 1,
-                                        renderer: this.renderer,
-                                    },
-                                ],
+                                topbar: (() => {
+                                    if (this.search === true) {
+                                        return [
+                                            new Aui.Form.Field.Search({
+                                                liveSearch: true,
+                                                flex: 1,
+                                                emptyText: Aui.printText('filters.search'),
+                                                handler: async (keyword) => {
+                                                    this.getList()
+                                                        .getStore()
+                                                        .setFilter(this.displayField, keyword, 'likecode');
+                                                },
+                                            }),
+                                        ];
+                                    }
+                                    return null;
+                                })(),
                                 bottombar: [
                                     '->',
                                     new Aui.Button({
@@ -1393,6 +1407,13 @@ var Aui;
                                         },
                                     }),
                                 ],
+                                columns: [
+                                    {
+                                        dataIndex: this.displayField,
+                                        flex: 1,
+                                        renderer: this.renderer,
+                                    },
+                                ],
                             });
                         }
                     }
@@ -1401,7 +1422,7 @@ var Aui;
                 /**
                  * 필터메뉴를 가져온다.
                  *
-                 * @return Aui.Menu.Item
+                 * @return {Aui.Menu.Item} menu
                  */
                 getLayout() {
                     if (this.menu === undefined) {
