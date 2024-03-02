@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 3. 2.
  */
 namespace Aui {
     export namespace Grid {
@@ -1666,6 +1666,252 @@ namespace Aui {
                                         form.getField('operator').setValue(this.getFilter()?.operator ?? 'like');
                                     }
                                     form.getField('value').setValue(this.getFilter()?.value ?? '');
+                                },
+                            },
+                        });
+                    }
+
+                    return this.menu;
+                }
+            }
+
+            export namespace Number {
+                export interface Properties extends Aui.Grid.Filter.Properties {
+                    /**
+                     * @type {boolean} is_equal - 완전일치여부
+                     */
+                    is_equal?: boolean;
+
+                    /**
+                     * @type {boolean} spinner - spinner 여부
+                     */
+                    spinner?: boolean;
+
+                    /**
+                     * @type {boolean} step - spinner 의 step
+                     */
+                    step?: number;
+
+                    /**
+                     * @type {boolean} format - 숫자포맷 적용여부
+                     */
+                    format?: boolean;
+                }
+            }
+
+            export class Number extends Aui.Grid.Filter.Base {
+                is_equal: boolean;
+                spinner: boolean;
+                step: number;
+                format: boolean;
+
+                /**
+                 * 컬럼 필터객체를 생성한다.
+                 *
+                 * @param {Aui.Grid.Filter.Number.Properties} properties - 객체설정
+                 */
+                constructor(properties: Aui.Grid.Filter.Number.Properties = null) {
+                    super(properties);
+
+                    this.is_equal = properties?.is_equal === true;
+                    this.spinner = properties?.spinner === true;
+                    this.step = properties?.step ?? 1;
+                    this.format = properties?.format === true;
+                }
+
+                /**
+                 * 필터메뉴를 가져온다.
+                 *
+                 * @return {Aui.Menu.Item} menu
+                 */
+                getLayout(): Aui.Menu.Item {
+                    if (this.menu === undefined) {
+                        this.menu = new Aui.Menu.Item({
+                            iconClass: 'xi xi-funnel',
+                            items: [
+                                new Aui.Form.Panel({
+                                    width: 200,
+                                    border: false,
+                                    padding: 0,
+                                    items: [
+                                        new Aui.Form.Field.Select({
+                                            name: 'operator',
+                                            hidden: this.is_equal,
+                                            store: new Aui.Store.Local({
+                                                fields: ['value', 'display'],
+                                                records: (() => {
+                                                    const records: [string, string][] = [];
+                                                    const filters = Aui.getText('filters.number') as {
+                                                        [key: string]: string;
+                                                    };
+                                                    for (const code in filters) {
+                                                        records.push([code, filters[code]]);
+                                                    }
+                                                    return records;
+                                                })(),
+                                            }),
+                                            value: '=',
+                                            listeners: {
+                                                change: (field, value) => {
+                                                    const form = field.getForm();
+                                                    if (value == 'range') {
+                                                        form.getField('value').hide();
+                                                        form.getField('start_operator').show();
+                                                        form.getField('start_value').show();
+                                                        form.getField('end_operator').show();
+                                                        form.getField('end_value').show();
+                                                    } else {
+                                                        form.getField('value').show();
+                                                        form.getField('start_operator').hide();
+                                                        form.getField('start_value').hide();
+                                                        form.getField('end_operator').hide();
+                                                        form.getField('end_value').hide();
+                                                    }
+                                                },
+                                            },
+                                        }),
+                                        new Aui.Form.Field.Number({
+                                            name: 'value',
+                                            spinner: this.spinner,
+                                            step: this.step,
+                                            format: this.format,
+                                        }),
+                                        new Aui.Form.Field.Select({
+                                            name: 'start_operator',
+                                            hidden: true,
+                                            store: new Aui.Store.Local({
+                                                fields: ['value', 'display'],
+                                                records: (() => {
+                                                    const records: [string, string][] = [];
+                                                    const filters = Aui.getText('filters.number_start') as {
+                                                        [key: string]: string;
+                                                    };
+                                                    for (const code in filters) {
+                                                        records.push([code, filters[code]]);
+                                                    }
+                                                    return records;
+                                                })(),
+                                            }),
+                                            value: '>',
+                                        }),
+                                        new Aui.Form.Field.Number({
+                                            name: 'start_value',
+                                            hidden: true,
+                                            spinner: this.spinner,
+                                            step: this.step,
+                                            format: this.format,
+                                        }),
+                                        new Aui.Form.Field.Select({
+                                            name: 'end_operator',
+                                            hidden: true,
+                                            store: new Aui.Store.Local({
+                                                fields: ['value', 'display'],
+                                                records: (() => {
+                                                    const records: [string, string][] = [];
+                                                    const filters = Aui.getText('filters.number_end') as {
+                                                        [key: string]: string;
+                                                    };
+                                                    for (const code in filters) {
+                                                        records.push([code, filters[code]]);
+                                                    }
+                                                    return records;
+                                                })(),
+                                            }),
+                                            value: '<',
+                                        }),
+                                        new Aui.Form.Field.Number({
+                                            name: 'end_value',
+                                            hidden: true,
+                                            spinner: this.spinner,
+                                            step: this.step,
+                                            format: this.format,
+                                        }),
+                                        new Aui.Form.Field.Container({
+                                            items: [
+                                                new Aui.Form.Field.Display({
+                                                    flex: 1,
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.reset'),
+                                                    handler: () => {
+                                                        this.resetFilter();
+                                                        this.close();
+                                                    },
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.set'),
+                                                    buttonClass: 'confirm',
+                                                    handler: (button) => {
+                                                        const form = (
+                                                            button.getParent() as Aui.Form.Field.Container
+                                                        ).getForm();
+                                                        const operator = form.getField('operator').getValue();
+                                                        if (operator == 'range') {
+                                                            const start_value = form.getField('start_value').getValue();
+                                                            const end_value = form.getField('end_value').getValue();
+
+                                                            if (start_value === null) {
+                                                                form.getField('start_value').setError(true);
+                                                            }
+                                                            if (end_value === null) {
+                                                                form.getField('end_value').setError(true);
+                                                            }
+
+                                                            const value = {
+                                                                start: {
+                                                                    value: start_value,
+                                                                    operator: form
+                                                                        .getField('start_operator')
+                                                                        .getValue(),
+                                                                },
+                                                                end: {
+                                                                    value: end_value,
+                                                                    operator: form.getField('end_operator').getValue(),
+                                                                },
+                                                            };
+
+                                                            if (start_value !== null && end_value !== null) {
+                                                                this.setFilter(
+                                                                    value,
+                                                                    form.getField('operator').getValue()
+                                                                );
+                                                            }
+                                                        } else {
+                                                            if (form.getField('value').getValue() !== null) {
+                                                                this.setFilter(
+                                                                    form.getField('value').getValue(),
+                                                                    form.getField('operator').getValue()
+                                                                );
+                                                            } else {
+                                                                this.resetFilter();
+                                                            }
+                                                        }
+
+                                                        this.close();
+                                                    },
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                            ],
+                            listeners: {
+                                show: (item) => {
+                                    const form = item.getItemAt(0) as Aui.Form.Panel;
+                                    if (this.is_equal == true) {
+                                        form.getField('operator').setValue('=');
+                                    } else {
+                                        form.getField('operator').setValue(this.getFilter()?.operator ?? '=');
+                                    }
+
+                                    if (this.getFilter()?.operator == 'range') {
+                                        form.getField('start_value').setValue(
+                                            this.getFilter()?.value?.start?.value ?? ''
+                                        );
+                                        form.getField('end_value').setValue(this.getFilter()?.value?.end?.value ?? '');
+                                    } else {
+                                        form.getField('value').setValue(this.getFilter()?.value ?? '');
+                                    }
                                 },
                             },
                         });
