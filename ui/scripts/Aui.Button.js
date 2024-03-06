@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 3. 5.
  */
 var Aui;
 (function (Aui) {
@@ -52,12 +52,15 @@ var Aui;
                 this.menu = null;
             }
             if (this.menu !== null) {
-                this.menu.addEvent('show', () => {
-                    this.$getButton().addClass('opened');
+                this.menu.addEvent('show', (menu) => {
+                    menu.$target.addClass('opened');
                 });
-                this.menu.addEvent('hide', () => {
-                    this.$getButton().removeClass('opened');
+                this.menu.addEvent('hide', (menu) => {
+                    menu.$target.removeClass('opened');
                 });
+                if (this.handler !== null) {
+                    this.$setBottom();
+                }
             }
         }
         /**
@@ -69,14 +72,18 @@ var Aui;
             if (this.$button === undefined) {
                 this.$button = Html.create('button').setAttr('type', 'button');
                 this.$button.setStyle('text-align', this.textAlign);
-                if (this.tabIndex !== null)
+                if (this.tabIndex !== null) {
                     this.$button.setAttr('tabindex', this.tabIndex.toString());
+                }
                 if (this.buttonClass !== null) {
                     this.$button.addClass(...this.buttonClass.split(' '));
                 }
-                if (this.menu !== null) {
+                if (this.menu !== null && this.handler === null) {
                     this.$button.addClass('menu');
                 }
+                this.$button.on('click', () => {
+                    this.onClick();
+                });
             }
             return this.$button;
         }
@@ -219,24 +226,34 @@ var Aui;
             if (this.pressed === true) {
                 this.setPressed(true);
             }
-            this.$getButton().on('click', () => {
-                this.onClick();
-            });
             this.$getContent().append(this.$getButton());
+        }
+        /**
+         * 메뉴 버튼을 렌더링한다.
+         */
+        renderBottom() {
+            if (this.menu !== null && this.handler !== null) {
+                const $button = Html.create('button').setAttr('type', 'button');
+                if (this.buttonClass !== null) {
+                    $button.addClass(...this.buttonClass.split(' '));
+                }
+                $button.on('click', () => {
+                    this.menu.showAt($button, 'y');
+                });
+                this.$getBottom().append($button);
+            }
         }
         /**
          * 버튼 클릭이벤트를 처리한다.
          */
         onClick() {
-            if (this.menu === null) {
-                if (this.toggle == true) {
-                    this.setPressed(!this.pressed);
-                }
-                if (this.handler !== null) {
-                    this.handler(this);
-                }
+            if (this.toggle == true) {
+                this.setPressed(!this.pressed);
             }
-            else {
+            if (this.handler !== null) {
+                this.handler(this);
+            }
+            else if (this.menu !== null) {
                 this.menu.showAt(this.$getButton(), 'y');
             }
             this.fireEvent('click', [this]);
