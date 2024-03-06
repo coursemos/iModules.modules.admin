@@ -115,7 +115,9 @@
     --button-background-focus: var(--color-background-400);
     --button-background-pressed: var(--color-primary-500);
     --button-background-confirm: var(--color-primary-500);
+    --button-background-confirm-hover: var(--color-primary-600);
     --button-background-danger: var(--color-danger-500);
+    --button-background-danger-hover: var(--color-danger-600);
     --button-border-color-default: var(--color-background-300);
     --button-border-color-hover: var(--color-background-200);
     --button-border-color-focus: var(--color-primary-500);
