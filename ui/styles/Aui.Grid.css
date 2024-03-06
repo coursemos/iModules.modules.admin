@@ -148,11 +148,25 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             &.left {
                                 text-align: left;
                             }
+
                             &.center {
                                 text-align: center;
                             }
+
                             &.right {
                                 text-align: right;
+                            }
+
+                            &.top {
+                                align-self: flex-start;
+                            }
+
+                            &.middle {
+                                align-self: center;
+                            }
+
+                            &.bottom {
+                                align-self: flex-end;
                             }
                         }
 
@@ -207,9 +221,11 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                 &.left {
                                     text-align: left;
                                 }
+
                                 &.center {
                                     text-align: center;
                                 }
+
                                 &.right {
                                     text-align: right;
                                 }
@@ -492,6 +508,15 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                         &.right {
                             text-align: right;
+                        }
+
+                        &.top {
+                        }
+
+                        &.middle {
+                        }
+
+                        &.bottom {
                         }
 
                         &.check {
