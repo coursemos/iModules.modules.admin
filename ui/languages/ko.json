@@ -87,6 +87,22 @@
             "<": "다음보다 작음",
             "range": "범위"
         },
+        "date": {
+            "today": "오늘",
+            "yesterday": "어제",
+            "thisweek": "이번주",
+            "lastweek": "저번주",
+            "thismonth": "이번달",
+            "lastmonth": "저번달",
+            "thisyear": "올해",
+            "lastyear": "작년",
+            "=": "다음 날짜",
+            ">=": "다음 날짜 이후",
+            "<=": "다음 날짜 이전",
+            "range": "특정 기간"
+        },
+        "date_start": "시작일",
+        "date_end": "종료일",
         "number_start": {
             ">=": "다음보다 크거나 같고",
             ">": "다음보다 크고"

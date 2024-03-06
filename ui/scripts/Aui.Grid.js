@@ -1476,12 +1476,12 @@ var Aui;
                                                                 },
                                                             };
                                                             if (start_value !== null && end_value !== null) {
-                                                                this.setFilter(value, form.getField('operator').getValue());
+                                                                this.setFilter(value, operator);
                                                             }
                                                         }
                                                         else {
                                                             if (form.getField('value').getValue() !== null) {
-                                                                this.setFilter(form.getField('value').getValue(), form.getField('operator').getValue());
+                                                                this.setFilter(form.getField('value').getValue(), operator);
                                                             }
                                                             else {
                                                                 this.resetFilter();
@@ -1519,6 +1519,164 @@ var Aui;
                 }
             }
             Filter.Number = Number;
+            class Date extends Aui.Grid.Filter.Base {
+                displayFormat;
+                format;
+                /**
+                 * 컬럼 필터객체를 생성한다.
+                 *
+                 * @param {Aui.Grid.Filter.Date.Properties} properties - 객체설정
+                 */
+                constructor(properties = null) {
+                    super(properties);
+                    this.displayFormat = properties?.displayFormat ?? 'Y-m-d';
+                    this.format = properties?.format ?? 'Y-m-d';
+                }
+                /**
+                 * 필터메뉴를 가져온다.
+                 *
+                 * @return {Aui.Menu.Item} menu
+                 */
+                getLayout() {
+                    if (this.menu === undefined) {
+                        this.menu = new Aui.Menu.Item({
+                            iconClass: 'xi xi-funnel',
+                            items: [
+                                new Aui.Form.Panel({
+                                    width: 200,
+                                    border: false,
+                                    padding: 0,
+                                    items: [
+                                        new Aui.Form.Field.Select({
+                                            name: 'operator',
+                                            store: new Aui.Store.Local({
+                                                fields: ['value', 'display'],
+                                                records: (() => {
+                                                    const records = [];
+                                                    const filters = Aui.getText('filters.date');
+                                                    for (const code in filters) {
+                                                        records.push([code, filters[code]]);
+                                                    }
+                                                    return records;
+                                                })(),
+                                            }),
+                                            value: 'today',
+                                            listeners: {
+                                                change: (field, value) => {
+                                                    const form = field.getForm();
+                                                    if (value == '=' || value == '>=' || value == '<=') {
+                                                        form.getField('value').show();
+                                                        form.getField('start_value').hide();
+                                                        form.getField('end_value').hide();
+                                                    }
+                                                    else if (value == 'range') {
+                                                        form.getField('value').hide();
+                                                        form.getField('start_value').show();
+                                                        form.getField('end_value').show();
+                                                    }
+                                                    else {
+                                                        form.getField('value').hide();
+                                                        form.getField('start_value').hide();
+                                                        form.getField('end_value').hide();
+                                                    }
+                                                },
+                                            },
+                                        }),
+                                        new Aui.Form.Field.Date({
+                                            name: 'value',
+                                            hidden: true,
+                                            displayFormat: this.displayFormat,
+                                            format: 'Y-m-d',
+                                        }),
+                                        new Aui.Form.Field.Date({
+                                            name: 'start_value',
+                                            hidden: true,
+                                            label: Aui.printText('filters.date_start'),
+                                            labelPosition: 'top',
+                                            displayFormat: this.displayFormat,
+                                            format: 'Y-m-d',
+                                        }),
+                                        new Aui.Form.Field.Date({
+                                            name: 'end_value',
+                                            hidden: true,
+                                            label: Aui.printText('filters.date_end'),
+                                            labelPosition: 'top',
+                                            displayFormat: this.displayFormat,
+                                            format: 'Y-m-d',
+                                        }),
+                                        new Aui.Form.Field.Container({
+                                            items: [
+                                                new Aui.Form.Field.Display({
+                                                    flex: 1,
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.reset'),
+                                                    handler: () => {
+                                                        this.resetFilter();
+                                                        this.close();
+                                                    },
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.set'),
+                                                    buttonClass: 'confirm',
+                                                    handler: (button) => {
+                                                        const form = button.getParent().getForm();
+                                                        let operator = form.getField('operator').getValue();
+                                                        let value = form.getField('value').getValue();
+                                                        let start_value = form.getField('start_value').getValue();
+                                                        let end_value = form.getField('end_value').getValue();
+                                                        let filterValue = { operator: operator, format: this.format };
+                                                        if (operator == '=' || operator == '>=' || operator == '<=') {
+                                                            if (value === null) {
+                                                                form.getField('value').setError(true);
+                                                                return;
+                                                            }
+                                                            filterValue.value = value;
+                                                        }
+                                                        else if (operator == 'range') {
+                                                            if (start_value === null) {
+                                                                form.getField('start_value').setError(true);
+                                                                return;
+                                                            }
+                                                            if (end_value === null) {
+                                                                form.getField('end_value').setError(true);
+                                                                return;
+                                                            }
+                                                            filterValue.range = [start_value, end_value];
+                                                        }
+                                                        else {
+                                                            filterValue.operator = operator;
+                                                        }
+                                                        this.setFilter(filterValue, 'date');
+                                                        this.close();
+                                                    },
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                            ],
+                            listeners: {
+                                show: (item) => {
+                                    const form = item.getItemAt(0);
+                                    const filter = this.getFilter()?.value ?? null;
+                                    form.getField('operator').setValue(filter?.operator ?? 'today');
+                                    const operator = filter?.operator ?? null;
+                                    if (operator == '=' || operator == '>=' || operator == '<=') {
+                                        form.getField('value').setValue(filter?.value);
+                                    }
+                                    else if (operator == 'range') {
+                                        form.getField('start_value').setValue(filter?.range[0]);
+                                        form.getField('end_value').setValue(filter?.range[1]);
+                                    }
+                                },
+                            },
+                        });
+                    }
+                    return this.menu;
+                }
+            }
+            Filter.Date = Date;
             class List extends Aui.Grid.Filter.Base {
                 store;
                 displayField;
@@ -1553,7 +1711,6 @@ var Aui;
                         }
                         if (this.store instanceof Aui.Store) {
                             this.list = new Aui.Grid.Panel({
-                                width: 200,
                                 maxHeight: 300,
                                 columnHeaders: false,
                                 rowLines: false,
@@ -1576,39 +1733,6 @@ var Aui;
                                     }
                                     return null;
                                 })(),
-                                bottombar: [
-                                    '->',
-                                    new Aui.Button({
-                                        text: Aui.printText('filters.reset'),
-                                        handler: () => {
-                                            this.resetFilter();
-                                            this.close();
-                                        },
-                                    }),
-                                    new Aui.Button({
-                                        text: Aui.printText('filters.set'),
-                                        buttonClass: 'confirm',
-                                        handler: () => {
-                                            const selections = this.getList().getSelections();
-                                            if (selections.length == 0) {
-                                                this.resetFilter();
-                                            }
-                                            else {
-                                                if (this.multiple == true) {
-                                                    const values = [];
-                                                    for (const record of selections) {
-                                                        values.push(record.get(this.valueField));
-                                                    }
-                                                    this.setFilter(values, 'in');
-                                                }
-                                                else {
-                                                    this.setFilter(selections[0].get(this.valueField), '=');
-                                                }
-                                            }
-                                            this.close();
-                                        },
-                                    }),
-                                ],
                                 columns: [
                                     {
                                         dataIndex: this.displayField,
@@ -1630,7 +1754,53 @@ var Aui;
                     if (this.menu === undefined) {
                         this.menu = new Aui.Menu.Item({
                             iconClass: 'xi xi-funnel',
-                            items: [this.getList()],
+                            items: [
+                                new Aui.Form.Panel({
+                                    width: 200,
+                                    padding: 0,
+                                    border: false,
+                                    items: [
+                                        this.getList(),
+                                        new Aui.Form.Field.Container({
+                                            items: [
+                                                new Aui.Form.Field.Display({
+                                                    flex: 1,
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.reset'),
+                                                    handler: () => {
+                                                        this.resetFilter();
+                                                        this.close();
+                                                    },
+                                                }),
+                                                new Aui.Button({
+                                                    text: Aui.printText('filters.set'),
+                                                    buttonClass: 'confirm',
+                                                    handler: () => {
+                                                        const selections = this.getList().getSelections();
+                                                        if (selections.length == 0) {
+                                                            this.resetFilter();
+                                                        }
+                                                        else {
+                                                            if (this.multiple == true) {
+                                                                const values = [];
+                                                                for (const record of selections) {
+                                                                    values.push(record.get(this.valueField));
+                                                                }
+                                                                this.setFilter(values, 'in');
+                                                            }
+                                                            else {
+                                                                this.setFilter(selections[0].get(this.valueField), '=');
+                                                            }
+                                                        }
+                                                        this.close();
+                                                    },
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                            ],
                             listeners: {
                                 show: async (item) => {
                                     this.getList().setParent(item);
@@ -2198,6 +2368,7 @@ var Aui;
                     $column.setStyle('width', this.minWidth + 'px');
                 }
                 $column.addClass(this.textAlign);
+                $column.addClass(this.textVerticalAlign);
                 if (this.textClass !== null) {
                     $column.addClass(...this.textClass.split(' '));
                 }
