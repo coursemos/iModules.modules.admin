@@ -19,6 +19,7 @@ var Aui;
         rendered;
         momentum = { x: 0, y: 0 };
         autoScroll = { x: 0, y: 0 };
+        latestPosition = { x: 0, y: 0 };
         storePositionData = null;
         storePositionCoordinate = { x: 0, y: 0 };
         /**
@@ -291,44 +292,70 @@ var Aui;
          * 스크롤바를 위한 이벤트를 등록한다.
          */
         setEvent() {
-            this.$target.on('wheel', (e) => {
+            this.$target.on('scroll', (e) => {
+                const current = this.getPosition();
+                if (this.latestPosition.x !== current.x) {
+                    this.active('x', 1);
+                }
+                if (this.latestPosition.y !== current.y) {
+                    this.active('y', 1);
+                }
+                this.latestPosition = current;
+            });
+            /*
+            this.$target.on('wheel', (e: WheelEvent) => {
                 const DELTA_MODE = [1.0, 28.0, 500.0];
                 const mode = DELTA_MODE[e.deltaMode] ?? DELTA_MODE[0];
+
                 const x = Math.round(e.deltaX * mode);
                 const y = Math.round(e.deltaY * mode);
+
                 if (this.isMovable(x, y) == true) {
                     this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
                     e.stopImmediatePropagation();
                 }
             });
+
             if (window.ontouchstart !== undefined) {
                 this.$target.addClass('touchscroll');
+
                 new Aui.Drag(this.$target, {
                     pointerType: ['touch', 'pen'],
                     listeners: {
-                        start: (_$target, _tracker, e) => {
+                        start: (_$target: Dom, _tracker: Aui.Drag.Tracker, e: PointerEvent) => {
                             if (this.isScrollable('x') == true || this.isScrollable('y') == true) {
                                 e.stopPropagation();
                             }
                             this.setMomentum(0, 0);
                         },
-                        drag: (_$target, tracker) => {
+                        drag: (_$target: Dom, tracker: Aui.Drag.Tracker) => {
                             const { x, y } = tracker.getDelta();
+
                             if (this.isMovable(-x, -y) == true) {
-                                this.movePosition(this.scrollable.x == true ? -x : 0, this.scrollable.y == true ? -y : 0, true);
+                                this.movePosition(
+                                    this.scrollable.x == true ? -x : 0,
+                                    this.scrollable.y == true ? -y : 0,
+                                    true
+                                );
                             }
                         },
-                        end: (_$target, tracker) => {
+                        end: (_$target: Dom, tracker: Aui.Drag.Tracker) => {
                             const delta = tracker.getDelta();
                             if (this.isMovable(-delta.x, -delta.y) == true) {
-                                this.movePosition(this.scrollable.x == true ? -delta.x : 0, this.scrollable.y == true ? -delta.y : 0, true);
+                                this.movePosition(
+                                    this.scrollable.x == true ? -delta.x : 0,
+                                    this.scrollable.y == true ? -delta.y : 0,
+                                    true
+                                );
                             }
+
                             const { x, y } = tracker.getVelocity();
                             this.addMomentum(-x, -y);
                         },
                     },
                 });
             }
+            */
             this.setTrackEvent('x');
             this.setTrackEvent('y');
         }

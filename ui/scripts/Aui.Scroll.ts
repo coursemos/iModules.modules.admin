@@ -21,6 +21,7 @@ namespace Aui {
         momentum: { x: number; y: number } = { x: 0, y: 0 };
         autoScroll: { x: number; y: number } = { x: 0, y: 0 };
 
+        latestPosition: { x: number; y: number } = { x: 0, y: 0 };
         storePositionData: any = null;
         storePositionCoordinate: { x: number; y: number } = { x: 0, y: 0 };
 
@@ -331,6 +332,19 @@ namespace Aui {
          * 스크롤바를 위한 이벤트를 등록한다.
          */
         setEvent(): void {
+            this.$target.on('scroll', (e) => {
+                const current = this.getPosition();
+                if (this.latestPosition.x !== current.x) {
+                    this.active('x', 1);
+                }
+
+                if (this.latestPosition.y !== current.y) {
+                    this.active('y', 1);
+                }
+
+                this.latestPosition = current;
+            });
+            /*
             this.$target.on('wheel', (e: WheelEvent) => {
                 const DELTA_MODE = [1.0, 28.0, 500.0];
                 const mode = DELTA_MODE[e.deltaMode] ?? DELTA_MODE[0];
@@ -383,6 +397,7 @@ namespace Aui {
                     },
                 });
             }
+            */
 
             this.setTrackEvent('x');
             this.setTrackEvent('y');
