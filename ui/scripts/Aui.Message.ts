@@ -76,6 +76,11 @@ namespace Aui {
                 message?: string;
 
                 /**
+                 * @type {Aui.Message.Progress.Properties[]} steps - 프로그래스의 여러 단계가 존재할 경우
+                 */
+                steps?: Aui.Message.Progress.Properties[];
+
+                /**
                  * @type {string} method - 프로그래스바를 호출할 메소드
                  */
                 method?: 'GET' | 'POST' | 'DELETE';
@@ -83,7 +88,7 @@ namespace Aui {
                 /**
                  * @type {string} url - 프로그래스바를 호출할 URL
                  */
-                url: string;
+                url?: string;
 
                 /**
                  * @type {Ajax.Params} url - 프로그래스바를 호출할 URL 매개변수
@@ -98,7 +103,7 @@ namespace Aui {
                 /**
                  * @type {Function} handler - 삭제완료 후 실행할 핸들러
                  */
-                progress: (progress: Aui.Progress, results: Ajax.Progress.Results) => void;
+                progress?: (progress: Aui.Progress, results: Ajax.Progress.Results) => void;
 
                 /**
                  * @type {Function} handler - 삭제완료 후 실행할 핸들러
@@ -259,9 +264,8 @@ namespace Aui {
          * @param {Aui.Message.Progress.Properties} properties - 로딩설정
          */
         static progress(properties: Aui.Message.Progress.Properties = null): void {
-            const progress: Ajax.Progress = Ajax.Progress.init();
-
             Aui.Message.close();
+            const steps = properties?.steps ?? [];
 
             Aui.Message.message = new Aui.Window({
                 title: properties?.title ?? Aui.printText('actions.progress_status'),
@@ -274,15 +278,25 @@ namespace Aui {
                 padding: 10,
                 items: [
                     new Aui.Progress({
-                        message: properties?.message ?? null,
+                        message: properties.message ?? null,
                         loading: true,
                     }),
+                    (() => {
+                        if (steps.length > 0) {
+                            return new Aui.Progress({
+                                loading: true,
+                                margin: [10, 0, 0, 0],
+                            });
+                        }
+
+                        return null;
+                    })(),
                 ],
                 buttons: [
                     new Aui.Button({
                         text: Aui.printText('buttons.cancel'),
-                        handler: () => {
-                            progress.abort();
+                        handler: (button) => {
+                            button.value?.abort();
                             Aui.Message.close();
                         },
                     }),
@@ -297,65 +311,138 @@ namespace Aui {
                         },
                     }),
                 ],
+                progress: async (
+                    window: Aui.Window,
+                    step: Aui.Message.Progress.Properties
+                ): Promise<Ajax.Progress.Results> => {
+                    const button = window.buttons.at(0) as Aui.Button;
+
+                    const method = (step?.method ?? 'GET').toUpperCase();
+                    const url = step?.url;
+                    const params = (step?.params ?? null) as Ajax.Params;
+                    const data = step?.data ?? null;
+
+                    const callback = (results: Ajax.Progress.Results) => {
+                        if (Aui.getComponent(window.getId()) === null) {
+                            return;
+                        }
+
+                        const progress = window.getItemAt(0) as Aui.Progress;
+                        progress.setMax(results.total);
+                        progress.setValue(results.current);
+
+                        if (typeof step?.progress == 'function') {
+                            if (results.success == true) {
+                                step.progress(progress, results);
+                            }
+                        }
+
+                        if (results.end == true) {
+                            return results.success;
+                        }
+                    };
+
+                    const progress = Ajax.Progress.init();
+
+                    (window.getItemAt(0) as Aui.Progress).setValue(0);
+                    await iModules.sleep(500);
+
+                    button.setValue(progress);
+
+                    switch (method) {
+                        case 'POST':
+                            return progress.post(url, data, params, callback);
+
+                        case 'DELETE':
+                            return progress.delete(url, params, callback);
+
+                        default:
+                            return progress.get(url, params, callback);
+                    }
+                },
                 listeners: {
                     show: async (window) => {
                         const button = window.buttons.at(1) as Aui.Button;
                         button.setLoading(true);
-                        const method = (properties.method ?? 'GET').toUpperCase();
-                        const url = properties.url;
-                        const params = (properties.params ?? null) as Ajax.Params;
-                        const data = properties.data ?? null;
 
-                        const callback = (results: Ajax.Progress.Results) => {
-                            if (Aui.getComponent(window.getId()) === null) {
-                                return;
-                            }
-
+                        if (steps.length > 0) {
+                            const stepProgress = window.getItemAt(1) as Aui.Progress;
                             const progress = window.getItemAt(0) as Aui.Progress;
-                            progress.setMax(results.total);
-                            progress.setValue(results.current);
+                            stepProgress.setMax(steps.length);
 
-                            if (typeof properties.progress == 'function') {
-                                if (results.success == true) {
-                                    properties.progress(progress, results);
+                            const stepMessage =
+                                (properties?.message ?? null) == null
+                                    ? '${current}/' + steps.length
+                                    : properties?.message + ' (${current}/' + steps.length + ')';
+                            stepProgress.setMessage(stepMessage.replace('${current}', '0'));
+
+                            await iModules.sleep(2000);
+
+                            const stepResults = { success: true, steps: [] };
+                            for (const index in steps) {
+                                progress.setLoading(true);
+                                progress.setMessage(steps[index].message ?? null);
+
+                                await iModules.sleep(1000);
+
+                                stepProgress.setMessage(stepMessage.replace('${current}', index));
+                                stepProgress.setValue(parseInt(index));
+                                const results = await window.properties.progress(window, steps[index], index);
+                                stepResults.success = stepResults.success && results.success;
+                                stepResults.steps.push(results);
+
+                                if (results.success == false) {
+                                    if (results.aborted == false) {
+                                        Aui.Message.show({
+                                            title: Aui.getErrorText('TITLE'),
+                                            message: results?.message ?? Aui.getErrorText('CONNECT_ERROR'),
+                                            icon: Aui.Message.ERROR,
+                                            buttons: Aui.Message.OK,
+                                            handler: async (button) => {
+                                                if (typeof properties?.handler == 'function') {
+                                                    await properties.handler(button, results);
+                                                }
+                                                Aui.Message.close();
+                                            },
+                                        });
+                                    }
+                                    break;
                                 }
+
+                                stepProgress.setMessage(
+                                    stepMessage.replace('${current}', (parseInt(index) + 1).toString())
+                                );
+                                stepProgress.setValue(parseInt(index) + 1);
+
+                                await iModules.sleep(2000);
                             }
 
-                            if (results.end == true) {
-                                if (results.success == true) {
-                                    button.setValue(results);
-                                    button.setLoading(false);
-                                    window.setTitle(Aui.printText('actions.complete_status'));
-                                } else {
-                                    Aui.Message.show({
-                                        title: Aui.getErrorText('TITLE'),
-                                        message: results?.message ?? Aui.getErrorText('CONNECT_ERROR'),
-                                        icon: Aui.Message.ERROR,
-                                        buttons: Aui.Message.OK,
-                                        handler: async (button) => {
-                                            if (typeof properties?.handler == 'function') {
-                                                await properties.handler(button, results);
-                                            }
-                                            Aui.Message.close();
-                                        },
-                                    });
-                                }
+                            if (stepResults.success == true) {
+                                button.setValue(stepResults);
+                                button.setLoading(false);
+                                window.setTitle(Aui.printText('actions.complete_status'));
                             }
-                        };
-
-                        const progress = Ajax.Progress.init();
-                        await iModules.sleep(2000);
-                        switch (method) {
-                            case 'POST':
-                                progress.post(url, data, params, callback);
-                                break;
-
-                            case 'DELETE':
-                                progress.delete(url, params, callback);
-                                break;
-
-                            default:
-                                progress.get(url, params, callback);
+                        } else {
+                            await iModules.sleep(2000);
+                            const results = await window.properties.progress(window, properties, null);
+                            if (results.success == true) {
+                                button.setValue(results);
+                                button.setLoading(false);
+                                window.setTitle(Aui.printText('actions.complete_status'));
+                            } else if (results.aborted == false) {
+                                Aui.Message.show({
+                                    title: Aui.getErrorText('TITLE'),
+                                    message: results?.message ?? Aui.getErrorText('CONNECT_ERROR'),
+                                    icon: Aui.Message.ERROR,
+                                    buttons: Aui.Message.OK,
+                                    handler: async (button) => {
+                                        if (typeof properties?.handler == 'function') {
+                                            await properties.handler(button, results);
+                                        }
+                                        Aui.Message.close();
+                                    },
+                                });
+                            }
                         }
                     },
                 },
