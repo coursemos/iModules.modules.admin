@@ -1431,8 +1431,8 @@ var Aui;
                     super(properties);
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
-                    this.format = this.properties.format ?? 'YYYY-MM-DD';
-                    this.displayFormat = this.properties.displayFormat ?? 'YYYY-MM-DD';
+                    this.format = Format.moment(this.properties.format ?? 'Y-m-d');
+                    this.displayFormat = Format.moment(this.properties.displayFormat ?? 'Y-m-d');
                 }
                 /**
                  * 절대위치 목록 컴포넌트를 가져온다.
@@ -1641,6 +1641,17 @@ var Aui;
                 getValue() {
                     if (this.value instanceof moment) {
                         return this.value.format(this.format);
+                    }
+                    return null;
+                }
+                /**
+                 * moment 값을 가져온다.
+                 *
+                 * @return {Object} momentValue
+                 */
+                getRawValue() {
+                    if (this.value instanceof moment) {
+                        return this.value;
                     }
                     return null;
                 }
