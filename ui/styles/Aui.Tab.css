@@ -6,7 +6,7 @@
  * @file /styles/Aui.Tab.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 12.
  */
 div[data-component][data-type='toolbar'][data-role='tab'] {
     > div[data-role='container'] {
@@ -61,6 +61,7 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
                 > div[data-role='content'] {
                     > button {
                         height: calc(var(--tabbar-height) - 6px);
+                        padding: calc((var(--tabbar-height) - var(--text-height) - 6px) / 2) 0px;
                     }
                 }
             }
