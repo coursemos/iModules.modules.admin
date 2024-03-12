@@ -12,7 +12,7 @@ section[data-role='admin'][data-type='absolutes'] {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 2000;
+    z-index: 2000 !important;
 
     > div[data-component][data-type='absolute'] {
         position: fixed;
