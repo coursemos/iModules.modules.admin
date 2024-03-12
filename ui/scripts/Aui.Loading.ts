@@ -54,7 +54,7 @@ namespace Aui {
 
             this.component = component;
             this.type = this.properties.type;
-            this.modal = this.modal === false;
+            this.modal = this.properties.modal !== false;
             this.direction = this.properties.direction ?? 'column';
             this.text = this.properties.text ?? null;
         }
