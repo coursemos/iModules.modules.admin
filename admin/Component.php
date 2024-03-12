@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Component.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 11.
  */
 namespace modules\admin\admin;
 abstract class Component
@@ -149,6 +149,29 @@ abstract class Component
     final public function getPath(): string
     {
         return $this->getComponent()->getPath() . '/admin';
+    }
+
+    /**
+     * 모듈의 데이터를 가져온다.
+     *
+     * @param string $key 가져올 데이터키
+     * @return mixed $value 데이터값
+     */
+    final public function getData(string $key): mixed
+    {
+        return $this->getComponent()->getData($key);
+    }
+
+    /**
+     * 모듈의 데이터를 저장한다.
+     *
+     * @param string $key 저장할 데이터키
+     * @param mixed $value 저장할 데이터값
+     * @return bool $success
+     */
+    final public function setData(string $key, mixed $value): bool
+    {
+        return $this->getComponent()->setData($key, $value);
     }
 
     /**
