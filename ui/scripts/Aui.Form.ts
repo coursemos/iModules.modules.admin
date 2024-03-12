@@ -1886,8 +1886,8 @@ namespace Aui {
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
 
-                    this.format = Format.moment(this.properties.format ?? 'Y-m-d');
-                    this.displayFormat = Format.moment(this.properties.displayFormat ?? 'Y-m-d');
+                    this.format = this.properties.format ?? 'Y-m-d';
+                    this.displayFormat = this.properties.displayFormat ?? 'Y-m-d';
                 }
 
                 /**
@@ -2101,7 +2101,7 @@ namespace Aui {
                         this.$getInput().setValue('');
                         this.$getEmptyText().show();
                     } else {
-                        this.$getInput().setValue(this.value.format(this.displayFormat));
+                        this.$getInput().setValue(Format.date(this.displayFormat, this.value, null, false));
                         this.$getEmptyText().hide();
                     }
 
