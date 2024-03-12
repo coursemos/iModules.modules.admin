@@ -1926,9 +1926,9 @@ namespace Aui {
                     displayFormat?: string;
 
                     /**
-                     * @type {string} format - 필터에 실제 적용할 날짜포맷
+                     * @type {'timestamp'|'date'|'datetime'} format - 필터에 실제 적용할 날짜포맷
                      */
-                    format?: string;
+                    format?: 'timestamp' | 'date' | 'datetime';
                 }
             }
 
@@ -1945,7 +1945,7 @@ namespace Aui {
                     super(properties);
 
                     this.displayFormat = properties?.displayFormat ?? 'Y-m-d';
-                    this.format = properties?.format ?? 'Y-m-d';
+                    this.format = properties?.format ?? 'date';
                 }
 
                 /**

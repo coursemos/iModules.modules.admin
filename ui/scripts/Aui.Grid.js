@@ -1530,7 +1530,7 @@ var Aui;
                 constructor(properties = null) {
                     super(properties);
                     this.displayFormat = properties?.displayFormat ?? 'Y-m-d';
-                    this.format = properties?.format ?? 'Y-m-d';
+                    this.format = properties?.format ?? 'date';
                 }
                 /**
                  * 필터메뉴를 가져온다.
