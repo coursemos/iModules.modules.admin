@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 3. 14.
  */
 namespace Aui {
     export namespace Message {
@@ -344,8 +344,9 @@ namespace Aui {
 
                     const progress = Ajax.Progress.init();
 
+                    (window.getItemAt(0) as Aui.Progress).setMax(100);
                     (window.getItemAt(0) as Aui.Progress).setValue(0);
-                    await iModules.sleep(500);
+                    await iModules.sleep(1000);
 
                     button.setValue(progress);
 

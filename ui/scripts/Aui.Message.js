@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 3. 14.
  */
 var Aui;
 (function (Aui) {
@@ -182,8 +182,9 @@ var Aui;
                         }
                     };
                     const progress = Ajax.Progress.init();
+                    window.getItemAt(0).setMax(100);
                     window.getItemAt(0).setValue(0);
-                    await iModules.sleep(500);
+                    await iModules.sleep(1000);
                     button.setValue(progress);
                     switch (method) {
                         case 'POST':
