@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 5.
+ * @modified 2024. 3. 14.
  */
 namespace Aui {
     export namespace Button {
@@ -20,6 +20,11 @@ namespace Aui {
              * @type {Function} click - 버튼이 클릭되었을 때
              */
             click?: (button: Aui.Button) => void;
+
+            /**
+             * @type {Function} change - 버튼값이 변경되었을 때
+             */
+            change?: (button: Aui.Button, value: any) => void;
         }
 
         export interface Properties extends Aui.Component.Properties {
@@ -294,7 +299,10 @@ namespace Aui {
          * @return {any} value
          */
         setValue(value: any): any {
-            this.value = value;
+            if (this.value !== value) {
+                this.value = value;
+                this.fireEvent('change', [this, value]);
+            }
         }
 
         /**

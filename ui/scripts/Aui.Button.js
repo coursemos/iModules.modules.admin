@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 5.
+ * @modified 2024. 3. 14.
  */
 var Aui;
 (function (Aui) {
@@ -200,7 +200,10 @@ var Aui;
          * @return {any} value
          */
         setValue(value) {
-            this.value = value;
+            if (this.value !== value) {
+                this.value = value;
+                this.fireEvent('change', [this, value]);
+            }
         }
         /**
          * 버튼이 눌린 상태인지 가져온다.
