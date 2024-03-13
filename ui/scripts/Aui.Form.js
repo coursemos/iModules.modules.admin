@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 3. 14.
  */
 var Aui;
 (function (Aui) {
@@ -1446,6 +1446,7 @@ var Aui;
                             items: [this.getCalendar()],
                             hideOnClick: true,
                             parent: this,
+                            border: false,
                             listeners: {
                                 show: () => {
                                     this.$getContent().addClass('expand');
@@ -1530,7 +1531,7 @@ var Aui;
                             type: 'button',
                             class: 'mi mi-calendar',
                         });
-                        this.$button.on('mousedown', (e) => {
+                        this.$button.on('pointerdown', (e) => {
                             if (this.isExpand() == true) {
                                 this.collapse();
                             }
@@ -1640,7 +1641,7 @@ var Aui;
                  */
                 getValue() {
                     if (this.value instanceof moment) {
-                        return this.value.format(this.format);
+                        return Format.date(this.format, this.value);
                     }
                     return null;
                 }
@@ -1723,7 +1724,6 @@ var Aui;
                     prevMonth() {
                         const month = moment(this.$getContent().getData('month'));
                         const prev = month.add(-1, 'month');
-                        this.$getMonth().html(prev.format('YYYY.MM'));
                         this.renderCalendar(prev);
                     }
                     /**
@@ -1732,7 +1732,6 @@ var Aui;
                     nextMonth() {
                         const month = moment(this.$getContent().getData('month'));
                         const next = month.add(1, 'month');
-                        this.$getMonth().html(next.format('YYYY.MM'));
                         this.renderCalendar(next);
                     }
                     /**
@@ -1774,9 +1773,7 @@ var Aui;
                         else {
                             date = moment();
                         }
-                        if (this.current !== date.format('YYYY-MM-DD')) {
-                            this.fireEvent('change', [date]);
-                        }
+                        this.fireEvent('change', [date]);
                         this.current = date.format('YYYY-MM-DD');
                         this.renderContent();
                     }
@@ -1824,7 +1821,6 @@ var Aui;
                         $button.html(Aui.printText('components.form.calendar.today'));
                         $button.on('click', () => {
                             const today = moment();
-                            this.$getMonth().html(today.format('YYYY.MM'));
                             this.renderCalendar(today);
                         });
                     }
@@ -1833,6 +1829,7 @@ var Aui;
                      */
                     renderCalendar(month = null) {
                         month ??= this.getCurrent();
+                        this.$getMonth().html(month.format('YYYY.MM'));
                         this.$getContent().setData('month', month.format('YYYY-MM-DD'), false);
                         this.$getContent().empty();
                         const $days = Html.create('ul', { 'data-role': 'days' });

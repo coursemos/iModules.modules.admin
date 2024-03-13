@@ -6,7 +6,7 @@
  * @file /styles/Aui.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 23.
+ * @modified 2024. 3. 14.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
@@ -1878,7 +1878,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
 div[data-component][data-type='form'][data-role='calendar'] {
     > div[data-role='container'] {
         width: 320px;
-        border: 1px solid var(--input-border-color-default);
+        border: 1px solid var(--input-border-color-focus);
         background: var(--input-background-default);
         font-family: var(--font-family-default);
         font-size: var(--font-size-default);

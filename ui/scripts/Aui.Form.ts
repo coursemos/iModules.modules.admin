@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 3. 14.
  */
 namespace Aui {
     export namespace Form {
@@ -1902,6 +1902,7 @@ namespace Aui {
                             items: [this.getCalendar()],
                             hideOnClick: true,
                             parent: this,
+                            border: false,
                             listeners: {
                                 show: () => {
                                     this.$getContent().addClass('expand');
@@ -1995,7 +1996,7 @@ namespace Aui {
                             type: 'button',
                             class: 'mi mi-calendar',
                         });
-                        this.$button.on('mousedown', (e) => {
+                        this.$button.on('pointerdown', (e: PointerEvent) => {
                             if (this.isExpand() == true) {
                                 this.collapse();
                             } else {
@@ -2116,7 +2117,7 @@ namespace Aui {
                  */
                 getValue(): string {
                     if (this.value instanceof moment) {
-                        return this.value.format(this.format);
+                        return Format.date(this.format, this.value);
                     }
 
                     return null;
@@ -2231,7 +2232,6 @@ namespace Aui {
                         const month = moment(this.$getContent().getData('month'));
                         const prev = month.add(-1, 'month');
 
-                        this.$getMonth().html(prev.format('YYYY.MM'));
                         this.renderCalendar(prev);
                     }
 
@@ -2242,7 +2242,6 @@ namespace Aui {
                         const month = moment(this.$getContent().getData('month'));
                         const next = month.add(1, 'month');
 
-                        this.$getMonth().html(next.format('YYYY.MM'));
                         this.renderCalendar(next);
                     }
 
@@ -2291,9 +2290,7 @@ namespace Aui {
                             date = moment();
                         }
 
-                        if (this.current !== date.format('YYYY-MM-DD')) {
-                            this.fireEvent('change', [date]);
-                        }
+                        this.fireEvent('change', [date]);
 
                         this.current = date.format('YYYY-MM-DD');
                         this.renderContent();
@@ -2348,7 +2345,6 @@ namespace Aui {
                         $button.html(Aui.printText('components.form.calendar.today'));
                         $button.on('click', () => {
                             const today = moment();
-                            this.$getMonth().html(today.format('YYYY.MM'));
                             this.renderCalendar(today);
                         });
                     }
@@ -2358,6 +2354,7 @@ namespace Aui {
                      */
                     renderCalendar(month: any = null): void {
                         month ??= this.getCurrent();
+                        this.$getMonth().html(month.format('YYYY.MM'));
                         this.$getContent().setData('month', month.format('YYYY-MM-DD'), false);
                         this.$getContent().empty();
 
