@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 3. 14.
  */
 var Aui;
 (function (Aui) {
@@ -26,6 +26,7 @@ var Aui;
         count = 0;
         total = 0;
         currentParams = null;
+        response = {};
         /**
          * 데이터스토어를 생성한다.
          *
@@ -85,6 +86,20 @@ var Aui;
          */
         getTotalPage() {
             return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+        }
+        /**
+         * 레코드를 제외한 추가 응답데이터를 가져온다.
+         *
+         * @param {string} key - 가져올 응답데이터 (NULL 인 경우 전체응답)
+         * @return {any} response
+         */
+        getResponse(key = null) {
+            if (key === null) {
+                return this.response;
+            }
+            else {
+                return this.response[key] ?? null;
+            }
         }
         /**
          * 특정페이지를 로딩한다.
@@ -564,6 +579,11 @@ var Aui;
                     }
                 }
                 const results = await Ajax.get(this.url, params);
+                for (const key in results) {
+                    if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
+                        this.response[key] = results[key];
+                    }
+                }
                 if (results.success == true) {
                     this.loaded = true;
                     this.data = new Aui.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
@@ -607,6 +627,7 @@ var Aui;
         count = 0;
         total = 0;
         currentParams = null;
+        response = {};
         /**
          * 데이터스토어를 생성한다.
          *
@@ -670,6 +691,20 @@ var Aui;
          */
         getTotalPage() {
             return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+        }
+        /**
+         * 레코드를 제외한 추가 응답데이터를 가져온다.
+         *
+         * @param {string} key - 가져올 응답데이터 (NULL 인 경우 전체응답)
+         * @return {any} response
+         */
+        getResponse(key = null) {
+            if (key === null) {
+                return this.response;
+            }
+            else {
+                return this.response[key] ?? null;
+            }
         }
         /**
          * 특정페이지를 로딩한다.
@@ -1398,6 +1433,11 @@ var Aui;
                     }
                 }
                 const results = await Ajax.get(this.url, params);
+                for (const key in results) {
+                    if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
+                        this.response[key] = results[key];
+                    }
+                }
                 if (results.success == true) {
                     this.loaded = true;
                     this.data = new Aui.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys, this.childrenField);

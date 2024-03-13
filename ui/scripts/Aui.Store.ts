@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 3. 14.
  */
 namespace Aui {
     export namespace Store {
@@ -91,6 +91,7 @@ namespace Aui {
         count: number = 0;
         total: number = 0;
         currentParams: { [key: string]: any } = null;
+        response: { [key: string]: any } = {};
 
         /**
          * 데이터스토어를 생성한다.
@@ -157,6 +158,20 @@ namespace Aui {
          */
         getTotalPage(): number {
             return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+        }
+
+        /**
+         * 레코드를 제외한 추가 응답데이터를 가져온다.
+         *
+         * @param {string} key - 가져올 응답데이터 (NULL 인 경우 전체응답)
+         * @return {any} response
+         */
+        getResponse(key: string = null): any {
+            if (key === null) {
+                return this.response;
+            } else {
+                return this.response[key] ?? null;
+            }
         }
 
         /**
@@ -732,6 +747,12 @@ namespace Aui {
                 }
 
                 const results = await Ajax.get(this.url, params);
+                for (const key in results) {
+                    if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
+                        this.response[key] = results[key];
+                    }
+                }
+
                 if (results.success == true) {
                     this.loaded = true;
                     this.data = new Aui.Data(results[this.recordsField] ?? [], this.fields, this.primaryKeys);
@@ -871,6 +892,7 @@ namespace Aui {
         count: number = 0;
         total: number = 0;
         currentParams: { [key: string]: any } = null;
+        response: { [key: string]: any } = {};
 
         /**
          * 데이터스토어를 생성한다.
@@ -941,6 +963,20 @@ namespace Aui {
          */
         getTotalPage(): number {
             return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+        }
+
+        /**
+         * 레코드를 제외한 추가 응답데이터를 가져온다.
+         *
+         * @param {string} key - 가져올 응답데이터 (NULL 인 경우 전체응답)
+         * @return {any} response
+         */
+        getResponse(key: string = null): any {
+            if (key === null) {
+                return this.response;
+            } else {
+                return this.response[key] ?? null;
+            }
         }
 
         /**
@@ -1799,6 +1835,12 @@ namespace Aui {
                 }
 
                 const results = await Ajax.get(this.url, params);
+                for (const key in results) {
+                    if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
+                        this.response[key] = results[key];
+                    }
+                }
+
                 if (results.success == true) {
                     this.loaded = true;
                     this.data = new Aui.Data(
