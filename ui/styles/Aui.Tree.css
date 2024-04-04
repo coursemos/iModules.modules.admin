@@ -263,7 +263,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                             }
 
                             &::before {
-                                content: '\ec31';
+                                content: '\eb02';
                             }
                         }
                     }

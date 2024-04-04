@@ -3378,7 +3378,7 @@ namespace Aui {
             getFirstButton(): Aui.Button {
                 if (this.firstButton === undefined) {
                     this.firstButton = new Aui.Button({
-                        iconClass: 'mi mi-angle-start',
+                        iconClass: 'mi mi-step-backward',
                         disabled: true,
                         handler: () => {
                             this.movePage('FIRST');
@@ -3435,7 +3435,7 @@ namespace Aui {
             getLastButton(): Aui.Button {
                 if (this.lastButton === undefined) {
                     this.lastButton = new Aui.Button({
-                        iconClass: 'mi mi-angle-end',
+                        iconClass: 'mi mi-step-forward',
                         disabled: true,
                         handler: () => {
                             this.movePage('LAST');

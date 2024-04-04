@@ -71,7 +71,7 @@ body {
                                 box-sizing: border-box;
 
                                 &:focus {
-                                    outline: 2px solid var(--aui-color-primary-400);
+                                    outline: 2px solid var(--aui-color-accent-400);
                                 }
 
                                 &[name='email'] {
@@ -137,12 +137,12 @@ body {
                             }
 
                             &:hover {
-                                color: var(--aui-color-primary-500);
-                                border-color: var(--aui-color-primary-500);
+                                color: var(--aui-color-accent-500);
+                                border-color: var(--aui-color-accent-500);
                             }
 
                             &:focus {
-                                outline: 2px solid var(--aui-color-primary-500);
+                                outline: 2px solid var(--aui-color-accent-500);
                             }
 
                             &[disabled] {
@@ -184,7 +184,7 @@ body {
                                 appearance: none;
 
                                 &:focus {
-                                    outline: 2px solid var(--aui-color-primary-400);
+                                    outline: 2px solid var(--aui-color-accent-400);
                                 }
 
                                 &::after {
@@ -202,11 +202,11 @@ body {
                                 }
 
                                 &:checked::after {
-                                    border-color: var(--aui-color-primary-500);
-                                    background: var(--aui-color-primary-500);
+                                    border-color: var(--aui-color-accent-500);
+                                    background: var(--aui-color-accent-500);
                                     color: #fff;
                                     font-family: moimz;
-                                    content: '\eb10';
+                                    content: '\e404';
                                     font-size: 14px;
                                     text-align: center;
                                     line-height: 14px;

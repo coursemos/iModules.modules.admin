@@ -93,7 +93,8 @@ var Aui;
                                             store: new Aui.Store.Local({
                                                 fields: ['value'],
                                                 records: [
-                                                    ['xi xi-folder'],
+                                                    ['mi mi-folder'],
+                                                    ['mi mi-folder-lock'],
                                                     ['mi mi-module'],
                                                     ['mi mi-plugin'],
                                                     ['xi xi-home'],
