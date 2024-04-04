@@ -6,13 +6,13 @@
  * @file /scripts/Aui.Viewport.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 27.
  */
 var Aui;
 (function (Aui) {
     class Viewport extends Aui.Component {
         type = 'viewport';
-        role = 'panel';
+        role = 'viewport';
         baseUrl;
         renderTo;
         /**
@@ -28,6 +28,18 @@ var Aui;
             this.scrollable = properties.scrollable ?? false;
         }
         /**
+         * 컴포넌트 컨텐츠를 랜더링한다.
+         */
+        renderContent() {
+            for (let item of this.getItems()) {
+                item.$getComponent().setAttr('data-region', item.properties.region ?? 'center');
+                this.$getContent().append(item.$getComponent());
+                if (item.isRenderable() == true) {
+                    item.render();
+                }
+            }
+        }
+        /**
          * 뷰포트가 랜더링이 완료되었을 때 이벤트를 처리한다.
          */
         onRender() {
@@ -35,7 +47,7 @@ var Aui;
             /**
              * Aui 가 준비가 되었으므로, ready 이벤트를 실행한다.
              */
-            Aui.readyListener.forEach((listener) => {
+            Aui.readyListeners.forEach((listener) => {
                 listener();
             });
         }

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 27.
  */
 namespace Aui {
     export const items: Map<string, Aui.Base> = new Map();
@@ -14,7 +14,7 @@ namespace Aui {
     export let currentComponent: Aui.Component = null;
     export let language: string = null;
     export let texts: Map<string, { [key: string]: string | object }> = new Map();
-    export let readyListener: Function[] = [];
+    export let readyListeners: Function[] = [];
 
     /**
      * 객체를 등록한다.
@@ -187,7 +187,7 @@ namespace Aui {
      * @param {EventListener} listener - 이벤트리스너
      */
     export function ready(listener: Function): void {
-        this.readyListener.push(listener);
+        this.readyListeners.push(listener);
     }
 
     /**

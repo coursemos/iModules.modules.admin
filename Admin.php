@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 9.
+ * @modified 2024. 4. 4.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -371,12 +371,12 @@ class Admin extends \Module
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Message.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Progress.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Viewport.js');
+        \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Navigation.js');
         \Cache::script('Aui', $this->getBase() . '/ui/scripts/Aui.Menu.js');
         \Html::script(\Cache::script('Aui'), 10);
 
         \Cache::script('Admin.ui', $this->getBase() . '/admin/scripts/ui/Admin.js');
         \Cache::script('Admin.ui', $this->getBase() . '/admin/scripts/ui/AdminUi.Form.js');
-        \Cache::script('Admin.ui', $this->getBase() . '/admin/scripts/ui/AdminUi.Viewport.js');
         \Html::script(\Cache::script('Admin.ui'), 15);
 
         \Cache::script('Admin.component', $this->getBase() . '/admin/scripts/Component.js');
@@ -415,6 +415,7 @@ class Admin extends \Module
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Message.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Progress.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Viewport.css');
+        \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Navigation.css');
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Menu.css');
         \Html::style(\Cache::style('Aui'), 10);
 

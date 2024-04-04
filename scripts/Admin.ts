@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 4. 3.
  */
 namespace modules {
     export namespace admin {
@@ -22,19 +22,32 @@ namespace modules {
                      * Aui 뷰포트를 설정한다.
                      */
                     new Aui.Viewport({
-                        id: 'AuiViewport',
+                        id: 'AdminViewport',
                         baseUrl: this.getDir() + '/ui',
                         renderTo: 'section[data-role=admin]',
                         items: [
-                            new AdminUi.Viewport.Panel({
-                                id: 'AdminViewport',
-                                navigation: new AdminUi.Viewport.Navigation.Panel({
-                                    id: 'Admin-Viewport-Navigation',
-                                    getUrl: globalThis.Admin.getProcessUrl('module', 'admin', 'navigation'),
-                                    saveUrl: globalThis.Admin.getProcessUrl('module', 'admin', 'navigation'),
-                                }),
+                            new Aui.Navigation.Panel({
+                                region: 'west',
+                                getUrl: globalThis.Admin.getProcessUrl('module', 'admin', 'navigation'),
+                                saveUrl: globalThis.Admin.getProcessUrl('module', 'admin', 'navigation'),
+                            }),
+                            new Aui.Panel({
+                                id: 'AdminContext',
+                                border: false,
+                                layout: 'fit',
+                                scrollable: false,
+                                region: 'center',
                             }),
                         ],
+                        listeners: {
+                            render: () => {
+                                if (typeof globalThis.Admin.viewportListener == 'function') {
+                                    globalThis.Admin.viewportListener().then((component) => {
+                                        Aui.getComponent('AdminContext').append(component);
+                                    });
+                                }
+                            },
+                        },
                     }).doLayout();
 
                     const $header = Html.get('section[data-role=header]');

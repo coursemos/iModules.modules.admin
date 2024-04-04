@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Viewport.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 27.
  */
 namespace Aui {
     export namespace Viewport {
@@ -25,7 +25,7 @@ namespace Aui {
 
     export class Viewport extends Aui.Component {
         type: string = 'viewport';
-        role: string = 'panel';
+        role: string = 'viewport';
 
         baseUrl: string;
         renderTo: string;
@@ -37,11 +37,23 @@ namespace Aui {
          */
         constructor(properties: Aui.Viewport.Properties = null) {
             super(properties);
-
             this.baseUrl = properties.baseUrl ?? './';
             this.renderTo = properties.renderTo;
             this.layout = 'fit';
             this.scrollable = properties.scrollable ?? false;
+        }
+
+        /**
+         * 컴포넌트 컨텐츠를 랜더링한다.
+         */
+        renderContent(): void {
+            for (let item of this.getItems()) {
+                item.$getComponent().setAttr('data-region', item.properties.region ?? 'center');
+                this.$getContent().append(item.$getComponent());
+                if (item.isRenderable() == true) {
+                    item.render();
+                }
+            }
         }
 
         /**
@@ -53,7 +65,7 @@ namespace Aui {
             /**
              * Aui 가 준비가 되었으므로, ready 이벤트를 실행한다.
              */
-            Aui.readyListener.forEach((listener) => {
+            Aui.readyListeners.forEach((listener) => {
                 listener();
             });
         }

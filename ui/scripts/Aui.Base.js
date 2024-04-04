@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 27.
  */
 var Aui;
 (function (Aui) {
@@ -15,7 +15,7 @@ var Aui;
     Aui.currentComponent = null;
     Aui.language = null;
     Aui.texts = new Map();
-    Aui.readyListener = [];
+    Aui.readyListeners = [];
     /**
      * 객체를 등록한다.
      *
@@ -181,7 +181,7 @@ var Aui;
      * @param {EventListener} listener - 이벤트리스너
      */
     function ready(listener) {
-        this.readyListener.push(listener);
+        this.readyListeners.push(listener);
     }
     Aui.ready = ready;
     class Base {

@@ -74,11 +74,6 @@
         },
         "navigation": {
             "folder": {
-                "title": "폴더명",
-                "add": "폴더추가",
-                "delete": "폴더삭제",
-                "edit": "폴더수정",
-                "duplicated": "폴더명이 중복됩니다.",
                 "preset": {
                     "components": "컴포넌트관리",
                     "modules": "모듈",
@@ -86,11 +81,6 @@
                     "widgets": "위젯",
                     "sites": "사이트"
                 }
-            },
-            "smart": {
-                "none": "자동으로 하위메뉴를 추가하지 않음",
-                "modules": "신규 모듈의 관리자메뉴를 자동으로 추가",
-                "plugins": "신규 플러그인의 관리자메뉴를 자동으로 추가"
             }
         },
         "modules": {
