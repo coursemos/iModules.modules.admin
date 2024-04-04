@@ -43,6 +43,17 @@
                     "is_null": true,
                     "comment": "언어코드"
                 },
+                "color": {
+                    "type": "enum",
+                    "length": "'auto','light','dark'",
+                    "default": "auto",
+                    "comment": "컬러모드"
+                },
+                "scale": {
+                    "type": "int",
+                    "default": 16,
+                    "comment": "폰트크기"
+                },
                 "navigation": {
                     "type": "json",
                     "is_null": true,

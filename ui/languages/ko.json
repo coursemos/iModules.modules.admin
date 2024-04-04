@@ -14,6 +14,11 @@
         "image_select": "이미지선택",
         "delete": "삭제"
     },
+    "colors": {
+        "auto": "자동",
+        "light": "라이트",
+        "dark": "다크"
+    },
     "errors": {
         "TITLE": "에러",
         "INFO": "안내",

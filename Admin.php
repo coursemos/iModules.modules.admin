@@ -329,6 +329,9 @@ class Admin extends \Module
             return $theme->getLayout('login');
         }
 
+        \Html::body('data-color-scheme', $this->getAdministrator()?->getColor() ?? 'auto');
+        \Html::body('data-scale', $this->getAdministrator()?->getScale() ?? 16);
+
         $theme->assign('mMember', $mMember);
         $theme->assign('member', $member);
 

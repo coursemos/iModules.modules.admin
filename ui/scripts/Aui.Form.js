@@ -2111,6 +2111,7 @@ var Aui;
                 format;
                 locale;
                 $spinner;
+                editable;
                 spinTimeout;
                 /**
                  * 숫자필드 클래스 생성한다.
@@ -2125,7 +2126,9 @@ var Aui;
                     this.inputAlign = this.properties.inputAlign ?? 'right';
                     this.step = this.properties.step ?? 1;
                     this.minValue = this.properties.minValue ?? null;
-                    this.maxValue = this.properties.maxnValue ?? null;
+                    this.maxValue = this.properties.maxValue ?? null;
+                    this.editable = this.properties.editable !== false;
+                    this.value = this.localeStringToFloat(this.properties.value) ?? null;
                 }
                 /**
                  * INPUT 필드 DOM 을 가져온다.
@@ -2138,9 +2141,10 @@ var Aui;
                             type: this.inputType,
                             name: this.inputName,
                             step: this.step.toString(),
+                            value: this.value?.toString() ?? '0',
                         });
                         this.$input.setStyle('text-align', this.inputAlign);
-                        if (this.readonly == true) {
+                        if (this.readonly == true || this.editable == false) {
                             this.$input.setAttr('readonly', 'readonly');
                         }
                         this.$input.setData('renderer', true);
@@ -2247,10 +2251,13 @@ var Aui;
                 /**
                  * 포맷팅된 숫자문자열을 숫자로 변환한다.
                  *
-                 * @param {string} number - 포맷팅된 숫자
+                 * @param {string|number} number - 포맷팅된 숫자
                  * @return {number} number
                  */
                 localeStringToFloat(number) {
+                    if (typeof number == 'number') {
+                        number = number.toString();
+                    }
                     const parts = (1234.5).toLocaleString(this.locale).match(/(\D+)/g);
                     let unformatted = number;
                     if (parts) {
@@ -2278,7 +2285,7 @@ var Aui;
                  * @return {number} value
                  */
                 getValue() {
-                    return this.value;
+                    return this.localeStringToFloat(this.value);
                 }
                 /**
                  * 필드값을 지정한다.
@@ -2357,7 +2364,7 @@ var Aui;
                 renderContent() {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
-                    if (this.spinner == true) {
+                    if (this.spinner == true || this.editable == false) {
                         this.$getContent().append(this.$getSpinner());
                     }
                 }
@@ -2371,6 +2378,9 @@ var Aui;
                     }
                     if (this.maxValue !== null) {
                         this.setMaxValue(this.maxValue);
+                    }
+                    if (this.editable == false) {
+                        this.$getContent().setAttr('data-editable', 'false');
                     }
                 }
             }

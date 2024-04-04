@@ -7,7 +7,7 @@
  * @file /modules/admin/dtos/Administrator.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 5.
  */
 namespace modules\admin\dtos;
 class Administrator
@@ -23,9 +23,19 @@ class Administrator
     private int $_member_id;
 
     /**
-     * @var ?string $_language 관리자 언어설정
+     * @var string $_language 관리자 언어설정
      */
     private string $_language;
+
+    /**
+     * @var string $_color 관리자 컬러모드
+     */
+    private string $_color;
+
+    /**
+     * @var ?string $_scale 관리자 스케일
+     */
+    private int $_scale;
 
     /**
      * @var \modules\admin\dtos\AdministratorGroup[] $_groups 관리자가 속한 그룹
@@ -58,6 +68,8 @@ class Administrator
 
         $this->_member_id = $administrator->member_id;
         $this->_language = $administrator->language ?? \Domains::get()->getLanguage();
+        $this->_color = $administrator->color ?? 'auto';
+        $this->_scale = $administrator->scale ?? 16;
         $this->_member_id = $administrator->member_id;
     }
 
@@ -87,6 +99,26 @@ class Administrator
     public function getId(): int
     {
         return $this->_member_id;
+    }
+
+    /**
+     * 관리자 컬러모드를 가져온다.
+     *
+     * @return string $color
+     */
+    public function getColor(): string
+    {
+        return $this->_color;
+    }
+
+    /**
+     * 관리자 언어설정을 가져온다.
+     *
+     * @return int $scale
+     */
+    public function getScale(): int
+    {
+        return $this->_scale;
     }
 
     /**
@@ -178,14 +210,14 @@ class Administrator
 
                 $modules = new \stdClass();
                 $modules->title = '@modules';
-                $modules->icon = 'xi xi-box';
+                $modules->icon = 'mi mi-module';
                 $modules->smart = 'modules';
                 $modules->children = [];
                 $navigation[] = $modules;
 
                 $plugins = new \stdClass();
                 $plugins->title = '@plugins';
-                $plugins->icon = 'xi xi-plug';
+                $plugins->icon = 'mi mi-plugin';
                 $plugins->smart = 'plugins';
                 $plugins->children = [];
                 $navigation[] = $plugins;

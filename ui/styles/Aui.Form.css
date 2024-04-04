@@ -339,7 +339,7 @@ div[data-component][data-type='form'][data-role='field'] {
                     font-size: var(--aui-font-size-default);
 
                     &::before {
-                        content: '\eb09';
+                        content: '\e760';
                     }
                 }
 
@@ -405,14 +405,51 @@ div[data-component][data-type='form'][data-role='field'] {
                 &[data-direction='increase'] {
                     > i::before {
                         text-align: center;
-                        content: '\e909';
+                        content: '\e233';
                     }
                 }
 
                 &[data-direction='decrease'] {
                     > i::before {
                         text-align: center;
-                        content: '\e910';
+                        content: '\e234';
+                    }
+                }
+            }
+        }
+
+        &[data-editable='false'] {
+            > div[data-role='spinner'] {
+                width: 100%;
+                background: transparent !important;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                gap: 0;
+
+                > button {
+                    flex-grow: 0;
+                    flex-shrink: 0;
+                    flex-basis: var(--aui-component-height-default);
+                    background: var(--aui-color-background-400);
+                    font-size: var(--aui-font-size-default);
+
+                    &[data-direction='increase'] {
+                        order: 2;
+                        border-left: 1px solid var(--aui-color-background-200);
+
+                        > i::before {
+                            content: '\e402';
+                        }
+                    }
+
+                    &[data-direction='decrease'] {
+                        order: 1;
+                        border-right: 1px solid var(--aui-color-background-200);
+
+                        > i::before {
+                            content: '\e403';
+                        }
                     }
                 }
             }
@@ -450,6 +487,14 @@ div[data-component][data-type='form'][data-role='field'] {
         &:has(div[data-role='spinner']) {
             > input {
                 padding-right: calc(20px + var(--aui-component-gap));
+            }
+
+            &[data-editable='false'] {
+                > input {
+                    padding-left: var(--aui-component-height-default);
+                    padding-right: var(--aui-component-height-default);
+                    text-align: center !important;
+                }
             }
         }
 
@@ -1890,7 +1935,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
                 &[data-action='month']::after {
                     display: inline-block;
                     padding-left: 8px;
-                    content: '\e910';
+                    content: '\e234';
                     font-family: moimz;
                     font-size: var(--aui-font-size-large);
                 }

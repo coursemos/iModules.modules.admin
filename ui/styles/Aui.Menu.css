@@ -20,7 +20,7 @@ div[data-component][data-type='menu'][data-role='menu'] {
         width: 100%;
         display: flex;
         flex-direction: column;
-        max-width: 280px;
+        max-width: 300px;
 
         > div[data-role='top'] {
             flex-shrink: 0;
@@ -40,115 +40,122 @@ div[data-component][data-type='menu'][data-role='menu'] {
 
 div[data-component][data-type='menu'][data-role='item'] {
     > div[data-role='container'] {
-        /*
         &:has(div[data-role='top']) {
             display: flex;
             flex-direction: row;
             align-items: stretch;
             gap: 1px;
             background: var(--aui-color-background-200);
+            margin: var(--aui-component-gap) 0;
+            position: relative;
 
             > div[data-role='top'] {
                 flex-shrink: 0;
                 flex-grow: 0;
-                width: var(--aui-component-height-default);
+                width: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
                 text-align: center;
                 line-height: var(--aui-component-height-default);
-                padding: var(--aui-component-gap);
                 font-size: var(--aui-font-size-default);
+                color: var(--aui-color-text-500);
                 background: var(--aui-color-background-500);
             }
 
             > div[data-role='content'] {
                 flex-grow: 1;
                 background: var(--aui-color-background-500);
-                padding: var(--aui-component-gap);
+                padding: 0 var(--aui-component-gap);
+            }
+
+            &::before {
+                position: absolute;
+                width: 1px;
+                height: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
+                top: calc(var(--aui-component-gap) * -1);
+                left: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
+                background: var(--aui-color-background-200);
+                content: ' ';
+                z-index: -1;
             }
         }
-        
+
         &:not(:has(div[data-role='top'])) {
-        */
-
-        > div[data-role='content'] {
-            width: 100%;
-
-            > button {
+            > div[data-role='content'] {
                 width: 100%;
-                border: 0;
-                background: var(--aui-color-background-200);
-                font-size: 0;
-                text-align: left;
-                line-break: 1;
-                display: flex;
-                flex-direction: row;
-                gap: 1px;
-                align-items: stretch;
-                font-family: var(--aui-font-family-default);
-                font-size: var(--aui-font-size-default);
-                color: var(--aui-color-text-500);
-                cursor: pointer;
 
-                > i.icon {
-                    flex-shrink: 0;
-                    flex-grow: 0;
-                    width: calc(var(--aui-component-height-default) + var(--aui-component-gap));
-                    height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
-                    background: var(--aui-color-background-500);
-                    text-align: center;
-                    line-height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
+                > button {
+                    width: 100%;
+                    border: 0;
+                    background: var(--aui-color-background-200);
+                    font-size: 0;
+                    text-align: left;
+                    line-break: 1;
+                    display: flex;
+                    flex-direction: row;
+                    gap: 1px;
+                    align-items: stretch;
+                    font-family: var(--aui-font-family-default);
                     font-size: var(--aui-font-size-default);
-                    vertical-align: top;
-                    position: relative;
-                }
+                    color: var(--aui-color-text-500);
+                    cursor: pointer;
 
-                > span {
-                    flex-shrink: 1;
-                    flex-grow: 1;
-                    height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
-                    background: var(--aui-color-background-500);
-                    padding: 0 var(--aui-component-gap);
-                    line-height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
-                    vertical-align: top;
-                    box-sizing: border-box;
-                    position: relative;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-
-                    &::before {
-                        width: 1px;
-                        height: var(--aui-component-height-default);
-                        background: var(--aui-color-background-200);
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        z-index: -1;
-                        content: ' ';
+                    > i.icon {
+                        flex-shrink: 0;
+                        width: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
+                        height: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
+                        line-height: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
+                        background: var(--aui-color-background-500);
+                        text-align: center;
+                        font-size: var(--aui-font-size-default);
                     }
-                }
 
-                > i {
-                    flex-shrink: 0;
-                    flex-grow: 0;
-                    width: 16px;
-                    height: var(--aui-component-height-default);
-                    line-height: var(--aui-component-height-default);
-                }
-
-                &:hover,
-                &.opened {
-                    background: var(--aui-color-selection-500);
-
-                    > i,
                     > span {
+                        flex-shrink: 1;
+                        flex-grow: 1;
+                        background: var(--aui-color-background-500);
+                        line-height: var(--aui-component-height-default);
+                        padding: var(--aui-component-gap);
+                        vertical-align: top;
+                        box-sizing: border-box;
+                        position: relative;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+
+                        &::before {
+                            width: 1px;
+                            height: var(--aui-component-height-default);
+                            background: var(--aui-color-background-200);
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            z-index: -1;
+                            content: ' ';
+                        }
+                    }
+
+                    > i {
+                        flex-shrink: 0;
+                        flex-grow: 0;
+                        width: 16px;
+                        height: var(--aui-component-height-default);
+                        line-height: var(--aui-component-height-default);
+                    }
+
+                    &:hover,
+                    &.opened {
                         background: var(--aui-color-selection-500);
+
+                        > i,
+                        > span {
+                            background: var(--aui-color-selection-500);
+                        }
                     }
                 }
-            }
 
-            &.separator {
-                height: 1px;
-                background: var(--aui-color-background-200);
+                &.separator {
+                    height: 1px;
+                    background: var(--aui-color-background-200);
+                }
             }
         }
     }

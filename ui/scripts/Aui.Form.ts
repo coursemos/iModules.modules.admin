@@ -2726,6 +2726,7 @@ namespace Aui {
 
                 $spinner: Dom;
 
+                editable: boolean;
                 spinTimeout: number;
 
                 /**
@@ -2742,7 +2743,9 @@ namespace Aui {
                     this.inputAlign = this.properties.inputAlign ?? 'right';
                     this.step = this.properties.step ?? 1;
                     this.minValue = this.properties.minValue ?? null;
-                    this.maxValue = this.properties.maxnValue ?? null;
+                    this.maxValue = this.properties.maxValue ?? null;
+                    this.editable = this.properties.editable !== false;
+                    this.value = this.localeStringToFloat(this.properties.value) ?? null;
                 }
 
                 /**
@@ -2756,9 +2759,10 @@ namespace Aui {
                             type: this.inputType,
                             name: this.inputName,
                             step: this.step.toString(),
+                            value: this.value?.toString() ?? '0',
                         });
                         this.$input.setStyle('text-align', this.inputAlign);
-                        if (this.readonly == true) {
+                        if (this.readonly == true || this.editable == false) {
                             this.$input.setAttr('readonly', 'readonly');
                         }
                         this.$input.setData('renderer', true);
@@ -2886,10 +2890,14 @@ namespace Aui {
                 /**
                  * 포맷팅된 숫자문자열을 숫자로 변환한다.
                  *
-                 * @param {string} number - 포맷팅된 숫자
+                 * @param {string|number} number - 포맷팅된 숫자
                  * @return {number} number
                  */
-                localeStringToFloat(number: string): number {
+                localeStringToFloat(number: string | number): number {
+                    if (typeof number == 'number') {
+                        number = number.toString();
+                    }
+
                     const parts = (1234.5).toLocaleString(this.locale).match(/(\D+)/g);
                     let unformatted = number;
 
@@ -2922,7 +2930,7 @@ namespace Aui {
                  * @return {number} value
                  */
                 getValue(): number {
-                    return this.value;
+                    return this.localeStringToFloat(this.value);
                 }
 
                 /**
@@ -3011,7 +3019,7 @@ namespace Aui {
                 renderContent(): void {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
-                    if (this.spinner == true) {
+                    if (this.spinner == true || this.editable == false) {
                         this.$getContent().append(this.$getSpinner());
                     }
                 }
@@ -3028,6 +3036,10 @@ namespace Aui {
 
                     if (this.maxValue !== null) {
                         this.setMaxValue(this.maxValue);
+                    }
+
+                    if (this.editable == false) {
+                        this.$getContent().setAttr('data-editable', 'false');
                     }
                 }
             }

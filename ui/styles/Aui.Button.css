@@ -344,6 +344,7 @@ div[data-component][data-type='button'][data-role='segmented'] {
                         > button {
                             width: 100%;
                             height: calc(var(--aui-component-height-default) - 2px);
+                            border: 0;
                             border-color: transparent;
 
                             &:not(.pressed):focus {

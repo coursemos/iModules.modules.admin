@@ -20,6 +20,8 @@ var modules;
              */
             init($dom) {
                 if (Html.get('section[data-role=admin]', $dom).getEl() !== null) {
+                    document.querySelector(':root').style.fontSize =
+                        Html.get('body').getData('scale') + 'px';
                     /**
                      * Aui 뷰포트를 설정한다.
                      */
@@ -52,14 +54,87 @@ var modules;
                         },
                     }).doLayout();
                     const $header = Html.get('section[data-role=header]');
-                    const $logout = Html.get('button[data-action=logout]', $header);
-                    $logout.on('click', async () => {
-                        $logout.disable(true);
-                        const mMember = Modules.get('member');
-                        const success = await mMember.logout();
-                        if (success == true) {
-                            location.replace(globalThis.Admin.getUrl());
-                        }
+                    const $user = Html.get('button[data-action=user]', $header);
+                    $user.on('click', async () => {
+                        new Aui.Menu({
+                            items: [
+                                new Aui.Menu.Item({
+                                    iconClass: 'mi mi-light',
+                                    items: [
+                                        new Aui.SegmentedButton({
+                                            value: Html.get('body').getData('color-scheme') ?? 'auto',
+                                            items: [
+                                                new Aui.Button({
+                                                    iconClass: 'mi mi-auto',
+                                                    text: Aui.printText('colors.auto'),
+                                                    value: 'auto',
+                                                }),
+                                                new Aui.Button({
+                                                    iconClass: 'mi mi-light',
+                                                    text: Aui.printText('colors.light'),
+                                                    value: 'light',
+                                                }),
+                                                new Aui.Button({
+                                                    iconClass: 'mi mi-dark',
+                                                    text: Aui.printText('colors.dark'),
+                                                    value: 'dark',
+                                                }),
+                                            ],
+                                            listeners: {
+                                                change: async (_button, value) => {
+                                                    Html.get('body').setData('color-scheme', value);
+                                                    await Ajax.post(globalThis.Admin.getModule('admin').getProcessUrl('configs'), { key: 'color', value: value });
+                                                },
+                                            },
+                                        }),
+                                    ],
+                                }),
+                                new Aui.Menu.Item({
+                                    iconClass: 'mi mi-type',
+                                    items: [
+                                        new Aui.Form.Field.Number({
+                                            value: Html.get('body').getData('scale') ?? 16,
+                                            minValue: 12,
+                                            maxValue: 20,
+                                            editable: false,
+                                            listeners: {
+                                                change: async (_field, value) => {
+                                                    Html.get('body').setData('scale', value);
+                                                    document.querySelector(':root').style.fontSize =
+                                                        value + 'px';
+                                                    await Ajax.post(globalThis.Admin.getModule('admin').getProcessUrl('configs'), { key: 'scale', value: value });
+                                                },
+                                            },
+                                        }),
+                                    ],
+                                }),
+                                '-',
+                                new Aui.Menu.Item({
+                                    iconClass: 'mi mi-user-profile',
+                                    text: globalThis.Admin.getModule('member').printText('buttons.edit'),
+                                }),
+                                new Aui.Menu.Item({
+                                    iconClass: 'mi mi-logout',
+                                    text: globalThis.Admin.getModule('member').printText('buttons.logout'),
+                                    handler: async () => {
+                                        const mMember = Modules.get('member');
+                                        const success = await mMember.logout();
+                                        if (success == true) {
+                                            location.replace(globalThis.Admin.getUrl());
+                                        }
+                                        return false;
+                                    },
+                                }),
+                            ],
+                            listeners: {
+                                show: () => {
+                                    $user.addClass('opened');
+                                },
+                                hide: () => {
+                                    $user.removeClass('opened');
+                                },
+                            },
+                        }).showAt($user, 'y');
                     });
                 }
                 if (Html.get('section[data-role=login]', $dom).getEl() !== null) {

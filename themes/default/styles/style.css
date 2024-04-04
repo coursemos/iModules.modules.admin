@@ -279,6 +279,7 @@ body {
                     font-family: var(--aui-font-family-numeric);
                     font-weight: normal;
                     text-align: center;
+                    transition: ease-in 0.2s width;
 
                     > i {
                         flex-shrink: 0;
@@ -312,66 +313,58 @@ body {
                     padding-right: var(--aui-component-gap);
                     font-family: var(--aui-font-family-default);
 
-                    > b {
-                        color: #fff;
-                        font-size: var(--aui-font-size-default);
-                        line-height: var(--aui-component-height-default);
-                    }
-
-                    > i {
-                        display: inline-block;
-                        vertical-align: middle;
-                        width: var(--aui-component-height-default);
-                        height: var(--aui-component-height-default);
-                        border: 1px solid var(--aui-color-theme-700);
-                        border-radius: 50%;
-                        background-size: contain;
-                        background-repeat: no-repeat;
-                        background-position: 50% 50%;
-                    }
-
                     > button {
-                        position: relative;
-                        display: inline-block;
-                        vertical-align: middle;
-                        background: var(--aui-color-danger-500);
+                        display: inline-flex;
+                        align-items: center;
+                        background: var(--aui-color-theme-500);
+                        padding: 0;
                         height: var(--aui-component-height-default);
-                        line-height: var(--aui-component-height-default);
                         border: 0;
-                        font-family: inherit;
+                        font-family: var(--aui-font-family-default);
                         font-size: var(--aui-font-size-default);
                         color: var(--aui-color-theme-0);
-                        padding: 0 var(--aui-component-gap);
-                        border-radius: 5px;
+                        border-radius: 5px 0px 0px 5px;
                         cursor: pointer;
                         z-index: 0;
+                        overflow: hidden;
 
-                        &:hover {
-                            background: var(--aui-color-danger-600);
+                        > i {
+                            width: var(--aui-component-height-default);
+                            height: var(--aui-component-height-default);
+                            border-right: 1px solid rgba(255, 255, 255, 0.1);
+                            background-size: contain;
+                            background-repeat: no-repeat;
+                            background-position: 50% 50%;
                         }
 
-                        &[disabled] {
-                            background: var(--aui-color-danger-500);
-                            opacity: 0.7;
-                            cursor: not-allowed !important;
+                        > b {
+                            color: var(--aui-color-theme-0);
+                            font-size: var(--aui-font-size-default);
+                            line-height: var(--aui-component-height-default);
+                            padding: 0px var(--aui-component-height-default) 0px var(--aui-component-gap);
+                            position: relative;
 
-                            &.loading {
-                                font-size: 0 !important;
-                                position: relative;
+                            &::before {
+                                position: absolute;
+                                width: var(--aui-component-height-default);
+                                height: var(--aui-component-height-default);
+                                top: 0;
+                                right: 0;
+                                text-align: center;
+                                font-family: moimz;
+                                content: '\e234';
+                            }
+                        }
 
-                                &::after {
-                                    position: absolute;
-                                    top: calc(50% - 10px);
-                                    left: calc(50% - 10px);
-                                    width: 20px;
-                                    height: 20px;
-                                    font-family: moimz;
-                                    content: '\efff';
-                                    font-size: 16px;
-                                    text-align: center;
-                                    line-height: 20px;
-                                    animation: mi-loading 2s infinite linear;
-                                }
+                        &:hover {
+                            background: var(--aui-color-theme-600);
+                        }
+
+                        &.opened {
+                            background: var(--aui-color-theme-600);
+
+                            > b::before {
+                                content: '\e233';
                             }
                         }
                     }
