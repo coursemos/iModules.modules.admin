@@ -323,7 +323,7 @@ body {
                         font-family: var(--aui-font-family-default);
                         font-size: var(--aui-font-size-default);
                         color: var(--aui-color-theme-0);
-                        border-radius: 5px 0px 0px 5px;
+                        border-radius: 5px;
                         cursor: pointer;
                         z-index: 0;
                         overflow: hidden;
