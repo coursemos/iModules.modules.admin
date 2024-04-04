@@ -6,13 +6,12 @@
  * @file /styles/Aui.Tab.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 12.
+ * @modified 2024. 3. 31.
  */
 div[data-component][data-type='toolbar'][data-role='tab'] {
     > div[data-role='container'] {
         width: 100%;
-        height: var(--tabbar-height);
-        background: var(--tabbar-background);
+        background: var(--aui-color-theme-400);
         display: flex;
         flex-direction: row;
         align-items: stretch;
@@ -29,9 +28,9 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
             align-items: stretch;
             flex-grow: 1;
             padding: 0;
-            column-gap: calc(var(--padding-default) / 2);
-            padding-left: var(--padding-large);
-            padding-right: var(--padding-large);
+            gap: calc(var(--aui-component-gap) / 2);
+            padding-left: var(--aui-component-gap);
+            padding-right: var(--aui-component-gap);
 
             > div[data-component] {
                 flex-shrink: 0;
@@ -41,27 +40,34 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
                     display: block;
                     position: absolute;
                     top: 0;
-                    right: calc(var(--padding-large) * -1);
-                    width: var(--padding-large);
+                    right: calc(var(--aui-component-gap) * -1);
+                    width: var(--aui-component-gap);
                     height: 1px;
                 }
             }
 
             > div[data-component][data-type='button'] > div[data-role='container'] {
-                --button-background-default: var(--tabbar-button-background-default);
-                --button-background-hover: var(--tabbar-button-background-hover);
-                --button-background-pressed: var(--tabbar-button-background-selected);
-                --button-border-color-default: var(--tabbar-button-border-color-default);
-                --button-border-color-hover: var(--tabbar-button-background-hover);
-                --button-border-color-pressed: var(--tabbar-button-background-selected);
-                --button-color-default: var(--tabbar-button-color-default);
-                --button-color-hover: var(--tabbar-button-color-hover);
-                --button-color-pressed: var(--tabbar-button-color-selected);
-
                 > div[data-role='content'] {
                     > button {
-                        height: calc(var(--tabbar-height) - 6px);
-                        padding: calc((var(--tabbar-height) - var(--text-height) - 6px) / 2) 0px;
+                        padding: calc((var(--aui-component-height-default) + var(--aui-component-gap) - 1lh - 2px) / 2);
+                        height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
+                        background: transparent;
+                        border-color: transparent;
+                        color: var(--aui-color-text-backward-500);
+
+                        &:hover {
+                            background: var(--aui-color-accent-600);
+                        }
+
+                        &.pressed {
+                            border-color: transparent;
+                            color: var(--aui-color-accent-500);
+                            background: var(--aui-color-background-500);
+
+                            &:hover {
+                                background: var(--aui-color-background-500);
+                            }
+                        }
                     }
                 }
             }
@@ -74,30 +80,46 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
 
         &[data-position='top'] {
             > div[data-role='content'] {
-                > div[data-component] > div[data-role='container'] > div[data-role='content'] > button {
-                    margin-top: 6px;
+                > div[data-component] > div[data-role='container'] > div[data-role='content'] {
+                    padding-top: var(--aui-component-gap);
                 }
             }
         }
 
         &[data-position='bottom'] {
             > div[data-role='content'] {
-                > div[data-component] > div[data-role='container'] > div[data-role='content'] > button {
-                    margin-bottom: 6px;
+                > div[data-component] > div[data-role='container'] > div[data-role='content'] {
+                    padding-bottom: var(--aui-component-gap);
                 }
             }
         }
 
         &.small {
-            --tabbar-height: var(--tabbar-small-height);
-            --tabbar-background: var(--tabbar-small-background);
-            --tabbar-button-background-default: var(--tabbar-small-button-background-default);
-            --tabbar-button-background-hover: var(--tabbar-small-button-background-hover);
-            --tabbar-button-background-selected: var(--tabbar-small-button-background-selected);
-            --tabbar-button-border-color-default: var(--tabbar-small-button-border-color-default);
-            --tabbar-button-color-default: var(--tabbar-small-button-color-default);
-            --tabbar-button-color-hover: var(--tabbar-small-button-color-hover);
-            --tabbar-button-color-selected: var(--tabbar-small-button-color-selected);
+            background: var(--aui-color-background-200);
+
+            > div[data-role='content'] {
+                > div[data-component][data-type='button'] > div[data-role='container'] {
+                    > div[data-role='content'] {
+                        > button {
+                            color: var(--aui-color-text-400);
+
+                            &:hover {
+                                background: var(--aui-color-background-100);
+                            }
+
+                            &.pressed {
+                                border-color: transparent;
+                                color: var(--aui-color-accent-500);
+                                background: var(--aui-color-background-500);
+
+                                &:hover {
+                                    background: var(--aui-color-background-500);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

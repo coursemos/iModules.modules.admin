@@ -6,21 +6,21 @@
  * @file /styles/Aui.Panel.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 28.
  */
 div[data-component][data-type='panel'] {
     container-name: panel;
     container-type: inline-size;
 
-    background: var(--panel-background);
-    color: var(--font-color-default);
+    background: var(--aui-color-background-500);
+    color: var(--aui-color-text-500);
 
     > div[data-role='container'] {
         width: 100%;
         height: 100%;
         border-width: 0;
         border-style: solid;
-        border-color: var(--panel-border-color-default);
+        border-color: var(--aui-color-background-200);
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -80,8 +80,8 @@ div[data-component][data-type='panel'] {
                 width: 100%;
                 height: 100%;
                 z-index: 1;
-                background: var(--panel-background-disabled);
-                opacity: 0.7;
+                background: var(--aui-color-text-100);
+                opacity: 0.5;
                 content: ' ';
             }
         }

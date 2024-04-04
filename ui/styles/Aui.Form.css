@@ -6,14 +6,14 @@
  * @file /styles/Aui.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 3. 31.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
         > div[data-role='content'] {
             display: flex;
             flex-direction: column;
-            row-gap: var(--padding-default);
+            gap: var(--aui-component-gap);
             align-items: stretch;
             height: max-content;
         }
@@ -37,21 +37,21 @@ div[data-component][data-type='form'][data-role='fieldset'] {
                 left: 10px;
                 top: 0;
                 z-index: 1;
-                font-size: var(--font-size-default);
-                font-family: var(--font-family-default);
-                color: var(--input-color-default);
-                padding-left: var(--padding-default);
-                padding-right: var(--padding-default);
-                background: var(--panel-background);
+                font-size: var(--aui-font-size-default);
+                font-family: var(--aui-font-family-default);
+                color: var(--aui-color-text-500);
+                padding-left: var(--aui-component-gap);
+                padding-right: var(--aui-component-gap);
+                background: var(--aui-color-background-500);
             }
         }
 
         > div[data-role='content'] {
-            border: 1px solid var(--panel-border-color-default);
-            background: var(--panel-background);
+            border: 1px solid var(--aui-color-background-200);
+            background: var(--aui-color-background-500);
             display: flex;
             flex-direction: column;
-            row-gap: var(--padding-default);
+            row-gap: var(--aui-component-gap);
             align-items: stretch;
             height: max-content;
         }
@@ -60,14 +60,14 @@ div[data-component][data-type='form'][data-role='fieldset'] {
             display: block;
             width: 100%;
             box-sizing: border-box;
-            padding-top: var(--padding-default);
-            padding-bottom: var(--padding-default);
-            font-family: var(--font-family-default);
-            font-size: var(--font-size-small);
-            color: var(--input-color-help);
+            padding-top: var(--aui-component-gap);
+            padding-bottom: var(--aui-component-gap);
+            font-family: var(--aui-font-family-default);
+            font-size: var(--aui-font-size-small);
+            color: var(--aui-color-text-100);
 
             &.error {
-                color: var(--input-color-error);
+                color: var(--aui-color-danger-500);
             }
 
             &:empty {
@@ -86,9 +86,9 @@ div[data-component][data-type='form'][data-role='fieldset'] {
                         position: absolute;
                         top: 3px;
                         left: 3px;
-                        background: var(--input-background-select);
-                        border: 1px solid var(--input-border-color-select);
-                        color: var(--input-color-select);
+                        background: var(--aui-color-accent-500);
+                        border: 1px solid var(--aui-color-accent-500);
+                        color: var(--aui-color-accent-backward-500);
                         width: 13px;
                         height: 13px;
                         font-family: moimz;
@@ -137,11 +137,11 @@ div[data-component][data-type='form'][data-role='field'] {
                 display: block;
                 max-width: 100%;
                 width: fit-content;
-                height: var(--text-height);
-                line-height: var(--text-height);
-                font-size: calc(var(--font-size-default) * 0.9);
-                font-family: var(--font-family-default);
-                color: var(--input-color-default);
+                height: var(--aui-component-height-default);
+                line-height: var(--aui-component-height-default);
+                font-size: calc(var(--aui-font-size-default) * 0.9);
+                font-family: var(--aui-font-family-default);
+                color: var(--aui-color-text-500);
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
@@ -154,14 +154,14 @@ div[data-component][data-type='form'][data-role='field'] {
                     margin: 0px 2px;
                     display: inline-block;
                     vertical-align: middle;
-                    height: var(--text-height);
-                    line-height: var(--text-height);
+                    height: var(--aui-component-height-default);
+                    line-height: var(--aui-component-height-default);
                 }
 
                 &.right {
                     width: 100%;
                     text-align: right;
-                    padding-right: var(--padding-default);
+                    padding-right: var(--aui-component-gap);
                 }
             }
         }
@@ -171,7 +171,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 > label {
                     &::before {
                         content: '* ';
-                        color: var(--input-color-required);
+                        color: var(--aui-color-danger-500);
                         vertical-align: super;
                         line-height: 0;
                     }
@@ -182,7 +182,7 @@ div[data-component][data-type='form'][data-role='field'] {
         &.disabled {
             > div[data-role='top'] {
                 > label {
-                    color: var(--input-color-disabled);
+                    color: var(--aui-color-background-400);
                     &::before {
                         display: none;
                     }
@@ -199,14 +199,14 @@ div[data-component][data-type='form'][data-role='field'] {
             display: block;
             width: 100%;
             box-sizing: border-box;
-            padding-top: var(--padding-default);
-            padding-bottom: var(--padding-default);
-            font-family: var(--font-family-default);
-            font-size: var(--font-size-small);
-            color: var(--input-color-help);
+            padding-top: var(--aui-component-gap);
+            padding-bottom: var(--aui-component-gap);
+            font-family: var(--aui-font-family-default);
+            font-size: var(--aui-font-size-small);
+            color: var(--aui-color-text-100);
 
             &.error {
-                color: var(--input-color-error);
+                color: var(--aui-color-danger-500);
             }
 
             &:empty {
@@ -227,7 +227,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 padding-left: 0;
 
                 > label {
-                    font-size: var(--font-size-default);
+                    font-size: var(--aui-font-size-default);
                     font-weight: 700;
 
                     > i {
@@ -277,21 +277,21 @@ div[data-component][data-type='form'][data-role='field'] {
 
     > div[data-role='container'] > div[data-role='content'][data-field='text'] {
         position: relative;
-        background: var(--input-background-default);
+        background: var(--aui-color-background-500);
         z-index: 0;
 
         > input {
             outline: none;
             width: 100%;
-            height: var(--text-height);
+            height: var(--aui-component-height-default);
             box-sizing: border-box;
             background: transparent;
-            border: 1px solid var(--input-border-color-default);
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-default);
+            border: 1px solid var(--aui-color-background-200);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-500);
 
             &[type='number'] {
                 text-align: right;
@@ -310,33 +310,33 @@ div[data-component][data-type='form'][data-role='field'] {
             }
 
             &:focus {
-                border-color: var(--input-border-color-focus);
+                border-color: var(--aui-color-accent-500);
             }
 
             &[disabled] {
                 cursor: not-allowed;
-                background-color: var(--input-background-disabled);
+                background-color: var(--aui-color-background-400);
             }
         }
 
         > button {
             flex-shrink: 0;
-            width: var(--text-height);
-            height: var(--text-height);
+            width: var(--aui-component-height-default);
+            height: var(--aui-component-height-default);
             border: 0;
             background: transparent;
             cursor: pointer;
 
             &[data-action='search'] {
                 position: relative;
-                color: var(--input-button-search-color-default);
-                background: var(--input-button-search-background-default);
-                border: 1px solid var(--input-button-search-background-default);
+                color: var(--aui-color-accent-backward-500);
+                background: var(--aui-color-accent-500);
+                border: 1px solid var(--aui-color-accent-500);
 
                 > i {
                     font-family: moimz;
                     font-style: normal;
-                    font-size: var(--font-size-default);
+                    font-size: var(--aui-font-size-default);
 
                     &::before {
                         content: '\eb09';
@@ -351,15 +351,15 @@ div[data-component][data-type='form'][data-role='field'] {
                     height: calc(100% - 2px);
                     content: ' ';
                     z-index: 1;
-                    border: 1px solid var(--button-border-color-focus-inset);
+                    border: 1px solid var(--aui-color-accent-backward-500);
                 }
 
                 &:hover {
-                    background: var(--input-button-search-background-hover);
+                    background: var(--aui-color-accent-600);
                 }
 
                 &[disabled] {
-                    background: var(--input-button-search-background-disabled);
+                    background: var(--aui-color-accent-400);
                 }
             }
 
@@ -374,9 +374,9 @@ div[data-component][data-type='form'][data-role='field'] {
             top: 0;
             right: 0;
             width: 20px;
-            height: var(--text-height);
-            background: var(--input-border-color-default);
-            border: 1px solid var(--input-border-color-default);
+            height: var(--aui-component-height-default);
+            background: var(--aui-color-background-200);
+            border: 1px solid var(--aui-color-background-200);
             display: flex;
             flex-direction: column;
             gap: 1px;
@@ -388,8 +388,13 @@ div[data-component][data-type='form'][data-role='field'] {
                 text-align: center;
                 font-family: moimz;
                 font-size: 11px;
-                background: var(--input-background-default);
+                background: var(--aui-color-background-500);
                 border: 0;
+
+                &[disabled] {
+                    background: var(--aui-color-background-400);
+                    cursor: not-allowed;
+                }
 
                 > i {
                     display: inline-block;
@@ -419,34 +424,32 @@ div[data-component][data-type='form'][data-role='field'] {
             left: 0;
             z-index: -1;
             width: 100%;
-            height: var(--text-height);
+            height: var(--aui-component-height-default);
             border: 1px solid transparent;
             box-sizing: border-box;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-help);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-100);
             overflow: hidden;
         }
 
         &:has(input:focus),
         &:has(button:focus) {
-            background: var(--input-background-focus);
-
             > input {
-                border-color: var(--input-border-color-focus);
+                border-color: var(--aui-color-accent-500);
             }
 
             > div[data-role='spinner'] {
-                border-color: var(--input-border-color-focus);
-                background: var(--input-border-color-focus);
+                border-color: var(--aui-color-accent-500);
+                background: var(--aui-color-accent-500);
             }
         }
 
         &:has(div[data-role='spinner']) {
             > input {
-                padding-right: calc(20px + var(--padding-default));
+                padding-right: calc(20px + var(--aui-component-gap));
             }
         }
 
@@ -455,7 +458,7 @@ div[data-component][data-type='form'][data-role='field'] {
             flex-direction: row;
 
             > div[data-role='empty'] {
-                width: calc(100% - var(--text-height));
+                width: calc(100% - var(--aui-component-height-default));
             }
         }
 
@@ -466,13 +469,13 @@ div[data-component][data-type='form'][data-role='field'] {
             > input[type='text'] {
                 flex-grow: 1;
                 border-right: 0;
-                padding-left: var(--text-height);
+                padding-left: var(--aui-component-height-default);
             }
 
             > input[type='color'] {
                 flex-shrink: 0;
-                width: var(--text-height);
-                height: var(--text-height);
+                width: var(--aui-component-height-default);
+                height: var(--aui-component-height-default);
                 padding: 0;
                 border: 1px solid transparent;
                 background: transparent;
@@ -481,12 +484,12 @@ div[data-component][data-type='form'][data-role='field'] {
                 -webkit-appearance: none;
                 -moz-appearance: none;
                 position: relative;
-                background: var(--input-button-search-background-default);
+                background: var(--aui-color-accent-500);
 
                 > i {
                     font-family: moimz;
                     font-style: normal;
-                    font-size: var(--font-size-default);
+                    font-size: var(--aui-font-size-default);
 
                     &::before {
                         content: '\ef19';
@@ -501,22 +504,22 @@ div[data-component][data-type='form'][data-role='field'] {
                     position: absolute;
                     top: -1px;
                     left: -1px;
-                    width: var(--text-height);
-                    height: var(--text-height);
-                    line-height: var(--text-height);
+                    width: var(--aui-component-height-default);
+                    height: var(--aui-component-height-default);
+                    line-height: var(--aui-component-height-default);
                     font-family: moimz;
                     content: '\ef19';
                     text-align: center;
-                    font-size: var(--font-size-default);
-                    color: var(--input-button-search-color-default);
+                    font-size: var(--aui-font-size-default);
+                    color: var(--aui-color-accent-backward-500);
                 }
 
                 &:hover {
-                    background: var(--input-button-search-background-hover);
+                    background: var(--aui-color-accent-600);
                 }
 
                 &[disabled] {
-                    background: var(--input-button-search-background-disabled);
+                    background: var(--aui-color-accent-400);
                 }
 
                 &[disabled] {
@@ -529,70 +532,68 @@ div[data-component][data-type='form'][data-role='field'] {
                 position: absolute;
                 top: 5px;
                 left: 5px;
-                width: calc(var(--text-height) - 10px);
-                height: calc(var(--text-height) - 10px);
+                width: calc(var(--aui-component-height-default) - 10px);
+                height: calc(var(--aui-component-height-default) - 10px);
                 background: linear-gradient(
                     135deg,
-                    var(--input-background-default) calc(50% - 1px),
-                    var(--input-border-color-error) 50%,
-                    var(--input-background-default) calc(50% + 2px)
+                    var(--aui-color-background-500) calc(50% - 1px),
+                    var(--aui-color-danger-500) 50%,
+                    var(--aui-color-background-500) calc(50% + 2px)
                 );
-                border: 1px solid var(--input-border-color-default);
+                border: 1px solid var(--aui-color-background-200);
                 border-radius: 3px;
             }
         }
 
         &.error {
-            background: var(--input-background-error);
-
             > input {
-                border-color: var(--input-border-color-error) !important;
+                border-color: var(--aui-color-danger-500) !important;
             }
 
             > div[data-role='spinner'] {
-                border-top-color: var(--input-border-color-error) !important;
-                border-right-color: var(--input-border-color-error) !important;
-                border-bottom-color: var(--input-border-color-error) !important;
+                border-top-color: var(--aui-color-danger-500) !important;
+                border-right-color: var(--aui-color-danger-500) !important;
+                border-bottom-color: var(--aui-color-danger-500) !important;
             }
         }
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='date'] {
         position: relative;
-        background: var(--input-background-default);
+        background: var(--aui-color-background-500);
         z-index: 0;
-        border: 1px solid var(--input-border-color-default);
+        border: 1px solid var(--aui-color-background-200);
 
         > input {
             outline: none;
-            width: calc(100% - var(--text-height) - 1px);
-            height: calc(var(--text-height) - 2px);
+            width: calc(100% - var(--aui-component-height-default) - 1px);
+            height: calc(var(--aui-component-height-default) - 2px);
             box-sizing: border-box;
             background: transparent;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-default);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-500);
             border: 0;
 
             &[disabled] {
                 cursor: not-allowed;
-                background-color: var(--input-background-disabled);
+                background-color: var(--aui-color-background-400);
             }
         }
 
         > button {
-            width: calc(var(--text-height) + 1px);
-            height: calc(var(--text-height) - 2px);
-            font-size: var(--font-size-default);
+            width: calc(var(--aui-component-height-default) + 1px);
+            height: calc(var(--aui-component-height-default) - 2px);
+            font-size: var(--aui-font-size-default);
             border: 0;
-            background: var(--button-background-default);
+            background: var(--aui-color-accent-500);
+            color: var(--aui-color-accent-backward-500);
             cursor: pointer;
-            border-left: 1px solid var(--input-border-color-default);
 
             &:hover {
-                background: var(--button-background-hover);
+                background: var(--aui-color-accent-600);
             }
         }
 
@@ -602,52 +603,50 @@ div[data-component][data-type='form'][data-role='field'] {
             left: 0;
             z-index: -1;
             width: 100%;
-            height: var(--text-height);
+            height: var(--aui-component-height-default);
             border: 1px solid transparent;
             box-sizing: border-box;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-help);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-100);
             overflow: hidden;
         }
 
         &:has(input:focus) {
-            background: var(--input-background-focus);
-            border-color: var(--input-border-color-focus);
+            border-color: var(--aui-color-accent-500);
         }
 
         &.error {
-            background: var(--input-background-error);
-            border-color: var(--input-border-color-error) !important;
+            border-color: var(--aui-color-danger-500) !important;
         }
 
         &.expand {
-            border-color: var(--input-border-color-focus);
+            border-color: var(--aui-color-accent-500);
 
             > button {
-                background: var(--input-background-select);
-                color: var(--input-color-select);
+                background: var(--aui-color-accent-500);
+                color: var(--aui-color-accent-backward-500);
             }
         }
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='display'] {
         position: relative;
-        background: var(--input-background-default);
+        background: var(--aui-color-background-500);
         z-index: 0;
 
         > div {
             width: 100%;
-            min-height: var(--text-height);
+            min-height: var(--aui-component-height-default);
             box-sizing: border-box;
             background: transparent;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-default);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-500);
         }
     }
 
@@ -660,8 +659,8 @@ div[data-component][data-type='form'][data-role='field'] {
             gap: 5px;
 
             > div[data-role='tag'] {
-                background: var(--input-background-disabled);
-                height: var(--text-height);
+                background: var(--aui-color-background-400);
+                height: var(--aui-component-height-default);
                 position: relative;
                 white-space: nowrap;
 
@@ -669,30 +668,30 @@ div[data-component][data-type='form'][data-role='field'] {
                     display: inline-block;
                     vertical-align: middle;
                     max-width: 140px;
-                    font-size: var(--font-size-default);
-                    font-family: var(--font-family-default);
-                    height: var(--text-height);
-                    line-height: var(--text-height);
-                    padding-left: var(--padding-large);
-                    padding-right: var(--padding-large);
+                    font-size: var(--aui-font-size-default);
+                    font-family: var(--aui-font-family-default);
+                    height: var(--aui-component-height-default);
+                    line-height: var(--aui-component-height-default);
+                    padding-left: var(--aui-component-gap);
+                    padding-right: var(--aui-component-gap);
                     cursor: pointer;
                 }
 
                 > button {
                     display: inline-block;
                     vertical-align: middle;
-                    width: var(--text-height);
-                    height: var(--text-height);
+                    width: var(--aui-component-height-default);
+                    height: var(--aui-component-height-default);
                     border: 0;
                     background: transparent;
-                    font-size: var(--font-size-default);
-                    line-height: var(--text-height);
+                    font-size: var(--aui-font-size-default);
+                    line-height: var(--aui-component-height-default);
                     cursor: pointer;
 
                     &::before {
                         font-family: moimz;
                         content: '\eb04';
-                        color: var(--input-color-error);
+                        color: var(--aui-color-danger-500);
                     }
                 }
 
@@ -715,23 +714,23 @@ div[data-component][data-type='form'][data-role='field'] {
             input {
                 outline: none;
                 width: 140px;
-                height: var(--text-height);
+                height: var(--aui-component-height-default);
                 box-sizing: border-box;
-                background: var(--input-background-default);
-                border: 1px solid var(--input-border-color-default);
-                padding: var(--padding-default);
-                line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-                font-size: var(--font-size-default);
-                font-family: var(--font-family-default);
-                color: var(--input-color-default);
+                background: var(--aui-color-background-500);
+                border: 1px solid var(--aui-color-background-200);
+                padding: var(--aui-component-gap);
+                line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+                font-size: var(--aui-font-size-default);
+                font-family: var(--aui-font-family-default);
+                color: var(--aui-color-text-500);
 
                 &:focus {
-                    border-color: var(--input-border-color-focus);
+                    border-color: var(--aui-color-accent-500);
                 }
 
                 &[disabled] {
                     cursor: not-allowed;
-                    background-color: var(--input-background-disabled);
+                    background-color: var(--aui-color-background-400);
                 }
             }
         }
@@ -779,10 +778,10 @@ div[data-component][data-type='form'][data-role='field'] {
             flex-direction: row;
             align-items: flex-start;
             list-style: none;
-            gap: var(--padding-default);
+            gap: var(--aui-component-gap);
 
             &:not(:empty) {
-                padding-top: var(--padding-default);
+                padding-top: var(--aui-component-gap);
             }
 
             > li {
@@ -796,7 +795,7 @@ div[data-component][data-type='form'][data-role='field'] {
                     > div {
                         width: 100%;
                         aspect-ratio: 1;
-                        border: 1px solid var(--input-border-color-default);
+                        border: 1px solid var(--aui-color-background-200);
                         box-sizing: border-box;
                         position: relative;
 
@@ -808,7 +807,7 @@ div[data-component][data-type='form'][data-role='field'] {
                         }
 
                         > div {
-                            background-color: var(--input-background-default);
+                            background-color: var(--aui-color-background-500);
                         }
 
                         > progress {
@@ -841,9 +840,9 @@ div[data-component][data-type='form'][data-role='field'] {
                         max-height: 40px;
                         padding: 0px 4px;
                         box-sizing: border-box;
-                        font-family: var(--font-family-default);
-                        font-size: var(--font-size-default);
-                        color: var(--input-color-default);
+                        font-family: var(--aui-font-family-default);
+                        font-size: var(--aui-font-size-default);
+                        color: var(--aui-color-text-500);
                         margin: 4px 0px;
 
                         > b {
@@ -854,9 +853,9 @@ div[data-component][data-type='form'][data-role='field'] {
                     > small[data-role='size'] {
                         display: block;
                         text-align: center;
-                        font-family: var(--font-family-numeric);
-                        font-size: var(--font-size-small);
-                        color: var(--input-color-help);
+                        font-family: var(--aui-font-family-numeric);
+                        font-size: var(--aui-font-size-small);
+                        color: var(--aui-color-text-100);
                     }
 
                     > button[data-action='delete'] {
@@ -868,8 +867,8 @@ div[data-component][data-type='form'][data-role='field'] {
                         width: 24px;
                         height: 24px;
                         border: 0;
-                        background: var(--input-color-error);
-                        color: var(--input-color-select);
+                        background: var(--aui-color-danger-500);
+                        color: var(--aui-color-accent-backward-500);
                         z-index: 10;
 
                         > i {
@@ -1003,7 +1002,7 @@ div[data-component][data-type='form'][data-role='field'] {
             list-style: none;
             box-sizing: content-box;
             padding: 4px;
-            border: 1px solid var(--input-border-color-default);
+            border: 1px solid var(--aui-color-background-200);
             background-color: #e5e5f7;
             background-image: repeating-linear-gradient(
                     45deg,
@@ -1026,7 +1025,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 background: rgba(0, 0, 0, 0.7);
                 color: #ccc;
                 font-size: 12px;
-                font-family: var(--font-family-numeric);
+                font-family: var(--aui-font-family-numeric);
                 padding: 0px 4px;
                 height: 16px;
                 line-height: 16px;
@@ -1177,9 +1176,9 @@ div[data-component][data-type='form'][data-role='field'] {
             }
 
             > div[data-role='empty'] {
-                font-size: var(--font-size-default);
-                font-family: var(--font-family-default);
-                color: var(--input-color-help);
+                font-size: var(--aui-font-size-default);
+                font-family: var(--aui-font-family-default);
+                color: var(--aui-color-text-100);
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -1191,8 +1190,8 @@ div[data-component][data-type='form'][data-role='field'] {
                     height: 26px;
                     line-height: 26px;
                     white-space: nowrap;
-                    font-family: var(--font-family-default);
-                    font-size: var(--font-size-default);
+                    font-family: var(--aui-font-family-default);
+                    font-size: var(--aui-font-size-default);
 
                     > b {
                         display: inline-block;
@@ -1205,9 +1204,9 @@ div[data-component][data-type='form'][data-role='field'] {
                         float: right;
                         height: 26px;
                         line-height: 28px;
-                        font-size: var(--font-size-small);
-                        font-family: var(--font-family-numeric);
-                        color: var(--input-color-help);
+                        font-size: var(--aui-font-size-small);
+                        font-family: var(--aui-font-family-numeric);
+                        color: var(--aui-color-text-100);
                         margin-left: 5px;
                     }
                 }
@@ -1217,42 +1216,34 @@ div[data-component][data-type='form'][data-role='field'] {
 
     > div[data-role='container'] > div[data-role='content'][data-field='select'] {
         position: relative;
-        background: var(--input-background-default);
+        background: var(--aui-color-background-500);
         z-index: 0;
-
-        &:has(*:focus) {
-            background: var(--input-background-focus);
-        }
 
         &:has(*[disabled]) {
             cursor: not-allowed;
-            background-color: var(--input-background-disabled);
-        }
-
-        &.error {
-            background: var(--input-background-error);
+            background-color: var(--aui-color-background-400);
         }
 
         > button {
-            font-family: var(--font-family-default);
-            font-size: var(--font-size-default);
+            font-family: var(--aui-font-family-default);
+            font-size: var(--aui-font-size-default);
             display: block;
             width: 100%;
-            height: var(--text-height);
-            border: 1px solid var(--input-border-color-default);
-            color: var(--input-color-default);
+            height: var(--aui-component-height-default);
+            border: 1px solid var(--aui-color-background-200);
+            color: var(--aui-color-text-500);
             background: transparent;
             cursor: pointer;
             padding-right: 30px;
             position: relative;
 
             > div[data-role='display'] {
-                color: var(--default-font-color);
+                color: var(--aui-color-text-500);
                 box-sizing: border-box;
                 text-align: left;
-                padding: var(--padding-default);
-                height: var(--text-height);
-                line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
+                padding: var(--aui-component-gap);
+                height: var(--aui-component-height-default);
+                line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -1261,28 +1252,28 @@ div[data-component][data-type='form'][data-role='field'] {
             &::before {
                 font-family: moimz;
                 display: block;
-                width: var(--text-height);
-                height: var(--text-height);
-                line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-                padding-top: var(--padding-default);
-                padding-bottom: var(--padding-default);
+                width: var(--aui-component-height-default);
+                height: var(--aui-component-height-default);
+                line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+                padding-top: var(--aui-component-gap);
+                padding-bottom: var(--aui-component-gap);
                 border: 1px solid transparent;
                 text-align: center;
-                font-size: var(--font-size-large);
-                content: '\e906';
+                font-size: var(--aui-font-size-large);
+                content: '\e234';
                 background: transparent;
                 position: absolute;
                 box-sizing: border-box;
                 top: -1px;
                 right: -1px;
-                color: var(--input-color-empty);
+                color: var(--aui-color-text-100);
             }
 
             &:focus {
-                border-color: var(--input-border-color-focus);
+                border-color: var(--aui-color-accent-500);
 
                 &::before {
-                    color: var(--input-border-color-focus);
+                    color: var(--aui-color-accent-500);
                 }
             }
 
@@ -1293,7 +1284,7 @@ div[data-component][data-type='form'][data-role='field'] {
 
         &:has(input[type='search']:focus) {
             > button {
-                border-color: var(--input-border-color-focus);
+                border-color: var(--aui-color-accent-500);
             }
         }
 
@@ -1302,14 +1293,14 @@ div[data-component][data-type='form'][data-role='field'] {
             z-index: 1;
             top: 0;
             left: 0;
-            width: calc(100% - var(--text-height));
-            height: var(--text-height);
+            width: calc(100% - var(--aui-component-height-default));
+            height: var(--aui-component-height-default);
             box-sizing: border-box;
             border: 1px solid transparent;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
             background: transparent;
 
             &[disabled] {
@@ -1323,14 +1314,14 @@ div[data-component][data-type='form'][data-role='field'] {
             left: 0;
             z-index: -1;
             width: 100%;
-            height: var(--text-height);
+            height: var(--aui-component-height-default);
             border: 1px solid transparent;
             box-sizing: border-box;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-help);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-100);
             overflow: hidden;
         }
 
@@ -1338,31 +1329,27 @@ div[data-component][data-type='form'][data-role='field'] {
             z-index: 1;
 
             > button {
-                border-color: var(--input-border-color-focus);
+                border-color: var(--aui-color-accent-500);
 
                 &::before {
-                    content: '\e905';
-                    color: var(--input-border-color-focus);
+                    content: '\e233';
+                    color: var(--aui-color-accent-500);
                 }
             }
         }
 
         &.error {
             > button {
-                border-color: var(--input-border-color-error);
+                border-color: var(--aui-color-danger-500);
             }
         }
 
         > div[data-type='loading'][data-role='loading'] {
-            --loading-box-size: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
-            --loading-box-padding: var(--padding-default);
-            --loading-color-indicator: var(--input-color-default);
-            --loading-color-text: var(--input-color-default);
-            --loading-box-align: flex-start;
-            --loading-box-background: var(--input-background-loading);
+            justify-content: flex-start;
 
             > div[data-role='box'] {
-                width: calc(100% - var(--text-height));
+                width: calc(100% - var(--aui-component-height-default));
+                height: calc(var(--aui-component-height-default) - 2px);
 
                 > div[data-role='text'] {
                     white-space: nowrap;
@@ -1375,31 +1362,23 @@ div[data-component][data-type='form'][data-role='field'] {
 
     > div[data-role='container'] > div[data-role='content'][data-field='textarea'] {
         position: relative;
-        background: var(--input-background-default);
+        background: var(--aui-color-background-500);
         z-index: 0;
-
-        &:has(input:focus) {
-            background: var(--input-background-focus);
-        }
-
-        &.error {
-            background: var(--input-background-error);
-        }
 
         > textarea {
             width: 100%;
             box-sizing: border-box;
-            border: 1px solid var(--input-border-color-default);
+            border: 1px solid var(--aui-color-background-200);
             background: transparent;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
             resize: none;
         }
 
         > textarea:focus {
-            border-color: var(--theme-color);
+            border-color: var(--aui-color-accent-500);
         }
 
         > div[data-role='empty'] {
@@ -1411,51 +1390,43 @@ div[data-component][data-type='form'][data-role='field'] {
             height: 100%;
             border: 1px solid transparent;
             box-sizing: border-box;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-help);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-100);
             overflow: hidden;
         }
 
         &.error {
             > textarea {
-                border-color: var(--input-border-color-error);
+                border-color: var(--aui-color-danger-500);
             }
         }
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='editor'] {
-        font-size: var(--font-size-default);
+        font-size: var(--aui-font-size-default);
 
         /*
         position: relative;
-        background: var(--input-background-default);
+        background: var(--aui-color-background-500);
         z-index: 0;
-    
-        &:has(input:focus) {
-            background: var(--input-background-focus);
-        }
-    
-        &.error {
-            background: var(--input-background-error);
-        }
     
         > textarea {
             width: 100%;
             box-sizing: border-box;
-            border: 1px solid var(--input-border-color-default);
+            border: 1px solid var(--aui-color-background-200);
             background: transparent;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
             resize: none;
         }
     
         > textarea:focus {
-            border-color: var(--theme-color);
+            border-color: var(--aui-color-accent-500);
         }
     
         > div[data-role='empty'] {
@@ -1467,17 +1438,17 @@ div[data-component][data-type='form'][data-role='field'] {
             height: 100%;
             border: 1px solid transparent;
             box-sizing: border-box;
-            padding: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2);
-            font-size: var(--font-size-default);
-            font-family: var(--font-family-default);
-            color: var(--input-color-help);
+            padding: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
+            font-size: var(--aui-font-size-default);
+            font-family: var(--aui-font-family-default);
+            color: var(--aui-color-text-100);
             overflow: hidden;
         }
     
         &.error {
             > textarea {
-                border-color: var(--input-border-color-error);
+                border-color: var(--aui-color-danger-500);
             }
         }
         */
@@ -1488,9 +1459,9 @@ div[data-component][data-type='form'][data-role='field'] {
         > label {
             display: block;
             width: 100%;
-            padding-top: var(--padding-default);
-            padding-bottom: var(--padding-default);
-            line-height: calc(var(--text-height) - var(--padding-default) * 2);
+            padding-top: var(--aui-component-gap);
+            padding-bottom: var(--aui-component-gap);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
             cursor: pointer;
             box-sizing: border-box;
 
@@ -1498,8 +1469,8 @@ div[data-component][data-type='form'][data-role='field'] {
                 > input {
                     display: inline-block;
                     position: relative;
-                    width: calc(var(--text-height) - var(--padding-default) * 2 - 4px);
-                    height: calc(var(--text-height) - var(--padding-default) * 2 - 4px);
+                    width: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 4px);
+                    height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 4px);
                     margin: 2px 0px;
                     padding: 0;
                     cursor: pointer;
@@ -1514,8 +1485,8 @@ div[data-component][data-type='form'][data-role='field'] {
                         height: 100%;
                         content: ' ';
                         box-sizing: border-box;
-                        border: 1px solid var(--input-border-color-default);
-                        background: var(--input-background-default);
+                        border: 1px solid var(--aui-color-background-200);
+                        background: var(--aui-color-background-500);
                         z-index: 1;
                     }
 
@@ -1533,24 +1504,24 @@ div[data-component][data-type='form'][data-role='field'] {
 
                     &:focus {
                         &::after {
-                            border-color: var(--input-border-color-focus);
+                            border-color: var(--aui-color-accent-500);
                         }
 
                         &::before {
-                            border-color: var(--input-background-default);
+                            border-color: var(--aui-color-background-500);
                         }
                     }
 
                     &[type='checkbox'] {
                         &:checked::after {
-                            border-color: var(--input-border-color-focus);
-                            background: var(--input-background-select);
-                            color: var(--input-color-select);
+                            border-color: var(--aui-color-accent-500);
+                            background: var(--aui-color-accent-500);
+                            color: var(--aui-color-accent-backward-500);
                             font-family: moimz;
                             content: '\eb10';
                             font-size: 14px;
                             text-align: center;
-                            line-height: calc(var(--text-height) - var(--padding-default) * 2 - 6px);
+                            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 6px);
                         }
                     }
 
@@ -1564,23 +1535,25 @@ div[data-component][data-type='form'][data-role='field'] {
                         }
 
                         &:checked::after {
-                            border-color: var(--input-border-color-focus);
-                            border-width: calc((var(--text-height) - var(--padding-default) * 2 - 10px) * 0.5);
-                            background: var(--input-background-default);
+                            border-color: var(--aui-color-accent-500);
+                            border-width: calc(
+                                (var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 10px) * 0.5
+                            );
+                            background: var(--aui-color-background-500);
                         }
                     }
                 }
 
                 > span {
                     display: inline-block;
-                    width: calc(100% - (var(--text-height) - var(--padding-default) * 2));
-                    line-height: calc(var(--text-height) - var(--padding-default) * 2);
+                    width: calc(100% - (var(--aui-component-height-default) - var(--aui-component-gap) * 2));
+                    line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
                     vertical-align: top;
                     box-sizing: border-box;
-                    padding-left: calc(var(--padding-default) * 2);
-                    font-size: var(--font-size-default);
-                    font-family: var(--font-family-default);
-                    color: var(--input-color-default);
+                    padding-left: calc(var(--aui-component-gap) * 2);
+                    font-size: var(--aui-font-size-default);
+                    font-family: var(--aui-font-family-default);
+                    color: var(--aui-color-text-500);
                 }
             }
 
@@ -1588,7 +1561,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 width: 100%;
                 border: 1px solid transparent;
                 line-height: 1;
-                border-color: var(--input-border-color-default);
+                border-color: var(--aui-color-background-200);
                 box-sizing: border-box;
 
                 > input {
@@ -1598,13 +1571,13 @@ div[data-component][data-type='form'][data-role='field'] {
                 > span {
                     display: inline-block;
                     width: 100%;
-                    line-height: calc(var(--text-height) - var(--padding-default) * 2 - 2px);
+                    line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
                     vertical-align: top;
                     box-sizing: border-box;
-                    padding: 0 calc(var(--padding-default) * 2);
-                    font-size: var(--font-size-default);
-                    font-family: var(--font-family-default);
-                    color: var(--input-color-default);
+                    padding: 0 calc(var(--aui-component-gap) * 2);
+                    font-size: var(--aui-font-size-default);
+                    font-family: var(--aui-font-family-default);
+                    color: var(--aui-color-text-500);
                 }
 
                 &:has(input:focus) {
@@ -1616,16 +1589,16 @@ div[data-component][data-type='form'][data-role='field'] {
                         height: calc(100% - 4px);
                         z-index: 1;
                         content: ' ';
-                        border: 1px solid var(--input-background-default);
+                        border: 1px solid var(--aui-color-background-500);
                     }
                 }
 
                 &:has(input:checked) {
-                    border-color: var(--input-border-color-focus);
-                    background-color: var(--input-background-select);
+                    border-color: var(--aui-color-accent-500);
+                    background-color: var(--aui-color-accent-500);
 
                     > span {
-                        color: var(--input-color-select);
+                        color: var(--aui-color-accent-backward-500);
                     }
                 }
             }
@@ -1649,20 +1622,20 @@ div[data-component][data-type='form'][data-role='field'] {
                     cursor: not-allowed !important;
 
                     &::after {
-                        background: var(--input-background-disabled);
+                        background: var(--aui-color-background-400);
                     }
 
                     &[type='checkbox'] {
                         &:checked::after {
-                            border-color: var(--input-border-color-default);
-                            background: var(--input-background-disabled);
-                            color: var(--input-color-disabled);
+                            border-color: var(--aui-color-background-200);
+                            background: var(--aui-color-background-400);
+                            color: var(--aui-color-background-400);
                         }
                     }
                 }
 
                 > span {
-                    color: var(--input-color-disabled);
+                    color: var(--aui-color-background-400);
                 }
             }
         }
@@ -1714,7 +1687,7 @@ div[data-component][data-type='list'][data-role='panel'].tags {
         > div[data-role='content'] {
             > ul {
                 > li {
-                    padding-left: var(--padding-default);
+                    padding-left: var(--aui-component-gap);
                 }
             }
         }
@@ -1760,7 +1733,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     font-size: 12px;
                                     height: 14px;
                                     line-height: 14px;
-                                    color: var(--input-color-help);
+                                    color: var(--aui-color-text-100);
                                 }
                             }
                         }
@@ -1770,7 +1743,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         div[data-role='view'] {
                             > div.theme {
                                 > i {
-                                    border: 2px solid var(--input-background-select);
+                                    border: 2px solid var(--aui-color-accent-500);
                                 }
                             }
 
@@ -1784,12 +1757,12 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         div[data-role='view'] {
                             > div.theme {
                                 > i {
-                                    outline: 1px solid var(--input-background-default);
+                                    outline: 1px solid var(--aui-color-background-500);
                                 }
 
                                 > div.text {
                                     > small {
-                                        color: var(--input-background-default);
+                                        color: var(--aui-color-background-500);
                                     }
                                 }
                             }
@@ -1799,7 +1772,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                 > ul {
                     > li {
-                        padding-left: var(--padding-default);
+                        padding-left: var(--aui-component-gap);
 
                         > div {
                             display: flex;
@@ -1834,7 +1807,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     font-size: 12px;
                                     height: 14px;
                                     line-height: 14px;
-                                    color: var(--input-color-help);
+                                    color: var(--aui-color-text-100);
                                 }
                             }
                         }
@@ -1842,7 +1815,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         &.selected {
                             > div {
                                 > i {
-                                    border: 2px solid var(--input-background-select);
+                                    border: 2px solid var(--aui-color-accent-500);
                                 }
                             }
 
@@ -1855,7 +1828,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             > div {
                                 > div.text {
                                     > small {
-                                        color: var(--input-background-default);
+                                        color: var(--aui-color-background-500);
                                     }
                                 }
                             }
@@ -1864,7 +1837,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         &.selected.focused {
                             > div {
                                 > i {
-                                    outline: 1px solid var(--input-background-default);
+                                    outline: 1px solid var(--aui-color-background-500);
                                 }
                             }
                         }
@@ -1878,31 +1851,32 @@ div[data-component][data-type='panel'][data-role='grid'] {
 div[data-component][data-type='form'][data-role='calendar'] {
     > div[data-role='container'] {
         width: 320px;
-        border: 1px solid var(--input-border-color-focus);
-        background: var(--input-background-default);
-        font-family: var(--font-family-default);
-        font-size: var(--font-size-default);
+        border: 1px solid var(--aui-color-accent-500);
+        background: var(--aui-color-background-500);
+        font-family: var(--aui-font-family-default);
+        font-size: var(--aui-font-size-default);
 
         > div[data-role='top'] {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
             align-items: stretch;
-            height: var(--title-height);
-            background: var(--title-background);
+            padding: var(--aui-component-gap);
+            height: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
+            background: var(--aui-color-theme-400);
 
             > button {
                 background: transparent;
                 border: 0;
                 cursor: pointer;
-                color: var(--title-color);
-                font-size: var(--font-size-default);
+                color: var(--aui-color-theme-0);
+                font-size: var(--aui-font-size-default);
 
                 &[data-action='prev'],
                 &[data-action='next'] {
-                    width: var(--title-height);
+                    width: var(--aui-component-height-default);
                     font-family: moimz;
-                    font-size: var(--font-size-large);
+                    font-size: var(--aui-font-size-large);
                 }
 
                 &[data-action='prev']::before {
@@ -1918,20 +1892,20 @@ div[data-component][data-type='form'][data-role='calendar'] {
                     padding-left: 8px;
                     content: '\e910';
                     font-family: moimz;
-                    font-size: var(--font-size-large);
+                    font-size: var(--aui-font-size-large);
                 }
             }
         }
 
         > div[data-role='content'] {
             > ul[data-role='days'] {
-                background: #d9d9d9;
+                background: var(--aui-color-background-300);
                 display: flex;
                 flex-direction: row;
                 align-items: stretch;
                 list-style: none;
                 gap: 1px;
-                border-bottom: 1px solid #d9d9d9;
+                border-bottom: 1px solid var(--aui-color-background-300);
 
                 > li {
                     flex-basis: 0;
@@ -1939,7 +1913,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
                     height: 32px;
                     line-height: 32px;
                     text-align: center;
-                    background: #ececec;
+                    background: var(--aui-color-background-400);
 
                     &[data-day='Su'] {
                         color: #dc3535;
@@ -1952,7 +1926,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
             }
 
             > ul[data-role='dates'] {
-                background: var(--input-border-color-default);
+                background: var(--aui-color-background-200);
                 gap: 1px;
                 display: grid;
                 grid-template-columns: repeat(7, 1fr);
@@ -1961,7 +1935,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
                 > li {
                     height: 32px;
                     line-height: 32px;
-                    background: var(--input-background-default);
+                    background: var(--aui-color-background-500);
                     text-align: center;
                     cursor: pointer;
 
@@ -1974,41 +1948,41 @@ div[data-component][data-type='form'][data-role='calendar'] {
                     }
 
                     &:hover {
-                        background: var(--button-background-hover);
+                        background: var(--aui-color-background-400);
                     }
 
                     &.today {
                         background: #bfdaf1;
 
                         &:hover {
-                            background: var(--input-background-select);
-                            color: var(--input-color-select);
+                            background: var(--aui-color-accent-500);
+                            color: var(--aui-color-accent-backward-500);
                         }
                     }
 
                     &.selected {
-                        background: var(--input-background-select);
-                        color: var(--input-color-select);
+                        background: var(--aui-color-accent-500);
+                        color: var(--aui-color-accent-backward-500);
                     }
 
                     &.disabled {
-                        color: var(--input-color-disabled);
+                        color: var(--aui-color-background-400);
                     }
                 }
             }
         }
 
         > div[data-role='bottom'] {
-            border-top: 1px solid var(--input-border-color-default);
+            border-top: 1px solid var(--aui-color-background-200);
             padding: 8px 0px;
 
             > button {
                 display: block;
-                background: var(--input-background-select);
-                color: var(--input-color-select);
-                height: var(--text-height);
+                background: var(--aui-color-accent-500);
+                color: var(--aui-color-accent-backward-500);
+                height: var(--aui-component-height-default);
                 margin: 0 auto;
-                font-size: var(--font-size-default);
+                font-size: var(--aui-font-size-default);
                 border: 0;
                 padding: 0px 8px;
                 cursor: pointer;

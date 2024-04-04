@@ -1,426 +1,64 @@
 /**
  * 이 파일은 Aui 라이브러리의 일부입니다. (https://www.imodules.io)
  *
- * 관리자 뷰포트 스타일시트를 정의한다.
+ * Aui 뷰포트 스타일시트를 정의한다.
  * 
  * @file /styles/Aui.Viewport.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 4. 4.
  */
-div[data-component][data-type='viewport'][data-role='panel'] {
-    width: 100%;
-    height: 100%;
-
+div[data-component][data-type='viewport'][data-role='viewport'] {
     > div[data-role='container'] {
         width: 100%;
         height: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: stretch;
-
-        > div[data-role='top'] {
-            flex-shrink: 1;
-            flex-grow: 0;
-            flex-basis: var(--navigation-width);
-            transition: ease-in 0.2s flex-basis;
-            z-index: 10;
-            overflow: hidden;
-
-            &.sorting {
-                overflow: visible;
-            }
-
-            &.collapsed {
-                flex-basis: var(--navigation-collapsed-width);
-            }
-        }
 
         > div[data-role='content'] {
-            width: calc(100% - var(--navigation-width));
-            flex-grow: 1;
-            flex-shrink: 1;
-            overflow: hidden;
+            display: grid;
+            width: 100%;
+            height: 100%;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+                'north north north'
+                'west center east'
+                'south south south';
 
             > div[data-component] {
-                > div[data-role='container'] {
-                    > div[data-role='top'] {
-                        --title-background: var(--viewport-title-background);
-                    }
-                }
-            }
-        }
-    }
-}
+                align-self: stretch;
 
-div[data-component][data-type='viewport'][data-role='navigation'] {
-    width: 100%;
-    height: 100%;
-    background: var(--navigation-background);
-
-    > div[data-role='container'] {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        justify-content: flex-start;
-        height: 100%;
-
-        > div[data-role='top'] {
-            --text-height: var(--title-height);
-            --padding-default: var(--padding-extra-large);
-            --input-color-default: var(--navigation-color-default);
-            --button-background-default: transparent;
-            --button-background-hover: var(--navigation-toolbar-background-focus);
-            --button-background-focus: var(--navigation-toolbar-background-focus);
-            --button-border-color-default: transparent;
-            --button-border-color-hover: transparent;
-            --button-border-color-focus: transparent;
-            --button-color-default: var(--navigation-color-default);
-            --button-color-hover: var(--navigation-color-focus);
-            --button-color-focus: var(--navigation-color-focus);
-            --input-background-default: transparent;
-            --input-border-color-default: transparent;
-            --input-border-color-focus: transparent;
-            --input-background-focus: var(--navigation-toolbar-background-focus);
-
-            width: 100%;
-            height: var(--title-height);
-            flex-grow: 0;
-            flex-shrink: 0;
-            background: var(--navigation-toolbar-background-default);
-            display: flex;
-            flex-direction: row;
-            align-items: stretch;
-            justify-content: flex-start;
-
-            div[data-component] {
-                button {
-                    border-left-color: var(--navigation-border-color-default);
-                    font-size: var(--font-size-large);
+                &[data-region='north'] {
+                    grid-area: north;
                 }
 
-                button[disabled] {
-                    background: var(--button-background-pressed);
-                    color: var(--button-color-pressed);
+                &[data-region='west'] {
+                    grid-area: west;
                 }
 
-                &:first-child {
-                    button {
-                        border-left-color: transparent;
-                        background: var(--navigation-button-background-toggle);
-                        color: var(--navigation-button-color-toggle);
-                        font-size: var(--font-size-large);
-                    }
-                }
-            }
-        }
+                &[data-region='center'] {
+                    grid-area: center;
 
-        > div[data-role='content'] {
-            height: min-content;
-            flex-grow: 1;
-            flex-shrink: 1;
-        }
-    }
-}
-
-div[data-component][data-type='viewport'][data-role='context'] {
-    margin: 2px 0px;
-
-    > div[data-role='container'] {
-        width: var(--navigation-width);
-
-        > div[data-role='content'] {
-            > a {
-                display: block;
-                height: var(--navigation-item-height);
-                font-size: 0;
-                text-decoration: none;
-                color: var(--navigation-color-default);
-                white-space: nowrap;
-
-                > i {
-                    display: inline-block;
-                    vertical-align: top;
-                    width: var(--navigation-collapsed-width);
-                    height: var(--navigation-item-height);
-                    line-height: var(--navigation-item-height);
-                    text-align: center;
-                    font-size: var(--font-size-large);
-                    text-decoration: none;
-                }
-
-                > span {
-                    overflow: hidden;
-                    display: inline-block;
-                    vertical-align: top;
-                    width: calc(100% - var(--navigation-collapsed-width));
-                    height: 40px;
-                    line-height: 40px;
-                    font-size: var(--font-size-default);
-                    font-family: var(--font-family-default);
-                    padding-right: var(--padding-extra-large);
-                    transition: ease-in 0.2s width;
-                }
-
-                > button {
-                    display: none;
-                    width: var(--navigation-collapsed-width);
-                    height: var(--navigation-item-height);
-                    font-family: moimz;
-                    text-align: center;
-                    line-height: var(--navigation-item-height);
-                    border: 0;
-                    background: transparent;
-                    font-size: var(--font-size-large);
-                    color: var(--navigation-color-focus);
-                    cursor: move;
-
-                    &::before {
-                        content: '\eb13';
-                    }
-                }
-
-                &:hover {
-                    color: var(--navigation-color-focus);
-                }
-
-                &[disabled] {
-                    cursor: default;
-
-                    > span {
-                        width: calc(100% - var(--navigation-collapsed-width) - var(--navigation-collapsed-width));
-                        padding-right: 0;
-                    }
-
-                    > button {
-                        display: inline-block;
-                    }
-                }
-            }
-
-            &.selected {
-                > a:not([disabled]) {
-                    color: var(--navigation-color-focus);
-                    background: var(--navigation-item-background-selected);
-                }
-            }
-        }
-    }
-
-    &[data-context='FOLDER'] {
-        > div[data-role='container'] {
-            > div[data-role='content'] {
-                padding: 0px;
-
-                > a {
-                    background: var(--navigation-border-color-default);
-                    color: var(--navigation-color-focus);
-                }
-            }
-
-            > div[data-role='bottom'] {
-                position: relative;
-
-                &:not(:has(div[data-component])) {
-                    &::after {
-                        content: 'EMPTY FOLDER';
-                        display: block;
-                        margin: 4px 4px 4px 30px;
-                        background: rgba(255, 255, 255, 0.1);
-                        box-sizing: border-box;
-                        height: 40px;
-                        font-size: 11px;
-                        line-height: 40px;
-                        text-align: center;
-                        border: 1px dashed rgba(255, 255, 255, 0.3);
-                    }
-                }
-
-                &:has(div[data-component]) {
-                    padding: 4px 0px 4px 30px;
-                    transition: 0.2s ease-in padding;
-
-                    &::before {
-                        position: absolute;
-                        width: 1px;
-                        height: calc(100% - 4px - var(--navigation-item-height) * 0.5);
-                        background: var(--navigation-border-color-default);
-                        top: 0;
-                        left: calc(var(--navigation-collapsed-width) * 0.5 - 1px);
-                        content: ' ';
-                    }
-                }
-
-                > div[data-component][data-type='viewport'][data-role='context'] {
-                    position: relative;
-
-                    &::before {
-                        position: absolute;
-                        width: calc(30px - var(--navigation-collapsed-width) * 0.5 + 1px);
-                        height: 1px;
-                        background: var(--navigation-border-color-default);
-                        top: calc(var(--navigation-item-height) * 0.5 + 1px);
-                        left: calc(var(--navigation-collapsed-width) * 0.5 - 30px - 1px);
-                        content: ' ';
-                        opacity: 1;
-                        transition: 0.2s ease-in left, opacity;
-                    }
-
-                    > div[data-role='container'] {
-                        width: calc(var(--navigation-width) - 30px);
-                    }
-                }
-            }
-        }
-    }
-
-    &[data-drag='drag'] {
-        background: var(--navigation-background);
-        position: fixed;
-        z-index: 10000000;
-        left: 300px;
-        opacity: 1; //0.6;
-
-        &::after {
-            position: absolute;
-            z-index: 1;
-            top: 1px;
-            left: 1px;
-            width: calc(100% - 2px);
-            height: calc(100% - 2px);
-            box-sizing: border-box;
-            border: 2px solid var(--navigation-item-border-color-drag);
-            content: ' ';
-        }
-
-        > div[data-role='container'] {
-            > div[data-role='content'] {
-                > a {
-                    > i {
-                        &::after {
-                            display: none;
-                        }
-                    }
-                }
-            }
-
-            > div[data-role='bottom'] {
-                display: none;
-            }
-        }
-    }
-
-    &[data-drag='origin'] {
-        opacity: 0.4;
-
-        &::after {
-            position: absolute;
-            z-index: 1;
-            top: 1px;
-            left: 1px;
-            width: calc(100% - 2px);
-            height: calc(100% - 2px);
-            box-sizing: border-box;
-            border: 2px dashed var(--navigation-item-border-color-drag);
-            content: ' ';
-        }
-    }
-
-    &[data-drag='drop'],
-    &[data-drag='origin'].drop {
-        position: relative;
-        opacity: 1;
-
-        &::after {
-            position: absolute;
-            z-index: 1;
-            top: 1px;
-            left: 1px;
-            width: calc(100% - 2px);
-            height: calc(100% - 2px);
-            box-sizing: border-box;
-            border: 2px solid var(--navigation-item-border-color-drop);
-            content: ' ';
-        }
-    }
-
-    &[data-drag='drop'] {
-        > div[data-role='container'] {
-            > div[data-role='bottom'] {
-                display: none;
-            }
-        }
-    }
-}
-
-div[data-component][data-type='viewport'][data-role='panel'] {
-    > div[data-role='container'] > div[data-role='top'].collapsed {
-        > div[data-component][data-type='viewport'][data-role='navigation'] {
-            > div[data-role='container'] > div[data-role='top'] {
-                > div[data-component]:first-child {
-                    button > i::before {
-                        content: '\e919';
-                    }
-                }
-            }
-
-            > div[data-role='container'] > div[data-role='content'] {
-                div[data-component][data-type='viewport'][data-role='context'][data-context='FOLDER'] {
-                    > div[data-role='container'] > div[data-role='bottom'] {
-                        &:has(div[data-component]) {
-                            padding-left: 0px;
-                        }
-
-                        > div[data-component][data-type='viewport'][data-role='context'] {
-                            position: relative;
-
-                            &::before {
-                                left: calc(var(--navigation-collapsed-width) * 0.5 - 0px);
-                                opacity: 0;
-                            }
-
+                    > div[data-role='container'] > div[data-role='content'] {
+                        > div[data-component] {
                             > div[data-role='container'] {
-                                width: var(--navigation-width);
-
-                                > div[data-role='content'] {
-                                    --navigation-folder-item-width: calc(var(--navigation-item-height) - 6px);
-                                    --navigation-folder-item-margin-x: calc(
-                                        var(--navigation-collapsed-width) - var(--navigation-folder-item-width)
-                                    );
-                                    --navigation-folder-item-margin-y: calc(
-                                        var(--navigation-collapsed-width) - var(--navigation-item-height)
-                                    );
-
-                                    > a {
-                                        > i {
-                                            width: var(--navigation-folder-item-width);
-                                            height: var(--navigation-folder-item-width);
-                                            line-height: calc(var(--navigation-folder-item-width) - 2px);
-                                            margin-top: calc(var(--navigation-folder-item-margin-y) * 0.5);
-                                            margin-bottom: calc(var(--navigation-folder-item-margin-y) * 0.5);
-                                            margin-left: calc(var(--navigation-folder-item-margin-x) * 0.5);
-                                            margin-right: calc(var(--navigation-folder-item-margin-x) * 0.5);
-                                            background: var(--navigation-background);
-                                            border: 1px solid var(--navigation-border-color-default);
-                                            border-radius: 50%;
-                                            box-sizing: border-box;
-                                        }
-                                    }
-
-                                    &.selected {
-                                        > a {
-                                            background: transparent;
-
-                                            > i {
-                                                border-color: var(--navigation-item-background-selected);
-                                                background: var(--navigation-item-background-selected);
-                                            }
+                                > div[data-role='top'] {
+                                    > div[data-component][data-type='title'] {
+                                        > div[data-role='container'] {
+                                            background: var(--aui-color-theme-700);
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                }
+
+                &[data-region='east'] {
+                    grid-area: east;
+                }
+
+                &[data-region='south'] {
+                    grid-area: south;
                 }
             }
         }

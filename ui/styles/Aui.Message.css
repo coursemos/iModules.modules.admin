@@ -28,7 +28,7 @@ div[data-component][data-type='window'][data-role='message'] {
                     > i {
                         width: 50px;
                         height: 50px;
-                        background: var(--message-icon-background-default);
+                        background: var(--aui-color-text-100);
                         border-radius: 50%;
                         display: block;
                         font-style: normal;
@@ -39,7 +39,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             font-family: moimz;
                             font-size: 28px;
                             line-height: 46px;
-                            color: var(--message-icon-color-default);
+                            color: var(--aui-color-text-backward-500);
 
                             &::before {
                                 content: '\ea10';
@@ -50,7 +50,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             font-family: moimz;
                             font-size: 28px;
                             line-height: 48px;
-                            color: var(--message-icon-color-default);
+                            color: var(--aui-color-text-backward-500);
 
                             &::before {
                                 content: '\ea13';
@@ -61,7 +61,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             font-family: moimz;
                             font-size: 28px;
                             line-height: 48px;
-                            color: var(--message-icon-color-default);
+                            color: var(--aui-color-text-backward-500);
 
                             &::before {
                                 content: '\ea06';
@@ -78,9 +78,9 @@ div[data-component][data-type='window'][data-role='message'] {
                     align-items: center;
 
                     > div {
-                        color: var(--message-color-default);
-                        font-family: var(--font-family-default);
-                        font-size: var(--font-size-default);
+                        color: var(--aui-color-text-500);
+                        font-family: var(--aui-font-family-default);
+                        font-size: var(--aui-font-size-default);
                         line-height: 1.6;
                         word-break: break-all;
                     }
@@ -90,8 +90,6 @@ div[data-component][data-type='window'][data-role='message'] {
 
         > div[data-type='loading'][data-role='loading'] {
             position: static;
-            --loading-background: transparent;
-            --loading-box-background: transparent;
         }
     }
 }

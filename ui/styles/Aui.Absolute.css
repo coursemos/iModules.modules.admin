@@ -6,7 +6,7 @@
  * @file /styles/Aui.Absolute.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 4. 2.
  */
 section[data-role='admin'][data-type='absolutes'] {
     position: fixed;
@@ -23,7 +23,7 @@ section[data-role='admin'][data-type='absolutes'] {
             flex-direction: column;
             border-width: 0;
             border-style: solid;
-            border-color: var(--panel-border-color-default);
+            border-color: var(--aui-color-background-200);
 
             &.border {
                 border-width: 1px;

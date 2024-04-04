@@ -6,17 +6,17 @@
  * @file /styles/Aui.Progress.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 6.
+ * @modified 2024. 4. 2.
  */
 div[data-component][data-type='progress'][data-role='progress'] {
     width: 100%;
 
     > div[data-role='container'] > div[data-role='content'] {
         > div[data-role='message'] {
-            min-height: var(--text-height);
-            line-height: var(--text-height);
-            font-family: var(--font-family-default);
-            font-size: var(--font-size-default);
+            min-height: var(--aui-component-height-default);
+            line-height: var(--aui-component-height-default);
+            font-family: var(--aui-font-family-default);
+            font-size: var(--aui-font-size-default);
             font-variant-numeric: tabular-nums;
 
             &:empty {
@@ -33,12 +33,12 @@ div[data-component][data-type='progress'][data-role='progress'] {
             position: relative;
 
             &::-webkit-progress-bar {
-                background: var(--color-background-100);
+                background: var(--aui-color-background-100);
             }
 
             &::-webkit-progress-value {
                 transition: width ease-in 0.2s;
-                background: var(--color-primary-500);
+                background: var(--aui-color-accent-500);
             }
 
             &.loading {
@@ -47,7 +47,7 @@ div[data-component][data-type='progress'][data-role='progress'] {
                     position: absolute;
                     width: 20%;
                     height: 100%;
-                    background: var(--color-primary-500);
+                    background: var(--aui-color-accent-500);
                     animation: progress-loading infinite 2s !important;
                     top: 0;
                     left: 0;

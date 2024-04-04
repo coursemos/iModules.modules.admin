@@ -6,7 +6,7 @@
  * @file /styles/Aui.Resizer.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 4. 2.
  */
 div[data-role='resizer'] {
     background: transparent;
@@ -90,7 +90,7 @@ div[data-role='resizer'] {
 
 div[data-role='resize-guide'] {
     position: absolute;
-    border: 1px solid #000;
+    border: 1px solid var(--aui-color-text-500);
     z-index: 1000;
     box-sizing: border-box;
 }

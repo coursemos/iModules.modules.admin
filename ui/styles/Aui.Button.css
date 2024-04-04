@@ -6,7 +6,7 @@
  * @file /styles/Aui.Button.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 5.
+ * @modified 2024. 3. 30.
  */
 div[data-component][data-type='button'][data-role='button'] {
     > div[data-role='container'] {
@@ -20,13 +20,15 @@ div[data-component][data-type='button'][data-role='button'] {
 
             > button {
                 outline: none;
-                height: var(--text-height);
-                border: 1px solid var(--button-border-color-default);
-                background: var(--button-background-default);
-                color: var(--button-color-default);
+                height: var(--aui-component-height-default);
+                border: 1px solid var(--aui-color-background-200);
+                background: var(--aui-color-background-400);
+                color: var(--aui-color-text-500);
+                font-size: var(--aui-font-size-default);
+                font-family: var(--aui-font-family-default);
+                line-height: 1.2;
+                padding: calc((var(--aui-component-height-default) - 1lh - 2px) / 2);
                 cursor: pointer;
-                font-size: var(--font-size-default);
-                font-family: var(--font-family-default);
                 box-sizing: border-box;
                 white-space: nowrap;
                 position: relative;
@@ -34,40 +36,28 @@ div[data-component][data-type='button'][data-role='button'] {
                 display: inline-flex;
                 flex-direction: row;
                 align-items: stretch;
+                gap: var(--aui-component-gap);
 
                 > i {
-                    font-style: normal;
-                    width: calc(var(--text-height) - 2px);
-                    height: calc(var(--text-height) - 2px);
-                    line-height: calc(var(--text-height) - 2px);
+                    flex-shrink: 0;
+                    width: 1lh;
+                    height: 1lh;
                     text-align: center;
                     font-size: inherit;
-                    color: inherit;
-                    text-align: center;
                     font-style: normal;
-                    width: calc(var(--text-height) - 2px);
-                    height: calc(var(--text-height) - 2px);
-                    line-height: calc(var(--text-height) - 2px);
+                    color: inherit;
                     order: 1;
                 }
 
                 > span {
-                    vertical-align: middle;
-                    height: calc(var(--text-height) - 2px);
-                    line-height: calc(var(--text-height) - 2px);
-                    padding-left: var(--padding-large);
-                    padding-right: var(--padding-large);
+                    height: 1lh;
                     text-align: left;
-                    font-size: var(--font-size-default);
+                    font-size: inherit;
                     order: 2;
 
                     &:empty {
                         display: none;
                     }
-                }
-
-                > i + span {
-                    padding-left: 0;
                 }
 
                 &::before {
@@ -82,63 +72,71 @@ div[data-component][data-type='button'][data-role='button'] {
                 }
 
                 &:hover {
-                    background: var(--button-background-hover);
-                    border-color: var(--button-border-color-hover);
-                    color: var(--button-color-hover);
+                    background: var(--aui-color-background-300);
+                    color: var(--aui-color-text-600);
                 }
 
                 &:focus {
-                    background: var(--button-background-focus);
-                    border-color: var(--button-border-color-focus);
-                    color: var(--button-color-focus);
+                    border-color: var(--aui-color-accent-500);
+                    color: var(--aui-color-text-600);
                 }
 
-                &.pressed {
-                    background: var(--button-background-pressed);
-                    border-color: var(--button-border-color-pressed);
-                    color: var(--button-color-pressed);
+                &.pressed,
+                &.confirm {
+                    background: var(--aui-color-accent-500);
+                    border-color: var(--aui-color-accent-500);
+                    color: var(--aui-color-text-backward-500);
 
+                    &:hover {
+                        background: var(--aui-color-accent-600);
+                    }
+                }
+
+                &.begining {
+                    background: var(--aui-color-begining-500);
+                    border-color: var(--aui-color-begining-500);
+                    color: var(--aui-color-text-backward-500);
+
+                    &:hover {
+                        background: var(--aui-color-begining-600);
+                    }
+                }
+
+                &.danger {
+                    background: var(--aui-color-danger-500);
+                    border-color: var(--aui-color-danger-500);
+                    color: var(--aui-color-text-backward-500);
+
+                    &:hover {
+                        background: var(--aui-color-danger-600);
+                    }
+                }
+
+                &.action {
+                    background: var(--aui-color-action-500);
+                    border-color: var(--aui-color-action-500);
+                    color: var(--aui-color-text-backward-500);
+
+                    &:hover {
+                        background: var(--aui-color-action-600);
+                    }
+                }
+
+                &.pressed,
+                &.confirm,
+                &.begining,
+                &.danger,
+                &.action {
                     &:focus {
                         &::before {
-                            border-color: var(--button-border-color-focus-inset);
+                            border-color: var(--aui-color-accent-backward-500);
                         }
                     }
                 }
 
                 &[disabled] {
-                    background: var(--button-background-hover);
-                    border-color: var(--button-border-color-hover);
-                    color: var(--button-color-hover);
                     cursor: not-allowed;
                     opacity: 0.7;
-                }
-
-                &.confirm {
-                    background: var(--button-background-confirm);
-                    border-color: var(--button-border-color-confirm);
-                    color: var(--button-color-confirm);
-
-                    &:hover {
-                        background-color: var(--button-background-confirm-hover);
-                    }
-
-                    &:focus {
-                        &::before {
-                            border-color: var(--button-border-color-focus-inset);
-                        }
-                    }
-                }
-
-                &.danger {
-                    background: var(--button-background-danger);
-                    border-color: var(--button-border-color-danger);
-                    color: var(--button-color-danger);
-
-                    &:focus {
-                        &::before {
-                            border-color: var(--button-border-color-focus-inset);
-                        }
-                    }
                 }
 
                 &.menu {
@@ -147,24 +145,18 @@ div[data-component][data-type='button'][data-role='button'] {
                     }
 
                     &::after {
-                        display: inline-block;
+                        font-family: moimz;
                         font-style: normal;
-                        width: calc(var(--text-height) - 2px);
-                        height: calc(var(--text-height) - 2px);
-                        line-height: calc(var(--text-height) - 2px - 1px);
-                        vertical-align: middle;
-                        text-align: center;
                         font-size: inherit;
                         color: inherit;
                         text-align: center;
-                        content: '\e906';
-                        font-family: moimz;
+                        content: '\e234';
                         order: 3;
                     }
 
                     &.opened {
                         &::after {
-                            content: '\e905';
+                            content: '\e233';
                         }
                     }
                 }
@@ -180,14 +172,14 @@ div[data-component][data-type='button'][data-role='button'] {
 
                     &::after {
                         position: absolute;
-                        top: calc(50% - (var(--text-height) - 2px) / 2);
-                        left: calc(50% - (var(--text-height) - 2px) / 2);
-                        width: calc(var(--text-height) - 2px);
-                        height: calc(var(--text-height) - 2px);
-                        line-height: calc(var(--text-height) - 2px);
+                        top: calc(50% - (var(--aui-component-height-default) - 2px) / 2);
+                        left: calc(50% - (var(--aui-component-height-default) - 2px) / 2);
+                        width: calc(var(--aui-component-height-default) - 2px);
+                        height: calc(var(--aui-component-height-default) - 2px);
+                        line-height: calc(var(--aui-component-height-default) - 2px);
                         text-align: center;
                         font-family: moimz;
-                        content: '\ed00';
+                        content: '\efff';
                         z-index: 1;
                         color: inherit;
                         animation: mi-loading 2s infinite linear;
@@ -199,91 +191,117 @@ div[data-component][data-type='button'][data-role='button'] {
         > div[data-role='bottom'] {
             > button {
                 outline: none;
-                width: calc(var(--text-height) - 6px);
-                height: var(--text-height);
-                border: 1px solid var(--button-border-color-default);
-                line-height: calc(var(--text-height) - 2px - 1px);
-                background: var(--button-background-default);
-                color: var(--button-color-default);
+                width: calc(var(--aui-component-height-default) * 0.65);
+                height: var(--aui-component-height-default);
+                border: 1px solid var(--aui-color-background-200);
+                background: var(--aui-color-background-400);
+                color: var(--aui-color-text-500);
+                font-size: var(--aui-font-size-default);
+                line-height: 1em;
+                padding: calc((var(--aui-component-height-default) - 1lh) / 2 - 2px);
                 cursor: pointer;
-                font-size: var(--font-size-default);
                 font-family: moimz;
                 box-sizing: border-box;
                 text-align: center;
+                position: relative;
+                z-index: 0;
+                vertical-align: middle;
 
                 &::before {
-                    content: '\e906';
+                    position: absolute;
+                    top: 0px;
+                    left: 0px;
+                    width: calc(100% - 2px);
+                    padding: calc((var(--aui-component-height-default) - 1lh) / 2 - 2px) 0;
+                    content: '\e234';
+                    line-height: 1em;
+                    z-index: 1;
+                    border: 1px solid transparent;
                 }
 
                 &:hover {
-                    background: var(--button-background-hover);
-                    border-color: var(--button-border-color-hover);
-                    color: var(--button-color-hover);
+                    background: var(--aui-color-background-300);
+                    color: var(--aui-color-text-600);
                 }
 
                 &:focus {
-                    background: var(--button-background-focus);
-                    border-color: var(--button-border-color-focus);
-                    color: var(--button-color-focus);
-                }
-
-                &[disabled] {
-                    background: var(--button-background-hover);
-                    border-color: var(--button-border-color-hover);
-                    color: var(--button-color-hover);
-                    cursor: not-allowed;
-                    opacity: 0.7;
+                    border-color: var(--aui-color-accent-500);
+                    color: var(--aui-color-text-600);
                 }
 
                 &.opened {
-                    background: var(--button-background-hover);
-                    color: var(--button-color-hover);
+                    background: var(--aui-color-background-400);
+                    color: var(--aui-color-text-600);
 
                     &::before {
-                        content: '\e905';
+                        content: '\e233';
                     }
                 }
 
+                &.pressed,
                 &.confirm {
-                    background: var(--button-background-confirm);
-                    border-color: var(--button-border-color-confirm);
-                    border-left-color: var(--button-background-confirm-hover);
-                    color: var(--button-color-confirm);
+                    background: var(--aui-color-accent-500);
+                    border-color: var(--aui-color-accent-500);
+                    border-left-color: var(--aui-color-accent-600);
+                    color: var(--aui-color-text-backward-500);
 
-                    &:hover {
-                        background-color: var(--button-background-confirm-hover);
-                    }
-
-                    &:focus {
-                        &::before {
-                            border-color: var(--button-border-color-focus-inset);
-                        }
-                    }
-
+                    &:hover,
                     &.opened {
-                        background-color: var(--button-background-confirm-hover);
+                        background: var(--aui-color-accent-600);
+                    }
+                }
+
+                &.begining {
+                    background: var(--aui-color-begining-500);
+                    border-color: var(--aui-color-begining-500);
+                    border-left-color: var(--aui-color-begining-600);
+                    color: var(--aui-color-text-backward-500);
+
+                    &:hover,
+                    &.opened {
+                        background: var(--aui-color-begining-600);
                     }
                 }
 
                 &.danger {
-                    background: var(--button-background-danger);
-                    border-color: var(--button-border-color-danger);
-                    border-left-color: var(--button-background-danger-hover);
-                    color: var(--button-color-danger);
+                    background: var(--aui-color-danger-500);
+                    border-color: var(--aui-color-danger-500);
+                    border-left-color: var(--aui-color-danger-600);
+                    color: var(--aui-color-text-backward-500);
 
-                    &:hover {
-                        background-color: var(--button-background-danger-hover);
+                    &:hover,
+                    &.opened {
+                        background: var(--aui-color-danger-600);
                     }
+                }
 
+                &.action {
+                    background: var(--aui-color-action-500);
+                    border-color: var(--aui-color-action-500);
+                    border-left-color: var(--aui-color-action-600);
+                    color: var(--aui-color-text-backward-500);
+
+                    &:hover,
+                    &.opened {
+                        background: var(--aui-color-action-600);
+                    }
+                }
+
+                &.pressed,
+                &.confirm,
+                &.begining,
+                &.danger,
+                &.action {
                     &:focus {
                         &::before {
-                            border-color: var(--button-border-color-focus-inset);
+                            border-color: var(--aui-color-accent-backward-500);
                         }
                     }
+                }
 
-                    &.opened {
-                        background-color: var(--button-background-danger-hover);
-                    }
+                &[disabled] {
+                    cursor: not-allowed;
+                    opacity: 0.7;
                 }
             }
         }
@@ -300,14 +318,14 @@ div[data-component][data-type='button'][data-role='button'] {
 
 div[data-component][data-type='button'][data-role='segmented'] {
     > div[data-role='container'] {
-        border: 1px solid var(--button-border-color-default);
-
         > div[data-role='content'] {
             display: flex;
             align-items: stretch;
             justify-items: stretch;
             gap: 1px;
-            background: var(--button-border-color-default);
+            background: var(--aui-color-background-200);
+            border: 1px solid var(--aui-color-background-200);
+            height: var(--aui-component-height-default);
 
             &.column {
                 flex-direction: column;
@@ -320,24 +338,17 @@ div[data-component][data-type='button'][data-role='segmented'] {
             > div[data-component] {
                 flex-grow: 1;
                 flex-shrink: 0;
+
                 > div[data-role='container'] {
                     > div[data-role='content'] {
                         > button {
                             width: 100%;
-                            border: 0;
+                            height: calc(var(--aui-component-height-default) - 2px);
+                            border-color: transparent;
 
-                            &.pressed {
-                                &:focus {
-                                    &::before {
-                                        position: absolute;
-                                        top: 1px;
-                                        left: 1px;
-                                        z-index: 1;
-                                        border: 1px solid var(--button-border-color-focus-inset);
-                                        content: ' ';
-                                        width: calc(100% - 4px);
-                                        height: calc(100% - 4px);
-                                    }
+                            &:not(.pressed):focus {
+                                &::before {
+                                    border-color: var(--aui-color-accent-500);
                                 }
                             }
                         }

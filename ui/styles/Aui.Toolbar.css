@@ -6,26 +6,19 @@
  * @file /styles/Aui.Toolbar.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 31.
  */
 div[data-component][data-type='toolbar'][data-role='bar'] {
-    --button-background-default: var(--toolbar-button-background-default);
-    --button-background-hover: var(--toolbar-button-background-hover);
-    --button-background-focus: var(--toolbar-button-background-focus);
-    --button-border-color-default: var(--toolbar-button-border-color-default);
-    --button-border-color-hover: var(--toolbar-button-border-color-hover);
-    --button-border-color-focus: var(--toolbar-button-border-color-focus);
-
     > div[data-role='container'] {
         width: 100%;
         border-width: 0;
         border-style: solid;
-        border-color: var(--toolbar-border-color);
-        background: var(--toolbar-background);
+        border-color: var(--aui-color-background-200);
+        background: var(--aui-color-background-500);
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
-        color: var(--toolbar-color-default);
+        align-items: stretch;
+        color: var(--aui-color-text-500);
 
         &[data-position='top'] {
             &.border {
@@ -40,18 +33,17 @@ div[data-component][data-type='toolbar'][data-role='bar'] {
         }
 
         > div[data-role='top'] {
-            // @todo 좌로이동 버튼
+            /* @todo 좌로이동 버튼 */
         }
 
         > div[data-role='content'] {
             width: 100%;
-            height: var(--toolbar-height);
             flex-grow: 1;
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
-            column-gap: var(--padding-default);
-            padding: var(--padding-default);
+            align-items: center;
+            gap: var(--aui-component-gap);
+            padding: var(--aui-component-gap);
 
             > div[data-component] {
                 flex-shrink: 0;
@@ -61,50 +53,36 @@ div[data-component][data-type='toolbar'][data-role='bar'] {
                     display: block;
                     position: absolute;
                     top: 0;
-                    right: calc(var(--padding-default) * -1);
-                    width: var(--padding-default);
+                    right: calc(var(--aui-component-gap) * -1);
+                    width: var(--aui-component-gap);
                     height: 1px;
                 }
             }
         }
 
         > div[data-role='bottom'] {
-            // @todo 우로이동 버튼
+            /* @todo 우로이동 버튼 */
         }
     }
 }
 
 div[data-component][data-type='toolbar'][data-role='item'] {
-    height: var(--text-height);
-    line-height: var(--text-height);
-    color: var(--toolbar-color-default);
-
     &[data-tool='fill'] {
         flex-grow: 1;
     }
 
     &[data-tool='separator'] {
-        width: calc(var(--padding-default) * 0.5 + 1px);
-        position: relative;
-
-        &::before {
-            display: block;
-            position: absolute;
-            width: 1px;
-            height: calc(var(--text-height) - var(--padding-default) * 3);
-            background: var(--toolbar-border-color);
-            top: calc(var(--padding-default) * 1.5);
-            left: 50%;
-            content: ' ';
-        }
+        width: 1px;
+        height: calc(var(--aui-component-height-default) * 0.6);
+        background: var(--aui-color-background-200);
     }
 
     &[data-tool='text'] {
         > div[data-role='container'] {
             > div[data-role='content'] {
-                font-size: var(--font-size-default);
-                font-family: var(--font-family-default);
-                color: var(--toolbar-color-default);
+                font-size: var(--aui-font-size-default);
+                font-family: var(--aui-font-family-default);
+                color: var(--aui-color-text-500);
             }
         }
     }

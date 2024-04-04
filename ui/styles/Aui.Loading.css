@@ -6,7 +6,7 @@
  * @file /styles/Aui.Loading.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 23.
+ * @modified 2024. 4. 2.
  */
 @keyframes loading-indicator-column {
     0% {
@@ -73,18 +73,14 @@
 }
 
 div[data-type='loading'][data-role='loading'] {
-    --loading-box-size: 40px;
-    --loading-box-padding: var(--padding-large);
-    --loading-box-align: center;
-
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000;
+    z-index: 1000 !important;
     display: flex;
-    justify-content: var(--loading-box-align);
+    justify-content: center;
     align-items: center;
     visibility: hidden;
 
@@ -93,7 +89,7 @@ div[data-type='loading'][data-role='loading'] {
         height: 100%;
         z-index: -1;
         opacity: 0.5;
-        background: var(--loading-background);
+        background: var(--aui-color-background-100);
         position: absolute;
         top: 0;
         left: 0;
@@ -103,14 +99,14 @@ div[data-type='loading'][data-role='loading'] {
     > div[data-role='box'] {
         display: flex;
         align-items: center;
-        padding: var(--loading-box-padding);
-        background: var(--loading-box-background);
+        padding: var(--aui-component-gap);
+        background: var(--aui-color-background-300);
         margin: 1px;
         gap: 5px;
 
         > div[data-role='indicator'] {
-            width: var(--loading-box-size);
-            height: var(--loading-box-size);
+            width: 2rem;
+            height: 2rem;
             flex-shrink: 0;
             position: relative;
 
@@ -121,7 +117,7 @@ div[data-type='loading'][data-role='loading'] {
                     top: 10%;
                     width: 20%;
                     height: 80%;
-                    background: var(--loading-color-indicator);
+                    background: var(--aui-color-text-200);
                     animation: loading-indicator-column 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
 
                     &:nth-child(1) {
@@ -148,7 +144,7 @@ div[data-type='loading'][data-role='loading'] {
                     top: 40%;
                     width: 20%;
                     height: 20%;
-                    background: var(--loading-color-indicator);
+                    background: var(--aui-color-text-200);
                     border-radius: 50%;
 
                     &:nth-child(1) {
@@ -188,21 +184,21 @@ div[data-type='loading'][data-role='loading'] {
                         left: 0%;
                         top: 0%;
                         animation: loading-indicator-atom1 1s linear infinite;
-                        border-bottom: 3px solid var(--loading-color-indicator);
+                        border-bottom: 3px solid var(--aui-color-text-200);
                     }
 
                     &:nth-child(2) {
                         right: 0%;
                         top: 0%;
                         animation: loading-indicator-atom2 1s linear infinite;
-                        border-right: 3px solid var(--loading-color-indicator);
+                        border-right: 3px solid var(--aui-color-text-200);
                     }
 
                     &:nth-child(3) {
                         right: 0%;
                         bottom: 0%;
                         animation: loading-indicator-atom3 1s linear infinite;
-                        border-top: 3px solid var(--loading-color-indicator);
+                        border-top: 3px solid var(--aui-color-text-200);
                     }
                 }
             }
@@ -217,9 +213,9 @@ div[data-type='loading'][data-role='loading'] {
         }
 
         > div[data-role='text'] {
-            font-family: var(--font-family-default);
-            font-size: var(--font-size-default);
-            color: var(--loading-color-text);
+            font-family: var(--aui-font-family-default);
+            font-size: var(--aui-font-size-default);
+            color: var(--aui-color-text-200);
             text-align: center;
             line-height: 1.4;
         }
@@ -227,7 +223,7 @@ div[data-type='loading'][data-role='loading'] {
         &:not(.row) {
             > div[data-role='indicator'][data-type='column'] + div[data-role='text'],
             > div[data-role='indicator'][data-type='dot'] + div[data-role='text'] {
-                padding-bottom: var(--padding-default);
+                padding-bottom: var(--aui-component-gap);
             }
         }
     }
