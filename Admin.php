@@ -324,6 +324,7 @@ class Admin extends \Module
          * 관리자가 아니라면 로그인 레이아웃을 출력한다.
          */
         if ($this->getAdministrator()?->isAdministrator() !== true) {
+            \Html::style($this->getBase() . '/ui/styles/Aui.Base.css');
             \Html::style($this->getBase() . '/admin/styles/Admin.css', 15);
 
             return $theme->getLayout('login');
