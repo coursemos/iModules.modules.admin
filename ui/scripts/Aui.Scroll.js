@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Scroll.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 3. 27.
  */
 var Aui;
 (function (Aui) {
@@ -37,8 +37,8 @@ var Aui;
                 this.scrollable.y = false;
             }
             else {
-                this.scrollable.x = scrollable == true || scrollable.toLowerCase() == 'x';
-                this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
+                this.scrollable.x = scrollable === true || scrollable.toLowerCase() == 'x';
+                this.scrollable.y = scrollable === true || scrollable.toLowerCase() == 'y';
             }
             Aui.Scroll.scrollbars.set(this.$target.getEl(), this);
         }
@@ -543,7 +543,14 @@ var Aui;
         /**
          * 스크롤바 위치를 다시 조절한다.
          */
+        latestTargetSize = { width: 0, height: 0 };
         updatePosition() {
+            if (this.latestTargetSize.width === this.$target.getWidth() &&
+                this.latestTargetSize.height === this.$target.getHeight()) {
+                return;
+            }
+            this.latestTargetSize.width = this.$target.getWidth();
+            this.latestTargetSize.height = this.$target.getHeight();
             const componentRect = this.$component.getEl().getBoundingClientRect();
             const targetRect = this.$target.getEl().getBoundingClientRect();
             const width = componentRect.width - targetRect.width;
@@ -552,12 +559,16 @@ var Aui;
             const right = componentRect.right - targetRect.right;
             const top = targetRect.top - componentRect.top;
             const bottom = componentRect.bottom - targetRect.bottom;
-            this.$getScrollbar('x').setStyle('left', left + 'px');
-            this.$getScrollbar('x').setStyle('bottom', bottom + 'px');
-            this.$getScrollbar('x').setStyle('width', 'calc(100% - ' + width + 'px)');
-            this.$getScrollbar('y').setStyle('right', right + 'px');
-            this.$getScrollbar('y').setStyle('top', top + 'px');
-            this.$getScrollbar('y').setStyle('height', 'calc(100% - ' + height + 'px)');
+            if (this.scrollable.x == true) {
+                this.$getScrollbar('x').setStyle('left', left + 'px');
+                this.$getScrollbar('x').setStyle('bottom', bottom + 'px');
+                this.$getScrollbar('x').setStyle('width', 'calc(100% - ' + width + 'px)');
+            }
+            if (this.scrollable.y == true) {
+                this.$getScrollbar('y').setStyle('right', right + 'px');
+                this.$getScrollbar('y').setStyle('top', top + 'px');
+                this.$getScrollbar('y').setStyle('height', 'calc(100% - ' + height + 'px)');
+            }
         }
         /**
          * 스크롤바를 랜더링하여 실제로 객체를 스크롤 한다.
@@ -574,8 +585,12 @@ var Aui;
                     this.setPosition(nextX.position, nextY.position, true);
                 }
                 this.updatePosition();
-                this.updateTrack('x');
-                this.updateTrack('y');
+                if (this.scrollable.x == true) {
+                    this.updateTrack('x');
+                }
+                if (this.scrollable.y == true) {
+                    this.updateTrack('y');
+                }
             }
             if (Aui.has(this.getId()) == true) {
                 requestAnimationFrame(this.scrollbarRender.bind(this));
@@ -585,13 +600,22 @@ var Aui;
          * 스크롤바를 랜더링한다.
          */
         render() {
+            if (this.scrollable.x == false && this.scrollable.y == false) {
+                return;
+            }
             if (this.rendered !== true) {
                 this.rendered = true;
-                this.$target.addClass('scrollbar');
-                this.$component.append(this.$getScrollbar('x'));
-                this.$component.append(this.$getScrollbar('y'));
-                this.updateTrack('x');
-                this.updateTrack('y');
+                this.$target.setAttr('data-scroll', 'true');
+                if (this.scrollable.x == true) {
+                    this.$target.setAttr('data-scroll-x', 'true');
+                    this.$component.append(this.$getScrollbar('x'));
+                    this.updateTrack('x');
+                }
+                if (this.scrollable.y == true) {
+                    this.$target.setAttr('data-scroll-y', 'true');
+                    this.$component.append(this.$getScrollbar('y'));
+                    this.updateTrack('y');
+                }
                 this.setEvent();
                 this.scrollbarRender();
             }
