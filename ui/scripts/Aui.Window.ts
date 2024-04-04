@@ -99,9 +99,9 @@ namespace Aui {
             title?: string | Aui.Title;
 
             /**
-             * @type {Aui.Button[]} buttons - 버튼목록
+             * @type {(Aui.Button|'->')[]} buttons - 버튼목록
              */
-            buttons?: Aui.Button[];
+            buttons?: (Aui.Button | '->')[];
 
             /**
              * @type {Aui.Component.Listeners} listeners - 이벤트리스너
@@ -178,6 +178,9 @@ namespace Aui {
             this.buttons = [];
             for (let button of this.properties.buttons ?? []) {
                 if (button instanceof Aui.Component) {
+                    this.buttons.push(button);
+                } else if (button == '->') {
+                    button = new Aui.Toolbar.Item('->');
                     this.buttons.push(button);
                 } else {
                     button = new Aui.Button(button);

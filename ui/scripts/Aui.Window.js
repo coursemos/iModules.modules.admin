@@ -72,6 +72,10 @@ var Aui;
                 if (button instanceof Aui.Component) {
                     this.buttons.push(button);
                 }
+                else if (button == '->') {
+                    button = new Aui.Toolbar.Item('->');
+                    this.buttons.push(button);
+                }
                 else {
                     button = new Aui.Button(button);
                     this.buttons.push(button);
