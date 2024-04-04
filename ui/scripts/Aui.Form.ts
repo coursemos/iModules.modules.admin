@@ -2898,6 +2898,10 @@ namespace Aui {
                         number = number.toString();
                     }
 
+                    if ((number?.length ?? 0) == 0) {
+                        return 0;
+                    }
+
                     const parts = (1234.5).toLocaleString(this.locale).match(/(\D+)/g);
                     let unformatted = number;
 
