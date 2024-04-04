@@ -2117,7 +2117,7 @@ namespace Aui {
                  */
                 getValue(): string {
                     if (this.value instanceof moment) {
-                        return Format.date(this.format, this.value);
+                        return Format.date(this.format, this.value, null, false);
                     }
 
                     return null;
@@ -2955,6 +2955,24 @@ namespace Aui {
                     }
 
                     super.setValue(value, is_origin);
+                }
+
+                /**
+                 * 필드셋 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled: boolean): this {
+                    if (disabled == true) {
+                        Html.all('button', this.$getSpinner()).setAttr('disabled', 'disabled');
+                    } else {
+                        Html.all('button', this.$getSpinner()).removeAttr('disabled');
+                    }
+
+                    super.setDisabled(disabled);
+
+                    return this;
                 }
 
                 /**
@@ -4383,6 +4401,7 @@ namespace Aui {
                         type: this.properties.loadingType ?? 'column',
                         direction: 'row',
                         message: this.properties.loadingText ?? null,
+                        modal: false,
                     });
                 }
 

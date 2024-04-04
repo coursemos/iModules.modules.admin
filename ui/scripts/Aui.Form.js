@@ -1641,7 +1641,7 @@ var Aui;
                  */
                 getValue() {
                     if (this.value instanceof moment) {
-                        return Format.date(this.format, this.value);
+                        return Format.date(this.format, this.value, null, false);
                     }
                     return null;
                 }
@@ -2306,6 +2306,22 @@ var Aui;
                         this.$getInput().setValue(value.toString());
                     }
                     super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드셋 비활성화여부를 설정한다.
+                 *
+                 * @param {boolean} disabled - 비활성화여부
+                 * @return {this} this
+                 */
+                setDisabled(disabled) {
+                    if (disabled == true) {
+                        Html.all('button', this.$getSpinner()).setAttr('disabled', 'disabled');
+                    }
+                    else {
+                        Html.all('button', this.$getSpinner()).removeAttr('disabled');
+                    }
+                    super.setDisabled(disabled);
+                    return this;
                 }
                 /**
                  * 최소값을 설정한다.
@@ -3365,6 +3381,7 @@ var Aui;
                         type: this.properties.loadingType ?? 'column',
                         direction: 'row',
                         message: this.properties.loadingText ?? null,
+                        modal: false,
                     });
                 }
                 /**
