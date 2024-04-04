@@ -82,6 +82,22 @@ if (count($errors) == 0) {
             ->insert(iModules::table('sites'), $insert)
             ->execute();
     } else {
+        if ($site->logo != Input::get('logo')) {
+            $mAttachment->deleteFile($site->logo);
+        }
+
+        if ($site->emblem != Input::get('emblem')) {
+            $mAttachment->deleteFile($site->emblem);
+        }
+
+        if ($site->favicon != Input::get('favicon')) {
+            $mAttachment->deleteFile($site->favicon);
+        }
+
+        if ($site->image != Input::get('image')) {
+            $mAttachment->deleteFile($site->image);
+        }
+
         iModules::db()
             ->update(iModules::table('sites'), $insert)
             ->where('host', $site->host)
@@ -89,25 +105,10 @@ if (count($errors) == 0) {
             ->execute();
     }
 
-    $mAttachment->publishFile(Input::get('logo'), $me, 'logo', $insert['host'] . '/' . $insert['language'], true);
-    if (Input::get('logo') !== null) {
-        $mAttachment->getAttachment(Input::get('logo'))->setName('logo', false);
-    }
-
-    $mAttachment->publishFile(Input::get('emblem'), $me, 'emblem', $insert['host'] . '/' . $insert['language'], true);
-    if (Input::get('emblem') !== null) {
-        $mAttachment->getAttachment(Input::get('emblem'))->setName('emblem', false);
-    }
-
-    $mAttachment->publishFile(Input::get('favicon'), $me, 'favicon', $insert['host'] . '/' . $insert['language'], true);
-    if (Input::get('favicon') !== null) {
-        $mAttachment->getAttachment(Input::get('favicon'))->setName('favicon', false);
-    }
-
-    $mAttachment->publishFile(Input::get('image'), $me, 'image', $insert['host'] . '/' . $insert['language'], true);
-    if (Input::get('image') !== null) {
-        $mAttachment->getAttachment(Input::get('image'))->setName('image', false);
-    }
+    $mAttachment->moveFile(Input::get('logo'), $me, 'logo', $insert['host'] . '/' . $insert['language'], true);
+    $mAttachment->moveFile(Input::get('emblem'), $me, 'emblem', $insert['host'] . '/' . $insert['language'], true);
+    $mAttachment->moveFile(Input::get('favicon'), $me, 'favicon', $insert['host'] . '/' . $insert['language'], true);
+    $mAttachment->moveFile(Input::get('image'), $me, 'image', $insert['host'] . '/' . $insert['language'], true);
 
     Cache::remove('sites');
 

@@ -134,18 +134,10 @@ if ($check->has() == true) {
 }
 
 if (count($errors) == 0) {
-    if (Input::get('image') !== null) {
-        /**
-         * @var \modules\attachment\Attachment $mAttachment
-         */
-        $mAttachment = Modules::get('attachment');
-        $mAttachment->publishFile(
-            Input::get('image'),
-            $me,
-            'context',
-            $insert['host'] . '/' . $insert['language'] . $insert['path']
-        );
-    }
+    /**
+     * @var \modules\attachment\Attachment $mAttachment
+     */
+    $mAttachment = Modules::get('attachment');
 
     if ($context === null) {
         $insert['sort'] = iModules::db()
@@ -159,6 +151,10 @@ if (count($errors) == 0) {
             ->insert(iModules::table('contexts'), $insert)
             ->execute();
     } else {
+        if ($context->image != Input::get('image')) {
+            $mAttachment->deleteFile($context->image);
+        }
+
         iModules::db()
             ->update(iModules::table('contexts'), $insert)
             ->where('host', $context->host)
@@ -166,6 +162,14 @@ if (count($errors) == 0) {
             ->where('path', $context->path)
             ->execute();
     }
+
+    $mAttachment->moveFile(
+        Input::get('image'),
+        $me,
+        'context',
+        $insert['host'] . '/' . $insert['language'] . $insert['path'],
+        true
+    );
 
     Cache::remove('contexts');
 
