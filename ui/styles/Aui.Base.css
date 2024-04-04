@@ -9,7 +9,7 @@
  * @modified 2024. 4. 4.
  */
 :root {
-    --aui-scrollbar-color: #000;
+    --aui-color-scrollbar: #000;
 
     --aui-color-text-100: #999;
     --aui-color-text-200: #666;
@@ -86,8 +86,6 @@
     --aui-color-selection-500: #e1edfa;
     --aui-color-selection-600: #dae5f2;
 
-    --aui-color-scrollbar: #000;
-
     --aui-font-family-default: SUIT;
     --aui-font-family-head: SUITE;
     --aui-font-family-numeric: SUIT;
@@ -107,10 +105,170 @@
     --aui-component-height-extra-large: 3rem;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --aui-color-scrollbar: #fff;
+
+        --aui-color-text-100: #d0d0d0;
+        --aui-color-text-200: #dadada;
+        --aui-color-text-300: #e6e6e6;
+        --aui-color-text-400: #f7f7f7;
+        --aui-color-text-500: #f2f2f2;
+        --aui-color-text-600: #fff;
+
+        --aui-color-text-backward-100: #ccc;
+        --aui-color-text-backward-200: #d0d0d0;
+        --aui-color-text-backward-300: #dadada;
+        --aui-color-text-backward-400: #e6e6e6;
+        --aui-color-text-backward-500: #f2f2f2;
+        --aui-color-text-backward-600: #fff;
+
+        --aui-color-background-100: #999;
+        --aui-color-background-200: #666;
+        --aui-color-background-300: #4d4d4d;
+        --aui-color-background-400: #333;
+        --aui-color-background-500: #1a1a1a;
+        --aui-color-background-600: #000;
+
+        --aui-color-theme-100: #fff;
+        --aui-color-theme-200: #e6e6e6;
+        --aui-color-theme-300: #66acfb;
+        --aui-color-theme-400: #3391f9;
+        --aui-color-theme-500: #0075f8;
+        --aui-color-theme-600: #005ec6;
+        --aui-color-theme-700: #2d3845;
+        --aui-color-theme-800: #242c37;
+        --aui-color-theme-900: #000000;
+
+        --aui-color-primary-300: #66acfb;
+        --aui-color-primary-400: #3391f9;
+        --aui-color-primary-500: #0075f8;
+        --aui-color-primary-600: #005ec6;
+        --aui-color-primary-700: #004695;
+
+        --aui-color-secondary-300: #66e2ff;
+        --aui-color-secondary-400: #33d9ff;
+        --aui-color-secondary-500: #00cfff;
+        --aui-color-secondary-600: #00a6cc;
+        --aui-color-secondary-700: #007c99;
+
+        --aui-color-accent-300: #004695;
+        --aui-color-accent-400: #005ec6;
+        --aui-color-accent-500: #0075f8;
+        --aui-color-accent-600: #3391f9;
+        --aui-color-accent-700: #66acfb;
+
+        --aui-color-accent-backward-400: #e6e6e6;
+        --aui-color-accent-backward-500: #f7f7f7;
+        --aui-color-accent-backward-600: #fff;
+
+        --aui-color-begining-400: #08ad55;
+        --aui-color-begining-500: #14ae5c;
+        --aui-color-begining-600: #45e590;
+
+        --aui-color-danger-400: #cc3131;
+        --aui-color-danger-500: #dc3535;
+        --aui-color-danger-600: #ef5454;
+
+        --aui-color-action-400: #5442c2;
+        --aui-color-action-500: #6d56fb;
+        --aui-color-action-600: #8875fe;
+
+        --aui-color-mark-400: #08163e;
+        --aui-color-mark-500: #07394f;
+        --aui-color-mark-600: #0F20454;
+
+        --aui-color-selection-400: #101a03;
+        --aui-color-selection-500: #1e1215;
+        --aui-color-selection-600: #254a0d;
+    }
+}
+
 body[data-type='admin'] {
     background: var(--aui-color-background-500);
 
-    &.dark {
+    &[data-color-scheme='light'] {
+        --aui-color-scrollbar: #000;
+
+        --aui-color-text-100: #999;
+        --aui-color-text-200: #666;
+        --aui-color-text-300: #4d4d4d;
+        --aui-color-text-400: #333;
+        --aui-color-text-500: #1a1a1a;
+        --aui-color-text-600: #000;
+
+        --aui-color-text-backward-100: #ccc;
+        --aui-color-text-backward-200: #d0d0d0;
+        --aui-color-text-backward-300: #dadada;
+        --aui-color-text-backward-400: #e6e6e6;
+        --aui-color-text-backward-500: #f2f2f2;
+        --aui-color-text-backward-600: #fff;
+
+        --aui-color-background-100: #d0d0d0;
+        --aui-color-background-200: #dadada;
+        --aui-color-background-300: #e6e6e6;
+        --aui-color-background-400: #f7f7f7;
+        --aui-color-background-500: #fff;
+        --aui-color-background-600: #fff;
+
+        --aui-color-theme-0: #fff;
+        --aui-color-theme-100: #e6e6e6;
+        --aui-color-theme-200: #b4b4b4;
+        --aui-color-theme-300: #66acfb;
+        --aui-color-theme-400: #3391f9;
+        --aui-color-theme-500: #0075f8;
+        --aui-color-theme-600: #005ec6;
+        --aui-color-theme-700: #414c58;
+        --aui-color-theme-800: #2c3845;
+        --aui-color-theme-900: #191c21;
+        --aui-color-theme-1000: #000;
+
+        --aui-color-primary-300: #66acfb;
+        --aui-color-primary-400: #3391f9;
+        --aui-color-primary-500: #0075f8;
+        --aui-color-primary-600: #005ec6;
+        --aui-color-primary-700: #004695;
+
+        --aui-color-secondary-300: #66e2ff;
+        --aui-color-secondary-400: #33d9ff;
+        --aui-color-secondary-500: #00cfff;
+        --aui-color-secondary-600: #00a6cc;
+        --aui-color-secondary-700: #007c99;
+
+        --aui-color-accent-300: #66acfb;
+        --aui-color-accent-400: #3391f9;
+        --aui-color-accent-500: #0075f8;
+        --aui-color-accent-600: #005ec6;
+        --aui-color-accent-700: #004695;
+
+        --aui-color-accent-backward-400: #e6e6e6;
+        --aui-color-accent-backward-500: #f7f7f7;
+        --aui-color-accent-backward-600: #fff;
+
+        --aui-color-begining-400: #45e590;
+        --aui-color-begining-500: #14ae5c;
+        --aui-color-begining-600: #08ad55;
+
+        --aui-color-danger-400: #ef5454;
+        --aui-color-danger-500: #dc3535;
+        --aui-color-danger-600: #cc3131;
+
+        --aui-color-action-400: #8875fe;
+        --aui-color-action-500: #6d56fb;
+        --aui-color-action-600: #5442c2;
+
+        --aui-color-mark-400: #f7e9c1;
+        --aui-color-mark-500: #f8e6b0;
+        --aui-color-mark-600: #f0dfab;
+
+        --aui-color-selection-400: #eff5fc;
+        --aui-color-selection-500: #e1edfa;
+        --aui-color-selection-600: #dae5f2;
+    }
+
+    &[data-color-scheme='dark'] {
+        --aui-color-scrollbar: #fff;
+
         --aui-color-text-100: #d0d0d0;
         --aui-color-text-200: #dadada;
         --aui-color-text-300: #e6e6e6;
