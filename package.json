@@ -27,6 +27,7 @@
                 "ko": "관리자테마"
             },
             "type": "theme",
+            "category": "admin",
             "default": "/modules/admin/default"
         }
     },

@@ -77,6 +77,7 @@ namespace AdminUi {
                             name: field.name ?? null,
                             label: field.label ?? null,
                             value: field.value?.name ?? null,
+                            category: field.category ?? 'website',
                             allowBlank: field.allowBlank ?? true,
                         });
 
@@ -972,7 +973,7 @@ namespace AdminUi {
                     }
 
                     this.listUrl = Admin.getProcessUrl('module', 'admin', 'themes');
-                    this.listParams = null;
+                    this.listParams = { category: this.properties.category ?? 'website' };
                     this.configsUrl = Admin.getProcessUrl('module', 'admin', 'theme');
                     this.configsParams = this.properties.configsParams ?? {};
 

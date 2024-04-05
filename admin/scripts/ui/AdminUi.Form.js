@@ -57,6 +57,7 @@ var AdminUi;
                             name: field.name ?? null,
                             label: field.label ?? null,
                             value: field.value?.name ?? null,
+                            category: field.category ?? 'website',
                             allowBlank: field.allowBlank ?? true,
                         });
                     case 'template':
@@ -793,7 +794,7 @@ var AdminUi;
                         this.rawValue = { name: name, configs: configs };
                     }
                     this.listUrl = Admin.getProcessUrl('module', 'admin', 'themes');
-                    this.listParams = null;
+                    this.listParams = { category: this.properties.category ?? 'website' };
                     this.configsUrl = Admin.getProcessUrl('module', 'admin', 'theme');
                     this.configsParams = this.properties.configsParams ?? {};
                     this.fieldsetTitle = Admin.printText('components.form.theme_configs');

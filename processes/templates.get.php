@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/templates.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 5.
  *
  * @var \modules\admin\Admin $me
  */
@@ -27,43 +27,69 @@ if ($componentType == 'module') {
  * @var Template[] $templates
  */
 $templates = [];
-$names = File::getDirectoryItems($component->getPath() . '/templates', 'directory', false);
-foreach ($names as $name) {
-    $templates[] = new Template($component, (object) ['name' => basename($name)]);
+
+/**
+ * 해당 컴포넌트의 기본 템플릿 경로를 탐색한다.
+ */
+$path = $component->getPath() . '/templates';
+if (is_dir($path) == true) {
+    $names = File::getDirectoryItems($path, 'directory', false);
+    foreach ($names as $name) {
+        if (is_file($name . '/package.json') == true) {
+            $templates[] = new Template($component, (object) ['name' => basename($name)]);
+        }
+    }
 }
 
 /**
- * 사이트테마는 모듈의 템플릿을 가지고 있을 수 있으므로, 사이트테마 폴더에서 템플릿을 검색한다.
+ * 사이트테마는 컴포넌트의 템플릿을 가질 수 있으므로,
+ * 해당 경로에서 템플릿을 탐색한다.
  */
 $themes = File::getDirectoryItems(Configs::path() . '/themes', 'directory', false);
 foreach ($themes as $name) {
     $theme = basename($name);
-    $names = File::getDirectoryItems(
-        $name . '/' . $component->getType() . 's/' . $component->getName(),
-        'directory',
-        false
-    );
+
+    $names = [];
+    if ($componentType == 'module') {
+        $path = $name . '/' . $component->getType() . 's/' . $component->getName() . '/templates';
+        if (is_dir($path) == true) {
+            $names = File::getDirectoryItems($path, 'directory', false);
+        }
+    }
+
     foreach ($names as $name) {
-        $templates[] = new Template($component, (object) ['name' => '/' . $theme . '/' . basename($name)]);
+        if (is_file($name . '/package.json') == true) {
+            $templates[] = new Template($component, (object) ['name' => '/' . $theme . '/' . basename($name)]);
+        }
     }
 }
 
+/**
+ * 모듈은 사이트테마를 가질 수 있고, 사이트테마는 컴포넌트의 템플릿을 가질 수 있으므로,
+ * 해당 경로에서 템플릿을 탐색한다.
+ */
 $modules = Modules::all();
 foreach ($modules as $module) {
     if ($module->hasPackageProperty('THEME') == true) {
         $themes = File::getDirectoryItems($module->getPath() . '/themes', 'directory', false);
         foreach ($themes as $name) {
             $theme = basename($name);
-            $names = File::getDirectoryItems(
-                $name . '/' . $component->getType() . 's/' . $component->getName(),
-                'directory',
-                false
-            );
+
+            $names = [];
+            if ($componentType == 'module') {
+                $path = $name . '/' . $component->getType() . 's/' . $component->getName() . '/templates';
+                if (is_dir($path) == true) {
+                    $names = File::getDirectoryItems($path, 'directory', false);
+                }
+            }
+
             foreach ($names as $name) {
-                $templates[] = new Template(
-                    $component,
-                    (object) ['name' => '/modules/' . $module->getName() . '/' . $theme . '/' . basename($name)]
-                );
+                if (is_file($name . '/package.json') == true) {
+                    $templates[] = new Template(
+                        $component,
+                        (object) ['name' => '/modules/' . $module->getName() . '/' . $theme . '/' . basename($name)]
+                    );
+                }
             }
         }
     }

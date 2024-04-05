@@ -2,6 +2,7 @@
     "title": {
         "ko": "아이모듈 관리자 기본테마"
     },
+    "category": "admin",
     "version": "4.0.0",
     "author": {
         "name": "Arzz",
