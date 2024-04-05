@@ -25,6 +25,10 @@ div[data-component][data-type='window'] {
         justify-content: flex-start;
         box-sizing: border-box;
 
+        &:has(div[data-role='top']) {
+            border-top: 0;
+        }
+
         > div[data-role='content'] {
             background: var(--aui-color-background-500);
             position: relative;

@@ -292,8 +292,8 @@ div[data-component][data-type='navigation'][data-role='panel'] {
                                     position: absolute;
                                     left: calc(var(--aui-component-gap) * 1.5);
                                     top: var(--aui-component-gap);
-                                    width: 6px;
-                                    height: 6px;
+                                    width: 0.25rem;
+                                    height: 0.25rem;
                                     background: var(--aui-color-theme-0);
                                     border-radius: 50%;
                                     content: ' ';

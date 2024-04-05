@@ -154,7 +154,7 @@ body {
                                 > i {
                                     animation: mi-loading 2s infinite linear;
                                     &::before {
-                                        content: '\ed00';
+                                        content: '\efff';
                                     }
                                 }
                             }

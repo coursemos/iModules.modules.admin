@@ -296,7 +296,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                             > label {
                                 &::before {
                                     font-family: moimz;
-                                    content: '\eb10';
+                                    content: '\e404';
                                     background: var(--aui-color-accent-500);
                                     border-color: var(--aui-color-accent-500);
                                     color: var(--aui-color-text-backward-500);
@@ -693,7 +693,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
 
                                             &::before {
                                                 font-family: moimz;
-                                                content: '\eb10';
+                                                content: '\e404';
                                             }
                                         }
                                     }

@@ -95,7 +95,7 @@ div[data-component][data-type='form'][data-role='fieldset'] {
                         line-height: 13px;
                         text-align: center;
                         font-size: 10px;
-                        content: '\eb01';
+                        content: '\e403';
                     }
                 }
             }
@@ -103,7 +103,7 @@ div[data-component][data-type='form'][data-role='fieldset'] {
             &.collapsed {
                 > div[data-role='top'] {
                     > legend::before {
-                        content: '\eb00';
+                        content: '\e402';
                     }
                 }
             }
@@ -389,10 +389,12 @@ div[data-component][data-type='form'][data-role='field'] {
                 font-family: moimz;
                 font-size: 11px;
                 background: var(--aui-color-background-500);
+                color: var(--aui-color-text-500);
                 border: 0;
 
                 &[disabled] {
                     background: var(--aui-color-background-400);
+                    background: var(--aui-color-text-300);
                     cursor: not-allowed;
                 }
 
@@ -1563,7 +1565,7 @@ div[data-component][data-type='form'][data-role='field'] {
                             background: var(--aui-color-accent-500);
                             color: var(--aui-color-accent-backward-500);
                             font-family: moimz;
-                            content: '\eb10';
+                            content: '\e404';
                             font-size: 14px;
                             text-align: center;
                             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 6px);
