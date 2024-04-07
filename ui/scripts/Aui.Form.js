@@ -4277,10 +4277,10 @@ var Aui;
                         heightMin: this.minHeight,
                     });
                     if (typeof this.getParent().padding == 'number') {
-                        this.$getContent().setStyleProperty('--editor-toolbar-header-cover-height', this.getParent().padding + 'px');
+                        this.$getContent().setStyleProperty('--im-wysiwyg-toolbar-sticky-height', this.getParent().padding + 'px');
                     }
                     else {
-                        this.$getContent().setStyleProperty('--editor-toolbar-header-cover-height', this.getParent().padding[0] + 'px');
+                        this.$getContent().setStyleProperty('--im-wysiwyg-toolbar-sticky-height', this.getParent().padding[0] + 'px');
                     }
                 }
             }

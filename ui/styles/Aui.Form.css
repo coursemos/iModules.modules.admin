@@ -812,7 +812,29 @@ div[data-component][data-type='form'][data-role='field'] {
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='editor'] {
-        //
+        --im-wysiwyg-background-default: var(--aui-color-background-500);
+
+        --im-wysiwyg-border-weight: 1px;
+        --im-wysiwyg-border-color-default: var(--aui-color-background-200);
+        --im-wysiwyg-border-color-focus: var(--aui-color-accent-500);
+        --im-wysiwyg-border-color-active: var(--aui-color-accent-500);
+        --im-wysiwyg-border-radius: 0;
+
+        --im-wysiwyg-toolbar-sticky-offset: 0;
+        --im-wysiwyg-toolbar-sticky-height: var(--aui-component-gap);
+        --im-wysiwyg-toolbar-sticky-background: var(--aui-color-background-500);
+        --im-wysiwyg-toolbar-border-color: var(--aui-color-text-500);
+        --im-wysiwyg-toolbar-border-weight: 2px;
+        --im-wysiwyg-toolbar-background-default: var(--aui-color-background-400);
+
+        --im-wysiwyg-button-height: var(--aui-component-height-default);
+        --im-wysiwyg-button-icon-size: 1rem;
+        --im-wysiwyg-button-color-default: var(--aui-color-text-500);
+        --im-wysiwyg-button-color-active: var(--aui-color-accent-backward-500);
+        --im-wysiwyg-button-color-disabled: var(--aui-color-background-100);
+        --im-wysiwyg-button-background-hover: var(--aui-color-background-300);
+        --im-wysiwyg-button-background-active: var(--aui-color-accent-400);
+        --im-wysiwyg-button-background-active-hover: var(--aui-color-accent-500);
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='file'] {

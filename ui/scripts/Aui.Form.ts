@@ -5413,12 +5413,12 @@ namespace Aui {
 
                     if (typeof this.getParent().padding == 'number') {
                         this.$getContent().setStyleProperty(
-                            '--editor-toolbar-header-cover-height',
+                            '--im-wysiwyg-toolbar-sticky-height',
                             (this.getParent().padding as number) + 'px'
                         );
                     } else {
                         this.$getContent().setStyleProperty(
-                            '--editor-toolbar-header-cover-height',
+                            '--im-wysiwyg-toolbar-sticky-height',
                             this.getParent().padding[0] + 'px'
                         );
                     }
