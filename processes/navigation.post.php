@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/navigation.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 4.
+ * @modified 2024. 4. 9.
  *
  * @var \modules\admin\Admin $me
  */
@@ -24,13 +24,7 @@ if ($me->getAdministrator()?->isAdministrator() !== true) {
     return;
 }
 
-$administrator = $me->getAdministrator();
 $contexts = json_encode(Input::get('contexts'));
 
-$me->db()
-    ->update($me->table('administrators'), ['navigation' => $contexts])
-    ->where('member_id', $administrator->getId())
-    ->execute();
-
-$results->success = true;
+$results->success = $me->getAdministrator()->update(['navigation' => $contexts]);
 $results->contexts = Input::get('contexts');

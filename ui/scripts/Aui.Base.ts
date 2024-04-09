@@ -327,8 +327,6 @@ Html.ready(() => {
             buttons: Aui.Message.OK,
             closable: true,
         });
-
-        console.log(e);
     });
 
     document.addEventListener('keydown', (e: KeyboardEvent) => {

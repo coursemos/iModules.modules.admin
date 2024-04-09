@@ -633,7 +633,7 @@ div[data-component][data-type='form'][data-role='field'] {
         > button {
             width: calc(var(--aui-component-height-default) + 1px);
             height: calc(var(--aui-component-height-default) - 2px);
-            font-size: var(--aui-font-size-default);
+            font-size: 1rem;
             border: 0;
             background: var(--aui-color-accent-500);
             color: var(--aui-color-accent-backward-500);
@@ -1949,11 +1949,11 @@ div[data-component][data-type='form'][data-role='calendar'] {
                 }
 
                 &[data-action='prev']::before {
-                    content: '\e908';
+                    content: '\e211';
                 }
 
                 &[data-action='next']::before {
-                    content: '\e911';
+                    content: '\e212';
                 }
 
                 &[data-action='month']::after {
@@ -1982,6 +1982,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
                     height: 32px;
                     line-height: 32px;
                     text-align: center;
+                    color: var(--aui-color-text-500);
                     background: var(--aui-color-background-400);
 
                     &[data-day='Su'] {
@@ -1995,7 +1996,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
             }
 
             > ul[data-role='dates'] {
-                background: var(--aui-color-background-200);
+                background: var(--aui-color-background-300);
                 gap: 1px;
                 display: grid;
                 grid-template-columns: repeat(7, 1fr);
@@ -2007,6 +2008,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
                     background: var(--aui-color-background-500);
                     text-align: center;
                     cursor: pointer;
+                    color: var(--aui-color-text-400);
 
                     &[data-day='Su'] {
                         color: #dc3535;
@@ -2021,7 +2023,8 @@ div[data-component][data-type='form'][data-role='calendar'] {
                     }
 
                     &.today {
-                        background: #bfdaf1;
+                        background: var(--aui-color-accent-400);
+                        color: var(--aui-color-accent-backward-500);
 
                         &:hover {
                             background: var(--aui-color-accent-500);
@@ -2035,7 +2038,7 @@ div[data-component][data-type='form'][data-role='calendar'] {
                     }
 
                     &.disabled {
-                        color: var(--aui-color-background-400);
+                        color: var(--aui-color-background-100);
                     }
                 }
             }

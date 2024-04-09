@@ -7,7 +7,7 @@
  * @file /modules/admin/dtos/Administrator.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 5.
+ * @modified 2024. 4. 9.
  */
 namespace modules\admin\dtos;
 class Administrator
@@ -412,6 +412,41 @@ class Administrator
         $permission->separate($permissions->getPermissions());
 
         return $permission;
+    }
+
+    /**
+     * 관리자정보를 업데이트한다.
+     * 관리자 권한이 존재하나, 관리자 정보가 데이터베이스에 없는 경우에는 관리자정보를 추가한 뒤 정보를 업데이트한다.
+     *
+     * @param array $updated 업데이트 할 정보
+     * @return bool $success
+     */
+    public function update(array $updated): bool
+    {
+        /**
+         * @var \modules\admin\Admin $mAdmin
+         */
+        $mAdmin = \Modules::get('admin');
+        $checked = $mAdmin
+            ->db()
+            ->select()
+            ->from($mAdmin->table('administrators'))
+            ->where('member_id', $this->getId())
+            ->getOne();
+
+        if ($checked === null) {
+            if ($this->isAdministrator() === false) {
+                return false;
+            }
+        }
+
+        $insert = array_merge(['member_id' => $this->getId()], $updated);
+        $results = $mAdmin
+            ->db()
+            ->insert($mAdmin->table('administrators'), $insert, array_keys($updated))
+            ->execute();
+
+        return $results->success;
     }
 
     /**

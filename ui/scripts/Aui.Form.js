@@ -1529,7 +1529,7 @@ var Aui;
                     if (this.$button === undefined) {
                         this.$button = Html.create('button', {
                             type: 'button',
-                            class: 'mi mi-calendar',
+                            class: 'mi mi-calendar-dates',
                         });
                         this.$button.on('pointerdown', (e) => {
                             if (this.isExpand() == true) {

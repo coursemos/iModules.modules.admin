@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/configs.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 5.
+ * @modified 2024. 4. 9.
  *
  * @var \modules\admin\Admin $me
  */
@@ -37,12 +37,7 @@ if ($key == 'scale') {
 }
 
 if (count($insert) > 0) {
-    $administrator = $me->getAdministrator();
-
-    $me->db()
-        ->update($me->table('administrators'), $insert)
-        ->where('member_id', $administrator->getId())
-        ->execute();
+    $results->success = $me->getAdministrator()->update($insert);
+} else {
+    $results->success = false;
 }
-
-$results->success = true;
