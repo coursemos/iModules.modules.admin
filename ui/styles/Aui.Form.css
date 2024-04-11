@@ -629,6 +629,7 @@ div[data-component][data-type='form'][data-role='field'] {
             font-family: var(--aui-font-family-default);
             color: var(--aui-color-text-500);
             border: 0;
+            vertical-align: middle;
 
             &[disabled] {
                 cursor: not-allowed;
@@ -644,6 +645,7 @@ div[data-component][data-type='form'][data-role='field'] {
             background: var(--aui-color-accent-500);
             color: var(--aui-color-accent-backward-500);
             cursor: pointer;
+            vertical-align: middle;
 
             &:hover {
                 background: var(--aui-color-accent-600);
@@ -656,7 +658,7 @@ div[data-component][data-type='form'][data-role='field'] {
             left: 0;
             z-index: -1;
             width: 100%;
-            height: var(--aui-component-height-default);
+            height: calc(var(--aui-component-height-default) - 2px);
             border: 1px solid transparent;
             box-sizing: border-box;
             padding: var(--aui-component-gap);

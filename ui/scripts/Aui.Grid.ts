@@ -1620,6 +1620,21 @@ namespace Aui {
                                         }),
                                         new Aui.Form.Field.Text({
                                             name: 'value',
+                                            listeners: {
+                                                enter: (field, value) => {
+                                                    const form = field.getForm();
+                                                    if (value?.length > 0) {
+                                                        this.setFilter(
+                                                            form.getField('value').getValue(),
+                                                            form.getField('operator').getValue()
+                                                        );
+                                                    } else {
+                                                        this.resetFilter();
+                                                    }
+
+                                                    this.close();
+                                                },
+                                            },
                                         }),
                                         new Aui.Form.Field.Container({
                                             items: [

@@ -1306,6 +1306,12 @@ var Aui;
                         if (this.readonly == true) {
                             this.$input.setAttr('readonly', 'readonly');
                         }
+                        this.$input.on('keydown', (e) => {
+                            if (e.key == 'Enter') {
+                                this.enter(e);
+                            }
+                            this.keydown(e);
+                        });
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
                             this.setValue(input.value);
@@ -1387,6 +1393,22 @@ var Aui;
                  */
                 blur() {
                     this.$getInput().blur();
+                }
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                keydown(e) {
+                    this.fireEvent('keydown', [this, e]);
+                }
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                enter(e) {
+                    this.fireEvent('enter', [this, this.getValue(), e]);
                 }
                 /**
                  * INPUT 태그를 랜더링한다.
@@ -1505,6 +1527,17 @@ var Aui;
                                 }
                             }
                         });
+                        this.$input.on('keydown', (e) => {
+                            if (e.key == 'ArrowUp' || e.key == 'ArrowDown') {
+                                if (this.value instanceof moment) {
+                                    this.setValue(this.value.clone().add(e.key == 'ArrowUp' ? -1 : 1, 'd'));
+                                }
+                            }
+                            if (e.key == 'Enter') {
+                                this.enter(e);
+                            }
+                            this.keydown(e);
+                        });
                     }
                     return this.$input;
                 }
@@ -1603,6 +1636,22 @@ var Aui;
                  */
                 blur() {
                     this.$getInput().blur();
+                }
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                keydown(e) {
+                    this.fireEvent('keydown', [this, e]);
+                }
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                enter(e) {
+                    this.fireEvent('enter', [this, this.getValue(), e]);
                 }
                 /**
                  * 필드값을 지정한다.
@@ -2165,6 +2214,10 @@ var Aui;
                             if (e.key.search(/[0-9\.,]/) == -1) {
                                 e.preventDefault();
                             }
+                            if (e.key == 'Enter') {
+                                this.enter(e);
+                            }
+                            this.keydown(e);
                         });
                     }
                     return this.$input;

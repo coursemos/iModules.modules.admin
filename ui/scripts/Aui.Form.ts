@@ -1668,6 +1668,18 @@ namespace Aui {
             }
 
             export namespace Text {
+                export interface Listeners extends Aui.Form.Field.Base.Listeners {
+                    /**
+                     * @var {Function} keydown - 필드에서 키보드 입력이 되었을 때
+                     */
+                    keydown?: (field: Aui.Form.Field.Base, e: KeyboardEvent) => void;
+
+                    /**
+                     * @var {Function} enter - 필드에서 엔터키 입력이 되었을 때
+                     */
+                    enter?: (field: Aui.Form.Field.Base, value: any, e: KeyboardEvent) => void;
+                }
+
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**
                      * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
@@ -1678,6 +1690,11 @@ namespace Aui {
                      * @type {string} inputAlign - 필드내 텍스트 정렬
                      */
                     inputAlign?: string;
+
+                    /**
+                     * @type {Aui.Form.Field.Base.Listeners} listeners - 이벤트리스너
+                     */
+                    listeners?: Aui.Form.Field.Text.Listeners;
                 }
             }
 
@@ -1721,6 +1738,13 @@ namespace Aui {
                         if (this.readonly == true) {
                             this.$input.setAttr('readonly', 'readonly');
                         }
+                        this.$input.on('keydown', (e: KeyboardEvent) => {
+                            if (e.key == 'Enter') {
+                                this.enter(e);
+                            }
+
+                            this.keydown(e);
+                        });
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLInputElement;
                             this.setValue(input.value);
@@ -1813,6 +1837,24 @@ namespace Aui {
                  */
                 blur(): void {
                     this.$getInput().blur();
+                }
+
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                keydown(e: KeyboardEvent): void {
+                    this.fireEvent('keydown', [this, e]);
+                }
+
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                enter(e: KeyboardEvent): void {
+                    this.fireEvent('enter', [this, this.getValue(), e]);
                 }
 
                 /**
@@ -1959,6 +2001,19 @@ namespace Aui {
                                 }
                             }
                         });
+                        this.$input.on('keydown', (e: KeyboardEvent) => {
+                            if (e.key == 'ArrowUp' || e.key == 'ArrowDown') {
+                                if (this.value instanceof moment) {
+                                    this.setValue(this.value.clone().add(e.key == 'ArrowUp' ? -1 : 1, 'd'));
+                                }
+                            }
+
+                            if (e.key == 'Enter') {
+                                this.enter(e);
+                            }
+
+                            this.keydown(e);
+                        });
                     }
 
                     return this.$input;
@@ -2071,6 +2126,24 @@ namespace Aui {
                  */
                 blur(): void {
                     this.$getInput().blur();
+                }
+
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                keydown(e: KeyboardEvent): void {
+                    this.fireEvent('keydown', [this, e]);
+                }
+
+                /**
+                 * 필드의 키보드 이벤트를 처리한다.
+                 *
+                 * @param {KeyboardEvent} e
+                 */
+                enter(e: KeyboardEvent): void {
+                    this.fireEvent('enter', [this, this.getValue(), e]);
                 }
 
                 /**
@@ -2782,6 +2855,12 @@ namespace Aui {
                             if (e.key.search(/[0-9\.,]/) == -1) {
                                 e.preventDefault();
                             }
+
+                            if (e.key == 'Enter') {
+                                this.enter(e);
+                            }
+
+                            this.keydown(e);
                         });
                     }
 
