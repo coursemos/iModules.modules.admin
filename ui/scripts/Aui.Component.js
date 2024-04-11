@@ -604,14 +604,10 @@ var Aui;
             }
             if (this.padding !== null) {
                 if (typeof this.padding == 'number') {
-                    if (this.padding > 0) {
-                        this.$getContent().setStyle('padding', this.padding + 'px');
-                    }
+                    this.$getContent().setStyle('padding', this.padding + 'px');
                 }
                 else if (Array.isArray(this.padding) == true) {
-                    if (this.padding.reduce((a, b) => a + b, 0) > 0) {
-                        this.$getContent().setStyle('padding', this.padding.map((a) => a + 'px').join(' '));
-                    }
+                    this.$getContent().setStyle('padding', this.padding.map((a) => a + 'px').join(' '));
                 }
             }
             if (this.margin !== null) {

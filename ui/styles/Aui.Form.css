@@ -16,6 +16,7 @@ div[data-component][data-type='panel'][data-role='form'] {
             gap: var(--aui-component-gap);
             align-items: stretch;
             height: max-content;
+            padding: var(--aui-component-padding);
         }
     }
 }
@@ -26,15 +27,15 @@ div[data-component][data-type='form'][data-role='fieldset'] {
 
         > div[data-role='top'] {
             position: relative;
-            height: 10px;
+            height: calc(var(--aui-component-height-default) / 2 - var(--aui-component-gap) - 2px);
 
             > legend {
                 position: absolute;
                 display: block;
                 width: fit-content;
-                height: 21px;
-                line-height: 21px;
-                left: 10px;
+                height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+                line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
+                left: calc(var(--aui-component-gap) * 1.5);
                 top: 0;
                 z-index: 1;
                 font-size: var(--aui-font-size-default);
@@ -49,6 +50,10 @@ div[data-component][data-type='form'][data-role='fieldset'] {
         > div[data-role='content'] {
             border: 1px solid var(--aui-color-background-200);
             background: var(--aui-color-background-500);
+            padding: var(--aui-component-padding);
+            padding-top: calc(
+                var(--aui-component-padding) + var(--aui-component-height-default) / 2 - var(--aui-component-gap) - 2px
+            );
             display: flex;
             flex-direction: column;
             row-gap: var(--aui-component-gap);
@@ -247,6 +252,7 @@ div[data-component][data-type='form'][data-role='field'] {
             width: 100%;
             display: flex;
             align-items: flex-start;
+            gap: var(--aui-component-gap);
 
             > div[data-component] {
                 flex-shrink: 0;

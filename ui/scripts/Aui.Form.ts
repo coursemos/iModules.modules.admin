@@ -66,7 +66,6 @@ namespace Aui {
 
                 this.role = 'form';
                 this.fieldDefaults = this.properties.fieldDefaults ?? { labelAlign: 'right', labelWidth: 110 };
-                this.padding = this.properties.padding ?? 10;
 
                 this.loading = new Aui.Loading(this, {
                     type: this.properties.loadingType ?? 'column',
@@ -401,12 +400,13 @@ namespace Aui {
                 this.helpText = this.properties.helpText ?? null;
                 this.collapsible = this.properties.collapsible === true;
                 this.collapsed = this.properties.collapsed === true;
+                /*
                 this.padding = this.properties.padding ?? [20, 10, 10, 10];
 
                 if (typeof this.padding == 'number') {
                     this.padding = [this.padding + 10, this.padding, this.padding, this.padding];
                 }
-
+                */
                 this.$setTop();
 
                 if (this.helpText !== null) {
@@ -1220,11 +1220,6 @@ namespace Aui {
                      * @type {'row' | 'column'} direction - 정렬방향
                      */
                     direction?: 'row' | 'column';
-
-                    /**
-                     * @type {number} gap - 내부 필드간 간격
-                     */
-                    gap?: number;
                 }
             }
 
@@ -1243,7 +1238,6 @@ namespace Aui {
                 allowBlank: boolean = true;
                 errors: Map<string, { is_error: boolean; message: string }> = new Map();
                 direction: 'row' | 'column' = 'row';
-                gap: number;
 
                 $fields: Dom;
 
@@ -1267,7 +1261,6 @@ namespace Aui {
                     this.allowBlank = true;
 
                     this.direction = this.properties.direction ?? 'row';
-                    this.gap = this.properties.gap ?? 5;
 
                     if (this.label !== null) {
                         this.$setTop();
@@ -1316,7 +1309,6 @@ namespace Aui {
                     if (this.$fields === undefined) {
                         this.$fields = Html.create('div', { 'data-role': 'fields' });
                         this.$fields.addClass(this.direction);
-                        this.$fields.setStyle('gap', this.gap + 'px');
                     }
 
                     return this.$fields;
@@ -3614,7 +3606,6 @@ namespace Aui {
                         this.fieldContainer = new Aui.Form.Field.Container({
                             direction: 'column',
                             items: [],
-                            gap: 5,
                             hidden: true,
                             parent: this,
                         });
@@ -5723,11 +5714,6 @@ namespace Aui {
             export namespace CheckGroup {
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**
-                     * @type {number} gap - 내부 선택항목간 간격
-                     */
-                    gap?: number;
-
-                    /**
                      * @type {number} columns - 한줄당 표시될 선택항목 갯수
                      */
                     columns?: number;
@@ -5756,7 +5742,6 @@ namespace Aui {
 
             export class CheckGroup extends Aui.Form.Field.Base {
                 field: string = 'checkgroup';
-                gap: number;
                 columns: number;
                 options: { [key: string]: string };
 
@@ -5771,7 +5756,6 @@ namespace Aui {
                     super(properties);
 
                     this.columns = this.properties.columns ?? 1;
-                    this.gap = this.properties.gap ?? 5;
                     this.options = this.properties.options ?? {};
                 }
 
@@ -5815,7 +5799,6 @@ namespace Aui {
                     if (this.$inputs === undefined) {
                         this.$inputs = Html.create('div', { 'data-role': 'inputs' });
                         this.$inputs.setStyle('grid-template-columns', 'repeat(' + this.columns + ', 1fr)');
-                        this.$inputs.setStyle('grid-gap', this.gap + 'px');
                     }
 
                     return this.$inputs;
@@ -6169,11 +6152,6 @@ namespace Aui {
             export namespace RadioGroup {
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**
-                     * @type {number} gap - 내부 선택항목간 간격
-                     */
-                    gap?: number;
-
-                    /**
                      * @type {number} columns - 한줄당 표시될 선택항목 갯수
                      */
                     columns?: number;
@@ -6202,7 +6180,6 @@ namespace Aui {
 
             export class RadioGroup extends Aui.Form.Field.Base {
                 field: string = 'radiogroup';
-                gap: number;
                 columns: number;
                 options: { [key: string]: string };
 
@@ -6215,7 +6192,6 @@ namespace Aui {
                     super(properties);
 
                     this.columns = this.properties.columns ?? 1;
-                    this.gap = this.properties.gap ?? 5;
                     this.options = this.properties.options ?? {};
                     this.scrollable = 'x';
                     this.$scrollable = this.$getContent();
@@ -6316,7 +6292,6 @@ namespace Aui {
                         'grid-template-columns',
                         'repeat(' + Math.min(this.items.length, this.columns) + ', 1fr)'
                     );
-                    $inputs.setStyle('grid-gap', this.gap + 'px');
                     $content.append($inputs);
                 }
             }
