@@ -78,7 +78,7 @@ div[data-component][data-type='menu'][data-role='item'] {
             &::before {
                 position: absolute;
                 width: 1px;
-                height: calc(var(--aui-component-height-default) + var(--aui-component-gap) * 2);
+                height: calc(100% + var(--aui-component-gap) * 2);
                 top: calc(var(--aui-component-gap) * -1);
                 left: calc(var(--aui-component-height-default) + var(--aui-component-gap));
                 background: var(--aui-color-background-200);
