@@ -262,13 +262,6 @@ var Aui;
                 this.helpText = this.properties.helpText ?? null;
                 this.collapsible = this.properties.collapsible === true;
                 this.collapsed = this.properties.collapsed === true;
-                /*
-                this.padding = this.properties.padding ?? [20, 10, 10, 10];
-
-                if (typeof this.padding == 'number') {
-                    this.padding = [this.padding + 10, this.padding, this.padding, this.padding];
-                }
-                */
                 this.$setTop();
                 if (this.helpText !== null) {
                     this.$setBottom();
@@ -516,7 +509,6 @@ var Aui;
                     this.labelWidth = this.properties.labelWidth ?? null;
                     this.labelSeparator = this.properties.labelSeparator ?? null;
                     this.helpText = this.properties.helpText ?? null;
-                    this.padding = this.properties.padding ?? 0;
                     this.fieldDefaults = null;
                     this.scrollable = false;
                     this.validator = this.properties.validator ?? null;
@@ -919,7 +911,6 @@ var Aui;
                     this.labelWidth = this.properties.labelWidth ?? null;
                     this.labelSeparator = this.properties.labelSeparator ?? null;
                     this.helpText = this.properties.helpText ?? null;
-                    this.padding = this.properties.padding ?? 0;
                     this.fieldDefaults = null;
                     this.scrollable = false;
                     this.allowBlank = true;
