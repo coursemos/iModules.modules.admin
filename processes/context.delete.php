@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/context.delete.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 14.
  *
  * @var \modules\admin\Admin $me
  */
@@ -30,7 +30,7 @@ $path = Request::get('path', true);
 
 $context = \iModules::db()
     ->select()
-    ->from(\iModules::table('sites'))
+    ->from(\iModules::table('contexts'))
     ->where('host', $host)
     ->where('language', $language)
     ->where('path', $path)

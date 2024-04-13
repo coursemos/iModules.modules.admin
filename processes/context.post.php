@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/context.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 14.
  *
  * @var \modules\admin\Admin $me
  */
@@ -161,6 +161,27 @@ if (count($errors) == 0) {
             ->where('language', $context->language)
             ->where('path', $context->path)
             ->execute();
+
+        $children = iModules::db()
+            ->select()
+            ->from(iModules::table('contexts'))
+            ->where('host', $host)
+            ->where('language', $language)
+            ->where('path', $context->path . '/%', 'LIKE')
+            ->get();
+        foreach ($children as $child) {
+            $childpath = preg_replace('/^' . Format::reg($context->path) . '\//', $insert['path'] . '/', $child->path);
+            if ($child->image !== null) {
+                $mAttachment->moveFile($child->image, $me, 'context', $childpath, true);
+            }
+
+            iModules::db()
+                ->update(iModules::table('contexts'), ['path' => $childpath])
+                ->where('host', $child->host)
+                ->where('language', $child->language)
+                ->where('path', $child->path)
+                ->execute();
+        }
     }
 
     $mAttachment->moveFile(
