@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 4.
+ * @modified 2024. 4. 15.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -329,6 +329,11 @@ class Admin extends \Module
 
             return $theme->getLayout('login');
         }
+
+        /**
+         * Aui 스타일과 충돌을 피하기 위해 기본 스타일시트를 제거한다.
+         */
+        \Html::style('/styles/common.css', -1);
 
         \Html::body('data-color-scheme', $this->getAdministrator()?->getColor() ?? 'auto');
         \Html::body('data-scale', $this->getAdministrator()?->getScale() ?? 16);
