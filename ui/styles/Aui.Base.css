@@ -6,7 +6,7 @@
  * @file /styles/Aui.Base.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 5.
+ * @modified 2024. 4. 15.
  */
 :root {
     --aui-color-scrollbar: #000;
@@ -43,18 +43,6 @@
     --aui-color-theme-800: #2c3845;
     --aui-color-theme-900: #191c21;
     --aui-color-theme-1000: #000;
-
-    --aui-color-primary-300: #66acfb;
-    --aui-color-primary-400: #3391f9;
-    --aui-color-primary-500: #0075f8;
-    --aui-color-primary-600: #005ec6;
-    --aui-color-primary-700: #004695;
-
-    --aui-color-secondary-300: #66e2ff;
-    --aui-color-secondary-400: #33d9ff;
-    --aui-color-secondary-500: #00cfff;
-    --aui-color-secondary-600: #00a6cc;
-    --aui-color-secondary-700: #007c99;
 
     --aui-color-accent-300: #66acfb;
     --aui-color-accent-400: #3391f9;
@@ -141,18 +129,6 @@ body[data-color-scheme='auto'][data-prefers-color-scheme='dark'] {
     --aui-color-theme-800: #242c37;
     --aui-color-theme-900: #000000;
 
-    --aui-color-primary-300: #66acfb;
-    --aui-color-primary-400: #3391f9;
-    --aui-color-primary-500: #0075f8;
-    --aui-color-primary-600: #005ec6;
-    --aui-color-primary-700: #004695;
-
-    --aui-color-secondary-300: #66e2ff;
-    --aui-color-secondary-400: #33d9ff;
-    --aui-color-secondary-500: #00cfff;
-    --aui-color-secondary-600: #00a6cc;
-    --aui-color-secondary-700: #007c99;
-
     --aui-color-accent-300: #004695;
     --aui-color-accent-400: #005ec6;
     --aui-color-accent-500: #0075f8;
@@ -184,7 +160,20 @@ body[data-color-scheme='auto'][data-prefers-color-scheme='dark'] {
     --aui-color-selection-600: #254a0d;
 }
 
-body[data-type='admin'] {
+* {
+    padding: 0px;
+    margin: 0px;
+    outline: none;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+body {
     background: var(--aui-color-background-500);
 
     section[data-role='admin'] {
