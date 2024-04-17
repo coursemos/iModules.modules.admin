@@ -6,7 +6,7 @@
  * @file /styles/Aui.Navigation.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 28.
+ * @modified 2024. 4. 18.
  */
 div[data-component][data-type='navigation'][data-role='panel'] {
     --aui-scrollbar-color: var(--aui-color-theme-0);
@@ -311,13 +311,14 @@ div[data-component][data-type='navigation'][data-role='panel'] {
 
                     &:not(:has(div[data-component])) {
                         &::after {
+                            font-family: var(--aui-font-family-default);
                             content: attr(data-empty);
                             display: block;
                             margin: 4px 4px 4px var(--aui-component-gap);
                             background: rgba(255, 255, 255, 0.1);
                             box-sizing: border-box;
                             height: 40px;
-                            font-size: var(--aui-font-size-small);
+                            font-size: var(--aui-font-size-default);
                             color: rgba(255, 255, 255, 0.6);
                             line-height: 40px;
                             text-align: center;

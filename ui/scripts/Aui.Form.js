@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 4. 18.
  */
 var Aui;
 (function (Aui) {
@@ -3456,7 +3456,7 @@ var Aui;
                                 render: () => {
                                     this.getAbsolute()
                                         .$getContainer()
-                                        .setStyle('border-color', 'var(--input-border-color-focus)');
+                                        .setStyle('border-color', 'var(--aui-color-accent-500)');
                                 },
                                 show: () => {
                                     this.getList().setMaxWidth(null);

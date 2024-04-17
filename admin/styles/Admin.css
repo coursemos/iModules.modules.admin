@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/styles/Admin.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 4. 18.
  */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 html,
@@ -50,7 +50,7 @@ body[data-type='login'] {
             text-align: center;
             box-sizing: border-box;
             width: 80px;
-            height: 28px;
+            height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 + 6px);
             margin: -3px 0px;
             float: right;
         }
@@ -58,27 +58,28 @@ body[data-type='login'] {
         b.language,
         b.level {
             display: inline-block;
-            margin: 0px 5px 0px 0px;
-            width: 22px;
+            margin: -1px 5px -1px 0px;
+            width: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 + 2px);
+            height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 + 2px);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 + 2px);
+            vertical-align: top;
             text-align: center;
-            height: 22px;
-            line-height: 22px;
             border-radius: 2px;
             color: #fff;
-            font-size: 11px;
+            font-size: 0.6rem;
             background: #607d8b;
             text-transform: uppercase;
         }
 
         b.method {
             display: inline-block;
-            margin: 0px 5px 0px 0px;
-            height: 22px;
-            line-height: 22px;
+            margin: -1px 5px -1px 0px;
+            height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 + 2px);
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 + 2px);
             padding: 0px 4px;
             border-radius: 2px;
             color: #fff;
-            font-size: 11px;
+            font-size: 0.6rem;
             background: #fca130;
 
             &.GET {
@@ -135,7 +136,7 @@ body[data-type='login'] {
             > div[data-role='container'] > div[data-role='content'][data-field='icon'] {
                 display: inline-flex;
                 flex-direction: column;
-                gap: 5px;
+                gap: var(--aui-component-gap);
             }
 
             > div[data-role='container'] > div[data-role='content'][data-field='page'] {
@@ -146,7 +147,7 @@ body[data-type='login'] {
                     display: flex;
                     flex-direction: row;
                     flex-wrap: nowrap;
-                    gap: 5px;
+                    gap: var(--aui-component-gap);
                     list-style: none;
                     min-height: 220px;
 
@@ -256,6 +257,86 @@ body[data-type='login'] {
 
                         > span {
                             white-space: nowrap;
+                        }
+                    }
+                }
+            }
+        }
+
+        div[data-component][data-type='panel'][data-role='grid'] {
+            > div[data-role='container'] {
+                > div[data-role='content'] {
+                    > div[data-role='body'] {
+                        div[data-role='row'] {
+                            div[data-role='view'] {
+                                > div.theme {
+                                    display: flex;
+                                    flex-direction: row;
+                                    align-items: center;
+                                    column-gap: 10px;
+
+                                    > i {
+                                        width: 60px;
+                                        height: 42px;
+                                        display: block;
+                                        flex-shrink: 0;
+                                        flex-grow: 0;
+                                        background-repeat: no-repeat;
+                                        background-size: cover;
+                                        background-position: 50% 50%;
+                                        box-sizing: border-box;
+                                    }
+
+                                    > div.text {
+                                        flex-grow: 1;
+
+                                        > b {
+                                            display: block;
+                                            height: 22px;
+                                            line-height: 22px;
+                                        }
+
+                                        > small {
+                                            margin-top: 2px;
+                                            display: block;
+                                            font-size: 12px;
+                                            height: 14px;
+                                            line-height: 14px;
+                                            color: var(--aui-color-text-100);
+                                        }
+                                    }
+                                }
+                            }
+
+                            &.selected {
+                                div[data-role='view'] {
+                                    > div.theme {
+                                        > i {
+                                            border: 2px solid var(--aui-color-accent-500);
+                                        }
+                                    }
+
+                                    &::before {
+                                        display: none;
+                                    }
+                                }
+                            }
+
+                            &.selected {
+                                div[data-role='view'] {
+                                    > div.theme {
+                                        > i {
+                                            outline: 1px solid var(--aui-color-accent-backward-500);
+                                        }
+
+                                        > div.text {
+                                            > small {
+                                                color: var(--aui-color-accent-backward-500);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

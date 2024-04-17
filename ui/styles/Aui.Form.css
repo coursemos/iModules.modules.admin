@@ -6,7 +6,7 @@
  * @file /styles/Aui.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 31.
+ * @modified 2024. 4. 18.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
@@ -539,16 +539,6 @@ div[data-component][data-type='form'][data-role='field'] {
                 position: relative;
                 background: var(--aui-color-accent-500);
 
-                > i {
-                    font-family: moimz;
-                    font-style: normal;
-                    font-size: var(--aui-font-size-default);
-
-                    &::before {
-                        content: '\ef19';
-                    }
-                }
-
                 &::-webkit-color-swatch {
                     display: none;
                 }
@@ -561,7 +551,7 @@ div[data-component][data-type='form'][data-role='field'] {
                     height: var(--aui-component-height-default);
                     line-height: var(--aui-component-height-default);
                     font-family: moimz;
-                    content: '\ef19';
+                    content: '\ed64';
                     text-align: center;
                     font-size: var(--aui-font-size-default);
                     color: var(--aui-color-accent-backward-500);
@@ -1446,6 +1436,7 @@ div[data-component][data-type='form'][data-role='field'] {
             width: 100%;
             box-sizing: border-box;
             border: 1px solid var(--aui-color-background-200);
+            color: var(--aui-color-text-500);
             background: transparent;
             padding: var(--aui-component-gap);
             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
@@ -1724,6 +1715,7 @@ div[data-component][data-type='form'][data-role='field'] {
             width: 100%;
             display: grid;
             justify-content: stretch;
+            gap: var(--aui-component-gap);
 
             > div[data-component] {
                 > div[data-role='container'] {
@@ -1744,7 +1736,7 @@ div[data-component][data-type='form'][data-role='field'] {
             display: flex;
             align-items: flex-start;
             flex-direction: column;
-            gap: 5px;
+            gap: var(--aui-component-gap);
 
             > div[data-component] {
                 flex-shrink: 0;
@@ -1765,160 +1757,6 @@ div[data-component][data-type='list'][data-role='panel'].tags {
             > ul {
                 > li {
                     padding-left: var(--aui-component-gap);
-                }
-            }
-        }
-    }
-}
-
-div[data-component][data-type='panel'][data-role='grid'] {
-    > div[data-role='container'] {
-        > div[data-role='content'] {
-            > div[data-role='body'] {
-                div[data-role='row'] {
-                    div[data-role='view'] {
-                        > div.theme {
-                            display: flex;
-                            flex-direction: row;
-                            align-items: center;
-                            column-gap: 10px;
-
-                            > i {
-                                width: 60px;
-                                height: 42px;
-                                display: block;
-                                flex-shrink: 0;
-                                flex-grow: 0;
-                                background-repeat: no-repeat;
-                                background-size: cover;
-                                background-position: 50% 50%;
-                                box-sizing: border-box;
-                            }
-
-                            > div.text {
-                                flex-grow: 1;
-
-                                > b {
-                                    display: block;
-                                    height: 22px;
-                                    line-height: 22px;
-                                }
-
-                                > small {
-                                    margin-top: 2px;
-                                    display: block;
-                                    font-size: 12px;
-                                    height: 14px;
-                                    line-height: 14px;
-                                    color: var(--aui-color-text-100);
-                                }
-                            }
-                        }
-                    }
-
-                    &.selected {
-                        div[data-role='view'] {
-                            > div.theme {
-                                > i {
-                                    border: 2px solid var(--aui-color-accent-500);
-                                }
-                            }
-
-                            &::before {
-                                display: none;
-                            }
-                        }
-                    }
-
-                    &.selected {
-                        div[data-role='view'] {
-                            > div.theme {
-                                > i {
-                                    outline: 1px solid var(--aui-color-background-500);
-                                }
-
-                                > div.text {
-                                    > small {
-                                        color: var(--aui-color-background-500);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                > ul {
-                    > li {
-                        padding-left: var(--aui-component-gap);
-
-                        > div {
-                            display: flex;
-                            flex-direction: row;
-                            align-items: center;
-                            column-gap: 10px;
-
-                            > i {
-                                width: 60px;
-                                height: 42px;
-                                display: block;
-                                flex-shrink: 0;
-                                flex-grow: 0;
-                                background-repeat: no-repeat;
-                                background-size: cover;
-                                background-position: 50% 50%;
-                                box-sizing: border-box;
-                            }
-
-                            > div.text {
-                                flex-grow: 1;
-
-                                > b {
-                                    display: block;
-                                    height: 22px;
-                                    line-height: 22px;
-                                }
-
-                                > small {
-                                    margin-top: 2px;
-                                    display: block;
-                                    font-size: 12px;
-                                    height: 14px;
-                                    line-height: 14px;
-                                    color: var(--aui-color-text-100);
-                                }
-                            }
-                        }
-
-                        &.selected {
-                            > div {
-                                > i {
-                                    border: 2px solid var(--aui-color-accent-500);
-                                }
-                            }
-
-                            &::before {
-                                display: none;
-                            }
-                        }
-
-                        &.focused {
-                            > div {
-                                > div.text {
-                                    > small {
-                                        color: var(--aui-color-background-500);
-                                    }
-                                }
-                            }
-                        }
-
-                        &.selected.focused {
-                            > div {
-                                > i {
-                                    outline: 1px solid var(--aui-color-background-500);
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }

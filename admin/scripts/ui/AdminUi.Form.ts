@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/AdminUi.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 4. 18.
  */
 namespace AdminUi {
     export namespace Form {
@@ -148,27 +148,27 @@ namespace AdminUi {
                         this.segmentedButton = new Aui.SegmentedButton({
                             items: [
                                 {
-                                    iconClass: 'xi xi-marquee-remove',
+                                    iconClass: 'mi mi-placeholder',
                                     text: Admin.printText('components.form.icons.NONE'),
                                     value: 'NONE',
                                 },
                                 {
-                                    iconClass: 'xi xi-contents-grid',
+                                    iconClass: 'mi mi-layers',
                                     text: Admin.printText('components.form.icons.ICON'),
                                     value: 'ICON',
                                 },
                                 {
-                                    iconClass: 'xi xi-code',
+                                    iconClass: 'mi mi-code',
                                     text: Admin.printText('components.form.icons.CLASS'),
                                     value: 'CLASS',
                                 },
                                 {
-                                    iconClass: 'xi xi-image',
+                                    iconClass: 'mi mi-image',
                                     text: Admin.printText('components.form.icons.URL'),
                                     value: 'URL',
                                 },
                                 {
-                                    iconClass: 'xi xi-upload-square',
+                                    iconClass: 'mi mi-upload',
                                     text: Admin.printText('components.form.icons.FILE'),
                                     value: 'FILE',
                                 },
