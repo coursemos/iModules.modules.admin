@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/administrators.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 25.
+ * @modified 2024. 4. 18.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -141,7 +141,7 @@ Admin.ready(async () => {
                                 me.administrators.groups.add(group_id);
                             },
                             openMenu: (menu, record) => {
-                                menu.setTitle(record.data.title);
+                                menu.setTitle(record.get('title'));
 
                                 const group_id = record.get('group_id');
 
