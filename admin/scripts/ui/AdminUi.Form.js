@@ -64,7 +64,7 @@ var AdminUi;
                         return new AdminUi.Form.Field.Template({
                             name: field.name ?? null,
                             label: field.label ?? null,
-                            value: field.value?.name ?? null,
+                            value: field.value?.name ?? field.value ?? null,
                             componentType: field.component.type,
                             componentName: field.component.name,
                             use_default: field.component.use_default ?? false,
