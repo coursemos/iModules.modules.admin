@@ -309,8 +309,11 @@ Admin.ready(async () => {
                 columns: [
                     {
                         text: (await me.getText('admin.sitemap.contexts.path')) as string,
-                        dataIndex: 'display',
+                        dataIndex: 'path',
                         minWidth: 250,
+                        renderer: (_value, record) => {
+                            return record.get('display');
+                        },
                     },
                     {
                         text: (await me.getText('admin.sitemap.contexts.title')) as string,

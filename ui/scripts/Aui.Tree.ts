@@ -1986,6 +1986,7 @@ namespace Aui {
                     const $label = Html.create('label');
                     $label.addClass(this.headerAlign);
                     $label.html(this.text);
+
                     if (this.tree.getStore().getPrimaryKeys().includes(this.dataIndex) == true) {
                         $label.append(
                             Html.create('i', { 'data-role': 'keys', 'class': this.text?.length > 0 ? 'text' : '' })

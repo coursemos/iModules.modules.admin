@@ -257,13 +257,14 @@ div[data-component][data-type='panel'][data-role='tree'] {
                             opacity: 0.7;
                             font-family: moimz;
                             font-style: normal;
+                            vertical-align: top;
 
                             &.text {
                                 margin-left: 5px;
                             }
 
                             &::before {
-                                content: '\eb02';
+                                content: '\ec02';
                             }
                         }
                     }
