@@ -6,7 +6,7 @@
  * @file /styles/Aui.Tree.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 2.
+ * @modified 2024. 4. 18.
  */
 div[data-component][data-type='panel'][data-role='tree'] {
     > div[data-role='container'] {
@@ -420,6 +420,21 @@ div[data-component][data-type='panel'][data-role='tree'] {
 
                                     &.focused {
                                         z-index: 20;
+                                    }
+                                }
+
+                                &.updated {
+                                    position: relative;
+
+                                    &::after {
+                                        position: absolute;
+                                        top: 0;
+                                        left: 0;
+                                        width: 0;
+                                        height: 0;
+                                        border-top: 8px solid var(--aui-color-danger-500);
+                                        border-right: 8px solid transparent;
+                                        content: ' ';
                                     }
                                 }
 

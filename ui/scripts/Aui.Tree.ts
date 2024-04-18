@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 4. 18.
  */
 namespace Aui {
     export namespace Tree {
@@ -1084,6 +1084,10 @@ namespace Aui {
 
                     return $parent;
                 } else {
+                    record.setObserver(() => {
+                        this.updateRow(treeIndex);
+                    });
+
                     const rowIndex = treeIndex.at(-1);
                     let leftPosition = 0;
                     const $row = Html.create('div')
@@ -1096,6 +1100,9 @@ namespace Aui {
                     this.getColumns().forEach((column: Aui.Tree.Column, columnIndex: number) => {
                         const value = record.get(column.dataIndex);
                         const $column = column.$getBody(value, record, treeIndex, columnIndex);
+                        if (record.isUpdated(column.dataIndex) == true) {
+                            $column.addClass('updated');
+                        }
                         $leaf.append($column);
 
                         if (columnIndex < this.freezeColumn) {
@@ -1186,6 +1193,19 @@ namespace Aui {
                         }
                     }
                 });
+            }
+
+            /**
+             * 특정행의 데이터가 변경되었을 때 해당 행을 갱신한다.
+             *
+             * @param {number[]} treeIndex - 업데이트할 행 인덱스
+             */
+            updateRow(treeIndex: number[]): void {
+                const $row = this.$getRow(treeIndex);
+                if ($row === null) return;
+
+                const record = this.getStore().get(treeIndex);
+                $row.replaceWith(this.$getRow(treeIndex, record));
             }
 
             /**

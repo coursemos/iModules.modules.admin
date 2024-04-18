@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 2.
+ * @modified 2024. 4. 18.
  */
 var Aui;
 (function (Aui) {
@@ -811,6 +811,9 @@ var Aui;
                     this.getColumns().forEach((column, columnIndex) => {
                         const value = record.get(column.dataIndex);
                         const $column = column.$getBody(value, record, rowIndex, columnIndex);
+                        if (record.isUpdated(column.dataIndex) == true) {
+                            $column.addClass('updated');
+                        }
                         $row.append($column);
                         if (columnIndex < this.freezeColumn) {
                             $column.addClass('sticky');
