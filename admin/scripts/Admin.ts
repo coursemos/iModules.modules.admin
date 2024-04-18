@@ -547,6 +547,12 @@ namespace modules {
                                                         label: this.printText('admin.sitemap.sites.description'),
                                                         rows: 3,
                                                     }),
+                                                    new Aui.Form.Field.TextArea({
+                                                        name: 'keywords',
+                                                        label: this.printText('admin.sitemap.sites.keywords'),
+                                                        rows: 3,
+                                                        helpText: this.printText('admin.sitemap.sites.keywords_help'),
+                                                    }),
                                                 ],
                                             }),
                                             new Aui.Form.FieldSet({
@@ -832,7 +838,14 @@ namespace modules {
                                                     }),
                                                     new Aui.Form.Field.TextArea({
                                                         name: 'description',
-                                                        label: this.printText('admin.sitemap.contexts.description'),
+                                                        label: this.printText('admin.sitemap.sites.description'),
+                                                        rows: 3,
+                                                    }),
+                                                    new Aui.Form.Field.TextArea({
+                                                        name: 'keywords',
+                                                        label: this.printText('admin.sitemap.sites.keywords'),
+                                                        rows: 3,
+                                                        helpText: this.printText('admin.sitemap.sites.keywords_help'),
                                                     }),
                                                     new Aui.Form.Field.Image({
                                                         name: 'image',

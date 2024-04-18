@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/context.post.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 14.
+ * @modified 2024. 4. 18.
  *
  * @var \modules\admin\Admin $me
  */
@@ -70,6 +70,7 @@ if ($path === '/') {
 $insert['icon'] = Input::get('icon');
 $insert['title'] = Input::get('title', $errors);
 $insert['description'] = Input::get('description');
+$insert['keywords'] = Input::get('keywords');
 $insert['image'] = Input::get('image');
 $insert['type'] = Input::get('type') ?? 'EMPTY';
 $insert['target'] = null;

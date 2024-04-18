@@ -55,6 +55,7 @@ $insert['host'] = $host;
 $insert['language'] = Input::get('language', $errors) ?? '';
 $insert['title'] = Input::get('title', $errors) ?? '';
 $insert['description'] = Input::get('description') ?? '';
+$insert['keywords'] = Input::get('keywords');
 $insert['theme'] = Format::toJson(Input::get('theme', $errors));
 $insert['color'] = Input::get('color') ?? '#0077be';
 $insert['header'] = Input::get('header');
