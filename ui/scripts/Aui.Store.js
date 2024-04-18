@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 4. 18.
  */
 var Aui;
 (function (Aui) {
@@ -318,10 +318,10 @@ var Aui;
          * @param {string} field - 정렬할 필드명
          * @param {string} direction - 정렬방향 (asc, desc)
          */
-        sort(field, direction) {
+        async sort(field, direction) {
             let sorters = {};
             sorters[field] = direction;
-            this.multiSort(sorters);
+            await this.multiSort(sorters);
         }
         /**
          * 데이터를 다중 정렬기준에 따라 정렬한다.

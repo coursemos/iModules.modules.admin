@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 4. 18.
  */
 namespace Aui {
     export namespace Store {
@@ -415,10 +415,10 @@ namespace Aui {
          * @param {string} field - 정렬할 필드명
          * @param {string} direction - 정렬방향 (asc, desc)
          */
-        sort(field: string, direction: string): void {
+        async sort(field: string, direction: string): Promise<void> {
             let sorters = {};
             sorters[field] = direction;
-            this.multiSort(sorters);
+            await this.multiSort(sorters);
         }
 
         /**
