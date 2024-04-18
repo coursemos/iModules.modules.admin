@@ -197,7 +197,7 @@ var Aui;
             if (Object.keys(filters).length > 0) {
                 const records = [];
                 for (const record of this.originRecords) {
-                    const matched = Format.filter(record.data, filters, filterMode);
+                    const matched = Format.filter(record.record, filters, filterMode);
                     await record.filter(filters, filterMode, true);
                     if (matched == true || record.getChildren().length > 0) {
                         records.push(record);
