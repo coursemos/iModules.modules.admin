@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 25.
+ * @modified 2024. 4. 18.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -232,22 +232,60 @@ Admin.ready(async () => {
                 ],
                 bottombar: [
                     new Aui.Button({
-                        iconClass: 'mi mi-up',
-                        handler: (button) => {
+                        iconClass: 'mi mi-caret-up',
+                        handler: async (button) => {
                             const grid = button.getParent().getParent() as Aui.Grid.Panel;
                             const selections = grid.getSelections();
                             if (selections.length == 0) {
                                 return;
                             }
+
+                            button.setLoading(true);
+
+                            const context = selections[0];
+                            const children = context.getParents().pop().getChildren();
+                            if (context.get('sort') > 0) {
+                                const move = context.get('sort') - 1;
+                                for (const child of children) {
+                                    if (child.get('sort') == move) {
+                                        child.set('sort', context.get('sort'));
+                                        break;
+                                    }
+                                }
+                                context.set('sort', move);
+                                await grid.getStore().sort('sort', 'ASC');
+                                await grid.getStore().commit();
+                                grid.select(context);
+                                button.setLoading(false);
+                            }
                         },
                     }),
                     new Aui.Button({
-                        iconClass: 'mi mi-down',
-                        handler: (button) => {
+                        iconClass: 'mi mi-caret-down',
+                        handler: async (button) => {
                             const grid = button.getParent().getParent() as Aui.Grid.Panel;
                             const selections = grid.getSelections();
                             if (selections.length == 0) {
                                 return;
+                            }
+
+                            button.setLoading(true);
+
+                            const context = selections[0];
+                            const children = context.getParents().pop().getChildren();
+                            if (context.get('sort') + 1 < children.length) {
+                                const move = context.get('sort') + 1;
+                                for (const child of children) {
+                                    if (child.get('sort') == move) {
+                                        child.set('sort', context.get('sort'));
+                                        break;
+                                    }
+                                }
+                                context.set('sort', move);
+                                await grid.getStore().sort('sort', 'ASC');
+                                await grid.getStore().commit();
+                                grid.select(context);
+                                button.setLoading(false);
                             }
                         },
                     }),
@@ -285,9 +323,10 @@ Admin.ready(async () => {
                         dataIndex: 'type',
                         width: 250,
                         renderer: (value, record) => {
-                            return me.sitemap.contexts.getTypeIcon(value) + record.data.context;
+                            return me.sitemap.contexts.getTypeIcon(value) + record.get('context');
                         },
                     },
+                    { text: '정렬', dataIndex: 'sort', width: 50 },
                     {
                         text: (await me.getText('admin.sitemap.contexts.layout')) as string,
                         dataIndex: 'layout',
