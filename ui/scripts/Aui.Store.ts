@@ -263,6 +263,15 @@ namespace Aui {
         }
 
         /**
+         * 수정된 데이터를 가져온다.
+         *
+         * @return {Aui.Data.Record[]} updatedRecords
+         */
+        getUpdatedRecords(): Aui.Data.Record[] {
+            return this.data?.getUpdatedRecords();
+        }
+
+        /**
          * 특정인덱스의 데이터를 가져온다.
          *
          * @return {Aui.Data.Record} record
@@ -321,6 +330,16 @@ namespace Aui {
         async reload(): Promise<Aui.Store> {
             this.loaded = false;
             return await this.load();
+        }
+
+        /**
+         * 수정된 데이터를 커밋한다.
+         *
+         * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+         * @return {Promise<Aui.Store} this
+         */
+        async commit(key: string = null): Promise<Aui.Store> {
+            return this;
         }
 
         /**
@@ -641,6 +660,20 @@ namespace Aui {
 
                 return this;
             }
+
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.Store.Local} this
+             */
+            async commit(key: string = null): Promise<Aui.Store.Local> {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
+                }
+
+                return this;
+            }
         }
 
         export namespace Remote {
@@ -772,6 +805,20 @@ namespace Aui {
                     await this.onLoad();
                 } else {
                     this.loaded = true;
+                }
+
+                return this;
+            }
+
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.Store.Remote} this
+             */
+            async commit(key: string = null): Promise<Aui.Store.Remote> {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
                 }
 
                 return this;
@@ -1068,6 +1115,15 @@ namespace Aui {
         }
 
         /**
+         * 수정된 데이터를 가져온다.
+         *
+         * @return {Aui.Data.Record[]} updatedRecords
+         */
+        getUpdatedRecords(): Aui.Data.Record[] {
+            return this.data?.getUpdatedRecords();
+        }
+
+        /**
          * 특정인덱스의 데이터를 가져온다.
          *
          * @return {Aui.Data.Record} record
@@ -1174,6 +1230,16 @@ namespace Aui {
         async reload(): Promise<Aui.TreeStore> {
             this.loaded = false;
             return await this.load();
+        }
+
+        /**
+         * 수정된 데이터를 커밋한다.
+         *
+         * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+         * @return {Promise<Aui.TreeStore} this
+         */
+        async commit(key: string = null): Promise<Aui.TreeStore> {
+            return this;
         }
 
         /**
@@ -1729,6 +1795,20 @@ namespace Aui {
 
                 return this;
             }
+
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.TreeStore.Local} this
+             */
+            async commit(key: string = null): Promise<Aui.TreeStore.Local> {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
+                }
+
+                return this;
+            }
         }
 
         export namespace Remote {
@@ -1962,6 +2042,20 @@ namespace Aui {
                         await this.expand(index);
                     }
                 } else {
+                }
+
+                return this;
+            }
+
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.TreeStore.Remote} this
+             */
+            async commit(key: string = null): Promise<Aui.TreeStore.Remote> {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
                 }
 
                 return this;

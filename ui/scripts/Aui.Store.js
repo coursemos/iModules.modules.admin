@@ -181,6 +181,14 @@ var Aui;
             return this.data?.getRecords() ?? [];
         }
         /**
+         * 수정된 데이터를 가져온다.
+         *
+         * @return {Aui.Data.Record[]} updatedRecords
+         */
+        getUpdatedRecords() {
+            return this.data?.getUpdatedRecords();
+        }
+        /**
          * 특정인덱스의 데이터를 가져온다.
          *
          * @return {Aui.Data.Record} record
@@ -235,6 +243,15 @@ var Aui;
         async reload() {
             this.loaded = false;
             return await this.load();
+        }
+        /**
+         * 수정된 데이터를 커밋한다.
+         *
+         * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+         * @return {Promise<Aui.Store} this
+         */
+        async commit(key = null) {
+            return this;
         }
         /**
          * 특정 필드의 특정값을 가진 레코드를 찾는다.
@@ -514,6 +531,18 @@ var Aui;
                 await this.onLoad();
                 return this;
             }
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.Store.Local} this
+             */
+            async commit(key = null) {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
+                }
+                return this;
+            }
         }
         Store.Local = Local;
         class Remote extends Aui.Store {
@@ -601,6 +630,18 @@ var Aui;
                 }
                 else {
                     this.loaded = true;
+                }
+                return this;
+            }
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.Store.Remote} this
+             */
+            async commit(key = null) {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
                 }
                 return this;
             }
@@ -786,6 +827,14 @@ var Aui;
             return this.data?.getRecords() ?? [];
         }
         /**
+         * 수정된 데이터를 가져온다.
+         *
+         * @return {Aui.Data.Record[]} updatedRecords
+         */
+        getUpdatedRecords() {
+            return this.data?.getUpdatedRecords();
+        }
+        /**
          * 특정인덱스의 데이터를 가져온다.
          *
          * @return {Aui.Data.Record} record
@@ -883,6 +932,15 @@ var Aui;
         async reload() {
             this.loaded = false;
             return await this.load();
+        }
+        /**
+         * 수정된 데이터를 커밋한다.
+         *
+         * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+         * @return {Promise<Aui.TreeStore} this
+         */
+        async commit(key = null) {
+            return this;
         }
         /**
          * 자식 데이터를 확장한다.
@@ -1368,6 +1426,18 @@ var Aui;
                 await this.onLoad();
                 return this;
             }
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.TreeStore.Local} this
+             */
+            async commit(key = null) {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
+                }
+                return this;
+            }
         }
         TreeStore.Local = Local;
         class Remote extends Aui.TreeStore {
@@ -1545,6 +1615,18 @@ var Aui;
                     }
                 }
                 else {
+                }
+                return this;
+            }
+            /**
+             * 수정된 데이터를 커밋한다.
+             *
+             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
+             * @return {Promise<Aui.TreeStore.Remote} this
+             */
+            async commit(key = null) {
+                for (const record of this.getUpdatedRecords() ?? []) {
+                    record.commit(key);
                 }
                 return this;
             }

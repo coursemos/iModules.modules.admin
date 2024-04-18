@@ -108,6 +108,15 @@ namespace Aui {
         }
 
         /**
+         * 수정된 데이터를 가져온다.
+         *
+         * @return {Aui.Data.Record[]} updatedRecords - 수정된 데이터 레코드셋
+         */
+        getUpdatedRecords(): Aui.Data.Record[] {
+            return Object.values(this.updatedRecords);
+        }
+
+        /**
          * 데이터 갯수를 가져온다.
          *
          * @return {number} count
@@ -345,6 +354,42 @@ namespace Aui {
 
                     if (this.observer !== null) {
                         this.observer(key, value, this.origin[key] ?? null);
+                    }
+                }
+            }
+
+            /**
+             * 수정된 데이터를 커밋한다.
+             */
+            commit(key: string = null): void {
+                if (this.isUpdated(key) === false) {
+                    return;
+                }
+
+                const keys = [];
+                const hash = this.getHash();
+                if (key === null) {
+                    this.origin = this.record;
+                    keys.push(...Object.keys(this.updated));
+                    this.updated = null;
+
+                    delete this.data.updatedRecords[hash];
+                } else {
+                    this.origin[key] = this.record[key];
+                    keys.push(key);
+                    delete this.updated[key];
+
+                    if (Object.keys(this.updated).length == 0) {
+                        this.updated = null;
+                        delete this.data.updatedRecords[hash];
+                    } else {
+                        this.data.updatedRecords[hash] = this;
+                    }
+                }
+
+                if (this.observer !== null) {
+                    for (const key of keys) {
+                        this.observer(key, this.record[key], this.origin[key] ?? null);
                     }
                 }
             }
