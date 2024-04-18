@@ -6,15 +6,17 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 4. 18.
  */
 var Aui;
 (function (Aui) {
     class Data {
         originRecords = [];
         records = [];
+        updatedRecords = {};
         fields = {};
         primaryKeys = [];
+        childrenField;
         sorting;
         sorters;
         filtering;
@@ -28,7 +30,7 @@ var Aui;
          * @param {string[]} primaryKeys - 레코드 고유값 필드명
          * @param {string} childrenFields - 자식 레코드 필드명
          */
-        constructor(records, fields = [], primaryKeys = [], childrenFields = null) {
+        constructor(records, fields = [], primaryKeys = [], childrenField = null) {
             this.fields = {};
             for (const field of fields) {
                 if (typeof field == 'string') {
@@ -39,13 +41,14 @@ var Aui;
                 }
             }
             this.primaryKeys = primaryKeys;
+            this.childrenField = childrenField;
             for (const record of records) {
                 for (const key in record) {
-                    if (key !== childrenFields && this.fields[key] !== undefined) {
+                    if (key !== this.childrenField && this.fields[key] !== undefined) {
                         record[key] = this.setType(record[key], this.fields[key]);
                     }
                 }
-                this.records.push(new Aui.Data.Record(record, this.primaryKeys, childrenFields));
+                this.records.push(new Aui.Data.Record(this, record, this.primaryKeys, this.childrenField));
             }
             this.originRecords = this.records;
             this.sorting = false;
@@ -108,7 +111,7 @@ var Aui;
                         record[key] = this.setType(record[key], this.fields[key]);
                     }
                 }
-                this.records.push(new Aui.Data.Record(record));
+                this.records.push(new Aui.Data.Record(this, record, this.primaryKeys, this.childrenField));
             }
         }
         /**
@@ -207,7 +210,9 @@ var Aui;
             primaryKeys = [];
             hash;
             data;
+            record;
             origin = null;
+            updated = null;
             children;
             originChildren;
             childrenField;
@@ -226,26 +231,27 @@ var Aui;
              * @param {string} childrenField - 자식 레코드 필드명
              * @param {Aui.Data.Record[]} parents - 부모
              */
-            constructor(data, primaryKeys = [], childrenField = null, parents = null) {
+            constructor(data, record, primaryKeys = [], childrenField = null, parents = null) {
                 this.data = data;
+                this.record = record;
                 this.primaryKeys = primaryKeys;
                 this.childrenField = childrenField;
                 this.parents = parents;
-                if (childrenField === null || this.data[childrenField] === undefined) {
+                if (childrenField === null || this.record[childrenField] === undefined) {
                     this.children = false;
                 }
-                else if (typeof this.data[childrenField] == 'boolean') {
-                    this.children = this.data[childrenField];
-                    delete this.data[childrenField];
+                else if (typeof this.record[childrenField] == 'boolean') {
+                    this.children = this.record[childrenField];
+                    delete this.record[childrenField];
                 }
                 else {
                     const parents = this.parents?.slice() ?? [];
                     parents.push(this);
                     this.children = [];
-                    for (const child of this.data[childrenField]) {
-                        this.children.push(new Aui.Data.Record(child, primaryKeys, childrenField, parents));
+                    for (const child of this.record[childrenField]) {
+                        this.children.push(new Aui.Data.Record(data, child, primaryKeys, childrenField, parents));
                     }
-                    delete this.data[childrenField];
+                    delete this.record[childrenField];
                 }
                 this.originChildren = this.children;
                 this.sorting = false;
@@ -260,7 +266,7 @@ var Aui;
              * @return {any} value
              */
             get(key) {
-                return this.data[key] ?? null;
+                return this.record[key] ?? null;
             }
             /**
              * 데이터를 변경한다.
@@ -269,22 +275,49 @@ var Aui;
              * @param {any} value - 변경할 데이터
              */
             set(key, value) {
-                this.origin ??= JSON.parse(JSON.stringify(this.data));
-                this.data[key] = value;
-                if (this.observer !== null) {
-                    this.observer(key, value, this.origin[key] ?? null);
+                const hash = this.getHash();
+                this.origin ??= JSON.parse(JSON.stringify(this.record));
+                const updated = this.updated ?? {};
+                if (Format.isEqual(this.origin[key], value) == false) {
+                    updated[key] = value;
+                }
+                else if (updated[key] !== undefined) {
+                    delete updated[key];
+                }
+                if (Object.keys(updated).length > 0) {
+                    this.updated = updated;
+                    this.data.updatedRecords[hash] = this;
+                }
+                else {
+                    this.updated = null;
+                    if (this.data.updatedRecords[hash] !== undefined) {
+                        delete this.data.updatedRecords[hash];
+                    }
+                }
+                if (Format.isEqual(this.record[key], value) == false) {
+                    this.record[key] = value;
+                    if (this.observer !== null) {
+                        this.observer(key, value, this.origin[key] ?? null);
+                    }
                 }
             }
             /**
              * 데이터가 수정된 상태인지 확인한다.
              *
-             * @return {boolean} is_dirty
+             * @param {string} key - 수정된 상태를 확인할 컬럼명 (NULL 인 경우 레코드 전체의 수정여부를 반환한다.)
+             * @return {boolean} is_updated
              */
-            isDirty() {
-                if (this.origin === null) {
+            isUpdated(key = null) {
+                if (this.updated === null) {
                     return false;
                 }
-                return Format.isEqual(this.data, this.origin) === false;
+                if (key === null) {
+                    return this.updated !== null;
+                }
+                if (this.updated[key] !== undefined) {
+                    return true;
+                }
+                return false;
             }
             /**
              * 전체 부모트리를 가져온다.
@@ -315,7 +348,7 @@ var Aui;
                 parents.push(this);
                 this.children = [];
                 for (const child of children) {
-                    this.children.push(new Aui.Data.Record(child, this.primaryKeys, this.childrenField, parents));
+                    this.children.push(new Aui.Data.Record(this.data, child, this.primaryKeys, this.childrenField, parents));
                 }
                 this.originChildren = this.children;
             }
@@ -341,7 +374,7 @@ var Aui;
              * @return {string[]} keys
              */
             getKeys() {
-                return Object.keys(this.data);
+                return Object.keys(this.record);
             }
             /**
              * 고유값을 가져온다.
@@ -355,7 +388,7 @@ var Aui;
                     keys = this.getKeys();
                 }
                 for (const key of keys) {
-                    primaryKeys[key] = this.data[key] ?? null;
+                    primaryKeys[key] = this.record[key] ?? null;
                 }
                 return primaryKeys;
             }
@@ -447,11 +480,11 @@ var Aui;
                 this.filtering = true;
                 if (Object.keys(filters).length > 0) {
                     const children = [];
-                    for (const record of this.originChildren) {
-                        const matched = Format.filter(record.data, filters, filterMode);
-                        await record.filter(filters, filterMode, true);
-                        if (matched == true || record.getChildren().length > 0) {
-                            children.push(record);
+                    for (const child of this.originChildren) {
+                        const matched = Format.filter(child.record, filters, filterMode);
+                        await child.filter(filters, filterMode, true);
+                        if (matched == true || child.getChildren().length > 0) {
+                            children.push(child);
                         }
                     }
                     this.children = children;
@@ -472,19 +505,19 @@ var Aui;
              * @return {boolean} is_equal - 일치여부
              */
             isEqual(matcher) {
-                let data = null;
+                let record = null;
                 if (matcher instanceof Aui.Data.Record) {
-                    data = matcher.data;
+                    record = matcher.record;
                 }
                 else {
-                    data = matcher;
+                    record = matcher;
                 }
                 let keys = this.primaryKeys;
                 if (keys.length == 0) {
                     keys = this.getKeys();
                 }
                 for (const key of keys) {
-                    if (data[key] === undefined || data[key] !== this.data[key]) {
+                    if (record[key] === undefined || record[key] !== this.record[key]) {
                         return false;
                     }
                 }
