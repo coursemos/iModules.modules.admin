@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 14.
+ * @modified 2024. 4. 18.
  */
 namespace modules {
     export namespace admin {
@@ -1583,7 +1583,7 @@ namespace modules {
                                                     renderer: (value, record) => {
                                                         return (
                                                             '<i class="photo" style="background-image:url(' +
-                                                            record.data.photo +
+                                                            record.get('photo') +
                                                             ')"></i>' +
                                                             value
                                                         );
