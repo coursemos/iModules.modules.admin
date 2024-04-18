@@ -108,9 +108,9 @@ namespace Aui {
         }
 
         /**
-         * 수정된 데이터를 가져온다.
+         * 변경된 데이터를 가져온다.
          *
-         * @return {Aui.Data.Record[]} updatedRecords - 수정된 데이터 레코드셋
+         * @return {Aui.Data.Record[]} updatedRecords - 변경된 데이터 레코드셋
          */
         getUpdatedRecords(): Aui.Data.Record[] {
             return Object.values(this.updatedRecords);
@@ -359,7 +359,7 @@ namespace Aui {
             }
 
             /**
-             * 수정된 데이터를 커밋한다.
+             * 변경된 데이터를 커밋한다.
              */
             commit(key: string = null): void {
                 if (this.isUpdated(key) === false) {
@@ -395,9 +395,9 @@ namespace Aui {
             }
 
             /**
-             * 데이터가 수정된 상태인지 확인한다.
+             * 데이터가 변경된 상태인지 확인한다.
              *
-             * @param {string} key - 수정된 상태를 확인할 컬럼명 (NULL 인 경우 레코드 전체의 수정여부를 반환한다.)
+             * @param {string} key - 변경된 상태를 확인할 컬럼명 (NULL 인 경우 레코드 전체의 변경여부를 반환한다.)
              * @return {boolean} is_updated
              */
             isUpdated(key: string = null): boolean {
@@ -499,6 +499,27 @@ namespace Aui {
                 }
 
                 return primaryKeys;
+            }
+
+            /**
+             * 변경사항을 가져온다.
+             *
+             * @param {string} key - 변경사항을 가져올 데이터키 (NULL 인 경우 전체 변경사항을 가져온다.)
+             * @return {Object} primary
+             */
+            getUpdated(key: string = null): { [key: string]: any } {
+                let updated = {};
+                if (key === null) {
+                    updated = { ...this.updated };
+                } else {
+                    if (this.updated[key] !== undefined) {
+                        updated = { key: this.updated[key] };
+                    } else {
+                        updated = null;
+                    }
+                }
+
+                return updated;
             }
 
             /**
