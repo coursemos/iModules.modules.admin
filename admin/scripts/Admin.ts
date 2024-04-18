@@ -830,7 +830,7 @@ namespace modules {
                                                         label: this.printText('admin.sitemap.contexts.title'),
                                                         allowBlank: false,
                                                     }),
-                                                    new Aui.Form.Field.Text({
+                                                    new Aui.Form.Field.TextArea({
                                                         name: 'description',
                                                         label: this.printText('admin.sitemap.contexts.description'),
                                                     }),
