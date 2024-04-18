@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/contexts.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 18.
  *
  * @var \modules\admin\Admin $me
  */
@@ -24,8 +24,6 @@ if ($me->getAdmin()->checkPermission('sitemap', ['contexts']) == false) {
     return;
 }
 
-$mode = Request::get('mode') ?? 'tree';
-
 /**
  * @var \modules\admin\AdminAdmin $mAdmin
  */
@@ -37,4 +35,4 @@ $language = Request::get('language', true);
 $site = Sites::get($host, $language);
 
 $results->success = true;
-$results->records = $mAdmin->getSitemapContexts($site, $mode);
+$results->records = $mAdmin->getSitemapContexts($site);

@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 18.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -140,10 +140,9 @@ class Admin extends \modules\admin\admin\Component
      * 컨텍스트 객체를 JSON 데이터로 변환한다.
      *
      * @param \Context $context 변환할 컨텍스트 객체
-     * @param int $sort 정렬순서
      * @return object $context
      */
-    private function getSitemapContextToJson(\Context $context, int $sort = 0): object
+    private function getSitemapContextToJson(\Context $context): object
     {
         $json = new \stdClass();
         $json->host = $context->getHost();
@@ -154,7 +153,7 @@ class Admin extends \modules\admin\admin\Component
         $json->layout = $context->getLayout();
         $temp = explode('/', $context->getPath());
         $json->display = $context->getPath() == '/' ? '/' : '/' . end($temp);
-        $json->sort = $sort;
+        $json->sort = $context->getSort();
 
         switch ($json->type) {
             case 'EMPTY':
@@ -186,31 +185,22 @@ class Admin extends \modules\admin\admin\Component
      * 컨텍스트의 자식 컨텍스트를 재귀적으로 가져온다.
      *
      * @param \Context $parent 부모 컨텍스트
-     * @param string $mode 가져올 방식 (tree, list)
-     * @param int $sort 정렬 순서
      * @return array $chilren
      */
-    private function getSitemapContextChildren(\Context $parent, string $mode = 'tree', int &$sort = 0): array
+    private function getSitemapContextChildren(\Context $parent): array
     {
         if ($parent->hasChild(false) == false) {
             return [];
         }
 
         $children = [];
-        if ($mode == 'tree') {
-            foreach ($parent->getChildren(false, false) as $context) {
-                $child = $this->getSitemapContextToJson($context, $sort++);
-                if ($context->hasChild(false) == true) {
-                    $child->children = $this->getSitemapContextChildren($context, $mode, $sort);
-                }
-                $children[] = $child;
+        foreach ($parent->getChildren(false, false) as $sort => $context) {
+            $context->setSort($sort);
+            $child = $this->getSitemapContextToJson($context);
+            if ($context->hasChild(false) == true) {
+                $child->children = $this->getSitemapContextChildren($context);
             }
-        } else {
-            foreach ($parent->getChildren(false, false) as $context) {
-                $child = $this->getSitemapContextToJson($context, $sort++);
-                $children[] = $child;
-                $children = [...$children, ...$this->getSitemapContextChildren($context, $mode, $sort)];
-            }
+            $children[] = $child;
         }
 
         return $children;
@@ -223,24 +213,15 @@ class Admin extends \modules\admin\admin\Component
      * @param string $mode 가져올 방식 (tree, list)
      * @return array $contexts
      */
-    public function getSitemapContexts(\Site $site, string $mode): array
+    public function getSitemapContexts(\Site $site): array
     {
         $index = $site->getIndex();
-
-        $sort = 0;
-        if ($mode == 'tree') {
-            $context = $this->getSitemapContextToJson($index);
-            if ($index->hasChild(false) == true) {
-                $context->children = $this->getSitemapContextChildren($index, $mode, $sort);
-            }
-
-            return [$context];
-        } else {
-            return [
-                $this->getSitemapContextToJson($index, $sort++),
-                ...$this->getSitemapContextChildren($index, $mode, $sort),
-            ];
+        $context = $this->getSitemapContextToJson($index);
+        if ($index->hasChild(false) == true) {
+            $context->children = $this->getSitemapContextChildren($index);
         }
+
+        return [$context];
     }
 
     /**
