@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 25.
+ * @modified 2024. 4. 18.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -49,7 +49,7 @@ Admin.ready(async () => {
                 dataIndex: 'title',
                 width: 200,
                 renderer: (value, record) => {
-                    return record.data.icon + value;
+                    return record.get('icon') + value;
                 },
             },
             {
@@ -107,7 +107,7 @@ Admin.ready(async () => {
         ],
         listeners: {
             openItem: (record) => {
-                me.modules.show(record.data.name);
+                me.modules.show(record.get('name'));
             },
             openMenu: (menu, record) => {
                 menu.setTitle(record.get('title'));
@@ -115,34 +115,34 @@ Admin.ready(async () => {
                     text: me.printText('admin.modules.show.title'),
                     iconClass: 'xi xi-form-checkout',
                     handler: async () => {
-                        me.modules.show(record.data.name);
+                        me.modules.show(record.get('name'));
                         return true;
                     },
                 });
                 menu.add({
                     text: me.printText('buttons.configs'),
                     iconClass: 'xi xi-cog',
-                    hidden: record.data.properties.includes('CONFIGS') === false,
+                    hidden: record.get('properties').includes('CONFIGS') === false,
                     handler: async () => {
-                        me.modules.setConfigs(record.data.name);
+                        me.modules.setConfigs(record.get('name'));
                         return true;
                     },
                 });
                 menu.add({
                     text: me.printText('buttons.install'),
                     iconClass: 'xi xi-new',
-                    hidden: record.data.status !== 'NOT_INSTALLED',
+                    hidden: record.get('status') !== 'NOT_INSTALLED',
                     handler: async () => {
-                        me.modules.install(record.data.name);
+                        me.modules.install(record.get('name'));
                         return true;
                     },
                 });
                 menu.add({
                     text: me.printText('buttons.update'),
                     iconClass: 'xi xi-update',
-                    hidden: record.data.status !== 'NEED_UPDATE',
+                    hidden: record.get('status') !== 'NEED_UPDATE',
                     handler: async () => {
-                        me.modules.install(record.data.name);
+                        me.modules.install(record.get('name'));
                         return true;
                     },
                 });
