@@ -172,9 +172,7 @@ if (count($errors) == 0) {
             ->get();
         foreach ($children as $child) {
             $childpath = preg_replace('/^' . Format::reg($context->path) . '\//', $insert['path'] . '/', $child->path);
-            if ($child->image !== null) {
-                $mAttachment->moveFile($child->image, $me, 'context', $childpath, true);
-            }
+            $mAttachment->moveFile($child->image, $me, 'context', $childpath, true);
 
             iModules::db()
                 ->update(iModules::table('contexts'), ['path' => $childpath])
