@@ -2054,8 +2054,16 @@ namespace Aui {
              * @return {Promise<Aui.TreeStore.Remote} this
              */
             async commit(key: string = null): Promise<Aui.TreeStore.Remote> {
+                const records = [];
                 for (const record of this.getUpdatedRecords() ?? []) {
-                    record.commit(key);
+                    records.push({ origin: record.getPrimary(), updated: record.getUpdated(key) });
+                }
+
+                const results = await Ajax.patch(this.url, { records: records }, this.params);
+                if (results.success == true) {
+                    for (const record of this.getUpdatedRecords() ?? []) {
+                        record.commit(key);
+                    }
                 }
 
                 return this;
