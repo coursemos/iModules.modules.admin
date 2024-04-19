@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/modules.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 19.
  *
  * @var \modules\admin\Admin $me
  */
@@ -25,21 +25,6 @@ if (
     $results->success = false;
     $results->message = $me->getErrorText('FORBIDDEN');
     return;
-}
-
-/**
- * 모듈폴더를 탐색하여 모듈을 가져온다.
- */
-function GetModules(string $path, array &$modules): void
-{
-    $names = File::getDirectoryItems($path, 'directory', false);
-    foreach ($names as $name) {
-        if (is_file($name . '/package.json') == true) {
-            $modules[] = Modules::get(str_replace(Configs::path() . '/modules/', '', $name));
-        } else {
-            GetModules($name, $modules);
-        }
-    }
 }
 
 $modules = Modules::all(false);
