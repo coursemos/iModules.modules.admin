@@ -7,7 +7,7 @@
  * @file /modules/admin/dtos/Administrator.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 9.
+ * @modified 2024. 4. 19.
  */
 namespace modules\admin\dtos;
 class Administrator
@@ -273,7 +273,10 @@ class Administrator
                     continue;
                 }
 
-                if (in_array($path, ['/modules', '/plugins', '/widgets']) == true) {
+                if (
+                    in_array($path, ['/modules', '/plugins', '/widgets']) == true &&
+                    isset($smarts['components']) == true
+                ) {
                     $smarts['components']->children[] = $path;
                     continue;
                 }
