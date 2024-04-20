@@ -6,7 +6,7 @@
  * @file /styles/Aui.Message.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 4. 20.
  */
 div[data-component][data-type='window'][data-role='message'] {
     > div[data-role='container'] > div[data-role='content'] {
@@ -42,7 +42,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             color: var(--aui-color-text-backward-500);
 
                             &::before {
-                                content: '\ea10';
+                                content: '\e505';
                             }
                         }
 
@@ -53,7 +53,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             color: var(--aui-color-text-backward-500);
 
                             &::before {
-                                content: '\ea13';
+                                content: '\e503';
                             }
                         }
 
@@ -64,7 +64,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             color: var(--aui-color-text-backward-500);
 
                             &::before {
-                                content: '\ea06';
+                                content: '\e501';
                             }
                         }
                     }
