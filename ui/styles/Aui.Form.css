@@ -798,10 +798,13 @@ div[data-component][data-type='form'][data-role='field'] {
                                         overflow: visible;
 
                                         > label {
+                                            display: block;
                                             overflow: visible;
 
                                             > i {
                                                 display: block;
+                                                float: none;
+                                                margin: 0;
                                                 width: var(--aui-component-height-default);
                                                 height: var(--aui-component-height-default);
                                                 color: var(--aui-color-accent-backward-500);

@@ -122,7 +122,7 @@ div[data-component][data-type='menu'][data-role='item'] {
                         flex-grow: 1;
                         background: var(--aui-color-background-500);
                         line-height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
-                        padding: 0px var(--aui-component-gap);
+                        padding: 0px calc(var(--aui-component-gap) * 2) 0px var(--aui-component-gap);
                         vertical-align: top;
                         box-sizing: border-box;
                         position: relative;
