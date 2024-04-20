@@ -5197,22 +5197,29 @@ namespace Aui {
             export namespace TextArea {
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**
-                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
-                     */
-                    emptyText?: string;
-
-                    /**
                      * @type {number} rows - textarea 의 라인수
                      */
                     rows?: number;
+
+                    /**
+                     * @type {boolean} autoHeight - textarea 높이를 자동으로 조절할지 여부
+                     */
+                    autoHeight?: boolean;
+
+                    /**
+                     * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
+                     */
+                    emptyText?: string;
                 }
             }
 
             export class TextArea extends Aui.Form.Field.Base {
                 field: string = 'textarea';
                 rows: number;
+                autoHeight: boolean;
                 emptyText: string;
 
+                latestLength: number = 0;
                 $input: Dom;
                 $emptyText: Dom;
 
@@ -5225,6 +5232,7 @@ namespace Aui {
                     super(properties);
 
                     this.rows = this.properties.rows ?? 5;
+                    this.autoHeight = this.properties.autoHeight ?? true;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
 
@@ -5245,8 +5253,16 @@ namespace Aui {
                         });
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLTextAreaElement;
+                            if (this.autoHeight == true) {
+                                this.updateHeight();
+                            }
                             this.setValue(input.value);
                         });
+                        if (this.autoHeight == true) {
+                            this.$input.on('change', () => {
+                                this.updateHeight();
+                            });
+                        }
                     }
 
                     return this.$input;
@@ -5263,6 +5279,21 @@ namespace Aui {
                     }
 
                     return this.$emptyText;
+                }
+
+                /**
+                 * INPUT 필드의 높이를 콘텐츠에 따라 갱신한다.
+                 */
+                updateHeight(): void {
+                    if (this.latestLength < this.$getInput().getValue().length) {
+                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
+                    } else {
+                        this.$getContent().setStyle('height', this.$getContent().getHeight() + 'px');
+                        this.$getInput().setStyle('height', null);
+                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
+                        this.$getContent().setStyle('height', null);
+                    }
+                    this.latestLength = this.$getInput().getValue().length;
                 }
 
                 /**

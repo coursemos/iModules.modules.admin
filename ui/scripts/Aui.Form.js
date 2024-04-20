@@ -4104,7 +4104,9 @@ var Aui;
             class TextArea extends Aui.Form.Field.Base {
                 field = 'textarea';
                 rows;
+                autoHeight;
                 emptyText;
+                latestLength = 0;
                 $input;
                 $emptyText;
                 /**
@@ -4115,6 +4117,7 @@ var Aui;
                 constructor(properties = null) {
                     super(properties);
                     this.rows = this.properties.rows ?? 5;
+                    this.autoHeight = this.properties.autoHeight ?? true;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.scrollable = 'Y';
@@ -4133,8 +4136,16 @@ var Aui;
                         });
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
+                            if (this.autoHeight == true) {
+                                this.updateHeight();
+                            }
                             this.setValue(input.value);
                         });
+                        if (this.autoHeight == true) {
+                            this.$input.on('change', () => {
+                                this.updateHeight();
+                            });
+                        }
                     }
                     return this.$input;
                 }
@@ -4148,6 +4159,21 @@ var Aui;
                         this.$emptyText = Html.create('div', { 'data-role': 'empty' });
                     }
                     return this.$emptyText;
+                }
+                /**
+                 * INPUT 필드의 높이를 콘텐츠에 따라 갱신한다.
+                 */
+                updateHeight() {
+                    if (this.latestLength < this.$getInput().getValue().length) {
+                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
+                    }
+                    else {
+                        this.$getContent().setStyle('height', this.$getContent().getHeight() + 'px');
+                        this.$getInput().setStyle('height', null);
+                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
+                        this.$getContent().setStyle('height', null);
+                    }
+                    this.latestLength = this.$getInput().getValue().length;
                 }
                 /**
                  * placeHolder 문자열을 설정한다.
