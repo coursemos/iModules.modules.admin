@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 20.
  */
 var Aui;
 (function (Aui) {
@@ -2835,9 +2835,9 @@ var Aui;
                     this.blocks = this.properties.blocks ?? {
                         text: {
                             text: Aui.printText('components.form.blocks.text'),
-                            iconClass: 'xi xi-caps',
+                            iconClass: 'mi mi-type',
                             field: () => {
-                                return new Aui.Form.Field.Text({
+                                return new Aui.Form.Field.TextArea({
                                     name: 'text',
                                 });
                             },
@@ -2976,7 +2976,7 @@ var Aui;
                     block.append(field);
                     field.setParent(block);
                     block.append(new Aui.Button({
-                        iconClass: 'mi mi-up',
+                        iconClass: 'mi mi-caret-up',
                         handler: (button) => {
                             const item = button.getParent();
                             const container = item.getParent();
@@ -2991,7 +2991,7 @@ var Aui;
                         },
                     }));
                     block.append(new Aui.Button({
-                        iconClass: 'mi mi-down',
+                        iconClass: 'mi mi-caret-down',
                         handler: (button) => {
                             const item = button.getParent();
                             const container = item.getParent();

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 20.
  */
 namespace Aui {
     export namespace Form {
@@ -3619,9 +3619,9 @@ namespace Aui {
                     this.blocks = this.properties.blocks ?? {
                         text: {
                             text: Aui.printText('components.form.blocks.text'),
-                            iconClass: 'xi xi-caps',
+                            iconClass: 'mi mi-type',
                             field: () => {
-                                return new Aui.Form.Field.Text({
+                                return new Aui.Form.Field.TextArea({
                                     name: 'text',
                                 });
                             },
@@ -3773,7 +3773,7 @@ namespace Aui {
                     field.setParent(block);
                     block.append(
                         new Aui.Button({
-                            iconClass: 'mi mi-up',
+                            iconClass: 'mi mi-caret-up',
                             handler: (button) => {
                                 const item = button.getParent();
                                 const container = item.getParent() as Aui.Form.Field.Container;
@@ -3791,7 +3791,7 @@ namespace Aui {
                     );
                     block.append(
                         new Aui.Button({
-                            iconClass: 'mi mi-down',
+                            iconClass: 'mi mi-caret-down',
                             handler: (button) => {
                                 const item = button.getParent();
                                 const container = item.getParent() as Aui.Form.Field.Container;

@@ -6,7 +6,7 @@
  * @file /styles/Aui.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 20.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
@@ -701,7 +701,7 @@ div[data-component][data-type='form'][data-role='field'] {
             flex-direction: row;
             flex-wrap: wrap;
             align-items: stretch;
-            gap: 5px;
+            gap: var(--aui-component-gap);
 
             > div[data-role='tag'] {
                 background: var(--aui-color-background-400);
@@ -735,7 +735,7 @@ div[data-component][data-type='form'][data-role='field'] {
 
                     &::before {
                         font-family: moimz;
-                        content: '\eb04';
+                        content: '\e405';
                         color: var(--aui-color-danger-500);
                     }
                 }
@@ -748,17 +748,17 @@ div[data-component][data-type='form'][data-role='field'] {
                 }
 
                 &:has(input) {
-                    width: 140px;
+                    width: 8.5rem;
                 }
             }
 
             div[data-component][data-type='form'][data-role='field'] {
-                width: 140px;
+                width: 8.5rem;
             }
 
             input {
                 outline: none;
-                width: 140px;
+                width: 8.5rem;
                 height: var(--aui-component-height-default);
                 box-sizing: border-box;
                 background: var(--aui-color-background-500);
@@ -785,7 +785,7 @@ div[data-component][data-type='form'][data-role='field'] {
         > div[data-role='blocks'] {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: var(--aui-component-gap);
 
             > div[data-component][data-type='form'][data-role='field'] {
                 > div[data-role='container'] {
@@ -1055,7 +1055,7 @@ div[data-component][data-type='form'][data-role='field'] {
     > div[data-role='container'] > div[data-role='content'][data-field='image'] {
         display: inline-flex;
         flex-direction: row;
-        column-gap: 5px;
+        column-gap: var(--aui-component-gap);
         align-items: flex-start;
 
         > input {
@@ -1219,14 +1219,14 @@ div[data-component][data-type='form'][data-role='field'] {
         > div[data-role='components'] {
             display: flex;
             flex-direction: column;
-            row-gap: 5px;
+            row-gap: var(--aui-component-gap);
             flex-grow: 1;
             flex-shrink: 0;
 
             > div[data-role='buttons'] {
                 display: flex;
                 flex-direction: row;
-                column-gap: 5px;
+                column-gap: var(--aui-component-gap);
                 align-items: flex-start;
 
                 > div[data-role='component'] {
