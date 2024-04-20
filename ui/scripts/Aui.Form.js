@@ -862,6 +862,7 @@ var Aui;
                     if (this.oValue !== undefined && this.value === undefined) {
                         this.setValue(this.oValue, true);
                     }
+                    super.onRender();
                 }
                 /**
                  * 입력값이 변경되었을 때 이벤트를 처리한다.
@@ -2970,8 +2971,17 @@ var Aui;
                     });
                     const block = new Aui.Form.Field.Container({
                         blockType: type,
+                        label: '<i class="' + this.blocks[type].iconClass + '"><b>' + this.blocks[type].text + '</b></i>',
+                        labelSeparator: '',
+                        class: 'block',
                         items: [],
                         parent: this,
+                        listeners: {
+                            render: (field) => {
+                                field.$getTop().setStyle('width', null);
+                                field.$getContent().setStyle('width', null);
+                            },
+                        },
                     });
                     block.append(field);
                     field.setParent(block);
@@ -4037,6 +4047,7 @@ var Aui;
                             this.getStore().load();
                         }
                     }
+                    super.onRender();
                 }
                 /**
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
@@ -4164,7 +4175,7 @@ var Aui;
                  * INPUT 필드의 높이를 콘텐츠에 따라 갱신한다.
                  */
                 updateHeight() {
-                    if (this.latestLength < this.$getInput().getValue().length) {
+                    if (this.latestLength <= this.$getInput().getValue().length) {
                         this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
                     }
                     else {

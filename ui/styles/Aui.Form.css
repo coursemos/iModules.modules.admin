@@ -793,7 +793,52 @@ div[data-component][data-type='form'][data-role='field'] {
                         > div[data-role='fields'] {
                             > div[data-component][data-type='form'][data-role='field'] {
                                 > div[data-role='container'] {
+                                    > div[data-role='top'] {
+                                        width: calc(var(--aui-component-height-default) + var(--aui-component-gap));
+                                        overflow: visible;
+
+                                        > label {
+                                            overflow: visible;
+
+                                            > i {
+                                                display: block;
+                                                width: var(--aui-component-height-default);
+                                                height: var(--aui-component-height-default);
+                                                color: var(--aui-color-accent-backward-500);
+                                                background: var(--aui-color-accent-500);
+                                                line-height: var(--aui-component-height-default);
+                                                text-align: center;
+                                                border-radius: 3px;
+                                                position: relative;
+
+                                                > b {
+                                                    position: absolute;
+                                                    top: 0;
+                                                    left: calc(100% - 8px);
+                                                    border-radius: 3px;
+                                                    padding: 0px var(--aui-component-gap);
+                                                    height: var(--aui-component-height-default);
+                                                    line-height: var(--aui-component-height-default);
+                                                    background: var(--aui-color-accent-500);
+                                                    color: var(--aui-color-accent-backward-500);
+                                                    z-index: 5;
+                                                    display: none;
+                                                }
+
+                                                &:hover {
+                                                    > b {
+                                                        display: block;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     > div[data-role='content'] {
+                                        width: calc(
+                                            100% - var(--aui-component-height-default) - var(--aui-component-gap)
+                                        );
+
                                         > div[data-role='fields'] {
                                             > div[data-component][data-type='form'][data-role='field'] {
                                                 flex: 1;

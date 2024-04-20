@@ -1183,6 +1183,7 @@ namespace Aui {
                     if (this.oValue !== undefined && this.value === undefined) {
                         this.setValue(this.oValue, true);
                     }
+                    super.onRender();
                 }
 
                 /**
@@ -3766,8 +3767,18 @@ namespace Aui {
 
                     const block = new Aui.Form.Field.Container({
                         blockType: type,
+                        label:
+                            '<i class="' + this.blocks[type].iconClass + '"><b>' + this.blocks[type].text + '</b></i>',
+                        labelSeparator: '',
+                        class: 'block',
                         items: [],
                         parent: this,
+                        listeners: {
+                            render: (field) => {
+                                field.$getTop().setStyle('width', null);
+                                field.$getContent().setStyle('width', null);
+                            },
+                        },
                     });
                     block.append(field);
                     field.setParent(block);
@@ -5122,6 +5133,7 @@ namespace Aui {
                             this.getStore().load();
                         }
                     }
+                    super.onRender();
                 }
 
                 /**
@@ -5285,7 +5297,7 @@ namespace Aui {
                  * INPUT 필드의 높이를 콘텐츠에 따라 갱신한다.
                  */
                 updateHeight(): void {
-                    if (this.latestLength < this.$getInput().getValue().length) {
+                    if (this.latestLength <= this.$getInput().getValue().length) {
                         this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
                     } else {
                         this.$getContent().setStyle('height', this.$getContent().getHeight() + 'px');
