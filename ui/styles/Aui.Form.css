@@ -1466,6 +1466,7 @@ div[data-component][data-type='form'][data-role='field'] {
             font-size: var(--aui-font-size-default);
             font-family: var(--aui-font-family-default);
             background: transparent;
+            color: var(--aui-color-text-500);
 
             &[disabled] {
                 cursor: not-allowed;
