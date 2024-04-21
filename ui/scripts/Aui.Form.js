@@ -1268,6 +1268,8 @@ var Aui;
                 inputType = 'text';
                 emptyText;
                 inputAlign = null;
+                is_trim;
+                is_null;
                 $input;
                 $emptyText;
                 /**
@@ -1280,6 +1282,8 @@ var Aui;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.inputAlign = this.properties.inputAlign ?? null;
+                    this.is_trim = this.properties.is_trim !== false;
+                    this.is_null = this.properties.is_null === true;
                 }
                 /**
                  * INPUT 필드 DOM 을 가져온다.
@@ -1373,6 +1377,21 @@ var Aui;
                         this.$getEmptyText().show();
                     }
                     super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    let value = this.value;
+                    if (value !== null && this.is_trim == true) {
+                        value = value.trim();
+                    }
+                    if (value === null || (this.is_null == true && value.length == 0)) {
+                        return null;
+                    }
+                    return value;
                 }
                 /**
                  * 필드에 포커스를 지정한다.
@@ -4117,6 +4136,8 @@ var Aui;
                 rows;
                 autoHeight;
                 emptyText;
+                is_trim;
+                is_null;
                 latestLength = 0;
                 $input;
                 $emptyText;
@@ -4131,6 +4152,8 @@ var Aui;
                     this.autoHeight = this.properties.autoHeight ?? true;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+                    this.is_trim = this.properties.is_trim !== false;
+                    this.is_null = this.properties.is_null === true;
                     this.scrollable = 'Y';
                     this.$scrollable = this.$getInput();
                 }
@@ -4243,6 +4266,21 @@ var Aui;
                         this.$getEmptyText().show();
                     }
                     super.setValue(value, is_origin);
+                }
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue() {
+                    let value = this.value;
+                    if (value !== null && this.is_trim == true) {
+                        value = value.trim();
+                    }
+                    if (value === null || (this.is_null == true && value.length == 0)) {
+                        return null;
+                    }
+                    return value;
                 }
                 /**
                  * 필드태그를 랜더링한다.

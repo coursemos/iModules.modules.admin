@@ -1685,6 +1685,16 @@ namespace Aui {
                     inputAlign?: string;
 
                     /**
+                     * @type {boolean} is_trim - 데이터값의 앞뒤 공백을 제거할지 여부 (기본값 TRUE)
+                     */
+                    is_trim?: boolean;
+
+                    /**
+                     * @type {boolean} is_trim - 빈값일 경우 NULL 을 반환할지 여부 (기본값 FALSE)
+                     */
+                    is_null?: boolean;
+
+                    /**
                      * @type {Aui.Form.Field.Base.Listeners} listeners - 이벤트리스너
                      */
                     listeners?: Aui.Form.Field.Text.Listeners;
@@ -1697,6 +1707,9 @@ namespace Aui {
                 emptyText: string;
 
                 inputAlign: string = null;
+                is_trim: boolean;
+                is_null: boolean;
+
                 $input: Dom;
                 $emptyText: Dom;
 
@@ -1712,6 +1725,8 @@ namespace Aui {
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
 
                     this.inputAlign = this.properties.inputAlign ?? null;
+                    this.is_trim = this.properties.is_trim !== false;
+                    this.is_null = this.properties.is_null === true;
                 }
 
                 /**
@@ -1816,6 +1831,24 @@ namespace Aui {
                     }
 
                     super.setValue(value, is_origin);
+                }
+
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue(): any {
+                    let value = this.value;
+                    if (value !== null && this.is_trim == true) {
+                        value = value.trim();
+                    }
+
+                    if (value === null || (this.is_null == true && value.length == 0)) {
+                        return null;
+                    }
+
+                    return value;
                 }
 
                 /**
@@ -5222,6 +5255,16 @@ namespace Aui {
                      * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
                      */
                     emptyText?: string;
+
+                    /**
+                     * @type {boolean} is_trim - 데이터값의 앞뒤 공백을 제거할지 여부 (기본값 TRUE)
+                     */
+                    is_trim?: boolean;
+
+                    /**
+                     * @type {boolean} is_trim - 빈값일 경우 NULL 을 반환할지 여부 (기본값 FALSE)
+                     */
+                    is_null?: boolean;
                 }
             }
 
@@ -5230,8 +5273,11 @@ namespace Aui {
                 rows: number;
                 autoHeight: boolean;
                 emptyText: string;
+                is_trim: boolean;
+                is_null: boolean;
 
                 latestLength: number = 0;
+
                 $input: Dom;
                 $emptyText: Dom;
 
@@ -5247,6 +5293,8 @@ namespace Aui {
                     this.autoHeight = this.properties.autoHeight ?? true;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
+                    this.is_trim = this.properties.is_trim !== false;
+                    this.is_null = this.properties.is_null === true;
 
                     this.scrollable = 'Y';
                     this.$scrollable = this.$getInput();
@@ -5372,6 +5420,24 @@ namespace Aui {
                     }
 
                     super.setValue(value, is_origin);
+                }
+
+                /**
+                 * 필드값을 가져온다.
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue(): any {
+                    let value = this.value;
+                    if (value !== null && this.is_trim == true) {
+                        value = value.trim();
+                    }
+
+                    if (value === null || (this.is_null == true && value.length == 0)) {
+                        return null;
+                    }
+
+                    return value;
                 }
 
                 /**
