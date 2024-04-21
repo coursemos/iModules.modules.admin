@@ -3101,7 +3101,6 @@ var Aui;
                                                     const item = button.getParent().getParent();
                                                     const container = item.getParent();
                                                     const index = container.getItemIndex(item);
-                                                    console.log(index);
                                                     this.addBlock(type, block.field(), null, index + 1);
                                                     return true;
                                                 },

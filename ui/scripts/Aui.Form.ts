@@ -3940,7 +3940,6 @@ namespace Aui {
                                                             const container =
                                                                 item.getParent() as Aui.Form.Field.Container;
                                                             const index = container.getItemIndex(item);
-                                                            console.log(index);
                                                             this.addBlock(type, block.field(), null, index + 1);
                                                             return true;
                                                         },
