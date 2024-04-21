@@ -1384,7 +1384,7 @@ var Aui;
                  * @return {any} value - 값
                  */
                 getValue() {
-                    let value = this.value;
+                    let value = this.value ?? null;
                     if (value !== null && this.is_trim == true) {
                         value = value.trim();
                     }
@@ -4367,7 +4367,7 @@ var Aui;
                  * @return {any} value - 값
                  */
                 getValue() {
-                    let value = this.value;
+                    let value = this.value ?? null;
                     if (value !== null && this.is_trim == true) {
                         value = value.trim();
                     }
