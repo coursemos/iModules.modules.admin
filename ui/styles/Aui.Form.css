@@ -796,6 +796,10 @@ div[data-component][data-type='form'][data-role='field'] {
                                 position: relative;
                                 border-bottom: 1px solid var(--aui-color-background-300);
 
+                                &:first-child {
+                                    padding-top: 0;
+                                }
+
                                 &::before {
                                     display: none;
                                     background: var(--aui-color-mark-400);
