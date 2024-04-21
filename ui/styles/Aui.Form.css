@@ -1720,6 +1720,7 @@ div[data-component][data-type='form'][data-role='field'] {
                     font-size: var(--aui-font-size-default);
                     font-family: var(--aui-font-family-default);
                     color: var(--aui-color-text-500);
+                    white-space: nowrap;
                 }
             }
 
