@@ -24,6 +24,7 @@ var Aui;
         value;
         handler;
         menu;
+        hideArrow;
         $button;
         /**
          * 버튼을 생성한다.
@@ -42,6 +43,7 @@ var Aui;
             this.pressed = this.properties.pressed === true;
             this.value = this.properties.value ?? null;
             this.handler = this.properties.handler ?? null;
+            this.hideArrow = this.properties.hideArrow === true;
             if (this.properties.menu instanceof Aui.Menu) {
                 this.menu = this.properties.menu;
             }
@@ -52,6 +54,7 @@ var Aui;
                 this.menu = null;
             }
             if (this.menu !== null) {
+                this.menu.setParent(this);
                 this.menu.addEvent('show', (menu) => {
                     menu.$target.addClass('opened');
                 });
@@ -78,7 +81,7 @@ var Aui;
                 if (this.buttonClass !== null) {
                     this.$button.addClass(...this.buttonClass.split(' '));
                 }
-                if (this.menu !== null && this.handler === null) {
+                if (this.menu !== null && this.handler === null && this.hideArrow == false) {
                     this.$button.addClass('menu');
                 }
                 this.$button.on('click', () => {

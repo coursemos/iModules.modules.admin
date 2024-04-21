@@ -89,6 +89,11 @@ namespace Aui {
             menus?: (Aui.Menu.Item | Aui.Menu.Item.Properties)[];
 
             /**
+             * @type {boolean} hideArrow - 메뉴가 존재할 경우 dropdown 화살표를 숨길지 여부
+             */
+            hideArrow?: boolean;
+
+            /**
              * @type {Aui.Button.Listeners} listeners - 이벤트리스너
              */
             listeners?: Aui.Button.Listeners;
@@ -110,6 +115,7 @@ namespace Aui {
         handler: Function;
 
         menu: Aui.Menu;
+        hideArrow: boolean;
 
         $button: Dom;
 
@@ -131,6 +137,7 @@ namespace Aui {
             this.pressed = this.properties.pressed === true;
             this.value = this.properties.value ?? null;
             this.handler = this.properties.handler ?? null;
+            this.hideArrow = this.properties.hideArrow === true;
 
             if (this.properties.menu instanceof Aui.Menu) {
                 this.menu = this.properties.menu;
@@ -141,6 +148,7 @@ namespace Aui {
             }
 
             if (this.menu !== null) {
+                this.menu.setParent(this);
                 this.menu.addEvent('show', (menu: Aui.Menu) => {
                     (menu.$target as Dom).addClass('opened');
                 });
@@ -169,7 +177,7 @@ namespace Aui {
                 if (this.buttonClass !== null) {
                     this.$button.addClass(...this.buttonClass.split(' '));
                 }
-                if (this.menu !== null && this.handler === null) {
+                if (this.menu !== null && this.handler === null && this.hideArrow == false) {
                     this.$button.addClass('menu');
                 }
                 this.$button.on('click', () => {
