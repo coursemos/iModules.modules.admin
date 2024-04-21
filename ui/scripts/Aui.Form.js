@@ -2983,11 +2983,13 @@ var Aui;
                  * @param {string} type - 블럭타입
                  * @param {Aui.Form.Field.Base|Aui.Form.Field.Container} field - 추가할 필드
                  * @param {any} value - 필드값
+                 * @param {number} index - 추가할 위치
                  */
-                addBlock(type, field, value = null) {
+                addBlock(type, field, value = null, index = null) {
                     field.addEvent('change', () => {
                         this.updateValue();
                     });
+                    field.$getComponent().setStyle('flex-grow', 1);
                     const block = new Aui.Form.Field.Container({
                         blockType: type,
                         label: '<i class="' + this.blocks[type].iconClass + '"><b>' + this.blocks[type].text + '</b></i>',
@@ -3004,45 +3006,114 @@ var Aui;
                     });
                     block.append(field);
                     field.setParent(block);
-                    block.append(new Aui.Button({
-                        iconClass: 'mi mi-caret-up',
-                        handler: (button) => {
-                            const item = button.getParent();
-                            const container = item.getParent();
-                            const index = container.getItemIndex(item);
-                            if (index > 0) {
-                                const swap = container.getItemAt(index - 1);
-                                container.items[index - 1] = item;
-                                container.items[index] = swap;
-                                const $parent = item.$getComponent().getParent();
-                                $parent.append(item.$getComponent(), index - 1);
-                            }
-                        },
+                    block.append(new Aui.Form.Field.Container({
+                        direction: 'column',
+                        class: 'buttons',
+                        items: [
+                            new Aui.Button({
+                                iconClass: 'mi mi-caret-up',
+                                handler: (button) => {
+                                    const item = button.getParent().getParent();
+                                    const container = item.getParent();
+                                    const index = container.getItemIndex(item);
+                                    let scrollarea = null;
+                                    let parent = container.getForm();
+                                    while (parent !== null) {
+                                        if (parent.getScroll().isScrollable('y') == true) {
+                                            scrollarea = parent;
+                                            break;
+                                        }
+                                        parent = parent.getParent();
+                                    }
+                                    if (index > 0) {
+                                        const swap = container.getItemAt(index - 1);
+                                        container.items[index - 1] = item;
+                                        container.items[index] = swap;
+                                        const offset = item.$getComponent().getOffset().top;
+                                        item.$getComponent().addClass('moved');
+                                        const $parent = item.$getComponent().getParent();
+                                        $parent.append(item.$getComponent(), index - 1);
+                                        scrollarea
+                                            ?.getScroll()
+                                            .movePosition(0, item.$getComponent().getOffset().top - offset);
+                                        item.$getComponent().removeClass('moved');
+                                    }
+                                },
+                            }),
+                            new Aui.Button({
+                                iconClass: 'mi mi-caret-down',
+                                handler: (button) => {
+                                    const item = button.getParent().getParent();
+                                    const container = item.getParent();
+                                    const index = container.getItemIndex(item);
+                                    let scrollarea = null;
+                                    let parent = container.getForm();
+                                    while (parent !== null) {
+                                        if (parent.getScroll().isScrollable('y') == true) {
+                                            scrollarea = parent;
+                                            break;
+                                        }
+                                        parent = parent.getParent();
+                                    }
+                                    if (index < container.getItems().length - 1) {
+                                        const swap = container.getItemAt(index + 1);
+                                        container.items[index + 1] = item;
+                                        container.items[index] = swap;
+                                        const offset = item.$getComponent().getOffset().top;
+                                        item.$getComponent().addClass('moved');
+                                        const $parent = item.$getComponent().getParent();
+                                        $parent.append(swap.$getComponent(), index);
+                                        scrollarea
+                                            ?.getScroll()
+                                            .movePosition(0, item.$getComponent().getOffset().top - offset);
+                                        item.$getComponent().removeClass('moved');
+                                    }
+                                },
+                            }),
+                        ],
                     }));
-                    block.append(new Aui.Button({
-                        iconClass: 'mi mi-caret-down',
-                        handler: (button) => {
-                            const item = button.getParent();
-                            const container = item.getParent();
-                            const index = container.getItemIndex(item);
-                            if (index < container.getItems().length - 1) {
-                                const swap = container.getItemAt(index + 1);
-                                container.items[index + 1] = item;
-                                container.items[index] = swap;
-                                const $parent = item.$getComponent().getParent();
-                                $parent.append(swap.$getComponent(), index);
-                            }
-                        },
+                    block.append(new Aui.Form.Field.Container({
+                        direction: 'column',
+                        class: 'buttons',
+                        items: [
+                            new Aui.Button({
+                                iconClass: 'mi mi-trash',
+                                buttonClass: 'danger',
+                                handler: (button) => {
+                                    const item = button.getParent().getParent();
+                                    item.remove();
+                                },
+                            }),
+                            new Aui.Button({
+                                iconClass: 'mi mi-plus',
+                                buttonClass: 'confirm',
+                                hideArrow: true,
+                                menu: new Aui.Menu({
+                                    items: ((blocks) => {
+                                        const items = [];
+                                        for (const type in blocks) {
+                                            const block = blocks[type];
+                                            items.push(new Aui.Menu.Item({
+                                                text: block.text,
+                                                iconClass: block.iconClass ?? null,
+                                                handler: async (menu) => {
+                                                    const button = menu.getParent().getParent();
+                                                    const item = button.getParent().getParent();
+                                                    const container = item.getParent();
+                                                    const index = container.getItemIndex(item);
+                                                    console.log(index);
+                                                    this.addBlock(type, block.field(), null, index + 1);
+                                                    return true;
+                                                },
+                                            }));
+                                        }
+                                        return items;
+                                    })(this.blocks),
+                                }),
+                            }),
+                        ],
                     }));
-                    block.append(new Aui.Button({
-                        iconClass: 'mi mi-trash',
-                        buttonClass: 'danger',
-                        handler: (button) => {
-                            const item = button.getParent();
-                            item.remove();
-                        },
-                    }));
-                    this.getFieldContainer().append(block);
+                    this.getFieldContainer().append(block, index);
                     if (this.getFieldContainer().getItems().length > 0) {
                         this.getFieldContainer().show();
                     }
@@ -3053,6 +3124,30 @@ var Aui;
                         else {
                             field.setValues(value);
                         }
+                    }
+                    if (index !== null) {
+                        block.$getComponent().addClass('moved');
+                        let scrollarea = null;
+                        let parent = this.getForm();
+                        while (parent !== null) {
+                            if (parent.getScroll().isScrollable('y') == true) {
+                                scrollarea = parent;
+                                break;
+                            }
+                            parent = parent.getParent();
+                        }
+                        if (scrollarea !== null) {
+                            const contentHeight = scrollarea.$getContent().getOuterHeight();
+                            const position = block.$getComponent().getOffset().top - scrollarea.$getContent().getOffset().top;
+                            if (position <= 0) {
+                                scrollarea.getScroll()?.movePosition(0, position - 10, true, true);
+                            }
+                            else if (position >= contentHeight) {
+                                const scroll = position - contentHeight + field.$getComponent().getOuterHeight() + 10;
+                                scrollarea.getScroll()?.movePosition(0, scroll, true, true);
+                            }
+                        }
+                        block.$getComponent().removeClass('moved');
                     }
                 }
                 /**
