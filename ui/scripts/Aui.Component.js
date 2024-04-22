@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 4. 23.
  */
 var Aui;
 (function (Aui) {
@@ -649,6 +649,14 @@ var Aui;
             if (this.getItemAt(index) !== null) {
                 const item = this.items.splice(index, 1);
                 item[0].remove();
+            }
+        }
+        /**
+         * 모든 아이템을 제거한다.
+         */
+        removeAll() {
+            for (let i = (this.items ?? []).length - 1; i >= 0; i--) {
+                this.removeItem(i);
             }
         }
         /**
