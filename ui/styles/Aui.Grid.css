@@ -298,7 +298,12 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                                 &.filtered {
                                     font-weight: bold;
-                                    text-decoration: underline;
+
+                                    &::before {
+                                        content: '\e766';
+                                        margin-right: 5px;
+                                        font-family: moimz;
+                                    }
                                 }
                             }
 
