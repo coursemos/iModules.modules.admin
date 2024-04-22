@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 22.
+ * @modified 2024. 4. 23.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -21,14 +21,24 @@ Admin.ready(async () => {
             new Aui.Grid.Panel({
                 id: 'domains',
                 border: [false, true, false, false],
-                width: 240,
+                width: 280,
                 columnResizable: false,
                 selection: { selectable: true },
                 topbar: [
-                    new Aui.Form.Field.Text({
+                    new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')),
+                        liveSearch: true,
+                        handler: async (keyword, field) => {
+                            const grid = field.getParent().getParent();
+                            if (keyword.length > 0) {
+                                grid.getStore().setFilter('host', keyword, 'like');
+                            }
+                            else {
+                                grid.getStore().resetFilter('host');
+                            }
+                        },
                     }),
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
@@ -106,16 +116,29 @@ Admin.ready(async () => {
             new Aui.Grid.Panel({
                 id: 'sites',
                 border: [false, true, false, true],
-                width: 260,
+                width: 280,
                 columnResizable: false,
                 selection: { selectable: true },
                 disabled: true,
                 autoLoad: false,
                 topbar: [
-                    new Aui.Form.Field.Text({
+                    new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
                         emptyText: (await me.getText('keyword')),
+                        liveSearch: true,
+                        handler: async (keyword, field) => {
+                            const grid = field.getParent().getParent();
+                            if (keyword.length > 0) {
+                                grid.getStore().setFilters({
+                                    host: { value: keyword, operator: 'like' },
+                                    title: { value: keyword, operator: 'likecode' },
+                                }, 'OR');
+                            }
+                            else {
+                                grid.getStore().resetFilters();
+                            }
+                        },
                     }),
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
@@ -210,11 +233,25 @@ Admin.ready(async () => {
                 disabled: true,
                 autoLoad: false,
                 topbar: [
-                    new Aui.Form.Field.Text({
+                    new Aui.Form.Field.Search({
                         name: 'keyword',
-                        flex: 1,
+                        width: 200,
                         emptyText: (await me.getText('keyword')),
+                        liveSearch: true,
+                        handler: async (keyword, field) => {
+                            const tree = field.getParent().getParent();
+                            if (keyword.length > 0) {
+                                tree.getStore().setFilters({
+                                    path: { value: keyword, operator: 'like' },
+                                    title: { value: keyword, operator: 'likecode' },
+                                }, 'OR');
+                            }
+                            else {
+                                tree.getStore().resetFilters();
+                            }
+                        },
                     }),
+                    '->',
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
                         text: (await me.getText('admin.sitemap.contexts.add')),
