@@ -267,6 +267,16 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                 content: '\ec02';
                             }
                         }
+
+                        &.filtered {
+                            font-weight: bold;
+
+                            &::before {
+                                content: '\e766';
+                                margin-right: 5px;
+                                font-family: moimz;
+                            }
+                        }
                     }
 
                     &.check {

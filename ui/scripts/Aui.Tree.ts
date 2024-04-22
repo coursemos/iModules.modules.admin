@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 23.
  */
 namespace Aui {
     export namespace Tree {
@@ -1191,6 +1191,15 @@ namespace Aui {
                         if ($label.getData('dataindex') === sorter || $label.getData('sortable') === sorter) {
                             Html.get('i[data-role=sorter]', $label).addClass(sorters[sorter]);
                         }
+                    }
+                });
+
+                const filters = this.getStore().getFilters();
+                $labels.forEach(($label) => {
+                    if (filters?.[$label.getData('dataindex')] !== undefined) {
+                        $label.addClass('filtered');
+                    } else {
+                        $label.removeClass('filtered');
                     }
                 });
             }
