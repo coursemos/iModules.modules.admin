@@ -191,6 +191,9 @@ var Aui;
             if (filters === null) {
                 this.filters = null;
                 this.records = this.originRecords;
+                for (const record of this.originRecords) {
+                    await record.filter(null, filterMode, true);
+                }
                 return;
             }
             this.filtering = true;
@@ -537,6 +540,9 @@ var Aui;
                 if (filters === null) {
                     this.filters = null;
                     this.children = this.originChildren;
+                    for (const child of this.children) {
+                        await child.filter(null, filterMode, true);
+                    }
                     return;
                 }
                 this.filtering = true;
