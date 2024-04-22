@@ -13,10 +13,10 @@ Admin.ready(async () => {
 
     return new Aui.Grid.Panel({
         id: 'modules',
-        iconClass: 'xi xi-box',
+        iconClass: 'mi mi-module',
         border: false,
         layout: 'fit',
-        title: (await me.getText('admin.contexts.modules')) as string,
+        title: (await me.getText('admin.contexts.module')) as string,
         selection: { selectable: true },
         autoLoad: true,
         topbar: [
@@ -112,7 +112,7 @@ Admin.ready(async () => {
                 menu.setTitle(record.get('title'));
                 menu.add({
                     text: me.printText('admin.modules.show.title'),
-                    iconClass: 'xi xi-form-checkout',
+                    iconClass: 'mi mi-edit',
                     handler: async () => {
                         me.modules.show(record.get('name'));
                         return true;
@@ -120,7 +120,7 @@ Admin.ready(async () => {
                 });
                 menu.add({
                     text: me.printText('buttons.configs'),
-                    iconClass: 'xi xi-cog',
+                    iconClass: 'mi mi-config',
                     hidden: record.get('properties').includes('CONFIGS') === false,
                     handler: async () => {
                         me.modules.setConfigs(record.get('name'));
@@ -129,7 +129,7 @@ Admin.ready(async () => {
                 });
                 menu.add({
                     text: me.printText('buttons.install'),
-                    iconClass: 'xi xi-new',
+                    iconClass: 'mi mi-archive-download',
                     hidden: record.get('status') !== 'NOT_INSTALLED',
                     handler: async () => {
                         me.modules.install(record.get('name'));
@@ -138,7 +138,7 @@ Admin.ready(async () => {
                 });
                 menu.add({
                     text: me.printText('buttons.update'),
-                    iconClass: 'xi xi-update',
+                    iconClass: 'mi mi-archive-download',
                     hidden: record.get('status') !== 'NEED_UPDATE',
                     handler: async () => {
                         me.modules.install(record.get('name'));

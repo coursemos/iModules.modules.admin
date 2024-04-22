@@ -6,14 +6,14 @@
  * @file /modules/admin/admin/scripts/contexts/administrators.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 22.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
     const mMember = Admin.getModule('member');
     return new Aui.Tab.Panel({
         id: 'administrators-context',
-        iconClass: 'xi xi-user-lock',
+        iconClass: 'mi mi-admin',
         title: (await me.getText('admin.contexts.administrators')),
         border: false,
         layout: 'fit',
@@ -31,7 +31,7 @@ Admin.ready(async () => {
         items: [
             new Aui.Panel({
                 id: 'lists',
-                iconClass: 'xi xi-user-lock',
+                iconClass: 'mi mi-admin',
                 title: (await me.getText('admin.administrators.lists.title')),
                 border: false,
                 layout: 'column',
@@ -137,7 +137,7 @@ Admin.ready(async () => {
                                 if (group_id == 'user' || group_id == 'component') {
                                     menu.add({
                                         text: me.printText('admin.administrators.groups.description'),
-                                        iconClass: 'xi xi-information-square',
+                                        iconClass: 'mi mi-info',
                                         handler: async () => {
                                             Aui.Message.show({
                                                 title: Aui.getErrorText('INFO'),
@@ -155,7 +155,7 @@ Admin.ready(async () => {
                                 if (is_component !== false && componentGroupId.length == 0) {
                                     menu.add({
                                         text: me.printText('admin.' + componentType + 's.show.title'),
-                                        iconClass: 'xi xi-information-square',
+                                        iconClass: 'mi mi-info',
                                         handler: async () => {
                                             me[componentType + 's'].show(componentName);
                                             return true;
@@ -163,14 +163,26 @@ Admin.ready(async () => {
                                     });
                                     return;
                                 }
-                                menu.add({
-                                    text: me.printText('admin.administrators.groups.' + (is_component !== false ? 'show' : 'edit')),
-                                    iconClass: 'xi xi-form-checkout',
-                                    handler: async () => {
-                                        me.administrators.groups.add(record.get('group_id'));
-                                        return true;
-                                    },
-                                });
+                                if (is_component !== false) {
+                                    menu.add({
+                                        text: me.printText('admin.administrators.groups.show'),
+                                        iconClass: 'mi mi-certificate',
+                                        handler: async () => {
+                                            me.administrators.groups.add(record.get('group_id'));
+                                            return true;
+                                        },
+                                    });
+                                }
+                                else {
+                                    menu.add({
+                                        text: me.printText('admin.administrators.groups.edit'),
+                                        iconClass: 'mi mi-edit',
+                                        handler: async () => {
+                                            me.administrators.groups.add(record.get('group_id'));
+                                            return true;
+                                        },
+                                    });
+                                }
                                 if (is_component === false) {
                                     menu.add({
                                         text: me.printText('admin.administrators.groups.delete'),
@@ -228,7 +240,7 @@ Admin.ready(async () => {
                             }),
                             '->',
                             new Aui.Button({
-                                iconClass: 'xi xi-user-folder',
+                                iconClass: 'mi mi-archive-download',
                                 text: (await me.getText('admin.administrators.lists.assign')),
                                 handler: () => {
                                     const groups = Aui.getComponent('groups');
@@ -321,7 +333,7 @@ Admin.ready(async () => {
                                 menu.setTitle(record.get('name'));
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.add_group'),
-                                    iconClass: 'xi xi-folder-plus',
+                                    iconClass: 'mi mi-folder-plus',
                                     handler: async () => {
                                         me.administrators.setGroups(false);
                                         return true;
@@ -329,7 +341,7 @@ Admin.ready(async () => {
                                 });
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.move_group'),
-                                    iconClass: 'xi xi-folder-upload',
+                                    iconClass: 'mi mi-user-move',
                                     handler: async () => {
                                         me.administrators.setGroups(true);
                                         return true;
@@ -338,7 +350,7 @@ Admin.ready(async () => {
                                 menu.add('-');
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.edit_permissions'),
-                                    iconClass: 'xi xi-check-shieldout',
+                                    iconClass: 'mi mi-setting',
                                     handler: async () => {
                                         me.administrators.add(record.get('member_id'));
                                         return true;
@@ -350,7 +362,7 @@ Admin.ready(async () => {
                                 if (group_id != 'user' && group_id.startsWith('component') == false) {
                                     menu.add({
                                         text: me.printText('admin.administrators.lists.remove'),
-                                        iconClass: 'xi xi-folder-remove',
+                                        iconClass: 'mi mi-folder-minus',
                                         handler: async () => {
                                             me.administrators.delete(group_id);
                                             return true;
@@ -372,7 +384,7 @@ Admin.ready(async () => {
                                 }));
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.add_group'),
-                                    iconClass: 'xi xi-folder-plus',
+                                    iconClass: 'mi mi-folder-plus',
                                     handler: async () => {
                                         me.administrators.setGroups(false);
                                         return true;
@@ -380,7 +392,7 @@ Admin.ready(async () => {
                                 });
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.move_group'),
-                                    iconClass: 'xi xi-folder-upload',
+                                    iconClass: 'mi mi-user-move',
                                     handler: async () => {
                                         me.administrators.setGroups(true);
                                         return true;
@@ -389,7 +401,7 @@ Admin.ready(async () => {
                                 menu.add('-');
                                 menu.add({
                                     text: me.printText('admin.administrators.lists.edit_permissions'),
-                                    iconClass: 'xi xi-check-shieldout',
+                                    iconClass: 'mi mi-setting',
                                     handler: async () => {
                                         const member_ids = [];
                                         for (const record of selections) {
@@ -405,7 +417,7 @@ Admin.ready(async () => {
                                 if (group_id != 'user' && group_id.startsWith('component') == false) {
                                     menu.add({
                                         text: me.printText('admin.administrators.lists.remove'),
-                                        iconClass: 'xi xi-folder-remove',
+                                        iconClass: 'mi mi-folder-minus',
                                         handler: async () => {
                                             me.administrators.delete(group_id);
                                             return true;
@@ -427,7 +439,7 @@ Admin.ready(async () => {
             }),
             new Aui.Grid.Panel({
                 id: 'logs',
-                iconClass: 'xi xi-time-back',
+                iconClass: 'mi mi-box',
                 title: (await me.getText('admin.administrators.logs.title')),
                 border: false,
                 layout: 'fit',

@@ -26,7 +26,7 @@ div[data-component][data-type='button'][data-role='button'] {
                 color: var(--aui-color-text-500);
                 font-size: var(--aui-font-size-default);
                 font-family: var(--aui-font-family-default);
-                line-height: 1.2;
+                line-height: var(--aui-font-size-large);
                 padding: calc((var(--aui-component-height-default) - 1lh - 2px) / 2);
                 cursor: pointer;
                 box-sizing: border-box;
@@ -43,7 +43,7 @@ div[data-component][data-type='button'][data-role='button'] {
                     width: 1lh;
                     height: 1lh;
                     text-align: center;
-                    font-size: inherit;
+                    font-size: var(--aui-font-size-large);
                     font-style: normal;
                     color: inherit;
                     order: 1;

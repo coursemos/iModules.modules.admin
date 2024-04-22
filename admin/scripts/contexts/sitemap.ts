@@ -15,7 +15,7 @@ Admin.ready(async () => {
         id: 'sitemap-context',
         border: false,
         layout: 'column',
-        iconClass: 'xi xi xi-sitemap',
+        iconClass: 'mi mi-sitemap',
         title: (await me.getText('admin.contexts.sitemap')) as string,
         scrollable: true,
         items: [
@@ -76,7 +76,7 @@ Admin.ready(async () => {
 
                         menu.add({
                             text: me.printText('admin.sitemap.domains.edit'),
-                            iconClass: 'xi xi-form-checkout',
+                            iconClass: 'mi mi-edit',
                             handler: async () => {
                                 me.sitemap.domains.add(record.get('host'));
                                 return true;
@@ -172,7 +172,7 @@ Admin.ready(async () => {
 
                         menu.add({
                             text: me.printText('admin.sitemap.sites.edit'),
-                            iconClass: 'xi xi-form-checkout',
+                            iconClass: 'mi mi-edit',
                             handler: async () => {
                                 me.sitemap.sites.add(record.get('language'));
                                 return true;
@@ -344,7 +344,7 @@ Admin.ready(async () => {
 
                         menu.add({
                             text: me.printText('admin.sitemap.contexts.edit'),
-                            iconClass: 'xi xi-form-checkout',
+                            iconClass: 'mi mi-edit',
                             handler: async () => {
                                 me.sitemap.contexts.add(record.get('path'));
                                 return true;

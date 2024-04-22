@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 22.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -23,41 +23,41 @@ class Admin extends \modules\admin\admin\Component
 
         $contexts[] = \modules\admin\dtos\Context::init($this)
             ->setContext('dashboard')
-            ->setTitle($this->getText('admin.contexts.dashboard'), 'xi xi-presentation');
+            ->setTitle($this->getText('admin.contexts.dashboard'), 'mi mi-dashboard');
 
         if ($this->hasPermission('modules') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('modules')
-                ->setTitle($this->getText('admin.contexts.modules'), 'xi xi-box');
+                ->setTitle($this->getText('admin.contexts.modules'), 'mi mi-module');
         }
 
         if ($this->hasPermission('plugins') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('plugins')
-                ->setTitle($this->getText('admin.contexts.plugins'), 'xi xi-plug');
+                ->setTitle($this->getText('admin.contexts.plugins'), 'mi mi-plugin');
         }
 
         if ($this->hasPermission('widgets') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('widgets')
-                ->setTitle($this->getText('admin.contexts.widgets'), 'xi xi-contents-left');
+                ->setTitle($this->getText('admin.contexts.widgets'), 'mi mi-widget');
         }
 
-        if ($this->hasPermission('modules') == true) {
+        if ($this->hasPermission('sitemap') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('sitemap')
-                ->setTitle($this->getText('admin.contexts.sitemap'), 'xi xi-sitemap');
+                ->setTitle($this->getText('admin.contexts.sitemap'), 'mi mi-sitemap');
         }
 
         if ($this->hasPermission('administrators') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('administrators')
-                ->setTitle($this->getText('admin.contexts.administrators'), 'xi xi-user-lock');
+                ->setTitle($this->getText('admin.contexts.administrators'), 'mi mi-admin');
         }
 
         if ($this->hasPermission('database') == true) {
             $database = new \modules\admin\dtos\Context($this);
-            $database->setContext('database')->setTitle($this->getText('admin.contexts.database'), 'xi xi-db-full');
+            $database->setContext('database')->setTitle($this->getText('admin.contexts.database'), 'mi mi-database');
             $contexts[] = $database;
         }
 
@@ -87,6 +87,10 @@ class Admin extends \modules\admin\admin\Component
 
             case 'administrators':
                 \Html::script($this->getBase() . '/scripts/contexts/administrators.js');
+                break;
+
+            case 'database':
+                \Html::script($this->getBase() . '/scripts/contexts/database.js');
                 break;
         }
 
@@ -129,8 +133,8 @@ class Admin extends \modules\admin\admin\Component
         );
 
         $scopes[] = \modules\admin\dtos\Scope::init($this)->setScope(
-            'databases',
-            $this->getText('admin.scopes.databases')
+            'database',
+            $this->getText('admin.scopes.database')
         );
 
         return $this->setScopes($scopes);
