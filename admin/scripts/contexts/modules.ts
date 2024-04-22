@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 23.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -16,14 +16,29 @@ Admin.ready(async () => {
         iconClass: 'mi mi-module',
         border: false,
         layout: 'fit',
-        title: (await me.getText('admin.contexts.module')) as string,
+        title: (await me.getText('admin.contexts.modules')) as string,
         selection: { selectable: true },
         autoLoad: true,
         topbar: [
-            new Aui.Form.Field.Text({
+            new Aui.Form.Field.Search({
                 name: 'keyword',
                 width: 200,
                 emptyText: (await me.getText('keyword')) as string,
+                liveSearch: true,
+                handler: async (keyword, field) => {
+                    const grid = field.getParent().getParent() as Aui.Grid.Panel;
+                    if (keyword.length > 0) {
+                        grid.getStore().setFilters(
+                            {
+                                name: { value: keyword, operator: 'like' },
+                                title: { value: keyword, operator: 'likecode' },
+                            },
+                            'OR'
+                        );
+                    } else {
+                        grid.getStore().resetFilters();
+                    }
+                },
             }),
             '->',
             new Aui.Button({
@@ -74,13 +89,13 @@ Admin.ready(async () => {
                 dataIndex: 'status',
                 width: 100,
                 textAlign: 'center',
-                renderer: (value, _record, $dom) => {
+                renderer: (value, _record, $column) => {
                     if (value == 'INSTALLED') {
-                        $dom.setStyle('color', 'var(--color-primary)');
+                        $column.setStyle('color', 'var(--aui-color-accent-500)');
                     } else if (value == 'NOT_INSTALLED') {
-                        $dom.setStyle('color', 'var(--color-gray-800)');
+                        $column.setStyle('color', 'var(--aui-color-background-100)');
                     } else {
-                        $dom.setStyle('color', 'var(--color-danger-500)');
+                        $column.setStyle('color', 'var(--aui-color-danger-500)');
                     }
                     return me.printText('admin.modules.status.' + value);
                 },
