@@ -212,6 +212,7 @@ var Aui;
                 this.records = this.originRecords;
             }
             this.filters = filters;
+            this.filterMode = filterMode;
             this.filtering = false;
         }
     }
@@ -564,6 +565,7 @@ var Aui;
                     await child.filter(filters, filterMode, execute);
                 }
                 this.filters = filters;
+                this.filterMode = filterMode;
                 this.filtering = false;
             }
             /**

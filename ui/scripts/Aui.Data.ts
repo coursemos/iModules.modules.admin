@@ -248,6 +248,7 @@ namespace Aui {
             }
 
             this.filters = filters;
+            this.filterMode = filterMode;
             this.filtering = false;
         }
     }
