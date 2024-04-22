@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 22.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -318,7 +318,6 @@ Admin.ready(async () => {
                             return me.sitemap.contexts.getTypeIcon(value) + record.get('context');
                         },
                     },
-                    { text: '정렬', dataIndex: 'sort', width: 50 },
                     {
                         text: (await me.getText('admin.sitemap.contexts.layout')),
                         dataIndex: 'layout',
