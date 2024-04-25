@@ -2843,6 +2843,7 @@ var Aui;
             class Blocks extends Aui.Form.Field.Base {
                 field = 'blocks';
                 button;
+                buttonText;
                 blocks;
                 fieldContainer;
                 /**
@@ -2852,6 +2853,7 @@ var Aui;
                  */
                 constructor(properties = null) {
                     super(properties);
+                    this.buttonText = this.properties.buttonText ?? Aui.printText('components.form.blocks.add');
                     this.blocks = this.properties.blocks ?? {
                         text: {
                             text: Aui.printText('components.form.blocks.text'),
@@ -2873,7 +2875,7 @@ var Aui;
                     if (this.button === undefined) {
                         this.button = new Aui.Button({
                             iconClass: 'mi mi-plus',
-                            text: Aui.printText('components.form.blocks.add'),
+                            text: this.buttonText,
                             buttonClass: 'confirm',
                             parent: this,
                             menu: new Aui.Menu({

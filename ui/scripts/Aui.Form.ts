@@ -3629,6 +3629,11 @@ namespace Aui {
 
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**
+                     * @type {string} buttonText - 블럭추가버튼 텍스트
+                     */
+                    buttonText?: string;
+
+                    /**
                      * @type {Object} blocks - 블록목록
                      */
                     blocks?: { [type: string]: Aui.Form.Field.Blocks.Block };
@@ -3639,6 +3644,7 @@ namespace Aui {
                 field: string = 'blocks';
                 button: Aui.Button;
 
+                buttonText: string;
                 blocks: { [type: string]: Aui.Form.Field.Blocks.Block };
                 fieldContainer: Aui.Form.Field.Container;
 
@@ -3649,6 +3655,8 @@ namespace Aui {
                  */
                 constructor(properties: Aui.Form.Field.Blocks.Properties = null) {
                     super(properties);
+
+                    this.buttonText = this.properties.buttonText ?? Aui.printText('components.form.blocks.add');
 
                     this.blocks = this.properties.blocks ?? {
                         text: {
@@ -3672,7 +3680,7 @@ namespace Aui {
                     if (this.button === undefined) {
                         this.button = new Aui.Button({
                             iconClass: 'mi mi-plus',
-                            text: Aui.printText('components.form.blocks.add'),
+                            text: this.buttonText,
                             buttonClass: 'confirm',
                             parent: this,
                             menu: new Aui.Menu({
