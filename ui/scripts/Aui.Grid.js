@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 27.
  */
 var Aui;
 (function (Aui) {
@@ -906,6 +906,14 @@ var Aui;
                     return;
                 const record = this.getStore().get(rowIndex);
                 $row.replaceWith(this.$getRow(rowIndex, record));
+            }
+            /**
+             * 로딩영역을 가져온다.
+             *
+             * @return {Aui.Loading} loading
+             */
+            getLoading() {
+                return this.loading;
             }
             /**
              * 그리드패널의 헤더(제목행)를 랜더링한다.

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 4. 27.
  */
 namespace Aui {
     export namespace Grid {
@@ -1186,6 +1186,15 @@ namespace Aui {
 
                 const record = this.getStore().get(rowIndex);
                 $row.replaceWith(this.$getRow(rowIndex, record));
+            }
+
+            /**
+             * 로딩영역을 가져온다.
+             *
+             * @return {Aui.Loading} loading
+             */
+            getLoading(): Aui.Loading {
+                return this.loading;
             }
 
             /**
