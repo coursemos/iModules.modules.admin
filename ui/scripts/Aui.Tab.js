@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tab.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 27.
  */
 var Aui;
 (function (Aui) {
@@ -183,6 +183,13 @@ var Aui;
              */
             onActive(panel) {
                 this.fireEvent('active', [panel, this]);
+            }
+            /**
+             * 컴포넌트를 제거한다.
+             */
+            remove() {
+                this.bar?.remove();
+                super.remove();
             }
         }
         Tab.Panel = Panel;

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tab.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 4. 27.
  */
 namespace Aui {
     export namespace Tab {
@@ -245,6 +245,15 @@ namespace Aui {
              */
             onActive(panel: Aui.Panel): void {
                 this.fireEvent('active', [panel, this]);
+            }
+
+            /**
+             * 컴포넌트를 제거한다.
+             */
+            remove(): void {
+                this.bar?.remove();
+
+                super.remove();
             }
         }
 
