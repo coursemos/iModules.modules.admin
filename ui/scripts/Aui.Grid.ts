@@ -224,10 +224,6 @@ namespace Aui {
                     this.selection.deselectable ?? (this.selection.display == 'check' ? true : false);
                 this.selection.keepable = this.selection.keepable ?? false;
 
-                if (this.selection.display == 'check') {
-                    this.freeze = this.freeze + 1;
-                }
-
                 this.store = this.properties.store ?? new Aui.Store();
                 this.store.addEvent('beforeLoad', () => {
                     this.onBeforeLoad();
@@ -261,15 +257,6 @@ namespace Aui {
             initColumns(): void {
                 this.headers = [];
                 this.columns = [];
-
-                if (this.selection.display == 'check') {
-                    const check = new Aui.Grid.Check({
-                        dataIndex: '@',
-                    });
-                    check.setGrid(this);
-                    this.headers.push(check);
-                    this.columns.push(check);
-                }
 
                 for (let column of this.properties.columns ?? []) {
                     if (!(column instanceof Aui.Grid.Column)) {
@@ -335,7 +322,7 @@ namespace Aui {
             /**
              * 그리드패널의 특정 순서의 제목컬럼을 가져온다.
              *
-             * @return {Aui.Grid.Column} header
+             * @return {Aui.Grid.Column} headerIndex
              */
             getHeaderByIndex(headerIndex: number | number[]): Aui.Grid.Column {
                 if (typeof headerIndex === 'number') {
@@ -376,6 +363,32 @@ namespace Aui {
                 } else {
                     return null;
                 }
+            }
+
+            /**
+             * 컬럼을 추가한다.
+             *
+             * @param {(Aui.Grid.Column|Aui.Grid.Column.Properties)} column - 추가할 컬럼
+             * @param {number} position - 추가할 헤더 위치
+             */
+            addColumn(column: Aui.Grid.Column | Aui.Grid.Column.Properties, position: number = null): void {
+                if (position === null || position >= (this.properties.columns.length ?? 0)) {
+                    this.properties.columns.push(column);
+                } else if (position < 0 && Math.abs(position) >= (this.properties.columns.length ?? 0)) {
+                    this.properties.columns.unshift(column);
+                } else {
+                    this.properties.columns.splice(position, 0, column);
+                }
+
+                this.updateColumns();
+            }
+
+            /**
+             * 모든 컬럼을 제거한다.
+             */
+            removeColumns(): void {
+                this.properties.columns = [];
+                this.updateColumns();
             }
 
             /**
@@ -851,6 +864,17 @@ namespace Aui {
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
              */
             onSelectionChange(): void {
+                if (this.selection.display == 'check') {
+                    const rows = Html.all('> div[data-role=row]', this.$getBody());
+                    const selected = Html.all('> div[data-role=row].selected', this.$getBody());
+
+                    if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
+                        Html.get('div[data-role=check]', this.$header).addClass('checked');
+                    } else {
+                        Html.get('div[data-role=check]', this.$header).removeClass('checked');
+                    }
+                }
+
                 this.fireEvent('selectionChange', [this.getSelections(), this]);
             }
 
@@ -1082,6 +1106,30 @@ namespace Aui {
                         }
                     }
 
+                    if (this.selection.display == 'check') {
+                        const $check = Html.create('div', { 'data-role': 'check' });
+                        const $button = Html.create('button', { 'type': 'button' });
+
+                        $check.on('click', (e: MouseEvent) => {
+                            if (this.isRowSelected(rowIndex) == true) {
+                                this.deselectRow(rowIndex);
+                            } else {
+                                this.selectRow(rowIndex, true);
+                            }
+
+                            e.stopImmediatePropagation();
+                        });
+
+                        $check.addClass('sticky');
+                        if (this.freeze == 0) {
+                            $check.addClass('end');
+                        }
+                        $check.append($button);
+
+                        $row.append($check);
+                        leftPosition = Html.get('div[data-role=check]', this.$header).getWidth() + 1;
+                    }
+
                     this.getColumns().forEach((column: Aui.Grid.Column, columnIndex: number) => {
                         const value = record.get(column.dataIndex);
                         const $column = column.$getBody(value, record, rowIndex, columnIndex);
@@ -1189,6 +1237,22 @@ namespace Aui {
             }
 
             /**
+             * 컬럼이 추가되거나 제거되었을 경우 컬럼을 업데이트하고 레이아웃을 조절한다.
+             */
+            updateColumns(): void {
+                /**
+                 * 기존에 정의된 컬럼을 제거한다.
+                 */
+                this.headers.forEach((header) => {
+                    header.remove(false);
+                });
+
+                this.initColumns();
+                this.renderHeader();
+                this.renderBody();
+            }
+
+            /**
              * 로딩영역을 가져온다.
              *
              * @return {Aui.Loading} loading
@@ -1203,6 +1267,39 @@ namespace Aui {
             renderHeader(): void {
                 let leftPosition = 0;
                 this.freezeColumn = 0;
+                this.$header.empty();
+
+                if (this.selection.display == 'check') {
+                    const $check = Html.create('div', { 'data-role': 'check' });
+                    const $button = Html.create('button', { 'type': 'button' });
+
+                    $check.on('click', (e) => {
+                        if ($check.hasClass('checked') == true) {
+                            this.deselectAll();
+                        } else {
+                            this.selectAll();
+                        }
+
+                        e.stopImmediatePropagation();
+                    });
+
+                    $check.addClass('sticky');
+                    if (this.freeze == 0) {
+                        $check.addClass('end');
+                    }
+                    $check.append($button);
+
+                    this.$header.append($check);
+                    leftPosition = $check.getWidth() + 1;
+                    /*
+                    const check = new Aui.Grid.Check({
+                        dataIndex: '@',
+                    });
+                    check.setGrid(this);
+                    this.headers.push(check);
+                    this.columns.push(check);
+                    */
+                }
 
                 this.headers.forEach((header: Aui.Grid.Column, headerIndex: number) => {
                     const $header = header.$getHeader(headerIndex);
@@ -1408,6 +1505,7 @@ namespace Aui {
                 this.focusedCell = { rowIndex: null, columnIndex: null };
                 this.renderBody();
                 this.restoreSelections();
+                this.onSelectionChange();
                 this.updateHeader();
                 this.fireEvent('update', [this, this.getStore()]);
             }
@@ -1458,10 +1556,7 @@ namespace Aui {
                 this.store.remove();
                 this.loading.close();
                 this.headers.forEach((header) => {
-                    header.remove();
-                });
-                this.columns.forEach((column) => {
-                    column.remove();
+                    header.remove(false);
                 });
 
                 super.remove();
@@ -2727,6 +2822,41 @@ namespace Aui {
             }
 
             /**
+             * 자식 컬럼을 추가한다.
+             *
+             * @param {(Aui.Grid.Column|Aui.Grid.Column.Properties)} column - 추가할 컬럼
+             * @param {number} position - 추가할 위치
+             */
+            addColumn(column: Aui.Grid.Column | Aui.Grid.Column.Properties, position: number = null): void {
+                if (this.columns.length == 0) {
+                    return;
+                }
+
+                let indexes = [...this.headerIndex];
+
+                let parent = this.getGrid().properties.columns;
+                while (indexes.length) {
+                    const index = indexes.shift();
+                    parent = parent[index]?.columns ?? null;
+                    if (parent == null) {
+                        return;
+                    }
+                }
+
+                const columns = parent ?? this.getGrid().properties.columns;
+
+                if (position === null || position >= (columns.length ?? 0)) {
+                    columns.push(column);
+                } else if (position < 0 && Math.abs(position) >= (columns.length ?? 0)) {
+                    columns.unshift(column);
+                } else {
+                    columns.splice(position, 0, column);
+                }
+
+                this.getGrid().updateColumns();
+            }
+
+            /**
              * 묶음 컬럼의 Flex-Grow 값을 계산하여 가져온다.
              *
              * @return {number} flexGrow
@@ -3190,6 +3320,40 @@ namespace Aui {
 
                 return $column;
             }
+
+            /**
+             * 컬럼을 제거한다.
+             *
+             * @param {boolean} is_update_layout - 그리드 레이아웃을 업데이트할지 여부
+             */
+            remove(is_update_layout: boolean = true): void {
+                if (this.columns.length == 0) {
+                    this.columns.forEach((column) => {
+                        column.remove(false);
+                    });
+                }
+
+                if (is_update_layout == true) {
+                    let indexes = [...this.headerIndex];
+                    let lastIndex = indexes.pop();
+
+                    let parent = this.getGrid().properties.columns;
+                    while (indexes.length) {
+                        const index = indexes.shift();
+                        parent = parent[index]?.columns ?? null;
+                        if (parent == null) {
+                            return;
+                        }
+                    }
+
+                    const columns = parent ?? this.getGrid().properties.columns;
+                    columns.splice(lastIndex, 1);
+
+                    this.getGrid().updateColumns();
+                }
+
+                super.remove();
+            }
         }
 
         export class Check extends Aui.Grid.Column {
@@ -3200,11 +3364,6 @@ namespace Aui {
              */
             constructor(properties: Aui.Grid.Column.Properties = null) {
                 super(properties);
-
-                if (this.dataIndex == '@') {
-                    this.width = 34;
-                    this.minWidth = null;
-                }
             }
 
             /**
@@ -3258,54 +3417,7 @@ namespace Aui {
              * @return {Dom} $layout
              */
             $getHeader(): Dom {
-                if (this.dataIndex == '@') {
-                    const $header = Html.create('div').setData('component', this.id);
-                    $header.setData('role', 'column');
-                    $header.addClass('check');
-                    $header.setStyle('width', this.width + 'px');
-
-                    const $button = Html.create('button');
-                    $header.append($button);
-
-                    $header.on('click', (e: MouseEvent) => {
-                        if ($header.hasClass('checked') == true) {
-                            this.getGrid().deselectAll();
-                        } else {
-                            this.getGrid().selectAll();
-                        }
-
-                        e.stopImmediatePropagation();
-                    });
-
-                    this.getGrid().addEvent('update', (grid: Aui.Grid.Panel) => {
-                        const rows = Html.all('> div[data-role=row]', grid.$getBody());
-                        const selected = Html.all('> div[data-role=row].selected', grid.$getBody());
-
-                        if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
-                            $header.addClass('checked');
-                        } else {
-                            $header.removeClass('checked');
-                        }
-                    });
-
-                    this.getGrid().addEvent(
-                        'selectionChange',
-                        (_selections: Aui.Data.Record[], grid: Aui.Grid.Panel) => {
-                            const rows = Html.all('> div[data-role=row]', grid.$getBody());
-                            const selected = Html.all('> div[data-role=row].selected', grid.$getBody());
-
-                            if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
-                                $header.addClass('checked');
-                            } else {
-                                $header.removeClass('checked');
-                            }
-                        }
-                    );
-
-                    return $header;
-                } else {
-                    return super.$getHeader();
-                }
+                return super.$getHeader();
             }
 
             /**
@@ -3325,12 +3437,9 @@ namespace Aui {
                     .setData('record', record, false)
                     .setData('value', value, false);
                 $column.addClass('check');
-                if (this.dataIndex == '@') {
-                    $column.addClass('selection');
-                } else {
-                    if (value == true) {
-                        $column.addClass('checked');
-                    }
+
+                if (value == true) {
+                    $column.addClass('checked');
                 }
 
                 $column.setStyle('width', this.width + 'px');
