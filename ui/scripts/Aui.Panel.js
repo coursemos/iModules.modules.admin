@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 9.
+ * @modified 2024. 4. 27.
  */
 var Aui;
 (function (Aui) {
@@ -172,6 +172,15 @@ var Aui;
                 });
             }
             super.render();
+        }
+        /**
+         * 컴포넌트를 제거한다.
+         */
+        remove() {
+            this.title?.remove();
+            this.topbar?.remove();
+            this.bottombar?.remove();
+            super.remove();
         }
     }
     Aui.Panel = Panel;
