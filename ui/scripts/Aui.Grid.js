@@ -2073,6 +2073,7 @@ var Aui;
                 this.columns.forEach((column) => {
                     column.setGrid(grid);
                 });
+                this.menu?.setParent(this.grid);
             }
             /**
              * 컬럼 위치를 설정한다.

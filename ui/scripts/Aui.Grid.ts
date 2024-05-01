@@ -2757,6 +2757,7 @@ namespace Aui {
                 this.columns.forEach((column) => {
                     column.setGrid(grid);
                 });
+                this.menu?.setParent(this.grid);
             }
 
             /**

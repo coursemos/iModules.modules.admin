@@ -1342,6 +1342,7 @@ var Aui;
                 this.columns.forEach((column) => {
                     column.setTree(tree);
                 });
+                this.menu?.setParent(this.tree);
             }
             /**
              * 컬럼 위치를 설정한다.

@@ -1773,6 +1773,7 @@ namespace Aui {
                 this.columns.forEach((column) => {
                     column.setTree(tree);
                 });
+                this.menu?.setParent(this.tree);
             }
 
             /**
