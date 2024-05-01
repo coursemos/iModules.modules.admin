@@ -50,6 +50,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     flex-shrink: 0;
                     width: 0;
                     background: var(--aui-color-background-400);
+                    min-height: var(--aui-component-height-default);
                     position: relative;
                     order: 10000;
 
@@ -492,6 +493,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                         flex-basis: 0px;
                         flex-shrink: 0;
                         width: 0;
+                        min-height: var(--aui-component-height-default);
                         background: var(--aui-color-background-300);
                         position: relative;
                         order: 10000;

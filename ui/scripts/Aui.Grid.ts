@@ -1248,8 +1248,10 @@ namespace Aui {
                 });
 
                 this.initColumns();
-                this.renderHeader();
-                this.renderBody();
+                if (this.isRendered() == true) {
+                    this.renderHeader();
+                    this.renderBody();
+                }
             }
 
             /**

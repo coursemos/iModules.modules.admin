@@ -962,8 +962,10 @@ var Aui;
                     header.remove(false);
                 });
                 this.initColumns();
-                this.renderHeader();
-                this.renderBody();
+                if (this.isRendered() == true) {
+                    this.renderHeader();
+                    this.renderBody();
+                }
             }
             /**
              * 로딩영역을 가져온다.
