@@ -2069,6 +2069,43 @@ namespace modules {
                         });
                     },
                 };
+
+                database = {
+                    tables: {
+                        /**
+                         * 관리자를 그룹에서 제외하거나, 삭제한다.
+                         *
+                         * @param {Aui.Grid.Panel} grid - 선택된 테이블이 존재하는 그리드
+                         * @param {'truncate'|'drop'} mode - 삭제모드
+                         */
+                        delete: (grid: Aui.Grid.Panel, mode: 'truncate' | 'drop' = 'truncate'): void => {
+                            const selections = grid.getSelections();
+                            if (selections.length == 0) {
+                                return;
+                            }
+
+                            const tables: string[] = selections.map((selected) => {
+                                return selected.get('name');
+                            });
+
+                            Aui.Message.delete({
+                                message: this.printText('admin.database.tables.actions.' + mode, {
+                                    tables: tables.join('<br>'),
+                                }),
+                                url: this.getProcessUrl('tables'),
+                                params: { tables: JSON.stringify(tables), mode: mode },
+                                handler: async () => {
+                                    if (mode == 'drop') {
+                                        const tables = Aui.getComponent('tables') as Aui.Tree.Panel;
+                                        await tables.getStore().reload();
+                                    } else {
+                                        await grid.getStore().reload();
+                                    }
+                                },
+                            });
+                        },
+                    },
+                };
             }
         }
     }

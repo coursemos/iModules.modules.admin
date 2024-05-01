@@ -268,6 +268,52 @@
                 "name": "접근자명",
                 "url": "접근주소"
             }
+        },
+        "database": {
+            "tables": {
+                "add": "테이블추가",
+                "all": "전체 테이블 보기",
+                "name": "테이블명",
+                "status": "상태",
+                "engine": "엔진",
+                "row": "레코드",
+                "data_size": "데이터크기",
+                "index_size": "인덱스크기",
+                "table_size": "테이블크기",
+                "collation": "데이터정렬방식",
+                "comment": "설명",
+                "show": "테이블보기",
+                "truncate": "선택테이블비우기",
+                "drop": "선택테이블삭제",
+                "actions": {
+                    "truncate": "아래의 테이블의 모든 데이터를 삭제하시겠습니까?<br><br>${tables}",
+                    "drop": "아래의 테이블을 삭제하시겠습니까?<br><br>${tables}"
+                }
+            },
+            "table": {
+                "columns": "컬럼",
+                "indexes": "인덱스",
+                "records": "레코드"
+            },
+            "columns": {
+                "name": "컬럼명",
+                "type": "컬럼타입",
+                "collation": "데이터정렬방식",
+                "is_null": "NULL여부",
+                "auto_increment": "자동증가여부",
+                "comment": "설명"
+            },
+            "indexes": {
+                "name": "인덱스명",
+                "type": "인덱스타입",
+                "columns": "컬럼"
+            },
+            "status": {
+                "ALL": "전체테이블",
+                "USED": "사용중",
+                "BACKUP": "백업테이블",
+                "UNKNOWN": "알수없음"
+            }
         }
     }
 }
