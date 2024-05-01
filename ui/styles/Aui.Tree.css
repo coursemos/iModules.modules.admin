@@ -357,10 +357,24 @@ div[data-component][data-type='panel'][data-role='tree'] {
                 }
 
                 &:not(.locked) {
-                    div[data-role='column']:hover {
-                        background: var(--aui-color-selection-400);
-                        > button {
-                            display: block;
+                    div[data-role='column'] {
+                        &:hover {
+                            background: var(--aui-color-selection-400);
+                            > button {
+                                display: block;
+                            }
+                        }
+
+                        &.menu {
+                            background: var(--aui-color-selection-400);
+                            > button {
+                                display: block;
+
+                                &::before {
+                                    font-family: moimz;
+                                    content: '\e233';
+                                }
+                            }
                         }
                     }
                 }

@@ -1299,8 +1299,15 @@ var Aui;
                 this.textClass = this.properties.textClass ?? null;
                 this.columns = [];
                 this.renderer = this.properties.renderer ?? null;
-                // @todo 메뉴설정
-                this.menu = null;
+                this.menu = this.properties.menu ?? null;
+                if (this.menu !== null) {
+                    this.menu.addEvent('show', (menu) => {
+                        menu.$target.getParent().addClass('menu');
+                    });
+                    this.menu.addEvent('hide', (menu) => {
+                        menu.$target.getParent().removeClass('menu');
+                    });
+                }
                 for (let column of properties?.columns ?? []) {
                     if (!(column instanceof Aui.Tree.Column)) {
                         column = new Aui.Tree.Column(column);
@@ -1577,6 +1584,9 @@ var Aui;
                     if (this.menu !== null) {
                         const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
                         $header.append($button);
+                        $button.on('click', () => {
+                            this.menu.showAt($button, 'y');
+                        });
                     }
                 }
                 if (this.isHidden() == true) {

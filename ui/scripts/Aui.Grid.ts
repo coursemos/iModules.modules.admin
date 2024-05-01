@@ -2556,6 +2556,11 @@ namespace Aui {
                 clicksToEdit?: number;
 
                 /**
+                 * @type {Aui.Menu} menu - 컬럼메뉴
+                 */
+                menu?: Aui.Menu;
+
+                /**
                  * @type {Aui.Grid.Filter.Base} filter - 컬럼필터
                  */
                 filter?: Aui.Grid.Filter.Base;
@@ -2674,7 +2679,7 @@ namespace Aui {
                 this.filter = this.properties.filter ?? null;
                 this.alternative = this.properties.alternative ?? null;
 
-                this.menu = null;
+                this.menu = this.properties.menu ?? null;
                 if (this.filter !== null) {
                     this.filter.setColumn(this);
                     this.menu ??= new Aui.Menu();

@@ -2005,7 +2005,7 @@ var Aui;
                 this.clicksToEdit = Math.max(1, Math.min(2, this.properties.clicksToEdit ?? 2));
                 this.filter = this.properties.filter ?? null;
                 this.alternative = this.properties.alternative ?? null;
-                this.menu = null;
+                this.menu = this.properties.menu ?? null;
                 if (this.filter !== null) {
                     this.filter.setColumn(this);
                     this.menu ??= new Aui.Menu();

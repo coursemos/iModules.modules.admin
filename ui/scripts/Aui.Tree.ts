@@ -1647,6 +1647,11 @@ namespace Aui {
                 textClass?: string;
 
                 /**
+                 * @type {Aui.Menu} menu - 컬럼메뉴
+                 */
+                menu?: Aui.Menu;
+
+                /**
                  * @type {(Aui.Tree.Column | Aui.Tree.Column.Properties)[]} columns - 하위컬럼
                  */
                 columns?: (Aui.Tree.Column | Aui.Tree.Column.Properties)[];
@@ -1720,8 +1725,16 @@ namespace Aui {
                 this.columns = [];
                 this.renderer = this.properties.renderer ?? null;
 
-                // @todo 메뉴설정
-                this.menu = null;
+                this.menu = this.properties.menu ?? null;
+                if (this.menu !== null) {
+                    this.menu.addEvent('show', (menu: Aui.Menu) => {
+                        (menu.$target as Dom).getParent().addClass('menu');
+                    });
+
+                    this.menu.addEvent('hide', (menu: Aui.Menu) => {
+                        (menu.$target as Dom).getParent().removeClass('menu');
+                    });
+                }
 
                 for (let column of properties?.columns ?? []) {
                     if (!(column instanceof Aui.Tree.Column)) {
@@ -2027,6 +2040,9 @@ namespace Aui {
                     if (this.menu !== null) {
                         const $button = Html.create('button', { 'type': 'button', 'data-role': 'header-menu' });
                         $header.append($button);
+                        $button.on('click', () => {
+                            this.menu.showAt($button, 'y');
+                        });
                     }
                 }
 
