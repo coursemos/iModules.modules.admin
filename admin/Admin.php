@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 22.
+ * @modified 2024. 5. 1.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -378,5 +378,43 @@ class Admin extends \modules\admin\admin\Component
             ->update($this->table('groups'), ['administrators' => $administrators])
             ->where('group_id', $group_id)
             ->execute();
+    }
+
+    /**
+     * 특정 테이블명을 가진 컴포넌트를 검색하여 테이블 구조를 가져온다.
+     *
+     * @param string $table 테이블명
+     * @param ?object $scheme 테이블구조
+     */
+    public function findScheme(string $table): ?object
+    {
+        $prefix = \Configs::get('db')?->prefix ?? 'im_';
+        if (preg_match('/^' . $prefix . '/', $table) == false) {
+            return null;
+        }
+
+        $table = preg_replace('/^' . $prefix . '/', '', $table);
+        $split = explode('_', $table);
+
+        if (in_array($split[0], ['module', 'plugin', 'widget']) == true) {
+            $component_type = array_shift($split);
+            $path = \Configs::path() . '/' . $component_type . 's';
+            while ($name = array_shift($split)) {
+                $path .= '/' . $name;
+                if (is_dir($path) == false) {
+                    return null;
+                }
+
+                if (is_file($path . '/package.json') == true) {
+                    $package = json_decode(file_get_contents($path . '/package.json'));
+                    return $package?->databases?->{implode('_', $split)} ?? null;
+                }
+            }
+
+            return null;
+        } else {
+            $package = json_decode(file_get_contents(\Configs::path() . '/package.json'));
+            return $package?->databases?->{$table} ?? null;
+        }
     }
 }
