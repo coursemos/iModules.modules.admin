@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 23.
+ * @modified 2024. 5. 2.
  */
 var Aui;
 (function (Aui) {
@@ -25,6 +25,8 @@ var Aui;
         height;
         maxWidth;
         maxHeight;
+        minWidth;
+        minHeight;
         padding;
         margin;
         style;
@@ -49,6 +51,8 @@ var Aui;
             this.height = this.properties.height ?? null;
             this.maxWidth = this.properties.maxWidth ?? null;
             this.maxHeight = this.properties.maxHeight ?? null;
+            this.minWidth = this.properties.minWidth ?? null;
+            this.minHeight = this.properties.minHeight ?? null;
             this.padding = this.properties.padding ?? null;
             this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
@@ -200,6 +204,34 @@ var Aui;
             }
             this.maxHeight = typeof maxHeight == 'number' ? maxHeight + 'px' : maxHeight;
             this.$component.setStyle('max-height', this.maxHeight);
+        }
+        /**
+         * 컴포넌트 최소너비를 설정한다.
+         *
+         * @param {string|number} minWidth - 최소너비
+         */
+        setMinWidth(minWidth) {
+            if (minWidth === null) {
+                this.minWidth = null;
+                this.$component.setStyle('min-width', 'auto');
+                return;
+            }
+            this.minWidth = typeof minWidth == 'number' ? minWidth + 'px' : minWidth;
+            this.$component.setStyle('min-width', this.minWidth);
+        }
+        /**
+         * 컴포넌트 최소높이를 설정한다.
+         *
+         * @param {string|number} minHeight - 최소높이
+         */
+        setMinHeight(minHeight) {
+            if (minHeight === null) {
+                this.minHeight = null;
+                this.$component.setStyle('min-height', null);
+                return;
+            }
+            this.minHeight = typeof minHeight == 'number' ? minHeight + 'px' : minHeight;
+            this.$component.setStyle('min-height', this.minHeight);
         }
         /**
          * 컴포넌트 객체의 최상위 DOM 을 가져온다.
@@ -550,6 +582,12 @@ var Aui;
             }
             if (this.maxHeight !== null) {
                 this.setMaxHeight(this.maxHeight);
+            }
+            if (this.minWidth !== null) {
+                this.setMinWidth(this.minWidth);
+            }
+            if (this.minHeight !== null) {
+                this.setMinHeight(this.minHeight);
             }
             if (this.hidden == true) {
                 this.$getComponent().hide();

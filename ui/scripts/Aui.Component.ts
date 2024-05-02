@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 23.
+ * @modified 2024. 5. 2.
  */
 namespace Aui {
     export namespace Component {
@@ -62,6 +62,16 @@ namespace Aui {
              * @type {number} maxHeight - 컴포넌트 최대높이
              */
             maxHeight?: string | number;
+
+            /**
+             * @type {number} maxWidth - 컴포넌트 최소너비
+             */
+            minWidth?: string | number;
+
+            /**
+             * @type {number} maxHeight - 컴포넌트 최소높이
+             */
+            minHeight?: string | number;
 
             /**
              * @type {number|number[]} padding - 컴포넌트 내부 여백
@@ -127,6 +137,8 @@ namespace Aui {
         height: string | number;
         maxWidth: string | number;
         maxHeight: string | number;
+        minWidth: string | number;
+        minHeight: string | number;
         padding: number | number[];
         margin: number | number[];
         style: string;
@@ -154,6 +166,8 @@ namespace Aui {
             this.height = this.properties.height ?? null;
             this.maxWidth = this.properties.maxWidth ?? null;
             this.maxHeight = this.properties.maxHeight ?? null;
+            this.minWidth = this.properties.minWidth ?? null;
+            this.minHeight = this.properties.minHeight ?? null;
             this.padding = this.properties.padding ?? null;
             this.margin = this.properties.margin ?? null;
             this.style = this.properties.style ?? null;
@@ -323,6 +337,38 @@ namespace Aui {
 
             this.maxHeight = typeof maxHeight == 'number' ? maxHeight + 'px' : maxHeight;
             this.$component.setStyle('max-height', this.maxHeight);
+        }
+
+        /**
+         * 컴포넌트 최소너비를 설정한다.
+         *
+         * @param {string|number} minWidth - 최소너비
+         */
+        setMinWidth(minWidth: string | number): void {
+            if (minWidth === null) {
+                this.minWidth = null;
+                this.$component.setStyle('min-width', 'auto');
+                return;
+            }
+
+            this.minWidth = typeof minWidth == 'number' ? minWidth + 'px' : minWidth;
+            this.$component.setStyle('min-width', this.minWidth);
+        }
+
+        /**
+         * 컴포넌트 최소높이를 설정한다.
+         *
+         * @param {string|number} minHeight - 최소높이
+         */
+        setMinHeight(minHeight: string | number): void {
+            if (minHeight === null) {
+                this.minHeight = null;
+                this.$component.setStyle('min-height', null);
+                return;
+            }
+
+            this.minHeight = typeof minHeight == 'number' ? minHeight + 'px' : minHeight;
+            this.$component.setStyle('min-height', this.minHeight);
         }
 
         /**
@@ -723,6 +769,14 @@ namespace Aui {
 
             if (this.maxHeight !== null) {
                 this.setMaxHeight(this.maxHeight);
+            }
+
+            if (this.minWidth !== null) {
+                this.setMinWidth(this.minWidth);
+            }
+
+            if (this.minHeight !== null) {
+                this.setMinHeight(this.minHeight);
             }
 
             if (this.hidden == true) {

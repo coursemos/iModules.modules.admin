@@ -5614,7 +5614,6 @@ namespace Aui {
 
                 $input: Dom;
                 $emptyText: Dom;
-                minHeight: number;
 
                 editor: modules.wysiwyg.Editor;
 

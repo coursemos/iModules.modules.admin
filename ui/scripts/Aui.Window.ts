@@ -74,26 +74,6 @@ namespace Aui {
             collapseDirection?: boolean;
 
             /**
-             * @type {number} minWidth - 최소가로크기
-             */
-            minWidth?: number;
-
-            /**
-             * @type {number} maxWidth - 최대가로크기
-             */
-            maxWidth?: number;
-
-            /**
-             * @type {number} minHeight - 최소세로크기
-             */
-            minHeight?: number;
-
-            /**
-             * @type {number} maxHeight - 최대세로크기
-             */
-            maxHeight?: number;
-
-            /**
              * @type {string|Aui.Title} title - 창 제목
              */
             title?: string | Aui.Title;
@@ -104,7 +84,7 @@ namespace Aui {
             buttons?: (Aui.Button | '->')[];
 
             /**
-             * @type {Aui.Component.Listeners} listeners - 이벤트리스너
+             * @type {Aui.Window.Listeners} listeners - 이벤트리스너
              */
             listeners?: Aui.Window.Listeners;
         }
@@ -128,8 +108,6 @@ namespace Aui {
         collapsible: boolean;
         collapsed: boolean;
         collapseDirection: string;
-        minWidth: number;
-        minHeight: number;
         left: number;
         right: number;
         top: number;
@@ -155,8 +133,6 @@ namespace Aui {
             this.maxWidth = this.properties.maxWidth ?? Html.get('body').getWidth();
             this.maxHeight = this.properties.maxHeight ?? Html.get('body').getHeight();
 
-            this.minWidth = this.properties.minWidth ?? null;
-            this.minHeight = this.properties.minHeight ?? null;
             this.scrollable = this.properties.scrollable ?? 'Y';
 
             if (this.properties.title instanceof Aui.Title) {
@@ -408,10 +384,6 @@ namespace Aui {
             this.$getWindows().append(this.$component);
             this.render();
 
-            //this.setWidth(this.width);
-            //this.setMaxWidth(this.maxWidth);
-            //this.setHeight(this.height);
-            //this.setMaxHeight(this.maxHeight);
             this.setPosition(this.top, this.left);
             this.setFront();
 

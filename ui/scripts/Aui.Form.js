@@ -4407,7 +4407,6 @@ var Aui;
                 emptyText;
                 $input;
                 $emptyText;
-                minHeight;
                 editor;
                 /**
                  * 에디터 클래스 생성한다.
