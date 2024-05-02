@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 20.
+ * @modified 2024. 5. 2.
  */
 var Aui;
 (function (Aui) {
@@ -3320,7 +3320,6 @@ var Aui;
                             text: Aui.printText('buttons.delete'),
                             handler: () => {
                                 this.uploader.setValue([]);
-                                //this.select();
                             },
                         });
                     }
@@ -3447,6 +3446,20 @@ var Aui;
                     }
                 }
                 /**
+                 * 파일정보를 출력한다.
+                 *
+                 * @param {modules.attachment.Uploader.File} file - 파일객체
+                 */
+                setDisplay(file) {
+                    const $file = Html.create('span');
+                    const $size = Html.create('small', null, '(' + Format.size(file.attachment.size) + ')');
+                    $file.append($size);
+                    const $download = Html.create('a', { href: file.attachment.download, download: file.attachment.name }, file.attachment.name);
+                    $file.append($download);
+                    this.$getDisplay().empty();
+                    this.$getDisplay().append($file);
+                }
+                /**
                  * 파일 필드를 랜더링한다.
                  */
                 renderContent() {
@@ -3480,11 +3493,7 @@ var Aui;
                         this.$getEmptyText().show();
                     }
                     else {
-                        this.$getDisplay().html('<span><small>(' +
-                            Format.size(file.attachment.size) +
-                            ')</small><b>' +
-                            file.attachment.name +
-                            '</b></span>');
+                        this.setDisplay(file);
                     }
                     super.onUploadComplete(uploader);
                 }

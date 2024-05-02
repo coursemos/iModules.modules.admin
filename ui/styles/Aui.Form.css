@@ -6,7 +6,7 @@
  * @file /styles/Aui.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 20.
+ * @modified 2024. 5. 2.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
@@ -1357,10 +1357,25 @@ div[data-component][data-type='form'][data-role='field'] {
                     font-family: var(--aui-font-family-default);
                     font-size: var(--aui-font-size-default);
 
-                    > b {
+                    > a {
                         display: inline-block;
+                        font-weight: bold;
+                        color: var(--aui-color-text-500);
                         height: 26px;
                         line-height: 26px;
+                        text-decoration: none;
+
+                        &::before {
+                            float: right;
+                            font-family: moimz;
+                            content: '\e434';
+                            display: inline-block;
+                            height: 26px;
+                            line-height: 26px;
+                            font-weight: normal;
+                            padding-left: 5px;
+                            color: var(--aui-color-accent-500);
+                        }
                     }
 
                     > small {
