@@ -52,6 +52,11 @@ namespace Aui {
              * @type {Aui.Panel.Listeners} listeners - 이벤트리스너
              */
             listeners?: Aui.Panel.Listeners;
+
+            /**
+             * @type {boolean|[boolean, boolean, boolean, boolean]} resizable - 리사이즈 가능여부
+             */
+            resizable?: boolean | [boolean, boolean, boolean, boolean];
         }
     }
 
@@ -63,6 +68,8 @@ namespace Aui {
         title: Aui.Title;
         topbar: Aui.Toolbar;
         bottombar: Aui.Toolbar;
+        resizer: Aui.Resizer;
+        resizable: boolean | [boolean, boolean, boolean, boolean];
 
         /**
          * 패널을 생성한다.
@@ -125,6 +132,7 @@ namespace Aui {
             }
 
             this.$scrollable = this.$getContent();
+            this.resizable = this.properties.resizable ?? false;
         }
 
         /**
@@ -228,6 +236,23 @@ namespace Aui {
                     if (is === true) {
                         this.$container.addClass(border[index]);
                     }
+                });
+            }
+
+            if (this.resizable !== false && this.parent instanceof Aui.Component) {
+                const directions: [boolean, boolean, boolean, boolean] =
+                    this.resizable === true ? [true, true, true, true] : this.resizable;
+
+                this.resizer = new Aui.Resizer(this.$component, this.parent.$component, {
+                    directions: directions,
+                    guidelines: directions,
+                    minWidth: this.minWidth,
+                    maxWidth: this.maxWidth,
+                    listeners: {
+                        end: (_$target: Dom, rect: DOMRect) => {
+                            this.setWidth(rect.width);
+                        },
+                    },
                 });
             }
 

@@ -17,6 +17,8 @@ var Aui;
         title;
         topbar;
         bottombar;
+        resizer;
+        resizable;
         /**
          * 패널을 생성한다.
          *
@@ -75,6 +77,7 @@ var Aui;
                 this.$setBottom();
             }
             this.$scrollable = this.$getContent();
+            this.resizable = this.properties.resizable ?? false;
         }
         /**
          * 탭패널의 하위 컴포넌트를 정의한다.
@@ -169,6 +172,20 @@ var Aui;
                     if (is === true) {
                         this.$container.addClass(border[index]);
                     }
+                });
+            }
+            if (this.resizable !== false && this.parent instanceof Aui.Component) {
+                const directions = this.resizable === true ? [true, true, true, true] : this.resizable;
+                this.resizer = new Aui.Resizer(this.$component, this.parent.$component, {
+                    directions: directions,
+                    guidelines: directions,
+                    minWidth: this.minWidth,
+                    maxWidth: this.maxWidth,
+                    listeners: {
+                        end: (_$target, rect) => {
+                            this.setWidth(rect.width);
+                        },
+                    },
                 });
             }
             super.render();
