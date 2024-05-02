@@ -2873,29 +2873,45 @@ var Aui;
                  */
                 getButton() {
                     if (this.button === undefined) {
-                        this.button = new Aui.Button({
-                            iconClass: 'mi mi-plus',
-                            text: this.buttonText,
-                            buttonClass: 'confirm',
-                            parent: this,
-                            menu: new Aui.Menu({
-                                items: ((blocks) => {
-                                    const items = [];
-                                    for (const type in blocks) {
-                                        const block = blocks[type];
-                                        items.push(new Aui.Menu.Item({
-                                            text: block.text,
-                                            iconClass: block.iconClass ?? null,
-                                            handler: async () => {
-                                                this.addBlock(type, block.field());
-                                                return true;
-                                            },
-                                        }));
-                                    }
-                                    return items;
-                                })(this.blocks),
-                            }),
-                        });
+                        if (Object.keys(this.blocks).length > 1) {
+                            this.button = new Aui.Button({
+                                iconClass: 'mi mi-plus',
+                                text: this.buttonText,
+                                buttonClass: 'confirm',
+                                parent: this,
+                                menu: new Aui.Menu({
+                                    items: ((blocks) => {
+                                        const items = [];
+                                        for (const type in blocks) {
+                                            const block = blocks[type];
+                                            items.push(new Aui.Menu.Item({
+                                                text: block.text,
+                                                iconClass: block.iconClass ?? null,
+                                                handler: async () => {
+                                                    this.addBlock(type, block.field());
+                                                    return true;
+                                                },
+                                            }));
+                                        }
+                                        return items;
+                                    })(this.blocks),
+                                }),
+                            });
+                        }
+                        else {
+                            this.button = new Aui.Button({
+                                iconClass: 'mi mi-plus',
+                                text: this.buttonText,
+                                buttonClass: 'confirm',
+                                parent: this,
+                                handler: () => {
+                                    const type = Object.keys(this.blocks).pop();
+                                    const block = Object.values(this.blocks).pop();
+                                    this.addBlock(type, block.field());
+                                    return true;
+                                },
+                            });
+                        }
                     }
                     return this.button;
                 }
@@ -3086,32 +3102,45 @@ var Aui;
                                     item.remove();
                                 },
                             }),
-                            new Aui.Button({
-                                iconClass: 'mi mi-plus',
-                                buttonClass: 'confirm',
-                                hideArrow: true,
-                                menu: new Aui.Menu({
-                                    items: ((blocks) => {
-                                        const items = [];
-                                        for (const type in blocks) {
-                                            const block = blocks[type];
-                                            items.push(new Aui.Menu.Item({
-                                                text: block.text,
-                                                iconClass: block.iconClass ?? null,
-                                                handler: async (menu) => {
-                                                    const button = menu.getParent().getParent();
-                                                    const item = button.getParent().getParent();
-                                                    const container = item.getParent();
-                                                    const index = container.getItemIndex(item);
-                                                    this.addBlock(type, block.field(), null, index + 1);
-                                                    return true;
-                                                },
-                                            }));
-                                        }
-                                        return items;
-                                    })(this.blocks),
+                            Object.keys(this.blocks).length > 1
+                                ? new Aui.Button({
+                                    iconClass: 'mi mi-plus',
+                                    buttonClass: 'confirm',
+                                    hideArrow: true,
+                                    menu: new Aui.Menu({
+                                        items: ((blocks) => {
+                                            const items = [];
+                                            for (const type in blocks) {
+                                                const block = blocks[type];
+                                                items.push(new Aui.Menu.Item({
+                                                    text: block.text,
+                                                    iconClass: block.iconClass ?? null,
+                                                    handler: async (menu) => {
+                                                        const button = menu
+                                                            .getParent()
+                                                            .getParent();
+                                                        const item = button.getParent().getParent();
+                                                        const container = item.getParent();
+                                                        const index = container.getItemIndex(item);
+                                                        this.addBlock(type, block.field(), null, index + 1);
+                                                        return true;
+                                                    },
+                                                }));
+                                            }
+                                            return items;
+                                        })(this.blocks),
+                                    }),
+                                })
+                                : new Aui.Button({
+                                    iconClass: 'mi mi-plus',
+                                    buttonClass: 'confirm',
+                                    handler: () => {
+                                        const type = Object.keys(this.blocks).pop();
+                                        const block = Object.values(this.blocks).pop();
+                                        this.addBlock(type, block.field());
+                                        return true;
+                                    },
                                 }),
-                            }),
                         ],
                     }));
                     this.getFieldContainer().append(block, index);
