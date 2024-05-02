@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 23.
+ * @modified 2024. 5. 2.
  */
 var Aui;
 (function (Aui) {
@@ -1596,6 +1596,7 @@ var Aui;
                 if (this.isResizable() == true) {
                     this.resizer = new Aui.Resizer($header, this.tree.$content, {
                         directions: [false, true, false, false],
+                        guidelines: [false, true, false, true],
                         minWidth: 50,
                         maxWidth: 900,
                         listeners: {
@@ -1605,12 +1606,14 @@ var Aui;
                             mouseleave: () => {
                                 this.tree.$getHeader().removeClass('locked');
                             },
-                            start: () => {
+                            start: (_$target, _rect, _position, $guide) => {
                                 this.tree.$getHeader().addClass('resizing');
                                 this.tree.getScroll().setScrollable(false);
+                                $guide.setStyle('height', null);
                             },
-                            resize: (_$target, rect, position) => {
+                            resize: (_$target, rect, position, $guide) => {
                                 this.tree.$getHeader().addClass('locked');
+                                $guide.setStyle('height', null);
                                 /**
                                  * 트리 패널 우측으로 벗어났을 경우, 트리패널을 우측으로 스크롤한다.
                                  */

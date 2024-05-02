@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Drag.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 5. 2.
  */
 var Aui;
 (function (Aui) {
@@ -15,6 +15,7 @@ var Aui;
         $parent;
         $resizers;
         directions;
+        guidelines;
         minWidth = 0;
         maxWidth = 0;
         minHeight = 0;
@@ -24,7 +25,7 @@ var Aui;
          *
          * @param {Dom} $target - 크기를 조절할 DOM 객체
          * @param {Dom} $parent - 크기조절 대상의 부모
-         * @param {Object} properties - 객체설정
+         * @param {Aui.Resizer.Properties} properties - 객체설정
          */
         constructor($target, $parent, properties = null) {
             super(properties);
@@ -32,6 +33,9 @@ var Aui;
             this.$parent = $parent;
             if (!(this.properties.directions instanceof Array) || this.properties.directions.length != 4) {
                 this.properties.directions = [true, true, true, true];
+            }
+            if (!(this.properties.guidelines instanceof Array) || this.properties.guidelines.length != 4) {
+                this.properties.guidelines = [true, true, true, true];
             }
             this.minWidth = this.properties.minWidth ?? 0;
             this.maxWidth = this.properties.maxWidth ?? 0;
@@ -48,6 +52,12 @@ var Aui;
                 topLeft: this.properties.directions[0] && this.properties.directions[3],
                 bottomRight: this.properties.directions[2] && this.properties.directions[1],
                 bottomLeft: this.properties.directions[2] && this.properties.directions[3],
+            };
+            this.guidelines = {
+                top: this.properties.guidelines[0],
+                right: this.properties.guidelines[1],
+                bottom: this.properties.guidelines[2],
+                left: this.properties.guidelines[3],
             };
             for (const direction in this.directions) {
                 if (this.directions[direction] == true) {
@@ -78,13 +88,13 @@ var Aui;
                             this.$parent.append($guide);
                             this.$parent.on('scroll', this.onScroll.bind(this));
                             this.fireEvent('mouseenter', [$resizer]);
-                            this.fireEvent('start', [this.$target, rect, tracker.getFirstPosition()]);
+                            this.fireEvent('start', [this.$target, rect, tracker.getFirstPosition(), $guide]);
                         },
                         drag: ($resizer, tracker) => {
                             const direction = $resizer.getData('direction');
                             const rect = this.getResizeRect(direction, tracker.getLastPosition());
-                            this.setGuideline(rect);
-                            this.fireEvent('resize', [this.$target, rect, tracker.getLastPosition()]);
+                            const $guide = this.setGuideline(rect);
+                            this.fireEvent('resize', [this.$target, rect, tracker.getLastPosition(), $guide]);
                         },
                         end: ($resizer, tracker) => {
                             const direction = $resizer.getData('direction');
@@ -186,11 +196,19 @@ var Aui;
                 : Html.create('div', { 'data-role': 'resize-guide' });
             $guide.setStyle('top', rect.y + 'px');
             $guide.setStyle('left', rect.x + 'px');
-            if (this.directions.left == true || this.directions.right == true) {
-                $guide.setStyle('width', rect.width + 'px');
+            $guide.setStyle('width', rect.width + 'px');
+            $guide.setStyle('height', rect.height + 'px');
+            if (this.guidelines.top == false) {
+                $guide.setStyle('border-top', '0');
             }
-            if (this.directions.top == true || this.directions.bottom == true) {
-                $guide.setStyle('height', rect.height + 'px');
+            if (this.guidelines.right == false) {
+                $guide.setStyle('border-right', '0');
+            }
+            if (this.guidelines.bottom == false) {
+                $guide.setStyle('border-bottom', '0');
+            }
+            if (this.guidelines.left == false) {
+                $guide.setStyle('border-left', '0');
             }
             return $guide;
         }

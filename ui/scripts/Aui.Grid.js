@@ -2411,6 +2411,7 @@ var Aui;
                     if (this.isResizable() == true) {
                         this.resizer = new Aui.Resizer($header, this.grid.$content, {
                             directions: [false, true, false, false],
+                            guidelines: [false, true, false, true],
                             minWidth: 50,
                             maxWidth: 900,
                             listeners: {
@@ -2420,12 +2421,15 @@ var Aui;
                                 mouseleave: () => {
                                     this.grid.$getHeader().removeClass('locked');
                                 },
-                                start: () => {
+                                start: (_$target, _rect, _position, $guide) => {
                                     this.grid.$getHeader().addClass('resizing');
                                     this.grid.getScroll().setScrollable(false);
+                                    $guide.setStyle('height', null);
                                 },
-                                resize: (_$target, rect, position) => {
+                                resize: (_$target, rect, position, $guide) => {
                                     this.grid.$getHeader().addClass('locked');
+                                    $guide.setStyle('height', null);
+                                    console.log($guide.getAttr('style'));
                                     /**
                                      * 그리드 패널 우측으로 벗어났을 경우, 그리드패널을 우측으로 스크롤한다.
                                      */

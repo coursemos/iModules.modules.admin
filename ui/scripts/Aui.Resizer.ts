@@ -6,9 +6,45 @@
  * @file /scripts/Aui.Drag.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 5. 2.
  */
 namespace Aui {
+    export namespace Resizer {
+        export interface Listeners extends Aui.Base.Listeners {
+            /**
+             * @type {Function} resize - 객체가 리사이즈중일 때
+             */
+            resize?: ($target: Dom, rect: DOMRect, position: { x: number; y: number }, $guideline: Dom) => void;
+
+            /**
+             * @type {Function} start - 객체 리사이즈가 시작될 때
+             */
+            start?: ($target: Dom, rect: DOMRect, position: { x: number; y: number }, $guideline: Dom) => void;
+
+            /**
+             * @type {Function} end - 객체 리사이즈가 완료되었을 때
+             */
+            end?: ($target: Dom, rect: DOMRect, position: { x: number; y: number }) => void;
+        }
+
+        export interface Properties extends Aui.Base.Properties {
+            /**
+             * @type {[boolean, boolean, boolean, boolean]} directions - 리사이즈 방향
+             */
+            directions: [boolean, boolean, boolean, boolean];
+
+            /**
+             * @type {[boolean, boolean, boolean, boolean]} guidelines - 가이드라인 표시여부
+             */
+            guidelines?: [boolean, boolean, boolean, boolean];
+
+            /**
+             * @type {Aui.Resizer.Listeners} listeners - 이벤트리스너
+             */
+            listeners?: Aui.Resizer.Listeners;
+        }
+    }
+
     export class Resizer extends Aui.Base {
         $target: Dom;
         $parent: Dom;
@@ -25,6 +61,13 @@ namespace Aui {
             bottomRight: boolean;
         };
 
+        guidelines: {
+            top: boolean;
+            right: boolean;
+            bottom: boolean;
+            left: boolean;
+        };
+
         minWidth: number = 0;
         maxWidth: number = 0;
         minHeight: number = 0;
@@ -35,15 +78,18 @@ namespace Aui {
          *
          * @param {Dom} $target - 크기를 조절할 DOM 객체
          * @param {Dom} $parent - 크기조절 대상의 부모
-         * @param {Object} properties - 객체설정
+         * @param {Aui.Resizer.Properties} properties - 객체설정
          */
-        constructor($target: Dom, $parent: Dom, properties: { [key: string]: any } = null) {
+        constructor($target: Dom, $parent: Dom, properties: Aui.Resizer.Properties = null) {
             super(properties);
 
             this.$target = $target;
             this.$parent = $parent;
             if (!(this.properties.directions instanceof Array) || this.properties.directions.length != 4) {
                 this.properties.directions = [true, true, true, true];
+            }
+            if (!(this.properties.guidelines instanceof Array) || this.properties.guidelines.length != 4) {
+                this.properties.guidelines = [true, true, true, true];
             }
             this.minWidth = this.properties.minWidth ?? 0;
             this.maxWidth = this.properties.maxWidth ?? 0;
@@ -62,6 +108,13 @@ namespace Aui {
                 topLeft: this.properties.directions[0] && this.properties.directions[3],
                 bottomRight: this.properties.directions[2] && this.properties.directions[1],
                 bottomLeft: this.properties.directions[2] && this.properties.directions[3],
+            };
+
+            this.guidelines = {
+                top: this.properties.guidelines[0],
+                right: this.properties.guidelines[1],
+                bottom: this.properties.guidelines[2],
+                left: this.properties.guidelines[3],
             };
 
             for (const direction in this.directions) {
@@ -96,15 +149,15 @@ namespace Aui {
 
                             this.$parent.on('scroll', this.onScroll.bind(this));
                             this.fireEvent('mouseenter', [$resizer]);
-                            this.fireEvent('start', [this.$target, rect, tracker.getFirstPosition()]);
+                            this.fireEvent('start', [this.$target, rect, tracker.getFirstPosition(), $guide]);
                         },
                         drag: ($resizer: Dom, tracker: Aui.Drag.Tracker) => {
                             const direction = $resizer.getData('direction');
                             const rect = this.getResizeRect(direction, tracker.getLastPosition());
 
-                            this.setGuideline(rect);
+                            const $guide = this.setGuideline(rect);
 
-                            this.fireEvent('resize', [this.$target, rect, tracker.getLastPosition()]);
+                            this.fireEvent('resize', [this.$target, rect, tracker.getLastPosition(), $guide]);
                         },
                         end: ($resizer: Dom, tracker: Aui.Drag.Tracker) => {
                             const direction = $resizer.getData('direction');
@@ -220,12 +273,23 @@ namespace Aui {
             $guide.setStyle('top', rect.y + 'px');
             $guide.setStyle('left', rect.x + 'px');
 
-            if (this.directions.left == true || this.directions.right == true) {
-                $guide.setStyle('width', rect.width + 'px');
+            $guide.setStyle('width', rect.width + 'px');
+            $guide.setStyle('height', rect.height + 'px');
+
+            if (this.guidelines.top == false) {
+                $guide.setStyle('border-top', '0');
             }
 
-            if (this.directions.top == true || this.directions.bottom == true) {
-                $guide.setStyle('height', rect.height + 'px');
+            if (this.guidelines.right == false) {
+                $guide.setStyle('border-right', '0');
+            }
+
+            if (this.guidelines.bottom == false) {
+                $guide.setStyle('border-bottom', '0');
+            }
+
+            if (this.guidelines.left == false) {
+                $guide.setStyle('border-left', '0');
             }
 
             return $guide;

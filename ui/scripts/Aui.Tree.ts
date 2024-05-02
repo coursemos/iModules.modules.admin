@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 23.
+ * @modified 2024. 5. 2.
  */
 namespace Aui {
     export namespace Tree {
@@ -1587,12 +1587,12 @@ namespace Aui {
                 dataIndex?: string;
 
                 /**
-                 * @type {string} width - 컬럼너비
+                 * @type {number} width - 컬럼너비
                  */
                 width?: number;
 
                 /**
-                 * @type {string} minWidth - 컬럼최소너비 (최소너비가 설정될 경우 트리패널의 가로너비를 채우기 위해 최소너비 이상으로 확대된다.)
+                 * @type {number} minWidth - 컬럼최소너비 (최소너비가 설정될 경우 트리패널의 가로너비를 채우기 위해 최소너비 이상으로 확대된다.)
                  */
                 minWidth?: number;
 
@@ -2054,6 +2054,7 @@ namespace Aui {
                 if (this.isResizable() == true) {
                     this.resizer = new Aui.Resizer($header, this.tree.$content, {
                         directions: [false, true, false, false],
+                        guidelines: [false, true, false, true],
                         minWidth: 50,
                         maxWidth: 900,
                         listeners: {
@@ -2063,12 +2064,14 @@ namespace Aui {
                             mouseleave: () => {
                                 this.tree.$getHeader().removeClass('locked');
                             },
-                            start: () => {
+                            start: (_$target, _rect, _position, $guide) => {
                                 this.tree.$getHeader().addClass('resizing');
                                 this.tree.getScroll().setScrollable(false);
+                                $guide.setStyle('height', null);
                             },
-                            resize: (_$target: Dom, rect: DOMRect, position: { x: number; y: number }) => {
+                            resize: (_$target, rect, position, $guide) => {
                                 this.tree.$getHeader().addClass('locked');
+                                $guide.setStyle('height', null);
 
                                 /**
                                  * 트리 패널 우측으로 벗어났을 경우, 트리패널을 우측으로 스크롤한다.
