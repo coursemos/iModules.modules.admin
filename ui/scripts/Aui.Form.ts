@@ -4665,7 +4665,6 @@ namespace Aui {
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
 
                     this.rawValue = this.properties.value ?? null;
-                    this.value = null;
 
                     this.expandOnFocus = this.properties.expandOnFocus === true;
                     this.expandOnEnter = this.properties.expandOnEnter !== false;
@@ -4788,7 +4787,7 @@ namespace Aui {
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
                                 },
-                                selectionChange: (selections: Aui.Data.Record[]) => {
+                                selectionComplete: (selections: Aui.Data.Record[]) => {
                                     if (selections.length == 0) {
                                         this.setValue(null);
                                     } else if (selections.length == 1) {
@@ -4800,8 +4799,6 @@ namespace Aui {
                                         }
                                         this.setValue(values);
                                     }
-                                },
-                                selectionComplete: () => {
                                     this.collapse();
                                     this.$getButton().focus();
                                 },
@@ -4921,6 +4918,7 @@ namespace Aui {
                         this.$search.on('focus', () => {
                             this.searching = true;
                             this.expand();
+                            this.match(this.$search.getValue());
                             this.searchingMode();
                         });
                         this.$search.on('pointerdown', (e: PointerEvent) => {
@@ -4960,22 +4958,22 @@ namespace Aui {
                 async getValueToRecord(value: any): Promise<Aui.Data.Record> {
                     const target = {};
                     target[this.valueField] = value;
+
+                    if (this.getStore().isLoaded() == false) {
+                        await this.getStore().load();
+                        return this.getValueToRecord(value);
+                    }
+
                     const record = this.getStore().find(target);
 
                     if (record !== null) {
                         return record;
                     } else {
                         const store = this.getStore();
-
-                        if (this.getStore().isLoaded() == false) {
-                            await this.getStore().reload();
-                            return await this.getValueToRecord(value);
-                        }
-
                         if (store instanceof Aui.TreeStore) {
                             const parents = await store.getParents(target);
                             if (parents !== null) {
-                                return await this.getValueToRecord(value);
+                                return this.getValueToRecord(value);
                             }
                         }
                     }
@@ -4992,22 +4990,22 @@ namespace Aui {
                 async getValueToIndex(value: any): Promise<number | number[]> {
                     const target = {};
                     target[this.valueField] = value;
+
+                    if (this.getStore().isLoaded() == false) {
+                        await this.getStore().load();
+                        return this.getValueToIndex(value);
+                    }
+
                     const index = this.getStore().findIndex(target);
 
                     if (index !== null) {
                         return index;
                     } else {
                         const store = this.getStore();
-
-                        if (this.getStore().isLoaded() == false) {
-                            await this.getStore().reload();
-                            return await this.getValueToIndex(value);
-                        }
-
                         if (store instanceof Aui.TreeStore) {
                             const parents = await store.getParents(target);
                             if (parents !== null) {
-                                return await this.getValueToIndex(value);
+                                return this.getValueToIndex(value);
                             }
                         }
                     }
@@ -5023,6 +5021,7 @@ namespace Aui {
                  */
                 setValue(value: any, is_origin: boolean = false): void {
                     this.rawValue = value;
+                    this.value = value;
 
                     if (value === null) {
                         this.$getEmptyText().show();
@@ -5326,20 +5325,6 @@ namespace Aui {
                 }
 
                 /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender(): void {
-                    if (this.rawValue !== null) {
-                        if (this.getStore().isLoaded() === true) {
-                            this.setValue(this.rawValue, true);
-                        } else {
-                            this.getStore().load();
-                        }
-                    }
-                    super.onRender();
-                }
-
-                /**
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
                  */
                 onBeforeLoad(): void {
@@ -5354,11 +5339,9 @@ namespace Aui {
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad(): void {
-                    if (this.rawValue !== null && this.value === undefined) {
-                        this.setValue(this.rawValue, true);
-                    }
                     this.loading.hide();
                     this.getForm()?.setLoading(this, false);
+                    this.setValue(this.value);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
 
@@ -5366,11 +5349,6 @@ namespace Aui {
                  * 셀렉트폼의 목록 데이터가 변경되었을 때 이벤트를 처리한다.
                  */
                 onUpdate(): void {
-                    if (this.rawValue !== null) {
-                        if (this.search === false || this.searching === false) {
-                            this.setValue(this.rawValue);
-                        }
-                    }
                     this.fireEvent('update', [this.getStore(), this]);
                 }
 

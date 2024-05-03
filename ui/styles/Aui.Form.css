@@ -51,9 +51,7 @@ div[data-component][data-type='form'][data-role='fieldset'] {
             border: 1px solid var(--aui-color-background-200);
             background: var(--aui-color-background-500);
             padding: var(--aui-component-padding);
-            padding-top: calc(
-                var(--aui-component-padding) + var(--aui-component-height-default) / 2 - var(--aui-component-gap) - 2px
-            );
+            padding-top: calc(var(--aui-component-height-default) / 2 - var(--aui-component-gap) - 2px + 0.6rem);
             display: flex;
             flex-direction: column;
             row-gap: var(--aui-component-gap);

@@ -465,18 +465,18 @@ var AdminUi;
                             search: true,
                             listRenderer: (display, record) => {
                                 const $icon = Html.html(record.get('icon'));
-                                $icon.setStyle('width', '22px');
-                                $icon.setStyle('height', '22px');
-                                $icon.setStyle('background-size', '16px 16px');
-                                $icon.setStyle('margin-right', '4px');
-                                $icon.setStyle('vertical-align', 'middle');
-                                $icon.setStyle('line-height', '22px');
+                                $icon.setStyle('line-height', 'inherit');
+                                $icon.setStyle('width', '1lh');
+                                $icon.setStyle('height', '1lh');
+                                $icon.setStyle('background-size', '0.9lh 0.9lh');
+                                $icon.setStyle('margin', '0 4px 0 0');
+                                $icon.setStyle('vertical-align', 'top');
                                 $icon.setStyle('border-radius', '3px');
                                 const $text = Html.create('span', null, display);
+                                $icon.setStyle('line-height', 'inherit');
                                 $text.setStyle('display', 'inline-block');
-                                $text.setStyle('vertical-align', 'middle');
-                                $icon.setStyle('height', '22px');
-                                $text.setStyle('line-height', '22px');
+                                $text.setStyle('vertical-align', 'top');
+                                $text.setStyle('height', '1lh');
                                 return $icon.toHtml() + $text.toHtml();
                             },
                             renderer: (display, record) => {
@@ -484,18 +484,19 @@ var AdminUi;
                                     return display;
                                 }
                                 const $icon = Html.html(record.get('icon'));
-                                $icon.setStyle('width', '22px');
-                                $icon.setStyle('height', '22px');
-                                $icon.setStyle('background-size', '16px 16px');
-                                $icon.setStyle('margin-right', '4px');
-                                $icon.setStyle('vertical-align', 'middle');
-                                $icon.setStyle('line-height', '22px');
+                                $icon.setStyle('line-height', 'inherit');
+                                $icon.setStyle('width', '1lh');
+                                $icon.setStyle('height', '1lh');
+                                $icon.setStyle('background-size', '0.9lh 0.9lh');
+                                $icon.setStyle('margin', '0 4px 0 0');
+                                $icon.setStyle('vertical-align', 'top');
+                                $icon.setStyle('vertical-align', 'top');
                                 $icon.setStyle('border-radius', '3px');
                                 const $text = Html.create('span', null, display);
+                                $icon.setStyle('line-height', 'inherit');
                                 $text.setStyle('display', 'inline-block');
-                                $text.setStyle('vertical-align', 'middle');
-                                $icon.setStyle('height', '22px');
-                                $text.setStyle('line-height', '22px');
+                                $text.setStyle('vertical-align', 'top');
+                                $text.setStyle('height', '1lh');
                                 return $icon.toHtml() + $text.toHtml();
                             },
                             listeners: {

@@ -3573,7 +3573,6 @@ var Aui;
                     this.searchField = this.properties.searchField ?? this.displayField;
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
                     this.rawValue = this.properties.value ?? null;
-                    this.value = null;
                     this.expandOnFocus = this.properties.expandOnFocus === true;
                     this.expandOnEnter = this.properties.expandOnEnter !== false;
                     this.renderer =
@@ -3692,7 +3691,7 @@ var Aui;
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
                                 },
-                                selectionChange: (selections) => {
+                                selectionComplete: (selections) => {
                                     if (selections.length == 0) {
                                         this.setValue(null);
                                     }
@@ -3706,8 +3705,6 @@ var Aui;
                                         }
                                         this.setValue(values);
                                     }
-                                },
-                                selectionComplete: () => {
                                     this.collapse();
                                     this.$getButton().focus();
                                 },
@@ -3819,6 +3816,7 @@ var Aui;
                         this.$search.on('focus', () => {
                             this.searching = true;
                             this.expand();
+                            this.match(this.$search.getValue());
                             this.searchingMode();
                         });
                         this.$search.on('pointerdown', (e) => {
@@ -3855,20 +3853,20 @@ var Aui;
                 async getValueToRecord(value) {
                     const target = {};
                     target[this.valueField] = value;
+                    if (this.getStore().isLoaded() == false) {
+                        await this.getStore().load();
+                        return this.getValueToRecord(value);
+                    }
                     const record = this.getStore().find(target);
                     if (record !== null) {
                         return record;
                     }
                     else {
                         const store = this.getStore();
-                        if (this.getStore().isLoaded() == false) {
-                            await this.getStore().reload();
-                            return await this.getValueToRecord(value);
-                        }
                         if (store instanceof Aui.TreeStore) {
                             const parents = await store.getParents(target);
                             if (parents !== null) {
-                                return await this.getValueToRecord(value);
+                                return this.getValueToRecord(value);
                             }
                         }
                     }
@@ -3883,20 +3881,20 @@ var Aui;
                 async getValueToIndex(value) {
                     const target = {};
                     target[this.valueField] = value;
+                    if (this.getStore().isLoaded() == false) {
+                        await this.getStore().load();
+                        return this.getValueToIndex(value);
+                    }
                     const index = this.getStore().findIndex(target);
                     if (index !== null) {
                         return index;
                     }
                     else {
                         const store = this.getStore();
-                        if (this.getStore().isLoaded() == false) {
-                            await this.getStore().reload();
-                            return await this.getValueToIndex(value);
-                        }
                         if (store instanceof Aui.TreeStore) {
                             const parents = await store.getParents(target);
                             if (parents !== null) {
-                                return await this.getValueToIndex(value);
+                                return this.getValueToIndex(value);
                             }
                         }
                     }
@@ -3910,6 +3908,7 @@ var Aui;
                  */
                 setValue(value, is_origin = false) {
                     this.rawValue = value;
+                    this.value = value;
                     if (value === null) {
                         this.$getEmptyText().show();
                         this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
@@ -4189,20 +4188,6 @@ var Aui;
                     this.$getContent().append($emptyText);
                 }
                 /**
-                 * 필드가 랜더링이 완료되었을 때 이벤트를 처리한다.
-                 */
-                onRender() {
-                    if (this.rawValue !== null) {
-                        if (this.getStore().isLoaded() === true) {
-                            this.setValue(this.rawValue, true);
-                        }
-                        else {
-                            this.getStore().load();
-                        }
-                    }
-                    super.onRender();
-                }
-                /**
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.
                  */
                 onBeforeLoad() {
@@ -4216,22 +4201,15 @@ var Aui;
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad() {
-                    if (this.rawValue !== null && this.value === undefined) {
-                        this.setValue(this.rawValue, true);
-                    }
                     this.loading.hide();
                     this.getForm()?.setLoading(this, false);
+                    this.setValue(this.value);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
                 /**
                  * 셀렉트폼의 목록 데이터가 변경되었을 때 이벤트를 처리한다.
                  */
                 onUpdate() {
-                    if (this.rawValue !== null) {
-                        if (this.search === false || this.searching === false) {
-                            this.setValue(this.rawValue);
-                        }
-                    }
                     this.fireEvent('update', [this.getStore(), this]);
                 }
                 /**
