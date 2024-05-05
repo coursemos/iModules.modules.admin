@@ -221,7 +221,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                 content: '\e404';
                                 background: var(--aui-color-accent-500);
                                 border-color: var(--aui-color-accent-500);
-                                color: var(--aui-color-text-backward-500);
+                                color: var(--aui-color-accent-backward-500);
                             }
                         }
                     }
@@ -414,7 +414,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     content: '\e404';
                                     background: var(--aui-color-accent-500);
                                     border-color: var(--aui-color-accent-500);
-                                    color: var(--aui-color-text-backward-500);
+                                    color: var(--aui-color-accent-backward-500);
                                 }
                             }
                         }
@@ -647,7 +647,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                             content: '\e404';
                                             background: var(--aui-color-accent-500);
                                             border-color: var(--aui-color-accent-500);
-                                            color: var(--aui-color-text-backward-500);
+                                            color: var(--aui-color-accent-backward-500);
                                         }
                                     }
                                 }
@@ -796,7 +796,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                         content: '\e404';
                                         background: var(--aui-color-accent-500);
                                         border-color: var(--aui-color-accent-500);
-                                        color: var(--aui-color-text-backward-500);
+                                        color: var(--aui-color-accent-backward-500);
                                     }
                                 }
                             }

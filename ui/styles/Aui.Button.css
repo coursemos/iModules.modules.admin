@@ -85,7 +85,7 @@ div[data-component][data-type='button'][data-role='button'] {
                 &.confirm {
                     background: var(--aui-color-accent-500);
                     border-color: var(--aui-color-accent-500);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover {
                         background: var(--aui-color-accent-600);
@@ -95,7 +95,7 @@ div[data-component][data-type='button'][data-role='button'] {
                 &.begining {
                     background: var(--aui-color-begining-500);
                     border-color: var(--aui-color-begining-500);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover {
                         background: var(--aui-color-begining-600);
@@ -105,7 +105,7 @@ div[data-component][data-type='button'][data-role='button'] {
                 &.danger {
                     background: var(--aui-color-danger-500);
                     border-color: var(--aui-color-danger-500);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover {
                         background: var(--aui-color-danger-600);
@@ -115,7 +115,7 @@ div[data-component][data-type='button'][data-role='button'] {
                 &.action {
                     background: var(--aui-color-action-500);
                     border-color: var(--aui-color-action-500);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover {
                         background: var(--aui-color-action-600);
@@ -243,7 +243,7 @@ div[data-component][data-type='button'][data-role='button'] {
                     background: var(--aui-color-accent-500);
                     border-color: var(--aui-color-accent-500);
                     border-left-color: var(--aui-color-accent-600);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover,
                     &.opened {
@@ -255,7 +255,7 @@ div[data-component][data-type='button'][data-role='button'] {
                     background: var(--aui-color-begining-500);
                     border-color: var(--aui-color-begining-500);
                     border-left-color: var(--aui-color-begining-600);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover,
                     &.opened {
@@ -267,7 +267,7 @@ div[data-component][data-type='button'][data-role='button'] {
                     background: var(--aui-color-danger-500);
                     border-color: var(--aui-color-danger-500);
                     border-left-color: var(--aui-color-danger-600);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover,
                     &.opened {
@@ -279,7 +279,7 @@ div[data-component][data-type='button'][data-role='button'] {
                     background: var(--aui-color-action-500);
                     border-color: var(--aui-color-action-500);
                     border-left-color: var(--aui-color-action-600);
-                    color: var(--aui-color-text-backward-500);
+                    color: var(--aui-color-accent-backward-500);
 
                     &:hover,
                     &.opened {

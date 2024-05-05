@@ -67,7 +67,7 @@ div[data-component][data-type='form'][data-role='fieldset'] {
             padding-bottom: var(--aui-component-gap);
             font-family: var(--aui-font-family-default);
             font-size: var(--aui-font-size-small);
-            color: var(--aui-color-text-100);
+            color: var(--aui-color-text-200);
 
             &.error {
                 color: var(--aui-color-danger-500);
@@ -206,7 +206,7 @@ div[data-component][data-type='form'][data-role='field'] {
             padding-bottom: var(--aui-component-gap);
             font-family: var(--aui-font-family-default);
             font-size: var(--aui-font-size-small);
-            color: var(--aui-color-text-100);
+            color: var(--aui-color-text-200);
 
             &.error {
                 color: var(--aui-color-danger-500);
@@ -474,7 +474,7 @@ div[data-component][data-type='form'][data-role='field'] {
             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
             font-size: var(--aui-font-size-default);
             font-family: var(--aui-font-family-default);
-            color: var(--aui-color-text-100);
+            color: var(--aui-color-text-200);
             overflow: hidden;
         }
 
@@ -653,7 +653,7 @@ div[data-component][data-type='form'][data-role='field'] {
             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
             font-size: var(--aui-font-size-default);
             font-family: var(--aui-font-family-default);
-            color: var(--aui-color-text-100);
+            color: var(--aui-color-text-200);
             overflow: hidden;
         }
 
@@ -1017,7 +1017,7 @@ div[data-component][data-type='form'][data-role='field'] {
                         text-align: center;
                         font-family: var(--aui-font-family-numeric);
                         font-size: var(--aui-font-size-small);
-                        color: var(--aui-color-text-100);
+                        color: var(--aui-color-text-200);
                     }
 
                     > button[data-action='delete'] {
@@ -1340,7 +1340,7 @@ div[data-component][data-type='form'][data-role='field'] {
             > div[data-role='empty'] {
                 font-size: var(--aui-font-size-default);
                 font-family: var(--aui-font-family-default);
-                color: var(--aui-color-text-100);
+                color: var(--aui-color-text-200);
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -1383,7 +1383,7 @@ div[data-component][data-type='form'][data-role='field'] {
                         line-height: 28px;
                         font-size: var(--aui-font-size-small);
                         font-family: var(--aui-font-family-numeric);
-                        color: var(--aui-color-text-100);
+                        color: var(--aui-color-text-200);
                         margin-left: 5px;
                     }
                 }
@@ -1443,7 +1443,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 box-sizing: border-box;
                 top: -1px;
                 right: -1px;
-                color: var(--aui-color-text-100);
+                color: var(--aui-color-text-200);
             }
 
             &:focus {
@@ -1499,7 +1499,7 @@ div[data-component][data-type='form'][data-role='field'] {
             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
             font-size: var(--aui-font-size-default);
             font-family: var(--aui-font-family-default);
-            color: var(--aui-color-text-100);
+            color: var(--aui-color-text-200);
             overflow: hidden;
         }
 
@@ -1573,7 +1573,7 @@ div[data-component][data-type='form'][data-role='field'] {
             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
             font-size: var(--aui-font-size-default);
             font-family: var(--aui-font-family-default);
-            color: var(--aui-color-text-100);
+            color: var(--aui-color-text-200);
             overflow: hidden;
         }
 
@@ -1621,7 +1621,7 @@ div[data-component][data-type='form'][data-role='field'] {
             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
             font-size: var(--aui-font-size-default);
             font-family: var(--aui-font-family-default);
-            color: var(--aui-color-text-100);
+            color: var(--aui-color-text-200);
             overflow: hidden;
         }
     

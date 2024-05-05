@@ -6,24 +6,17 @@
  * @file /styles/Aui.Base.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 15.
+ * @modified 2024. 5. 5.
  */
 :root {
     --aui-color-scrollbar: #000;
 
-    --aui-color-text-100: #999;
-    --aui-color-text-200: #666;
-    --aui-color-text-300: #4d4d4d;
+    --aui-color-text-100: #ccc;
+    --aui-color-text-200: #999;
+    --aui-color-text-300: #666;
     --aui-color-text-400: #333;
     --aui-color-text-500: #1a1a1a;
     --aui-color-text-600: #000;
-
-    --aui-color-text-backward-100: #ccc;
-    --aui-color-text-backward-200: #d0d0d0;
-    --aui-color-text-backward-300: #dadada;
-    --aui-color-text-backward-400: #e6e6e6;
-    --aui-color-text-backward-500: #f2f2f2;
-    --aui-color-text-backward-600: #fff;
 
     --aui-color-background-100: #d0d0d0;
     --aui-color-background-200: #dadada;
@@ -98,19 +91,12 @@ body[data-color-scheme='dark'],
 body[data-color-scheme='auto'][data-prefers-color-scheme='dark'] {
     --aui-color-scrollbar: #fff;
 
-    --aui-color-text-100: #d0d0d0;
-    --aui-color-text-200: #dadada;
-    --aui-color-text-300: #e6e6e6;
-    --aui-color-text-400: #f7f7f7;
-    --aui-color-text-500: #f2f2f2;
+    --aui-color-text-100: #4d4d4d;
+    --aui-color-text-200: #666;
+    --aui-color-text-300: #999;
+    --aui-color-text-400: #ccc;
+    --aui-color-text-500: #e6e6e6;
     --aui-color-text-600: #fff;
-
-    --aui-color-text-backward-100: #ccc;
-    --aui-color-text-backward-200: #d0d0d0;
-    --aui-color-text-backward-300: #dadada;
-    --aui-color-text-backward-400: #e6e6e6;
-    --aui-color-text-backward-500: #f2f2f2;
-    --aui-color-text-backward-600: #fff;
 
     --aui-color-background-100: #999;
     --aui-color-background-200: #666;

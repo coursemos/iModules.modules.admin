@@ -53,7 +53,7 @@ div[data-component][data-type='toolbar'][data-role='tab'] {
                         height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
                         background: transparent;
                         border-color: transparent;
-                        color: var(--aui-color-text-backward-500);
+                        color: var(--aui-color-accent-backward-500);
 
                         &:hover {
                             background: var(--aui-color-accent-600);

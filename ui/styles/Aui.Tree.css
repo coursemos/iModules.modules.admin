@@ -310,7 +310,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                     content: '\e404';
                                     background: var(--aui-color-accent-500);
                                     border-color: var(--aui-color-accent-500);
-                                    color: var(--aui-color-text-backward-500);
+                                    color: var(--aui-color-accent-backward-500);
                                 }
                             }
                         }
@@ -500,7 +500,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                                 height: 2px;
                                                 top: calc(50% - 1px);
                                                 left: calc(50% - 4px);
-                                                background: var(--aui-color-text-backward-500);
+                                                background: var(--aui-color-accent-backward-500);
                                                 content: ' ';
                                             }
 
@@ -511,7 +511,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                                 height: 8px;
                                                 top: calc(50% - 4px);
                                                 left: calc(50% - 1px);
-                                                background: var(--aui-color-text-backward-500);
+                                                background: var(--aui-color-accent-backward-500);
                                                 content: ' ';
                                             }
 
@@ -528,7 +528,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                                     text-align: center;
                                                     line-height: 14px;
                                                     content: '\ed00';
-                                                    color: var(--aui-color-text-backward-500);
+                                                    color: var(--aui-color-accent-backward-500);
                                                     background: transparent;
                                                     animation: mi-loading 2s infinite linear;
                                                 }
@@ -729,7 +729,7 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                         > button {
                                             background: var(--aui-color-accent-500);
                                             border-color: var(--aui-color-accent-500);
-                                            color: var(--aui-color-text-backward-500);
+                                            color: var(--aui-color-accent-backward-500);
 
                                             &::before {
                                                 font-family: moimz;
