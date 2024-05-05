@@ -709,6 +709,11 @@ namespace Aui {
                     labelSeparator?: string;
 
                     /**
+                     * @type {string} fieldClass - 필드영역의 스타일시트
+                     */
+                    fieldClass?: string;
+
+                    /**
                      * @type {string} helpText - 도움말
                      */
                     helpText?: string;
@@ -753,6 +758,7 @@ namespace Aui {
                 labelAlign: string;
                 labelWidth: number;
                 labelSeparator: string;
+                fieldClass: string;
                 helpText: string;
 
                 value: any = null;
@@ -780,6 +786,7 @@ namespace Aui {
                     this.labelAlign = this.properties.labelAlign ?? null;
                     this.labelWidth = this.properties.labelWidth ?? null;
                     this.labelSeparator = this.properties.labelSeparator ?? null;
+                    this.fieldClass = this.properties.fieldClass ?? null;
                     this.helpText = this.properties.helpText ?? null;
                     this.fieldDefaults = null;
                     this.scrollable = false;
@@ -1138,6 +1145,11 @@ namespace Aui {
                         this.$getContainer().addClass('required');
                     }
                     this.$getContent().setData('field', this.field);
+
+                    if (this.fieldClass !== null) {
+                        this.$getContent().addClass(...this.fieldClass.split(' '));
+                    }
+
                     this.updateLayout();
                     super.render();
                 }
@@ -6061,7 +6073,7 @@ namespace Aui {
                     inputStyle?: string;
 
                     /**
-                     * @type {string} inputClass - 선택항목 스타일시트
+                     * @type {string} inputClass - 선택항목 필드 스타일시트
                      */
                     inputClass?: string;
                 }
@@ -6103,7 +6115,7 @@ namespace Aui {
                                     boxLabel: this.options[value],
                                     displayType: this.properties.displayType ?? 'input',
                                     style: this.properties.inputStyle ?? null,
-                                    class: this.properties.inputClass ?? null,
+                                    fieldClass: this.properties.inputClass ?? null,
                                     listeners: {
                                         change: () => {
                                             this.setValue(this.getValue());
@@ -6150,7 +6162,7 @@ namespace Aui {
                                 boxLabel: display,
                                 displayType: this.properties.displayType ?? 'input',
                                 style: this.properties.inputStyle ?? null,
-                                class: this.properties.inputClass ?? null,
+                                fieldClass: this.properties.inputClass ?? null,
                                 listeners: {
                                     change: () => {
                                         this.setValue(this.getValue());
@@ -6499,7 +6511,7 @@ namespace Aui {
                     inputStyle?: string;
 
                     /**
-                     * @type {string} inputClass - 선택항목 스타일시트
+                     * @type {string} inputClass - 선택항목 필드 스타일시트
                      */
                     inputClass?: string;
                 }
@@ -6540,7 +6552,7 @@ namespace Aui {
                                     boxLabel: this.options[value],
                                     displayType: this.properties.displayType ?? 'input',
                                     style: this.properties.inputStyle ?? null,
-                                    class: this.properties.inputClass ?? null,
+                                    fieldClass: this.properties.inputClass ?? null,
                                     listeners: {
                                         change: (field: Aui.Form.Field.Radio, value: boolean) => {
                                             if (value === true) {

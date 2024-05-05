@@ -485,6 +485,7 @@ var Aui;
                 labelAlign;
                 labelWidth;
                 labelSeparator;
+                fieldClass;
                 helpText;
                 value = null;
                 pValue = null;
@@ -508,6 +509,7 @@ var Aui;
                     this.labelAlign = this.properties.labelAlign ?? null;
                     this.labelWidth = this.properties.labelWidth ?? null;
                     this.labelSeparator = this.properties.labelSeparator ?? null;
+                    this.fieldClass = this.properties.fieldClass ?? null;
                     this.helpText = this.properties.helpText ?? null;
                     this.fieldDefaults = null;
                     this.scrollable = false;
@@ -825,6 +827,9 @@ var Aui;
                         this.$getContainer().addClass('required');
                     }
                     this.$getContent().setData('field', this.field);
+                    if (this.fieldClass !== null) {
+                        this.$getContent().addClass(...this.fieldClass.split(' '));
+                    }
                     this.updateLayout();
                     super.render();
                 }
@@ -4761,7 +4766,7 @@ var Aui;
                                 boxLabel: this.options[value],
                                 displayType: this.properties.displayType ?? 'input',
                                 style: this.properties.inputStyle ?? null,
-                                class: this.properties.inputClass ?? null,
+                                fieldClass: this.properties.inputClass ?? null,
                                 listeners: {
                                     change: () => {
                                         this.setValue(this.getValue());
@@ -4802,7 +4807,7 @@ var Aui;
                             boxLabel: display,
                             displayType: this.properties.displayType ?? 'input',
                             style: this.properties.inputStyle ?? null,
-                            class: this.properties.inputClass ?? null,
+                            fieldClass: this.properties.inputClass ?? null,
                             listeners: {
                                 change: () => {
                                     this.setValue(this.getValue());
@@ -5095,7 +5100,7 @@ var Aui;
                                 boxLabel: this.options[value],
                                 displayType: this.properties.displayType ?? 'input',
                                 style: this.properties.inputStyle ?? null,
-                                class: this.properties.inputClass ?? null,
+                                fieldClass: this.properties.inputClass ?? null,
                                 listeners: {
                                     change: (field, value) => {
                                         if (value === true) {
