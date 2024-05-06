@@ -1056,14 +1056,6 @@ var Aui;
                     $check.append($button);
                     this.$header.append($check);
                     leftPosition = $check.getWidth() + 1;
-                    /*
-                    const check = new Aui.Grid.Check({
-                        dataIndex: '@',
-                    });
-                    check.setGrid(this);
-                    this.headers.push(check);
-                    this.columns.push(check);
-                    */
                 }
                 this.headers.forEach((header, headerIndex) => {
                     const $header = header.$getHeader(headerIndex);

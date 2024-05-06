@@ -1356,14 +1356,6 @@ namespace Aui {
 
                     this.$header.append($check);
                     leftPosition = $check.getWidth() + 1;
-                    /*
-                    const check = new Aui.Grid.Check({
-                        dataIndex: '@',
-                    });
-                    check.setGrid(this);
-                    this.headers.push(check);
-                    this.columns.push(check);
-                    */
                 }
 
                 this.headers.forEach((header: Aui.Grid.Column, headerIndex: number) => {
