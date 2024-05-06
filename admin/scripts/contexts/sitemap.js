@@ -235,7 +235,7 @@ Admin.ready(async () => {
                 flex: 2,
                 minWidth: 400,
                 columnResizable: true,
-                selection: { selectable: true },
+                selection: { selectable: true, display: 'check' },
                 disabled: true,
                 autoLoad: false,
                 topbar: [
@@ -270,55 +270,22 @@ Admin.ready(async () => {
                     new Aui.Button({
                         iconClass: 'mi mi-caret-up',
                         handler: async (button) => {
-                            const grid = button.getParent().getParent();
-                            const selections = grid.getSelections();
-                            if (selections.length == 0) {
-                                return;
-                            }
                             button.setLoading(true);
-                            const context = selections[0];
-                            const children = context.getParents().pop().getChildren();
-                            if (context.get('sort') > 0) {
-                                const move = context.get('sort') - 1;
-                                for (const child of children) {
-                                    if (child.get('sort') == move) {
-                                        child.set('sort', context.get('sort'));
-                                        break;
-                                    }
-                                }
-                                context.set('sort', move);
-                                await grid.getStore().sort('sort', 'ASC');
-                                await grid.getStore().commit();
-                                grid.select(context);
-                                button.setLoading(false);
-                            }
+                            const tree = button.getParent().getParent();
+                            tree.moveSelections('up');
+                            await tree.getStore().commit();
+                            tree.restoreSelections();
+                            button.setLoading(false);
                         },
                     }),
                     new Aui.Button({
                         iconClass: 'mi mi-caret-down',
                         handler: async (button) => {
-                            const grid = button.getParent().getParent();
-                            const selections = grid.getSelections();
-                            if (selections.length == 0) {
-                                return;
-                            }
-                            button.setLoading(true);
-                            const context = selections[0];
-                            const children = context.getParents().pop().getChildren();
-                            if (context.get('sort') + 1 < children.length) {
-                                const move = context.get('sort') + 1;
-                                for (const child of children) {
-                                    if (child.get('sort') == move) {
-                                        child.set('sort', context.get('sort'));
-                                        break;
-                                    }
-                                }
-                                context.set('sort', move);
-                                await grid.getStore().sort('sort', 'ASC');
-                                await grid.getStore().commit();
-                                grid.select(context);
-                                button.setLoading(false);
-                            }
+                            const tree = button.getParent().getParent();
+                            tree.moveSelections('down');
+                            await tree.getStore().commit();
+                            tree.restoreSelections();
+                            button.setLoading(false);
                         },
                     }),
                     '|',
@@ -363,7 +330,7 @@ Admin.ready(async () => {
                     },
                     {
                         text: (await me.getText('admin.sitemap.contexts.layout')),
-                        dataIndex: 'layout',
+                        dataIndex: 'sort',
                         width: 100,
                     },
                 ],
