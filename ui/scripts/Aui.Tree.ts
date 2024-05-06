@@ -352,6 +352,80 @@ namespace Aui {
             }
 
             /**
+             * 순차정렬이 적용되어 있는 선택된 열의 위치를 이동한다.
+             *
+             * @param {'up'|'down'} direction - 이동할 방향
+             */
+            moveSelections(direction: 'up' | 'down'): void {
+                if (this.getSelections().length == 0) {
+                    return;
+                }
+
+                const sorters = this.store.getSorters();
+                if (sorters === null || Object.keys(sorters).length !== 1) {
+                    return;
+                }
+                const sortField = Object.keys(sorters).pop();
+
+                const rowIndexes = [];
+                for (const selected of this.getSelections()) {
+                    rowIndexes.push(this.store.matchIndex(selected));
+                }
+                rowIndexes.sort();
+
+                const joinedIndexes = rowIndexes.map((rowIndex) => rowIndex.join(','));
+
+                if (direction == 'up') {
+                    for (const rowIndex of rowIndexes) {
+                        const childIndex = rowIndex.pop();
+                        const parentIndex = [...rowIndex];
+
+                        const firstIndex = [...parentIndex, 0];
+                        if (joinedIndexes.includes(firstIndex.join(',')) == true) {
+                            continue;
+                        }
+
+                        rowIndex.push(childIndex);
+                        const targetIndex = [...parentIndex, childIndex - 1];
+
+                        const target = this.store.getAt(targetIndex);
+                        const record = this.store.getAt(rowIndex);
+
+                        const move = target.get(sortField);
+                        target.set(sortField, record.get(sortField));
+                        record.set(sortField, move);
+
+                        this.store.setAt(rowIndex, target);
+                        this.store.setAt(targetIndex, record);
+                    }
+                } else {
+                    rowIndexes.reverse();
+                    for (const rowIndex of rowIndexes) {
+                        const childIndex = rowIndex.pop();
+                        const parentIndex = [...rowIndex];
+
+                        const lastIndex = [...parentIndex, this.store.getAt(parentIndex).getChildren().length - 1];
+                        if (joinedIndexes.includes(lastIndex.join(',')) == true) {
+                            continue;
+                        }
+
+                        rowIndex.push(childIndex);
+                        const targetIndex = [...parentIndex, childIndex + 1];
+                        const target = this.store.getAt(targetIndex);
+                        const record = this.store.getAt(rowIndex);
+                        const move = target.get(sortField);
+                        target.set(sortField, record.get(sortField));
+                        record.set(sortField, move);
+
+                        this.store.setAt(rowIndex, target);
+                        this.store.setAt(targetIndex, record);
+                    }
+                }
+
+                this.onUpdate();
+            }
+
+            /**
              * 특정 열에 포커스를 지정한다.
              *
              * @param {number} treeIndex - 행 인덱스

@@ -395,6 +395,66 @@ namespace Aui {
             }
 
             /**
+             * 순차정렬이 적용되어 있는 선택된 열의 위치를 이동한다.
+             *
+             * @param {'up'|'down'} direction - 이동할 방향
+             */
+            moveSelections(direction: 'up' | 'down'): void {
+                if (this.getSelections().length == 0) {
+                    return;
+                }
+
+                const sorters = this.store.getSorters();
+                if (sorters === null || Object.keys(sorters).length !== 1) {
+                    return;
+                }
+                const sortField = Object.keys(sorters).pop();
+
+                const rowIndexes = [];
+                for (const selected of this.getSelections()) {
+                    rowIndexes.push(this.store.matchIndex(selected));
+                }
+                rowIndexes.sort();
+
+                if (direction == 'up') {
+                    if (rowIndexes[0] == 0) {
+                        return;
+                    }
+
+                    for (const rowIndex of rowIndexes) {
+                        const targetIndex = rowIndex - 1;
+                        const target = this.store.getAt(targetIndex);
+                        const record = this.store.getAt(rowIndex);
+                        const move = target.get(sortField);
+                        target.set(sortField, record.get(sortField));
+                        record.set(sortField, move);
+
+                        this.store.setAt(rowIndex, target);
+                        this.store.setAt(targetIndex, record);
+                    }
+                } else {
+                    rowIndexes.reverse();
+                    if (rowIndexes[0] == this.getStore().getCount() - 1) {
+                        return;
+                    }
+
+                    for (const rowIndex of rowIndexes) {
+                        const targetIndex = rowIndex + 1;
+                        const target = this.store.getAt(targetIndex);
+                        const record = this.store.getAt(rowIndex);
+                        const move = target.get(sortField);
+                        target.set(sortField, record.get(sortField));
+                        record.set(sortField, move);
+
+                        this.store.setAt(rowIndex, target);
+                        this.store.setAt(targetIndex, record);
+                    }
+                }
+
+                this.onUpdate();
+            }
+
+            /**
              * 특정 열에 포커스를 지정한다.
              *
              * @param {number} rowIndex - 행 인덱스
