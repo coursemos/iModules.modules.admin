@@ -814,13 +814,17 @@ namespace Aui {
                     return;
                 }
 
-                Html.all('div[data-role=row]', this.$body).forEach(($row) => {
-                    this.selectRow($row.getData('tree'), true, false);
-                });
+                this.expandAll(true).then(() => {
+                    Html.all('div[data-role=row]', this.$body).forEach(($row) => {
+                        const record = $row.getData('record');
+                        this.selections.set(record.getHash(), record);
+                        Html.get('> div[data-role=leaf]', $row).addClass('selected');
+                    });
 
-                if (is_event == true) {
-                    this.onSelectionChange();
-                }
+                    if (is_event == true) {
+                        this.onSelectionChange();
+                    }
+                });
             }
 
             /**
