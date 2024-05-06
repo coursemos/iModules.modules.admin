@@ -2717,6 +2717,7 @@ var Aui;
              * @return {Dom} $layout
              */
             $getHeader() {
+                // @todo 컬럼헤더의 체크박스 추가
                 return super.$getHeader();
             }
             /**
@@ -2741,14 +2742,7 @@ var Aui;
                 }
                 $column.setStyle('width', this.width + 'px');
                 $column.on('click', (e) => {
-                    if (this.dataIndex == '@') {
-                        if (this.getGrid().isRowSelected(rowIndex) == true) {
-                            this.getGrid().deselectRow(rowIndex);
-                        }
-                        else {
-                            this.getGrid().selectRow(rowIndex, true);
-                        }
-                    }
+                    this.getGrid().selectRow(rowIndex, true);
                     e.stopImmediatePropagation();
                 });
                 const $button = Html.create('button');

@@ -3498,6 +3498,7 @@ namespace Aui {
              * @return {Dom} $layout
              */
             $getHeader(): Dom {
+                // @todo 컬럼헤더의 체크박스 추가
                 return super.$getHeader();
             }
 
@@ -3525,14 +3526,7 @@ namespace Aui {
 
                 $column.setStyle('width', this.width + 'px');
                 $column.on('click', (e: MouseEvent) => {
-                    if (this.dataIndex == '@') {
-                        if (this.getGrid().isRowSelected(rowIndex) == true) {
-                            this.getGrid().deselectRow(rowIndex);
-                        } else {
-                            this.getGrid().selectRow(rowIndex, true);
-                        }
-                    }
-
+                    this.getGrid().selectRow(rowIndex, true);
                     e.stopImmediatePropagation();
                 });
 
