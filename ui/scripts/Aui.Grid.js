@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 27.
+ * @modified 2024. 5. 6.
  */
 var Aui;
 (function (Aui) {
@@ -63,6 +63,9 @@ var Aui;
                 });
                 this.store.addEvent('load', () => {
                     this.onLoad();
+                });
+                this.store.addEvent('beforeUpdate', () => {
+                    this.onBeforeUpdate();
                 });
                 this.store.addEvent('update', () => {
                     this.onUpdate();
@@ -1172,6 +1175,16 @@ var Aui;
                 this.fireEvent('load', [this, this.getStore()]);
             }
             /**
+             * 데이터가 변경되기 전 이벤트를 처리한다.
+             */
+            onBeforeUpdate() {
+                this.loading.show();
+                if (this.getStore().getCurrentParams() !== null) {
+                    this.getScroll(false)?.storePosition(this.getStore().getCurrentParams());
+                }
+                this.fireEvent('beforeUpdate', [this]);
+            }
+            /**
              * 데이터가 변경되었을 때 이벤트를 처리한다.
              */
             onUpdate() {
@@ -1180,6 +1193,7 @@ var Aui;
                 this.restoreSelections();
                 this.onSelectionChange();
                 this.updateHeader();
+                this.loading.hide();
                 this.fireEvent('update', [this, this.getStore()]);
             }
             /**

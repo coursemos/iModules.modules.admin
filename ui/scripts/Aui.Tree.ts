@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 2.
+ * @modified 2024. 5. 6.
  */
 namespace Aui {
     export namespace Tree {
@@ -235,6 +235,9 @@ namespace Aui {
                 });
                 this.store.addEvent('load', () => {
                     this.onLoad();
+                });
+                this.store.addEvent('beforeUpdate', () => {
+                    this.onBeforeUpdate();
                 });
                 this.store.addEvent('update', () => {
                     this.onUpdate();
@@ -1472,6 +1475,19 @@ namespace Aui {
 
                 this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
+            }
+
+            /**
+             * 데이터가 변경되기 전 이벤트를 처리한다.
+             */
+            onBeforeUpdate(): void {
+                this.loading.show();
+
+                if (this.getStore().getCurrentParams() !== null) {
+                    this.getScroll(false)?.storePosition(this.getStore().getCurrentParams());
+                }
+
+                this.fireEvent('beforeUpdate', [this]);
             }
 
             /**
