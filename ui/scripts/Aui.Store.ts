@@ -1210,7 +1210,15 @@ namespace Aui {
             if (this.getAt(index) === null) {
                 return;
             }
+
             index = index.slice();
+            const childIndex = index.pop();
+
+            if (index.length == 0) {
+                this.data.getRecords()[childIndex] = replace;
+                return;
+            }
+
             let record: Aui.Data.Record = null;
             let children: Aui.Data.Record[] = this.data?.getRecords();
 
@@ -1223,9 +1231,7 @@ namespace Aui {
                 children = record.hasChild() == true ? record.getChildren() : null;
             }
 
-            if (record !== null) {
-                record = replace;
-            }
+            children[childIndex] = replace;
         }
 
         /**

@@ -907,6 +907,11 @@ var Aui;
                 return;
             }
             index = index.slice();
+            const childIndex = index.pop();
+            if (index.length == 0) {
+                this.data.getRecords()[childIndex] = replace;
+                return;
+            }
             let record = null;
             let children = this.data?.getRecords();
             while (index.length > 0) {
@@ -916,9 +921,7 @@ var Aui;
                 }
                 children = record.hasChild() == true ? record.getChildren() : null;
             }
-            if (record !== null) {
-                record = replace;
-            }
+            children[childIndex] = replace;
         }
         /**
          * 고유키값을 가져온다.
