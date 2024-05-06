@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 6.
+ * @modified 2024. 5. 7.
  */
 var Aui;
 (function (Aui) {
@@ -453,7 +453,7 @@ var Aui;
                     }
                 }
                 else {
-                    const record = this.getStore().get(parents);
+                    const record = this.getStore().getAt(parents);
                     if (record.hasChild() == true) {
                         await this.expandRow(parents);
                         for (let i = 0, loop = record.getChildren().length; i < loop; i++) {
@@ -947,7 +947,7 @@ var Aui;
                 const $row = this.$getRow(treeIndex);
                 if ($row === null)
                     return;
-                const record = this.getStore().get(treeIndex);
+                const record = this.getStore().getAt(treeIndex);
                 $row.replaceWith(this.$getRow(treeIndex, record));
             }
             /**

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 6.
+ * @modified 2024. 5. 7.
  */
 var Aui;
 (function (Aui) {
@@ -191,10 +191,23 @@ var Aui;
         /**
          * 특정인덱스의 데이터를 가져온다.
          *
+         * @param {number} index - 가져올 인덱스
          * @return {Aui.Data.Record} record
          */
-        get(index) {
+        getAt(index) {
             return this.data?.getRecords()[index] ?? null;
+        }
+        /**
+         * 특정인덱스의 데이터를 변경한다.
+         *
+         * @param {number} index - 변경할 인덱스
+         * @param {Aui.Data.Record} replace - 변경할 레코드
+         */
+        setAt(index, replace) {
+            if (this.getAt(index) === null) {
+                return;
+            }
+            this.data.getRecords()[index] = replace;
         }
         /**
          * 고유키값을 가져온다.
@@ -866,7 +879,7 @@ var Aui;
          *
          * @return {Aui.Data.Record} record
          */
-        get(index) {
+        getAt(index) {
             if (index.length == 0) {
                 return null;
             }
@@ -882,6 +895,30 @@ var Aui;
                 children = record.hasChild() == true ? record.getChildren() : null;
             }
             return record;
+        }
+        /**
+         * 특정인덱스의 데이터를 변경한다.
+         *
+         * @param {number} index - 변경할 인덱스
+         * @param {Aui.Data.Record} replace - 변경할 레코드
+         */
+        setAt(index, replace) {
+            if (this.getAt(index) === null) {
+                return;
+            }
+            index = index.slice();
+            let record = null;
+            let children = this.data?.getRecords();
+            while (index.length > 0) {
+                record = children[index.shift()] ?? null;
+                if (record === null) {
+                    return;
+                }
+                children = record.hasChild() == true ? record.getChildren() : null;
+            }
+            if (record !== null) {
+                record = replace;
+            }
         }
         /**
          * 고유키값을 가져온다.
@@ -995,7 +1032,7 @@ var Aui;
          * @return {Promise<Aui.TreeStore>} this
          */
         async expand(index) {
-            const record = index instanceof Aui.Data.Record ? index : this.get(index);
+            const record = index instanceof Aui.Data.Record ? index : this.getAt(index);
             if (this.remoteExpander !== null) {
                 const children = await this.remoteExpander(record);
                 record.setChildren(children);
@@ -1021,7 +1058,7 @@ var Aui;
                 }
             }
             else {
-                const record = this.get(parents);
+                const record = this.getAt(parents);
                 if (record.hasChild() == true) {
                     await this.expand(parents);
                     for (let i = 0, loop = record.getChildren().length; i < loop; i++) {

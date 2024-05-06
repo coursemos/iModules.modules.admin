@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 6.
+ * @modified 2024. 5. 7.
  */
 var Aui;
 (function (Aui) {
@@ -385,7 +385,7 @@ var Aui;
                     Html.get('div[data-role=view]', $column).show();
                 }
                 else {
-                    this.getStore().get(rowIndex).set(column.dataIndex, value);
+                    this.getStore().getAt(rowIndex).set(column.dataIndex, value);
                 }
                 setTimeout(() => {
                     this.focusCell(rowIndex, columnIndex);
@@ -951,7 +951,7 @@ var Aui;
                 const $row = this.$getRow(rowIndex);
                 if ($row === null)
                     return;
-                const record = this.getStore().get(rowIndex);
+                const record = this.getStore().getAt(rowIndex);
                 $row.replaceWith(this.$getRow(rowIndex, record));
             }
             /**

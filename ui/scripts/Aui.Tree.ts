@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 6.
+ * @modified 2024. 5. 7.
  */
 namespace Aui {
     export namespace Tree {
@@ -669,7 +669,7 @@ namespace Aui {
                         await this.expandAll(depth, [i]);
                     }
                 } else {
-                    const record = this.getStore().get(parents);
+                    const record = this.getStore().getAt(parents);
                     if (record.hasChild() == true) {
                         await this.expandRow(parents);
                         for (let i = 0, loop = record.getChildren().length; i < loop; i++) {
@@ -1216,7 +1216,7 @@ namespace Aui {
                 const $row = this.$getRow(treeIndex);
                 if ($row === null) return;
 
-                const record = this.getStore().get(treeIndex);
+                const record = this.getStore().getAt(treeIndex);
                 $row.replaceWith(this.$getRow(treeIndex, record));
             }
 
