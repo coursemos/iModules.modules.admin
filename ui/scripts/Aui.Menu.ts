@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 5. 6.
  */
 namespace Aui {
     export namespace Menu {
@@ -651,7 +651,7 @@ namespace Aui {
                         this.$getButton().append($text);
 
                         if (this.menu !== null) {
-                            const $submenu = Html.create('i').addClass('mi', 'mi-right');
+                            const $submenu = Html.create('i').addClass('mi', 'mi-caret-right');
                             this.$getButton().append($submenu);
                         }
                         this.$getContent().append(this.$button);
