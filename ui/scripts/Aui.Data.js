@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 5. 6.
  */
 var Aui;
 (function (Aui) {
@@ -120,6 +120,22 @@ var Aui;
                     }
                 }
                 this.records.push(new Aui.Data.Record(this, record, this.primaryKeys, this.childrenField));
+            }
+        }
+        /**
+         * 데이터를 삭제한다.
+         *
+         * @param {Aui.Data.Record[]} records
+         */
+        delete(records) {
+            console.log('delete');
+            for (const record of records) {
+                for (const index in this.records) {
+                    if (this.records[index].isEqual(record) == true) {
+                        console.log('match');
+                        this.records.splice(parseInt(index, 10), 1);
+                    }
+                }
             }
         }
         /**
