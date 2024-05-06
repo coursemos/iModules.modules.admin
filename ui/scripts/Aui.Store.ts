@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 5. 6.
  */
 namespace Aui {
     export namespace Store {
@@ -20,6 +20,11 @@ namespace Aui {
              * @type {Function} load - 데이터스토어가 로딩되었을 때
              */
             load?: (store: Aui.Store, records: Aui.Data) => void;
+
+            /**
+             * @type {Function} load - 데이터스토어가 변경되기 직전
+             */
+            beforeUpdate?: (store: Aui.Store) => void;
 
             /**
              * @type {Function} update - 데이터스토어가 변경되었을 때
@@ -295,6 +300,7 @@ namespace Aui {
          * @param {Object|Object[]} record
          */
         async add(record: { [key: string]: any } | { [key: string]: any }[]): Promise<void> {
+            this.onBeforeUpdate();
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record as { [key: string]: any }[];
@@ -306,9 +312,27 @@ namespace Aui {
         }
 
         /**
+         * 데이터를 삭제한다.
+         *
+         * @param {Aui.Data.Record|Aui.Data.Record[]} record
+         */
+        async delete(record: Aui.Data.Record | Aui.Data.Record[]): Promise<void> {
+            this.onBeforeUpdate();
+            let records = [];
+            if (Array.isArray(record) == true) {
+                records = record as { [key: string]: any }[];
+            } else {
+                records.push(record);
+            }
+            this.data?.delete(records);
+            await this.onUpdate();
+        }
+
+        /**
          * 모든 데이터를 삭제한다.
          */
         async empty(): Promise<void> {
+            this.onBeforeUpdate();
             this.data?.empty();
             await this.onUpdate();
         }
@@ -450,6 +474,7 @@ namespace Aui {
             if (this.remoteSort == true) {
                 await this.reload();
             } else {
+                this.onBeforeUpdate();
                 await this.data?.sort(this.sorters);
                 await this.onUpdate();
             }
@@ -550,6 +575,7 @@ namespace Aui {
             if (this.remoteFilter === true) {
                 await this.reload();
             } else {
+                this.onBeforeUpdate();
                 await this.data?.filter(this.filters, this.filterMode);
                 await this.onUpdate();
             }
@@ -569,6 +595,13 @@ namespace Aui {
             this.setCurrentParams();
             this.fireEvent('load', [this, this.data]);
             await this.onUpdate();
+        }
+
+        /**
+         * 데이터가 변경되기 전 이벤트를 처리한다.
+         */
+        onBeforeUpdate(): void {
+            this.fireEvent('beforeUpdate', [this]);
         }
 
         /**
@@ -837,6 +870,11 @@ namespace Aui {
              * @type {Function} load - 데이터스토어가 로딩되었을 때
              */
             load?: (store: Aui.TreeStore, records: Aui.Data) => void;
+
+            /**
+             * @type {Function} load - 데이터스토어가 변경되기 직전
+             */
+            beforeUpdate?: (store: Aui.Store) => void;
 
             /**
              * @type {Function} update - 데이터스토어가 변경되었을 때
@@ -1195,6 +1233,7 @@ namespace Aui {
          * @param {number[]} parents - 부모인덱스
          */
         async add(record: { [key: string]: any } | { [key: string]: any }[], parents: number[] = []): Promise<void> {
+            this.onBeforeUpdate();
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record as { [key: string]: any }[];
@@ -1206,9 +1245,27 @@ namespace Aui {
         }
 
         /**
+         * 데이터를 삭제한다.
+         *
+         * @param {Aui.Data.Record|Aui.Data.Record[]} record
+         */
+        async delete(record: Aui.Data.Record | Aui.Data.Record[]): Promise<void> {
+            this.onBeforeUpdate();
+            let records = [];
+            if (Array.isArray(record) == true) {
+                records = record as { [key: string]: any }[];
+            } else {
+                records.push(record);
+            }
+            this.data?.delete(records);
+            await this.onUpdate();
+        }
+
+        /**
          * 모든 데이터를 삭제한다.
          */
         async empty(): Promise<void> {
+            this.onBeforeUpdate();
             this.data?.empty();
             await this.onUpdate();
         }
@@ -1556,6 +1613,7 @@ namespace Aui {
             if (this.remoteSort == true) {
                 this.reload();
             } else {
+                this.onBeforeUpdate();
                 await this.data?.sort(this.sorters);
                 await this.onUpdate();
             }
@@ -1666,6 +1724,7 @@ namespace Aui {
             if (this.remoteFilter === true) {
                 await this.reload();
             } else {
+                this.onBeforeUpdate();
                 await this.data?.filter(this.filters, this.filterMode);
                 await this.onUpdate();
             }
@@ -1685,6 +1744,13 @@ namespace Aui {
             this.setCurrentParams();
             this.fireEvent('load', [this, this.data]);
             await this.onUpdate();
+        }
+
+        /**
+         * 데이터가 변경되기 전 이벤트를 처리한다.
+         */
+        onBeforeUpdate(): void {
+            this.fireEvent('beforeUpdate', [this]);
         }
 
         /**

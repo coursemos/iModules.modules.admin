@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 5. 6.
  */
 var Aui;
 (function (Aui) {
@@ -210,6 +210,7 @@ var Aui;
          * @param {Object|Object[]} record
          */
         async add(record) {
+            this.onBeforeUpdate();
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record;
@@ -221,9 +222,27 @@ var Aui;
             await this.onUpdate();
         }
         /**
+         * 데이터를 삭제한다.
+         *
+         * @param {Aui.Data.Record|Aui.Data.Record[]} record
+         */
+        async delete(record) {
+            this.onBeforeUpdate();
+            let records = [];
+            if (Array.isArray(record) == true) {
+                records = record;
+            }
+            else {
+                records.push(record);
+            }
+            this.data?.delete(records);
+            await this.onUpdate();
+        }
+        /**
          * 모든 데이터를 삭제한다.
          */
         async empty() {
+            this.onBeforeUpdate();
             this.data?.empty();
             await this.onUpdate();
         }
@@ -351,6 +370,7 @@ var Aui;
                 await this.reload();
             }
             else {
+                this.onBeforeUpdate();
                 await this.data?.sort(this.sorters);
                 await this.onUpdate();
             }
@@ -440,6 +460,7 @@ var Aui;
                 await this.reload();
             }
             else {
+                this.onBeforeUpdate();
                 await this.data?.filter(this.filters, this.filterMode);
                 await this.onUpdate();
             }
@@ -457,6 +478,12 @@ var Aui;
             this.setCurrentParams();
             this.fireEvent('load', [this, this.data]);
             await this.onUpdate();
+        }
+        /**
+         * 데이터가 변경되기 전 이벤트를 처리한다.
+         */
+        onBeforeUpdate() {
+            this.fireEvent('beforeUpdate', [this]);
         }
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
@@ -899,6 +926,7 @@ var Aui;
          * @param {number[]} parents - 부모인덱스
          */
         async add(record, parents = []) {
+            this.onBeforeUpdate();
             let records = [];
             if (Array.isArray(record) == true) {
                 records = record;
@@ -910,9 +938,27 @@ var Aui;
             await this.onUpdate();
         }
         /**
+         * 데이터를 삭제한다.
+         *
+         * @param {Aui.Data.Record|Aui.Data.Record[]} record
+         */
+        async delete(record) {
+            this.onBeforeUpdate();
+            let records = [];
+            if (Array.isArray(record) == true) {
+                records = record;
+            }
+            else {
+                records.push(record);
+            }
+            this.data?.delete(records);
+            await this.onUpdate();
+        }
+        /**
          * 모든 데이터를 삭제한다.
          */
         async empty() {
+            this.onBeforeUpdate();
             this.data?.empty();
             await this.onUpdate();
         }
@@ -1216,6 +1262,7 @@ var Aui;
                 this.reload();
             }
             else {
+                this.onBeforeUpdate();
                 await this.data?.sort(this.sorters);
                 await this.onUpdate();
             }
@@ -1314,6 +1361,7 @@ var Aui;
                 await this.reload();
             }
             else {
+                this.onBeforeUpdate();
                 await this.data?.filter(this.filters, this.filterMode);
                 await this.onUpdate();
             }
@@ -1331,6 +1379,12 @@ var Aui;
             this.setCurrentParams();
             this.fireEvent('load', [this, this.data]);
             await this.onUpdate();
+        }
+        /**
+         * 데이터가 변경되기 전 이벤트를 처리한다.
+         */
+        onBeforeUpdate() {
+            this.fireEvent('beforeUpdate', [this]);
         }
         /**
          * 데이터가 변경되었을 때 이벤트를 처리한다.
