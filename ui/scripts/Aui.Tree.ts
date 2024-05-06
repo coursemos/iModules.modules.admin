@@ -813,11 +813,11 @@ namespace Aui {
                 if (this.selection.multiple == false) {
                     return;
                 }
-                /*
-                for (let i = 0, loop = this.getStore().getCount(); i < loop; i++) {
-                    this.selectRow(i, true, false);
-                }
-                */
+
+                Html.all('div[data-role=row]', this.$body).forEach(($row) => {
+                    this.selectRow($row.getData('tree'), true, false);
+                });
+
                 if (is_event == true) {
                     this.onSelectionChange();
                 }
