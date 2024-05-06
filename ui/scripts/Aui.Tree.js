@@ -696,6 +696,16 @@ var Aui;
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
              */
             onSelectionChange() {
+                if (this.selection.display == 'check') {
+                    const rows = Html.all('div[data-role=leaf]', this.$getBody());
+                    const selected = Html.all('div[data-role=leaf].selected', this.$getBody());
+                    if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
+                        Html.get('div[data-role=check]', this.$header).addClass('checked');
+                    }
+                    else {
+                        Html.get('div[data-role=check]', this.$header).removeClass('checked');
+                    }
+                }
                 this.fireEvent('selectionChange', [this.getSelections(), this]);
             }
             /**
@@ -904,6 +914,26 @@ var Aui;
                         .setData('index', rowIndex)
                         .setData('record', record, false);
                     const $leaf = Html.create('div', { 'data-role': 'leaf' });
+                    if (this.selection.display == 'check') {
+                        const $check = Html.create('div', { 'data-role': 'check' });
+                        const $button = Html.create('button', { 'type': 'button' });
+                        $check.on('click', (e) => {
+                            if (this.isRowSelected(treeIndex) == true) {
+                                this.deselectRow(treeIndex);
+                            }
+                            else {
+                                this.selectRow(treeIndex, true);
+                            }
+                            e.stopImmediatePropagation();
+                        });
+                        $check.addClass('sticky');
+                        if (this.freeze == 0) {
+                            $check.addClass('end');
+                        }
+                        $check.append($button);
+                        $leaf.append($check);
+                        leftPosition = Html.get('div[data-role=check]', this.$header).getWidth() + 1;
+                    }
                     this.getColumns().forEach((column, columnIndex) => {
                         const value = record.get(column.dataIndex);
                         const $column = column.$getBody(value, record, treeIndex, columnIndex);
@@ -1019,6 +1049,27 @@ var Aui;
             renderHeader() {
                 let leftPosition = 0;
                 this.freezeColumn = 0;
+                this.$header.empty();
+                if (this.selection.display == 'check') {
+                    const $check = Html.create('div', { 'data-role': 'check' });
+                    const $button = Html.create('button', { 'type': 'button' });
+                    $check.on('click', (e) => {
+                        if ($check.hasClass('checked') == true) {
+                            this.deselectAll();
+                        }
+                        else {
+                            this.selectAll();
+                        }
+                        e.stopImmediatePropagation();
+                    });
+                    $check.addClass('sticky');
+                    if (this.freeze == 0) {
+                        $check.addClass('end');
+                    }
+                    $check.append($button);
+                    this.$header.append($check);
+                    leftPosition = $check.getWidth() + 1;
+                }
                 this.headers.forEach((header, headerIndex) => {
                     const $header = header.$getHeader();
                     this.$header.append($header);
@@ -1764,7 +1815,7 @@ var Aui;
                 if (this.textClass !== null) {
                     $column.addClass(...this.textClass.split(' '));
                 }
-                $column.on('pointerdown', (e) => {
+                $column.on('pointerdown', () => {
                     this.tree.focusCell(treeIndex, columnIndex);
                 });
                 if (columnIndex == 0) {
@@ -1785,21 +1836,6 @@ var Aui;
                     });
                     $toggle.append($button);
                     $column.append($toggle);
-                    if (this.tree.selection.display == 'check') {
-                        const $check = Html.create('div', { 'data-role': 'check' });
-                        const $button = Html.create('button', { type: 'button' });
-                        $button.on('click', (e) => {
-                            if (this.getTree().isRowSelected(treeIndex) == true) {
-                                this.getTree().deselectRow(treeIndex);
-                            }
-                            else {
-                                this.getTree().selectRow(treeIndex, true);
-                            }
-                            e.stopImmediatePropagation();
-                        });
-                        $check.append($button);
-                        $column.append($check);
-                    }
                 }
                 const $view = Html.create('div').setData('role', 'view');
                 if (this.renderer !== null) {
@@ -1824,10 +1860,6 @@ var Aui;
              */
             constructor(properties = null) {
                 super(properties);
-                if (this.dataIndex == '@') {
-                    this.width = 34;
-                    this.minWidth = null;
-                }
             }
             /**
              * 컬럼의 최소 너비를 가져온다.
@@ -1875,47 +1907,8 @@ var Aui;
              * @return {Dom} $layout
              */
             $getHeader() {
-                if (this.dataIndex == '@') {
-                    const $header = Html.create('div').setData('component', this.id);
-                    $header.setData('role', 'column');
-                    $header.addClass('check');
-                    $header.setStyle('width', this.width + 'px');
-                    const $label = Html.create('label');
-                    $header.append($label);
-                    $header.on('click', (e) => {
-                        if ($header.hasClass('checked') == true) {
-                            this.getTree().deselectAll();
-                        }
-                        else {
-                            this.getTree().selectAll();
-                        }
-                        e.stopImmediatePropagation();
-                    });
-                    this.getTree().addEvent('update', (tree) => {
-                        const rows = Html.all('> div[data-role=row]', tree.$getBody());
-                        const selected = Html.all('> div[data-role=row].selected', tree.$getBody());
-                        if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
-                            $header.addClass('checked');
-                        }
-                        else {
-                            $header.removeClass('checked');
-                        }
-                    });
-                    this.getTree().addEvent('selectionChange', (_selections, tree) => {
-                        const rows = Html.all('> div[data-role=row]', tree.$getBody());
-                        const selected = Html.all('> div[data-role=row].selected', tree.$getBody());
-                        if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
-                            $header.addClass('checked');
-                        }
-                        else {
-                            $header.removeClass('checked');
-                        }
-                    });
-                    return $header;
-                }
-                else {
-                    return super.$getHeader();
-                }
+                // @todo 컬럼헤더의 체크박스 추가
+                return super.$getHeader();
             }
             /**
              * 컬럼의 데이터컬럼 레이아웃을 가져온다.
@@ -1936,24 +1929,12 @@ var Aui;
                     .setData('record', record, false)
                     .setData('value', value, false);
                 $column.addClass('check');
-                if (this.dataIndex == '@') {
-                    $column.addClass('selection');
-                }
-                else {
-                    if (value == true) {
-                        $column.addClass('checked');
-                    }
+                if (value == true) {
+                    $column.addClass('checked');
                 }
                 $column.setStyle('width', this.width + 'px');
                 $column.on('click', (e) => {
-                    if (this.dataIndex == '@') {
-                        if (this.getTree().isRowSelected(treeIndex) == true) {
-                            this.getTree().deselectRow(treeIndex);
-                        }
-                        else {
-                            this.getTree().selectRow(treeIndex, true);
-                        }
-                    }
+                    this.getTree().selectRow(treeIndex, true);
                     e.stopImmediatePropagation();
                 });
                 const $label = Html.create('label');
