@@ -160,9 +160,9 @@ var Aui;
          * 데이터 로딩이 완료되었을 시점의 매개변수를 저장한다.
          */
         setCurrentParams() {
-            this.currentParams = this.params ?? {};
-            this.currentParams.filters = this.filters;
-            this.currentParams.sorters = this.sorters;
+            this.currentParams = { ...this.params };
+            this.currentParams.filters = JSON.stringify(this.filters);
+            this.currentParams.sorters = JSON.stringify(this.sorters);
             this.currentParams.page = this.page;
             this.currentParams.limit = this.limit;
         }
@@ -279,10 +279,10 @@ var Aui;
         /**
          * 수정된 데이터를 커밋한다.
          *
-         * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
-         * @return {Promise<Aui.Store} this
+         * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
+         * @return {Promise<Aui.Store>} this
          */
-        async commit(key = null) {
+        async commit(is_all = false) {
             return this;
         }
         /**
@@ -574,12 +574,12 @@ var Aui;
             /**
              * 수정된 데이터를 커밋한다.
              *
-             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
-             * @return {Promise<Aui.Store.Local} this
+             * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
+             * @return {Promise<Aui.Store.Local>} this
              */
-            async commit(key = null) {
+            async commit(is_all = false) {
                 for (const record of this.getUpdatedRecords() ?? []) {
-                    record.commit(key);
+                    record.commit();
                 }
                 return this;
             }
@@ -676,12 +676,26 @@ var Aui;
             /**
              * 수정된 데이터를 커밋한다.
              *
-             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
-             * @return {Promise<Aui.Store.Remote} this
+             * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
+             * @return {Promise<Aui.Store.Remote>} this
              */
-            async commit(key = null) {
-                for (const record of this.getUpdatedRecords() ?? []) {
-                    record.commit(key);
+            async commit(is_all = false) {
+                const records = [];
+                if (is_all == true) {
+                    for (const record of this.getRecords() ?? []) {
+                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                    }
+                }
+                else {
+                    for (const record of this.getUpdatedRecords() ?? []) {
+                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                    }
+                }
+                const results = await Ajax.patch(this.url, { records: records }, this.params ?? null);
+                if (results.success == true) {
+                    for (const record of this.getUpdatedRecords() ?? []) {
+                        record.commit();
+                    }
                 }
                 return this;
             }
@@ -846,9 +860,9 @@ var Aui;
          * 데이터 로딩이 완료되었을 시점의 매개변수를 저장한다.
          */
         setCurrentParams() {
-            this.currentParams = this.params ?? {};
-            this.currentParams.filters = this.filters;
-            this.currentParams.sorters = this.sorters;
+            this.currentParams = { ...this.params };
+            this.currentParams.filters = JSON.stringify(this.filters);
+            this.currentParams.sorters = JSON.stringify(this.sorters);
             this.currentParams.page = this.page;
             this.currentParams.limit = this.limit;
         }
@@ -1022,10 +1036,10 @@ var Aui;
         /**
          * 수정된 데이터를 커밋한다.
          *
-         * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
-         * @return {Promise<Aui.TreeStore} this
+         * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
+         * @return {Promise<Aui.TreeStore>} this
          */
-        async commit(key = null) {
+        async commit(is_all = false) {
             return this;
         }
         /**
@@ -1523,12 +1537,12 @@ var Aui;
             /**
              * 수정된 데이터를 커밋한다.
              *
-             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
-             * @return {Promise<Aui.TreeStore.Local} this
+             * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
+             * @return {Promise<Aui.Store.Local>} this
              */
-            async commit(key = null) {
+            async commit(is_all = false) {
                 for (const record of this.getUpdatedRecords() ?? []) {
-                    record.commit(key);
+                    record.commit();
                 }
                 return this;
             }
@@ -1715,18 +1729,25 @@ var Aui;
             /**
              * 수정된 데이터를 커밋한다.
              *
-             * @param {string} key - 커밋할 데이터키 (NULL 인 경우 전체 레코드를 커밋한다.)
-             * @return {Promise<Aui.TreeStore.Remote} this
+             * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
+             * @return {Promise<Aui.TreeStore.Remote>} this
              */
-            async commit(key = null) {
+            async commit(is_all = false) {
                 const records = [];
-                for (const record of this.getUpdatedRecords() ?? []) {
-                    records.push({ origin: record.getPrimary(), updated: record.getUpdated(key) });
+                if (is_all == true) {
+                    for (const record of this.getRecords() ?? []) {
+                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                    }
                 }
-                const results = await Ajax.patch(this.url, { records: records }, this.params);
+                else {
+                    for (const record of this.getUpdatedRecords() ?? []) {
+                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                    }
+                }
+                const results = await Ajax.patch(this.url, { records: records }, this.params ?? null);
                 if (results.success == true) {
                     for (const record of this.getUpdatedRecords() ?? []) {
-                        record.commit(key);
+                        record.commit();
                     }
                 }
                 return this;
