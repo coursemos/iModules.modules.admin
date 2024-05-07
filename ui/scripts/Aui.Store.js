@@ -280,10 +280,10 @@ var Aui;
          * 수정된 데이터를 커밋한다.
          *
          * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-         * @return {Promise<Aui.Store>} this
+         * @return {Promise<boolean>} success
          */
         async commit(is_all = false) {
-            return this;
+            return true;
         }
         /**
          * 특정 필드의 특정값을 가진 레코드를 찾는다.
@@ -575,13 +575,13 @@ var Aui;
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.Store.Local>} this
+             * @return {Promise<boolean>} success
              */
             async commit(is_all = false) {
                 for (const record of this.getUpdatedRecords() ?? []) {
                     record.commit();
                 }
-                return this;
+                return true;
             }
         }
         Store.Local = Local;
@@ -677,13 +677,13 @@ var Aui;
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.Store.Remote>} this
+             * @return {Promise<boolean>} success
              */
             async commit(is_all = false) {
                 const records = [];
                 if (is_all == true) {
                     for (const record of this.getRecords() ?? []) {
-                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                        records.push({ origin: record.getPrimary(true), updated: record.record });
                     }
                 }
                 else {
@@ -696,8 +696,9 @@ var Aui;
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
                     }
+                    return true;
                 }
-                return this;
+                return false;
             }
         }
         Store.Remote = Remote;
@@ -1037,10 +1038,10 @@ var Aui;
          * 수정된 데이터를 커밋한다.
          *
          * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-         * @return {Promise<Aui.TreeStore>} this
+         * @return {Promise<boolean>} success
          */
         async commit(is_all = false) {
-            return this;
+            return true;
         }
         /**
          * 자식 데이터를 확장한다.
@@ -1538,13 +1539,13 @@ var Aui;
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.Store.Local>} this
+             * @return {Promise<boolean>} success
              */
             async commit(is_all = false) {
                 for (const record of this.getUpdatedRecords() ?? []) {
                     record.commit();
                 }
-                return this;
+                return true;
             }
         }
         TreeStore.Local = Local;
@@ -1730,13 +1731,13 @@ var Aui;
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.TreeStore.Remote>} this
+             * @return {Promise<boolean>} success
              */
             async commit(is_all = false) {
                 const records = [];
                 if (is_all == true) {
                     for (const record of this.getRecords() ?? []) {
-                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                        records.push({ origin: record.getPrimary(true), updated: record.record });
                     }
                 }
                 else {
@@ -1749,8 +1750,9 @@ var Aui;
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
                     }
+                    return true;
                 }
-                return this;
+                return false;
             }
         }
         TreeStore.Remote = Remote;

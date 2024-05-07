@@ -374,10 +374,10 @@ namespace Aui {
          * 수정된 데이터를 커밋한다.
          *
          * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-         * @return {Promise<Aui.Store>} this
+         * @return {Promise<boolean>} success
          */
-        async commit(is_all: boolean = false): Promise<Aui.Store> {
-            return this;
+        async commit(is_all: boolean = false): Promise<boolean> {
+            return true;
         }
 
         /**
@@ -712,14 +712,14 @@ namespace Aui {
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.Store.Local>} this
+             * @return {Promise<boolean>} success
              */
-            async commit(is_all: boolean = false): Promise<Aui.Store.Local> {
+            async commit(is_all: boolean = false): Promise<boolean> {
                 for (const record of this.getUpdatedRecords() ?? []) {
                     record.commit();
                 }
 
-                return this;
+                return true;
             }
         }
 
@@ -861,14 +861,14 @@ namespace Aui {
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.Store.Remote>} this
+             * @return {Promise<boolean>} success
              */
-            async commit(is_all: boolean = false): Promise<Aui.Store.Remote> {
+            async commit(is_all: boolean = false): Promise<boolean> {
                 const records = [];
 
                 if (is_all == true) {
                     for (const record of this.getRecords() ?? []) {
-                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                        records.push({ origin: record.getPrimary(true), updated: record.record });
                     }
                 } else {
                     for (const record of this.getUpdatedRecords() ?? []) {
@@ -881,9 +881,11 @@ namespace Aui {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
                     }
+
+                    return true;
                 }
 
-                return this;
+                return false;
             }
         }
     }
@@ -1356,10 +1358,10 @@ namespace Aui {
          * 수정된 데이터를 커밋한다.
          *
          * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-         * @return {Promise<Aui.TreeStore>} this
+         * @return {Promise<boolean>} success
          */
-        async commit(is_all: boolean = false): Promise<Aui.TreeStore> {
-            return this;
+        async commit(is_all: boolean = false): Promise<boolean> {
+            return true;
         }
 
         /**
@@ -1929,14 +1931,14 @@ namespace Aui {
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.Store.Local>} this
+             * @return {Promise<boolean>} success
              */
-            async commit(is_all: boolean = false): Promise<Aui.TreeStore.Local> {
+            async commit(is_all: boolean = false): Promise<boolean> {
                 for (const record of this.getUpdatedRecords() ?? []) {
                     record.commit();
                 }
 
-                return this;
+                return true;
             }
         }
 
@@ -2180,14 +2182,14 @@ namespace Aui {
              * 수정된 데이터를 커밋한다.
              *
              * @param {boolean} is_all - 전체 데이터를 커밋할지 여부 (false 인 경우 변경된 데이터만 커밋한다.)
-             * @return {Promise<Aui.TreeStore.Remote>} this
+             * @return {Promise<boolean>} success
              */
-            async commit(is_all: boolean = false): Promise<Aui.TreeStore.Remote> {
+            async commit(is_all: boolean = false): Promise<boolean> {
                 const records = [];
 
                 if (is_all == true) {
                     for (const record of this.getRecords() ?? []) {
-                        records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
+                        records.push({ origin: record.getPrimary(true), updated: record.record });
                     }
                 } else {
                     for (const record of this.getUpdatedRecords() ?? []) {
@@ -2200,9 +2202,11 @@ namespace Aui {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
                     }
+
+                    return true;
                 }
 
-                return this;
+                return false;
             }
         }
     }
