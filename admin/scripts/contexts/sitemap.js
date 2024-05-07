@@ -330,7 +330,7 @@ Admin.ready(async () => {
                     },
                     {
                         text: (await me.getText('admin.sitemap.contexts.layout')),
-                        dataIndex: 'sort',
+                        dataIndex: 'layout',
                         width: 100,
                     },
                 ],
