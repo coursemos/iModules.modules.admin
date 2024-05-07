@@ -440,16 +440,22 @@ var Aui;
             /**
              * 고유값을 가져온다.
              *
+             * @param {boolean} is_origin - 원본데이터의 PK 를 가져올지 여부 (기본값 false)
              * @return {Object} primary
              */
-            getPrimary() {
+            getPrimary(is_origin = false) {
                 let primaryKeys = {};
                 let keys = this.primaryKeys;
                 if (keys.length == 0) {
                     keys = this.getKeys();
                 }
                 for (const key of keys) {
-                    primaryKeys[key] = this.record[key] ?? null;
+                    if (is_origin == true && this.origin !== null) {
+                        primaryKeys[key] = this.origin[key] ?? this.record[key] ?? null;
+                    }
+                    else {
+                        primaryKeys[key] = this.record[key] ?? null;
+                    }
                 }
                 return primaryKeys;
             }
