@@ -128,11 +128,9 @@ var Aui;
          * @param {Aui.Data.Record[]} records
          */
         delete(records) {
-            console.log('delete');
             for (const record of records) {
                 for (const index in this.records) {
                     if (this.records[index].isEqual(record) == true) {
-                        console.log('match');
                         this.records.splice(parseInt(index, 10), 1);
                     }
                 }
