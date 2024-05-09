@@ -11,19 +11,19 @@
 :root {
     --aui-color-scrollbar: #000;
 
-    --aui-color-text-100: #ccc;
-    --aui-color-text-200: #999;
-    --aui-color-text-300: #666;
-    --aui-color-text-400: #333;
-    --aui-color-text-500: #1a1a1a;
+    --aui-color-text-100: #8e8e8e;
+    --aui-color-text-200: #757575;
+    --aui-color-text-300: #5b5b5b;
+    --aui-color-text-400: #2d2d2d;
+    --aui-color-text-500: #191919;
     --aui-color-text-600: #000;
 
-    --aui-color-background-100: #d0d0d0;
-    --aui-color-background-200: #dadada;
-    --aui-color-background-300: #e6e6e6;
-    --aui-color-background-400: #f7f7f7;
-    --aui-color-background-500: #fff;
-    --aui-color-background-600: #fff;
+    --aui-color-background-100: #ccc;
+    --aui-color-background-200: #e6e6e6;
+    --aui-color-background-300: #eeeeee;
+    --aui-color-background-400: #f4f4f4;
+    --aui-color-background-500: #f9f9f9;
+    --aui-color-background-600: #ffffff;
 
     --aui-color-theme-0: #fff;
     --aui-color-theme-100: #e6e6e6;
@@ -91,18 +91,18 @@ body[data-color-scheme='dark'],
 body[data-color-scheme='auto'][data-prefers-color-scheme='dark'] {
     --aui-color-scrollbar: #fff;
 
-    --aui-color-text-100: #4d4d4d;
-    --aui-color-text-200: #666;
-    --aui-color-text-300: #999;
-    --aui-color-text-400: #ccc;
-    --aui-color-text-500: #e6e6e6;
+    --aui-color-text-100: #5b5b5b;
+    --aui-color-text-200: #757575;
+    --aui-color-text-300: #8e8e8e;
+    --aui-color-text-400: #c5c5c5;
+    --aui-color-text-500: #f0f0f0;
     --aui-color-text-600: #fff;
 
-    --aui-color-background-100: #999;
-    --aui-color-background-200: #666;
-    --aui-color-background-300: #4d4d4d;
-    --aui-color-background-400: #333;
-    --aui-color-background-500: #1a1a1a;
+    --aui-color-background-100: #666;
+    --aui-color-background-200: #4d4d4d;
+    --aui-color-background-300: #333;
+    --aui-color-background-400: #222;
+    --aui-color-background-500: #191919;
     --aui-color-background-600: #000;
 
     --aui-color-theme-100: #fff;

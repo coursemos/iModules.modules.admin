@@ -94,7 +94,7 @@ div[data-component][data-type='panel'] {
                 height: 100%;
                 z-index: 2;
                 background: var(--aui-color-background-300);
-                opacity: 0.7;
+                opacity: 0.8;
                 content: ' ';
             }
         }
