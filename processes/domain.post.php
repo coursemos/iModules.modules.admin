@@ -76,6 +76,55 @@ if (count($errors) == 0) {
             ->update(iModules::table('domains'), $insert)
             ->where('host', $domain->host)
             ->execute();
+
+        /**
+         * @var \modules\attachment\Attachment $mAttachment
+         */
+        $mAttachment = Modules::get('attachment');
+
+        $sites = $me
+            ->db()
+            ->select()
+            ->from(iModules::table('sites'))
+            ->where('host', $domain->host)
+            ->get();
+        foreach ($sites as $site) {
+            $me->db()
+                ->update(iModules::table('sites'), ['host' => $insert['host']])
+                ->where('host', $domain->host)
+                ->execute();
+
+            $mAttachment->moveFile($site->logo, $me, 'logo', $insert['host'] . '/' . $site->language, true);
+            $mAttachment->moveFile($site->emblem, $me, 'emblem', $insert['host'] . '/' . $site->language, true);
+            $mAttachment->moveFile($site->favicon, $me, 'favicon', $insert['host'] . '/' . $site->language, true);
+            $mAttachment->moveFile($site->image, $me, 'image', $insert['host'] . '/' . $site->language, true);
+
+            $contexts = $me
+                ->db()
+                ->select()
+                ->from(iModules::table('contexts'))
+                ->where('host', $site->host)
+                ->where('language', $site->language)
+                ->get();
+            foreach ($contexts as $context) {
+                $me->db()
+                    ->update(iModules::table('contexts'), ['host' => $insert['host']])
+                    ->where('host', $site->host)
+                    ->where('language', $site->host)
+                    ->execute();
+
+                $mAttachment->moveFile(
+                    $context->image,
+                    $me,
+                    'context',
+                    $insert['host'] . '/' . $context->language . '/' . $context->path,
+                    true
+                );
+            }
+        }
+
+        Cache::remove('sites');
+        Cache::remove('contexts');
     }
 
     Cache::remove('domains');
