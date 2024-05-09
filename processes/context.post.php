@@ -187,7 +187,7 @@ if (count($errors) == 0) {
         Input::get('image'),
         $me,
         'context',
-        $insert['host'] . '/' . $insert['language'] . $insert['path'],
+        $insert['host'] . '/' . $insert['language'] . '/' . $insert['path'],
         true
     );
 
