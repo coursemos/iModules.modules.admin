@@ -38,6 +38,12 @@ body[data-type='login'] {
         i.photo {
             border-radius: 50%;
             border: 1px solid #ccc;
+            vertical-align: top;
+            line-height: inherit;
+            width: calc(1lh + var(--aui-component-gap));
+            height: calc(1lh + var(--aui-component-gap));
+            margin-block: calc(var(--aui-component-gap) * -0.5);
+            margin-right: var(--aui-component-gap);
         }
 
         b.language,

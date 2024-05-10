@@ -685,7 +685,7 @@ div[data-component][data-type='form'][data-role='field'] {
             min-height: var(--aui-component-height-default);
             box-sizing: border-box;
             background: transparent;
-            padding: var(--aui-component-gap);
+            padding-block: var(--aui-component-gap);
             line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
             font-size: var(--aui-font-size-default);
             font-family: var(--aui-font-family-default);
