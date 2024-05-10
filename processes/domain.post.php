@@ -91,7 +91,8 @@ if (count($errors) == 0) {
         foreach ($sites as $site) {
             $me->db()
                 ->update(iModules::table('sites'), ['host' => $insert['host']])
-                ->where('host', $domain->host)
+                ->where('host', $site->host)
+                ->where('language', $site->language)
                 ->execute();
 
             $mAttachment->moveFile($site->logo, $me, 'logo', $insert['host'] . '/' . $site->language, true);
@@ -109,8 +110,9 @@ if (count($errors) == 0) {
             foreach ($contexts as $context) {
                 $me->db()
                     ->update(iModules::table('contexts'), ['host' => $insert['host']])
-                    ->where('host', $site->host)
-                    ->where('language', $site->host)
+                    ->where('host', $context->host)
+                    ->where('language', $context->language)
+                    ->where('path', $context->path)
                     ->execute();
 
                 $mAttachment->moveFile(
