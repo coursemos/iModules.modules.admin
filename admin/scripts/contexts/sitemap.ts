@@ -304,8 +304,8 @@ Admin.ready(async () => {
                     new Aui.Button({
                         iconClass: 'mi mi-refresh',
                         handler: (button) => {
-                            const grid = button.getParent().getParent() as Aui.Grid.Panel;
-                            grid.getStore().reload();
+                            const tree = button.getParent().getParent() as Aui.Tree.Panel;
+                            tree.getStore().reload();
                         },
                     }),
                 ],
