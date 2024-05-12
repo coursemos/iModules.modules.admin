@@ -6,7 +6,7 @@
  * @file /styles/Aui.Base.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 5.
+ * @modified 2024. 5. 13.
  */
 :root {
     --aui-color-scrollbar: #000;
@@ -43,8 +43,9 @@
     --aui-color-accent-600: #005ec6;
     --aui-color-accent-700: #004695;
 
-    --aui-color-accent-backward-400: #e6e6e6;
-    --aui-color-accent-backward-500: #f7f7f7;
+    --aui-color-accent-backward-300: #8e8e8e;
+    --aui-color-accent-backward-400: #c5c5c5;
+    --aui-color-accent-backward-500: #f0f0f0;
     --aui-color-accent-backward-600: #fff;
 
     --aui-color-begining-400: #45e590;
@@ -121,8 +122,9 @@ body[data-color-scheme='auto'][data-prefers-color-scheme='dark'] {
     --aui-color-accent-600: #3391f9;
     --aui-color-accent-700: #66acfb;
 
-    --aui-color-accent-backward-400: #e6e6e6;
-    --aui-color-accent-backward-500: #f7f7f7;
+    --aui-color-accent-backward-300: #8e8e8e;
+    --aui-color-accent-backward-400: #c5c5c5;
+    --aui-color-accent-backward-500: #f0f0f0;
     --aui-color-accent-backward-600: #fff;
 
     --aui-color-begining-400: #08ad55;
