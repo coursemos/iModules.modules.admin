@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 1.
+ * @modified 2024. 5. 13.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -378,6 +378,23 @@ class Admin extends \modules\admin\admin\Component
             ->update($this->table('groups'), ['administrators' => $administrators])
             ->where('group_id', $group_id)
             ->execute();
+    }
+
+    /**
+     * 권한식 객체를 반환한다.
+     *
+     * @param string $label 권한명
+     * @param string $expression 권한식
+     * @return object $permission 권한식객체
+     */
+    public function getPermissionExpression(string $label, string $expression, int $sort = 10): object
+    {
+        $permission = new \stdClass();
+        $permission->label = $label;
+        $permission->expression = $expression;
+        $permission->sort = $sort;
+
+        return $permission;
     }
 
     /**
