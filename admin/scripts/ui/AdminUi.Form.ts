@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/AdminUi.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 5. 13.
  */
 namespace AdminUi {
     export namespace Form {
@@ -897,6 +897,10 @@ namespace AdminUi {
             export class Permission extends Aui.Form.Field.Base {
                 field: string = 'permission';
 
+                select: Aui.Form.Field.Select;
+                check: Aui.Form.Field.Check;
+                input: Aui.Form.Field.Text;
+
                 /**
                  * 텍스트필드 클래스 생성한다.
                  *
@@ -904,6 +908,63 @@ namespace AdminUi {
                  */
                 constructor(properties: AdminUi.Form.Field.Permission.Properties = null) {
                     super(properties);
+                }
+
+                /**
+                 * 권한 선택폼을 가져온다.
+                 *
+                 * @return {Aui.Form.Field.Select} select
+                 */
+                getSelect(): Aui.Form.Field.Select {
+                    if (this.select === undefined) {
+                        this.select = new Aui.Form.Field.Select({
+                            store: new Aui.Store.Remote({
+                                url: Admin.getProcessUrl('module', 'admin', 'permissions'),
+                                sorters: { sort: 'ASC', label: 'ASC' },
+                            }),
+                            displayField: 'label',
+                            valueField: 'expression',
+                            value: 'true',
+                            flex: 1,
+                        });
+                    }
+
+                    return this.select;
+                }
+
+                /**
+                 * 사용자정의 체크박스를 가져온다.
+                 *
+                 * @return {Aui.Form.Field.Check} check
+                 */
+                getCheck(): Aui.Form.Field.Check {
+                    if (this.check === undefined) {
+                        this.check = new Aui.Form.Field.Check({
+                            boxLabel: Admin.printText('permissions.custom'),
+                            listeners: {
+                                change: (_field, checked) => {
+                                    this.getInput().setHidden(!checked);
+                                },
+                            },
+                        });
+                    }
+
+                    return this.check;
+                }
+
+                /**
+                 * 사용자정의 체크박스를 가져온다.
+                 *
+                 * @return {Aui.Form.Field.Text} input
+                 */
+                getInput(): Aui.Form.Field.Text {
+                    if (this.input === undefined) {
+                        this.input = new Aui.Form.Field.Text({
+                            hidden: true,
+                        });
+                    }
+
+                    return this.input;
                 }
 
                 /**
@@ -924,7 +985,29 @@ namespace AdminUi {
                  * @return {any} value - 값
                  */
                 getValue(): any {
-                    return 'true';
+                    if (this.getCheck().getValue() == true) {
+                        return this.getInput().getValue();
+                    }
+
+                    return this.getSelect().getValue();
+                }
+
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                renderContent(): void {
+                    const container = new Aui.Form.Field.Container({
+                        direction: 'column',
+                        items: [
+                            new Aui.Form.Field.Container({
+                                direction: 'row',
+                                items: [this.getSelect(), this.getCheck()],
+                            }),
+                            this.getInput(),
+                        ],
+                    });
+                    this.$getContent().append(container.$getComponent());
+                    container.render();
                 }
             }
 

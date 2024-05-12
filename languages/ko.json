@@ -39,6 +39,11 @@
             "use_default_template_help": "모듈이나 해당 컨텍스트에 이미 설정되어 있는 기본설정을 사용합니다."
         }
     },
+    "permissions": {
+        "true": "전체허용",
+        "false": "최고관리자만 허용",
+        "custom": "사용자정의"
+    },
     "admin": {
         "contexts": {
             "dashboard": "대시보드",
