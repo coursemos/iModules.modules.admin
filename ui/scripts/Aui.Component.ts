@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 2.
+ * @modified 2024. 5. 13.
  */
 namespace Aui {
     export namespace Component {
@@ -289,6 +289,7 @@ namespace Aui {
 
             this.width = typeof width == 'number' ? width + 'px' : width;
             this.$component.setStyle('width', this.width);
+            this.$component.setStyle('flex', null);
         }
 
         /**

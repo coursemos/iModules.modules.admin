@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 2.
+ * @modified 2024. 5. 13.
  */
 var Aui;
 (function (Aui) {
@@ -162,6 +162,7 @@ var Aui;
             }
             this.width = typeof width == 'number' ? width + 'px' : width;
             this.$component.setStyle('width', this.width);
+            this.$component.setStyle('flex', null);
         }
         /**
          * 컴포넌트 높이를 설정한다.
