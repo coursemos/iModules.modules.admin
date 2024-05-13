@@ -5647,6 +5647,8 @@ namespace Aui {
                 $emptyText: Dom;
 
                 editor: modules.wysiwyg.Editor;
+                uploader: modules.attachment.Uploader;
+                $files: Dom;
 
                 /**
                  * 에디터 클래스 생성한다.
@@ -5674,6 +5676,45 @@ namespace Aui {
                     }
 
                     return this.$input;
+                }
+
+                /**
+                 * 파일목록 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $files
+                 */
+                $getFiles(): Dom {
+                    if (this.$files === undefined) {
+                        this.$files = Html.create('ul', { 'data-role': 'files' });
+                    }
+
+                    return this.$files;
+                }
+
+                /**
+                 * 업로더를 가져온다.
+                 *
+                 * @returns {modules.attachment.Uploader} uploader
+                 */
+                getUploader(): modules.attachment.Uploader {
+                    if (this.uploader === undefined) {
+                        this.uploader = new modules.attachment.Uploader(this.$getContent(), {
+                            /*
+                            accept: this.accept,
+                            multiple: this.multiple,
+                            listeners: {
+                                start: () => {
+                                    this.onUploadstart();
+                                },
+                                complete: (uploader: modules.attachment.Uploader) => {
+                                    this.onUploadComplete(uploader);
+                                },
+                            },
+                            */
+                        });
+                    }
+
+                    return this.uploader;
                 }
 
                 /**
@@ -5721,6 +5762,7 @@ namespace Aui {
                 renderContent(): void {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
+                    this.$getContent().append(this.$getFiles());
                 }
 
                 /**
@@ -5739,19 +5781,12 @@ namespace Aui {
                     this.$getContent().setAttr('data-module', 'wysiwyg');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
                         heightMin: this.minHeight,
+                        uploader: this.getUploader(),
                     });
 
-                    if (typeof this.getParent().padding == 'number') {
-                        this.$getContent().setStyleProperty(
-                            '--im-wysiwyg-toolbar-sticky-height',
-                            (this.getParent().padding as number) + 'px'
-                        );
-                    } else {
-                        this.$getContent().setStyleProperty(
-                            '--im-wysiwyg-toolbar-sticky-height',
-                            this.getParent().padding[0] + 'px'
-                        );
-                    }
+                    const sticky = this.getParent()?.$getContent()?.getStyle('padding-top') ?? '0px';
+
+                    this.$getContent().setStyleProperty('--im-wysiwyg-toolbar-sticky-height', sticky);
                 }
             }
 

@@ -905,32 +905,45 @@ div[data-component][data-type='form'][data-role='field'] {
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='editor'] {
-        --im-wysiwyg-background-default: var(--aui-color-background-500);
+        --im-wysiwyg-toolbar-sticky-offset: 0;
+        --im-wysiwyg-toolbar-sticky-height: var(--aui-component-gap);
+        --im-wysiwyg-toolbar-sticky-background: var(--aui-color-background-500);
 
+        --im-wysiwyg-toolbar-border-color: var(--aui-color-text-300);
+        --im-wysiwyg-toolbar-border-weight: 2px;
+        --im-wysiwyg-toolbar-background-default: var(--aui-color-background-400);
+
+        --im-wysiwyg-background-default: var(--aui-color-background-500);
         --im-wysiwyg-border-weight: 1px;
-        --im-wysiwyg-border-color-default: var(--aui-color-background-200);
+        --im-wysiwyg-border-color-default: var(--aui-color-background-300);
         --im-wysiwyg-border-color-focus: var(--aui-color-accent-500);
         --im-wysiwyg-border-color-active: var(--aui-color-accent-500);
         --im-wysiwyg-border-radius: 0;
 
-        --im-wysiwyg-toolbar-sticky-offset: 0;
-        --im-wysiwyg-toolbar-sticky-height: var(--aui-component-gap);
-        --im-wysiwyg-toolbar-sticky-background: var(--aui-color-background-500);
-        --im-wysiwyg-toolbar-border-color: var(--aui-color-text-500);
-        --im-wysiwyg-toolbar-border-weight: 2px;
-        --im-wysiwyg-toolbar-background-default: var(--aui-color-background-400);
-
         --im-wysiwyg-button-height: var(--aui-component-height-default);
-        --im-wysiwyg-button-icon-size: 1rem;
-        --im-wysiwyg-button-color-default: var(--aui-color-text-500);
+        --im-wysiwyg-button-icon-size: calc(var(--im-wysiwyg-button-height) / 2);
+        --im-wysiwyg-button-font-size: calc(var(--im-wysiwyg-button-icon-size) * 0.875);
+        --im-wysiwyg-button-color-default: var(--aui-color-foreground-400);
         --im-wysiwyg-button-color-active: var(--aui-color-accent-backward-500);
-        --im-wysiwyg-button-color-disabled: var(--aui-color-background-100);
+        --im-wysiwyg-button-color-disabled: var(--aui-color-foreground-100);
         --im-wysiwyg-button-background-hover: var(--aui-color-background-300);
-        --im-wysiwyg-button-background-active: var(--aui-color-accent-400);
+        --im-wysiwyg-button-background-active: var(--aui-color-accent-500);
         --im-wysiwyg-button-background-active-hover: var(--aui-color-accent-500);
+
+        --im-wysiwyg-tooltip-background: var(--aui-color-foreground-400);
+        --im-wysiwyg-tooltip-color: var(--aui-color-background-500);
+        --im-wysiwyg-tooltip-font-size: calc(var(--im-wysiwyg-button-icon-size) * 0.6);
+
+        --im-wysiwyg-font-size: var(--aui-font-size-default);
+        --im-wysiwyg-font-family: var(--aui-font-family-default);
+        --im-wysiwyg-color-default: var(--aui-color-foreground-500);
+        --im-wysiwyg-color-help: var(--aui-color-text-300);
+        --im-wysiwyg-padding: var(--aui-component-gap);
+        --im-wysiwyg-line-height: 1.2rem;
     }
 
-    > div[data-role='container'] > div[data-role='content'][data-field='file'] {
+    > div[data-role='container'] > div[data-role='content'][data-field='file'],
+    > div[data-role='container'] > div[data-role='content'][data-field='editor'] {
         > input {
             display: none;
         }
@@ -1043,7 +1056,7 @@ div[data-component][data-type='form'][data-role='field'] {
                             font-style: normal;
 
                             &::before {
-                                content: '\eb03';
+                                content: '\e405';
                             }
                         }
                         > span {
@@ -1080,11 +1093,11 @@ div[data-component][data-type='form'][data-role='field'] {
                         }
 
                         &[data-action='download'] > i::before {
-                            content: '\ec11';
+                            content: '\e434';
                         }
 
                         &[data-action='insert'] > i::before {
-                            content: '\eb00';
+                            content: '\e433';
                         }
 
                         > span {
@@ -1097,7 +1110,8 @@ div[data-component][data-type='form'][data-role='field'] {
                             line-height: 20px;
                             text-align: center;
                             color: #fff;
-                            font-size: 14px;
+                            font-size: var(--aui-font-size-small);
+                            font-family: var(--aui-font-family-default);
                         }
                     }
 
@@ -1140,6 +1154,22 @@ div[data-component][data-type='form'][data-role='field'] {
                             > progress {
                                 display: none;
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        &[data-field='editor'] {
+            > ul[data-role='files'] {
+                > li {
+                    > div[data-role='file'] {
+                        > a[data-action='download'] {
+                            visibility: hidden;
+                        }
+
+                        > button[data-action='insert'] {
+                            visibility: visible;
                         }
                     }
                 }

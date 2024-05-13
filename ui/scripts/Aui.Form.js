@@ -4429,6 +4429,8 @@ var Aui;
                 $input;
                 $emptyText;
                 editor;
+                uploader;
+                $files;
                 /**
                  * 에디터 클래스 생성한다.
                  *
@@ -4452,6 +4454,41 @@ var Aui;
                         });
                     }
                     return this.$input;
+                }
+                /**
+                 * 파일목록 DOM 을 가져온다.
+                 *
+                 * @return {Dom} $files
+                 */
+                $getFiles() {
+                    if (this.$files === undefined) {
+                        this.$files = Html.create('ul', { 'data-role': 'files' });
+                    }
+                    return this.$files;
+                }
+                /**
+                 * 업로더를 가져온다.
+                 *
+                 * @returns {modules.attachment.Uploader} uploader
+                 */
+                getUploader() {
+                    if (this.uploader === undefined) {
+                        this.uploader = new modules.attachment.Uploader(this.$getContent(), {
+                        /*
+                        accept: this.accept,
+                        multiple: this.multiple,
+                        listeners: {
+                            start: () => {
+                                this.onUploadstart();
+                            },
+                            complete: (uploader: modules.attachment.Uploader) => {
+                                this.onUploadComplete(uploader);
+                            },
+                        },
+                        */
+                        });
+                    }
+                    return this.uploader;
                 }
                 /**
                  * 필드 비활성화여부를 설정한다.
@@ -4493,6 +4530,7 @@ var Aui;
                 renderContent() {
                     const $input = this.$getInput();
                     this.$getContent().append($input);
+                    this.$getContent().append(this.$getFiles());
                 }
                 /**
                  * 필드 레이아웃을 업데이트한다.
@@ -4508,13 +4546,10 @@ var Aui;
                     this.$getContent().setAttr('data-module', 'wysiwyg');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
                         heightMin: this.minHeight,
+                        uploader: this.getUploader(),
                     });
-                    if (typeof this.getParent().padding == 'number') {
-                        this.$getContent().setStyleProperty('--im-wysiwyg-toolbar-sticky-height', this.getParent().padding + 'px');
-                    }
-                    else {
-                        this.$getContent().setStyleProperty('--im-wysiwyg-toolbar-sticky-height', this.getParent().padding[0] + 'px');
-                    }
+                    const sticky = this.getParent()?.$getContent()?.getStyle('padding-top') ?? '0px';
+                    this.$getContent().setStyleProperty('--im-wysiwyg-toolbar-sticky-height', sticky);
                 }
             }
             Field.Editor = Editor;
