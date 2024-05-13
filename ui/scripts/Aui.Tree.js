@@ -53,14 +53,10 @@ var Aui;
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
                 this.selection.display = this.selection.display ?? 'row';
-                this.selection.multiple = this.selection.multiple ?? false;
-                this.selection.deselectable = this.selection.deselectable ?? false;
+                this.selection.multiple = this.selection.multiple ?? (this.selection.display == 'check' ? true : false);
+                this.selection.deselectable =
+                    this.selection.deselectable ?? (this.selection.display == 'check' ? true : false);
                 this.selection.keepable = this.selection.keepable ?? false;
-                if (this.selection.display == 'check') {
-                    this.selection.multiple = true;
-                    this.selection.deselectable = true;
-                    this.freeze = this.freeze + 1;
-                }
                 this.store = this.properties.store ?? new Aui.TreeStore();
                 this.store.addEvent('beforeLoad', () => {
                     this.onBeforeLoad();
@@ -111,7 +107,10 @@ var Aui;
                 this.columns.forEach((column, columnIndex) => {
                     column.setColumnIndex(columnIndex);
                 });
-                this.freeze = Math.max(1, Math.min(this.headers.length - 1, this.freeze));
+                this.freeze = Math.min(this.headers.length - 1, this.freeze);
+                if (this.headers.length > 1) {
+                    this.freeze = Math.max(1, this.freeze);
+                }
             }
             /**
              * 트리패널의 데이터스토어를 가져온다.
