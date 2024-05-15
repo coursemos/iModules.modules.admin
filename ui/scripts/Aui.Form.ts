@@ -1062,7 +1062,7 @@ namespace Aui {
 
                     if (this.getParent() instanceof Aui.Form.Field.Container) {
                         const container = this.getParent() as Aui.Form.Field.Container;
-                        if (container.label !== null) {
+                        if (container.label !== null || container.combineValidate == true) {
                             container.setError(this.getId(), is_error, message);
                             return;
                         }
@@ -1226,6 +1226,11 @@ namespace Aui {
                      * @type {'row' | 'column'} direction - 정렬방향
                      */
                     direction?: 'row' | 'column';
+
+                    /**
+                     * @type {boolean} combineValidate - 에러메시지 통합여부
+                     */
+                    combineValidate?: boolean;
                 }
             }
 
@@ -1244,6 +1249,7 @@ namespace Aui {
                 allowBlank: boolean = true;
                 errors: Map<string, { is_error: boolean; message: string }> = new Map();
                 direction: 'row' | 'column' = 'row';
+                combineValidate: boolean;
 
                 $fields: Dom;
 
@@ -1266,6 +1272,7 @@ namespace Aui {
                     this.allowBlank = true;
 
                     this.direction = this.properties.direction ?? 'row';
+                    this.combineValidate = this.properties.combineValidate === true;
 
                     if (this.label !== null) {
                         this.$setTop();

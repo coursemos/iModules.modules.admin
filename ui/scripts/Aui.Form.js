@@ -750,7 +750,7 @@ var Aui;
                     }
                     if (this.getParent() instanceof Aui.Form.Field.Container) {
                         const container = this.getParent();
-                        if (container.label !== null) {
+                        if (container.label !== null || container.combineValidate == true) {
                             container.setError(this.getId(), is_error, message);
                             return;
                         }
@@ -903,6 +903,7 @@ var Aui;
                 allowBlank = true;
                 errors = new Map();
                 direction = 'row';
+                combineValidate;
                 $fields;
                 /**
                  * 필드 컨테이너를 생성한다.
@@ -921,6 +922,7 @@ var Aui;
                     this.scrollable = false;
                     this.allowBlank = true;
                     this.direction = this.properties.direction ?? 'row';
+                    this.combineValidate = this.properties.combineValidate === true;
                     if (this.label !== null) {
                         this.$setTop();
                     }
