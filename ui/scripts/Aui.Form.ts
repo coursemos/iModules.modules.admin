@@ -5642,6 +5642,11 @@ namespace Aui {
                      * @type {number} minHeight - 에디터최소높이
                      */
                     minHeight?: number;
+
+                    /**
+                     * @type {boolean} hiddenFiles - 파일목록을 숨길지 여부
+                     */
+                    hiddenFiles?: boolean;
                 }
             }
 
@@ -5656,6 +5661,7 @@ namespace Aui {
                 editor: modules.wysiwyg.Editor;
                 uploader: modules.attachment.Uploader;
                 $files: Dom;
+                hiddenFiles: boolean;
 
                 /**
                  * 에디터 클래스 생성한다.
@@ -5668,6 +5674,7 @@ namespace Aui {
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.minHeight = this.properties.minHeight ?? 200;
+                    this.hiddenFiles = this.properties.hiddenFiles === true;
                 }
 
                 /**
@@ -5693,6 +5700,10 @@ namespace Aui {
                 $getFiles(): Dom {
                     if (this.$files === undefined) {
                         this.$files = Html.create('ul', { 'data-role': 'files' });
+                    }
+
+                    if (this.hiddenFiles == true) {
+                        this.$files.hide();
                     }
 
                     return this.$files;

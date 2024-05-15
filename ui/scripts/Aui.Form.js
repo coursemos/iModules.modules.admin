@@ -4433,6 +4433,7 @@ var Aui;
                 editor;
                 uploader;
                 $files;
+                hiddenFiles;
                 /**
                  * 에디터 클래스 생성한다.
                  *
@@ -4443,6 +4444,7 @@ var Aui;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.minHeight = this.properties.minHeight ?? 200;
+                    this.hiddenFiles = this.properties.hiddenFiles === true;
                 }
                 /**
                  * INPUT 필드 DOM 을 가져온다.
@@ -4465,6 +4467,9 @@ var Aui;
                 $getFiles() {
                     if (this.$files === undefined) {
                         this.$files = Html.create('ul', { 'data-role': 'files' });
+                    }
+                    if (this.hiddenFiles == true) {
+                        this.$files.hide();
                     }
                     return this.$files;
                 }
