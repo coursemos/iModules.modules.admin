@@ -57,7 +57,6 @@ div[data-component][data-type='panel'] {
         > div[data-role='content'] {
             flex-grow: 1;
             flex-shrink: 1;
-            overflow: hidden;
 
             display: flex;
             align-items: stretch;
@@ -65,6 +64,14 @@ div[data-component][data-type='panel'] {
             > div[data-component].fit {
                 height: auto;
                 flex-grow: 1;
+            }
+        }
+    }
+
+    &.fit {
+        > div[data-role='container'] {
+            > div[data-role='content'] {
+                overflow: hidden;
             }
         }
     }
