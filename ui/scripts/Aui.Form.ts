@@ -5717,18 +5717,15 @@ namespace Aui {
                 getUploader(): modules.attachment.Uploader {
                     if (this.uploader === undefined) {
                         this.uploader = new modules.attachment.Uploader(this.$getContent(), {
-                            /*
-                            accept: this.accept,
-                            multiple: this.multiple,
+                            multiple: true,
                             listeners: {
                                 start: () => {
                                     this.onUploadstart();
                                 },
-                                complete: (uploader: modules.attachment.Uploader) => {
-                                    this.onUploadComplete(uploader);
+                                complete: () => {
+                                    this.onUploadComplete();
                                 },
                             },
-                            */
                         });
                     }
 
@@ -5802,9 +5799,32 @@ namespace Aui {
                         uploader: this.getUploader(),
                     });
 
-                    const sticky = this.getParent()?.$getContent()?.getStyle('padding-top') ?? '0px';
+                    let sticky = '0px';
+                    let parent = this.getParent();
+                    while (parent !== null) {
+                        if (parent.getScroll() !== null) {
+                            sticky = parent.$getContent()?.getStyle('padding-top') ?? '0px';
+                            break;
+                        }
+
+                        parent = parent.getParent();
+                    }
 
                     this.$getContent().setStyleProperty('--im-wysiwyg-toolbar-sticky-height', sticky);
+                }
+
+                /**
+                 * 업로드 시작이벤트를 처리한다.
+                 */
+                onUploadstart(): void {
+                    this.getForm().setLoading(this, true);
+                }
+
+                /**
+                 * 업로드 종료이벤트를 처리한다.
+                 */
+                onUploadComplete(): void {
+                    this.getForm().setLoading(this, false);
                 }
             }
 
