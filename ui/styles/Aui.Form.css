@@ -923,20 +923,20 @@ div[data-component][data-type='form'][data-role='field'] {
         --im-wysiwyg-button-height: var(--aui-component-height-default);
         --im-wysiwyg-button-icon-size: calc(var(--im-wysiwyg-button-height) / 2);
         --im-wysiwyg-button-font-size: calc(var(--im-wysiwyg-button-icon-size) * 0.875);
-        --im-wysiwyg-button-color-default: var(--aui-color-foreground-400);
+        --im-wysiwyg-button-color-default: var(--aui-color-text-400);
         --im-wysiwyg-button-color-active: var(--aui-color-accent-backward-500);
-        --im-wysiwyg-button-color-disabled: var(--aui-color-foreground-100);
+        --im-wysiwyg-button-color-disabled: var(--aui-color-text-100);
         --im-wysiwyg-button-background-hover: var(--aui-color-background-300);
         --im-wysiwyg-button-background-active: var(--aui-color-accent-500);
         --im-wysiwyg-button-background-active-hover: var(--aui-color-accent-500);
 
-        --im-wysiwyg-tooltip-background: var(--aui-color-foreground-400);
+        --im-wysiwyg-tooltip-background: var(--aui-color-text-400);
         --im-wysiwyg-tooltip-color: var(--aui-color-background-500);
         --im-wysiwyg-tooltip-font-size: calc(var(--im-wysiwyg-button-icon-size) * 0.6);
 
         --im-wysiwyg-font-size: var(--aui-font-size-default);
         --im-wysiwyg-font-family: var(--aui-font-family-default);
-        --im-wysiwyg-color-default: var(--aui-color-foreground-500);
+        --im-wysiwyg-color-default: var(--aui-color-text-500);
         --im-wysiwyg-color-help: var(--aui-color-text-300);
         --im-wysiwyg-padding: var(--aui-component-gap);
         --im-wysiwyg-line-height: 1.2rem;
