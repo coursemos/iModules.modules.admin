@@ -39,6 +39,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             font-family: moimz;
                             font-size: 28px;
                             line-height: 46px;
+                            background: var(--aui-color-danger-500);
                             color: var(--aui-color-accent-backward-500);
 
                             &::before {
@@ -50,6 +51,7 @@ div[data-component][data-type='window'][data-role='message'] {
                             font-family: moimz;
                             font-size: 28px;
                             line-height: 48px;
+                            background: var(--aui-color-accent-500);
                             color: var(--aui-color-accent-backward-500);
 
                             &::before {
