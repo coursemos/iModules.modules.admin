@@ -939,7 +939,25 @@ div[data-component][data-type='form'][data-role='field'] {
         --im-wysiwyg-color-default: var(--aui-color-text-500);
         --im-wysiwyg-color-help: var(--aui-color-text-300);
         --im-wysiwyg-padding: var(--aui-component-gap);
-        --im-wysiwyg-line-height: 1.2rem;
+
+        --im-wysiwyg-content-background-default: var(--aui-color-background-500);
+        --im-wysiwyg-content-color-default: var(--aui-color-text-500);
+        --im-wysiwyg-content-color-alternate: var(--aui-color-text-300);
+
+        --im-wysiwyg-content-line-gap: calc(var(--aui-component-gap) / 2);
+
+        --im-wysiwyg-content-table-header-border-color-default: var(--aui-color-text-300);
+        --im-wysiwyg-content-table-header-border-color-top: var(--aui-color-text-500);
+        --im-wysiwyg-content-table-header-background-default: var(--aui-color-background-300);
+        --im-wysiwyg-content-table-body-border-color-default: var(--aui-color-text-200);
+        --im-wysiwyg-content-table-body-border-color-highlighted: var(--aui-color-danger-500);
+        --im-wysiwyg-content-table-body-background-default: transparent;
+        --im-wysiwyg-content-table-body-background-alternate: var(--aui-color-text-100);
+
+        --im-wysiwyg-content-link-color: var(--aui-color-accent-500);
+
+        --im-wysiwyg-content-hr-color: var(--aui-color-text-100);
+        --im-wysiwyg-content-pre-background: var(--aui-color-background-400);
     }
 
     > div[data-role='container'] > div[data-role='content'][data-field='file'],

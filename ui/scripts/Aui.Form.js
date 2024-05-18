@@ -4551,6 +4551,11 @@ var Aui;
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
                         heightMin: this.minHeight,
                         uploader: this.getUploader(),
+                        listeners: {
+                            render: (editor) => {
+                                this.fireEvent('editorRender', [editor]);
+                            },
+                        },
                     });
                     let sticky = '0px';
                     let parent = this.getParent();

@@ -456,6 +456,7 @@ class Admin extends \Module
          */
         $mWysiwyg = \Modules::get('wysiwyg');
         $mWysiwyg->preload();
+        \Html::style($mWysiwyg->getBase() . '/styles/Wysiwyg.css');
 
         $subPath = preg_replace('/^' . \Format::reg($context->getPath()) . '/', '', $route->getSubPath());
         $theme->assign('content', $context->getContent($subPath ? $subPath : null));

@@ -5632,6 +5632,10 @@ namespace Aui {
             }
 
             export namespace Editor {
+                export interface Listeners extends Aui.Form.Field.Base.Listeners {
+                    editorRender?: (editor: modules.wysiwyg.Editor) => void;
+                }
+
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**
                      * @type {string} emptyText - 필드값이 없을 경우 보일 placeHolder
@@ -5647,6 +5651,11 @@ namespace Aui {
                      * @type {boolean} hiddenFiles - 파일목록을 숨길지 여부
                      */
                     hiddenFiles?: boolean;
+
+                    /**
+                     * @type {Aui.Form.Field.Editor.Listeners} listeners - 이벤트리스너
+                     */
+                    listeners?: Aui.Form.Field.Editor.Listeners;
                 }
             }
 
@@ -5668,7 +5677,7 @@ namespace Aui {
                  *
                  * @param {Aui.Form.Field.Editor.Properties} properties - 객체설정
                  */
-                constructor(properties: Aui.Form.Field.TextArea.Properties = null) {
+                constructor(properties: Aui.Form.Field.Editor.Properties = null) {
                     super(properties);
 
                     this.emptyText = this.properties.emptyText ?? '';
@@ -5797,6 +5806,11 @@ namespace Aui {
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
                         heightMin: this.minHeight,
                         uploader: this.getUploader(),
+                        listeners: {
+                            render: (editor) => {
+                                this.fireEvent('editorRender', [editor]);
+                            },
+                        },
                     });
 
                     let sticky = '0px';
