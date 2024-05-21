@@ -808,8 +808,22 @@ var AdminUi;
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value, is_origin = false) {
-                    value = null;
-                    super.setValue(value, is_origin);
+                    if (value !== null) {
+                        this.getSelect()
+                            .getValueToRecord(value)
+                            .then((record) => {
+                            if (record === null) {
+                                // @todo 사용자정의
+                            }
+                            else {
+                                this.getSelect().setValue(value);
+                            }
+                            super.setValue(value, is_origin);
+                        });
+                    }
+                    else {
+                        super.setValue(value, is_origin);
+                    }
                 }
                 /**
                  * 필드값을 가져온다..
