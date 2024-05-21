@@ -5513,11 +5513,11 @@ namespace Aui {
                  */
                 updateHeight(): void {
                     if (this.latestLength <= this.$getInput().getValue().length) {
-                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
+                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight(true) + 'px');
                     } else {
                         this.$getContent().setStyle('height', this.$getContent().getHeight() + 'px');
                         this.$getInput().setStyle('height', null);
-                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight() + 'px');
+                        this.$getInput().setStyle('height', this.$getInput().getScrollHeight(true) + 'px');
                         this.$getContent().setStyle('height', null);
                     }
                     this.latestLength = this.$getInput().getValue().length;
