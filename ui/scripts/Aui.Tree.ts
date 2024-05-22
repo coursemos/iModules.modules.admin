@@ -681,14 +681,9 @@ namespace Aui {
                         $toggle.enable();
                         $row.addClass('expanded');
                     }
-
-                    const depth = record.getParents().length;
-                    if (this.expandedRows.has(depth) == false) {
-                        this.expandedRows.set(depth, new Map());
-                    }
-
-                    this.expandedRows.get(depth).set(record.getHash(), record);
                 }
+
+                this.updateExpandedRows();
             }
 
             /**
@@ -701,14 +696,7 @@ namespace Aui {
                 if ($row === null || $row.hasClass('edge') == true) return;
 
                 $row.removeClass('expanded');
-
-                const record: Aui.Data.Record = $row.getData('record');
-                const depth = record.getParents().length;
-                if (this.expandedRows.has(depth) == false) {
-                    return;
-                }
-
-                this.expandedRows.get(depth).delete(record.getHash());
+                this.updateExpandedRows();
             }
 
             /**
@@ -906,10 +894,11 @@ namespace Aui {
             }
 
             /**
-             * 데이터가 변경되거나 다시 로딩되었을 때 이전 확장아이템이 있다면 복구한다.
+             * 데이터가 변경되거나 다시 로딩되기 이전의 확장/축소상태를 복구한다.
              */
             async restoreExpandedRows(): Promise<void> {
                 if (this.expandedRows.size > 0) {
+                    console.log('restore');
                     let depth = 0;
                     while (true) {
                         if (this.expandedRows.has(depth) == false) {
@@ -928,6 +917,36 @@ namespace Aui {
                 } else {
                     if (this.expandedDepth !== false) {
                         await this.expandAll(this.expandedDepth);
+                    }
+                }
+            }
+
+            /**
+             * 데이터가 변경되더라도 확장/축소상태를 복구하기 위해 현재 확장상태를 저장한다.
+             *
+             * @param {number} depth - 상태를 기억할 단계
+             * @param {Aui.Data.Record[]} records - 해당 단계의 데이터
+             */
+            updateExpandedRows(depth: number = 0, records: Aui.Data.Record[] = null): void {
+                if (depth == 0) {
+                    this.expandedRows.clear();
+                    this.expandedRows.set(depth, new Map());
+                    records = this.getStore().getRecords();
+                }
+
+                for (const record of records) {
+                    const treeIndex = this.getStore().matchIndex(record);
+
+                    if (this.isRowExpanded(treeIndex) == true) {
+                        if (this.expandedRows.has(depth) == false) {
+                            this.expandedRows.set(depth, new Map());
+                        }
+
+                        this.expandedRows.get(depth).set(record.getHash(), record);
+
+                        if (record.getChildren().length > 0) {
+                            this.updateExpandedRows(depth + 1, record.getChildren());
+                        }
                     }
                 }
             }
@@ -1281,7 +1300,7 @@ namespace Aui {
                         });
 
                         $row.addClass('expandable');
-                        if (this.autoExpand == true && record.getChildren().length > 0) {
+                        if (this.autoExpand == true && this.expandedRows.size == 0 && record.getChildren().length > 0) {
                             $row.addClass('expanded');
                         }
                     } else {
