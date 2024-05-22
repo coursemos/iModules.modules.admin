@@ -187,6 +187,7 @@ var Aui;
                 }
                 rowIndexes.sort();
                 const joinedIndexes = rowIndexes.map((rowIndex) => rowIndex.join(','));
+                let focusRow = null;
                 if (direction == 'up') {
                     for (const rowIndex of rowIndexes) {
                         const childIndex = rowIndex.pop();
@@ -204,6 +205,7 @@ var Aui;
                         record.set(sortField, move);
                         this.store.setAt(rowIndex, target);
                         this.store.setAt(targetIndex, record);
+                        focusRow ??= targetIndex;
                     }
                 }
                 else {
@@ -211,7 +213,13 @@ var Aui;
                     for (const rowIndex of rowIndexes) {
                         const childIndex = rowIndex.pop();
                         const parentIndex = [...rowIndex];
-                        const lastIndex = [...parentIndex, this.store.getAt(parentIndex).getChildren().length - 1];
+                        const lastIndex = [...parentIndex];
+                        if (parentIndex.length == 0) {
+                            lastIndex.push(this.getStore().getCount() - 1);
+                        }
+                        else {
+                            lastIndex.push(this.store.getAt(parentIndex).getChildren().length - 1);
+                        }
                         if (joinedIndexes.includes(lastIndex.join(',')) == true) {
                             continue;
                         }
@@ -224,9 +232,13 @@ var Aui;
                         record.set(sortField, move);
                         this.store.setAt(rowIndex, target);
                         this.store.setAt(targetIndex, record);
+                        focusRow ??= targetIndex;
                     }
                 }
-                this.onUpdate();
+                if (focusRow !== null) {
+                    this.focusRow(focusRow);
+                    this.onUpdate();
+                }
             }
             /**
              * 특정 열에 포커스를 지정한다.
@@ -433,8 +445,9 @@ var Aui;
              * 트리를 확장한다.
              *
              * @param {number[]} treeIndex - 확장할 아이탬(행) 인덱스
+             * @param {boolean} is_update - 확장상태를 저장할지 여부
              */
-            async expandRow(treeIndex) {
+            async expandRow(treeIndex, is_update = true) {
                 if (treeIndex.length == 0) {
                     return;
                 }
@@ -459,19 +472,24 @@ var Aui;
                         $row.addClass('expanded');
                     }
                 }
-                this.updateExpandedRows();
+                if (is_update == true) {
+                    this.updateExpandedRows();
+                }
             }
             /**
              * 트리를 축소한다.
              *
              * @param {number[]} treeIndex - 축호할 아이탬(행) 인덱스
+             * @param {boolean} is_update - 확장상태를 저장할지 여부
              */
-            collapseRow(treeIndex) {
+            collapseRow(treeIndex, is_update = true) {
                 const $row = this.$getRow(treeIndex);
                 if ($row === null || $row.hasClass('edge') == true)
                     return;
                 $row.removeClass('expanded');
-                this.updateExpandedRows();
+                if (is_update == true) {
+                    this.updateExpandedRows();
+                }
             }
             /**
              * 트리를 토글한다.
@@ -662,7 +680,6 @@ var Aui;
              */
             async restoreExpandedRows() {
                 if (this.expandedRows.size > 0) {
-                    console.log('restore');
                     let depth = 0;
                     while (true) {
                         if (this.expandedRows.has(depth) == false) {
@@ -671,7 +688,7 @@ var Aui;
                         for (const expandedRow of this.expandedRows.get(depth).values()) {
                             const treeIndex = this.getStore().matchIndex(expandedRow);
                             if (treeIndex !== null) {
-                                await this.expandRow(treeIndex);
+                                await this.expandRow(treeIndex, false);
                             }
                         }
                         depth++;
@@ -1057,7 +1074,11 @@ var Aui;
                 if ($row === null)
                     return;
                 const record = this.getStore().getAt(treeIndex);
+                const expanded = this.isRowExpanded(treeIndex);
                 $row.replaceWith(this.$getRow(treeIndex, record));
+                if (expanded == true) {
+                    this.expandRow(treeIndex, false);
+                }
             }
             /**
              * 트리패널의 헤더(제목행)를 랜더링한다.

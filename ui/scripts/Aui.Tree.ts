@@ -373,6 +373,7 @@ namespace Aui {
 
                 const joinedIndexes = rowIndexes.map((rowIndex) => rowIndex.join(','));
 
+                let focusRow = null;
                 if (direction == 'up') {
                     for (const rowIndex of rowIndexes) {
                         const childIndex = rowIndex.pop();
@@ -395,6 +396,8 @@ namespace Aui {
 
                         this.store.setAt(rowIndex, target);
                         this.store.setAt(targetIndex, record);
+
+                        focusRow ??= targetIndex;
                     }
                 } else {
                     rowIndexes.reverse();
@@ -402,7 +405,12 @@ namespace Aui {
                         const childIndex = rowIndex.pop();
                         const parentIndex = [...rowIndex];
 
-                        const lastIndex = [...parentIndex, this.store.getAt(parentIndex).getChildren().length - 1];
+                        const lastIndex = [...parentIndex];
+                        if (parentIndex.length == 0) {
+                            lastIndex.push(this.getStore().getCount() - 1);
+                        } else {
+                            lastIndex.push(this.store.getAt(parentIndex).getChildren().length - 1);
+                        }
                         if (joinedIndexes.includes(lastIndex.join(',')) == true) {
                             continue;
                         }
@@ -417,10 +425,15 @@ namespace Aui {
 
                         this.store.setAt(rowIndex, target);
                         this.store.setAt(targetIndex, record);
+
+                        focusRow ??= targetIndex;
                     }
                 }
 
-                this.onUpdate();
+                if (focusRow !== null) {
+                    this.focusRow(focusRow);
+                    this.onUpdate();
+                }
             }
 
             /**
@@ -654,8 +667,9 @@ namespace Aui {
              * 트리를 확장한다.
              *
              * @param {number[]} treeIndex - 확장할 아이탬(행) 인덱스
+             * @param {boolean} is_update - 확장상태를 저장할지 여부
              */
-            async expandRow(treeIndex: number[]): Promise<void> {
+            async expandRow(treeIndex: number[], is_update: boolean = true): Promise<void> {
                 if (treeIndex.length == 0) {
                     return;
                 }
@@ -683,20 +697,26 @@ namespace Aui {
                     }
                 }
 
-                this.updateExpandedRows();
+                if (is_update == true) {
+                    this.updateExpandedRows();
+                }
             }
 
             /**
              * 트리를 축소한다.
              *
              * @param {number[]} treeIndex - 축호할 아이탬(행) 인덱스
+             * @param {boolean} is_update - 확장상태를 저장할지 여부
              */
-            collapseRow(treeIndex: number[]): void {
+            collapseRow(treeIndex: number[], is_update: boolean = true): void {
                 const $row = this.$getRow(treeIndex);
                 if ($row === null || $row.hasClass('edge') == true) return;
 
                 $row.removeClass('expanded');
-                this.updateExpandedRows();
+
+                if (is_update == true) {
+                    this.updateExpandedRows();
+                }
             }
 
             /**
@@ -898,7 +918,6 @@ namespace Aui {
              */
             async restoreExpandedRows(): Promise<void> {
                 if (this.expandedRows.size > 0) {
-                    console.log('restore');
                     let depth = 0;
                     while (true) {
                         if (this.expandedRows.has(depth) == false) {
@@ -908,7 +927,7 @@ namespace Aui {
                         for (const expandedRow of this.expandedRows.get(depth).values()) {
                             const treeIndex = this.getStore().matchIndex(expandedRow);
                             if (treeIndex !== null) {
-                                await this.expandRow(treeIndex);
+                                await this.expandRow(treeIndex, false);
                             }
                         }
 
@@ -1347,7 +1366,11 @@ namespace Aui {
                 if ($row === null) return;
 
                 const record = this.getStore().getAt(treeIndex);
+                const expanded = this.isRowExpanded(treeIndex);
                 $row.replaceWith(this.$getRow(treeIndex, record));
+                if (expanded == true) {
+                    this.expandRow(treeIndex, false);
+                }
             }
 
             /**
