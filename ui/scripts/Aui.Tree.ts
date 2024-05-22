@@ -1638,6 +1638,8 @@ namespace Aui {
                     this.restoreSelections();
                 });
 
+                this.loading.hide();
+
                 this.fireEvent('update', [this, this.getStore()]);
             }
 

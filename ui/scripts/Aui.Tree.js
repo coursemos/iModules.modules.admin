@@ -1301,6 +1301,7 @@ var Aui;
                 this.restoreExpandedRows().then(() => {
                     this.restoreSelections();
                 });
+                this.loading.hide();
                 this.fireEvent('update', [this, this.getStore()]);
             }
             /**
