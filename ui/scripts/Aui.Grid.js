@@ -229,6 +229,7 @@ var Aui;
                     rowIndexes.push(this.store.matchIndex(selected));
                 }
                 rowIndexes.sort();
+                let focusRow = null;
                 if (direction == 'up') {
                     if (rowIndexes[0] == 0) {
                         return;
@@ -242,6 +243,7 @@ var Aui;
                         record.set(sortField, move);
                         this.store.setAt(rowIndex, target);
                         this.store.setAt(targetIndex, record);
+                        focusRow ??= targetIndex;
                     }
                 }
                 else {
@@ -258,9 +260,13 @@ var Aui;
                         record.set(sortField, move);
                         this.store.setAt(rowIndex, target);
                         this.store.setAt(targetIndex, record);
+                        focusRow ??= targetIndex;
                     }
                 }
-                this.onUpdate();
+                if (focusRow !== null) {
+                    this.focusRow(focusRow);
+                    this.onUpdate();
+                }
             }
             /**
              * 특정 열에 포커스를 지정한다.
