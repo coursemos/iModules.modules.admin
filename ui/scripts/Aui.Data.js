@@ -607,7 +607,7 @@ var Aui;
                     keys = this.getKeys();
                 }
                 for (const key of keys) {
-                    if (record[key] === undefined || record[key] !== this.record[key]) {
+                    if (record[key] === undefined || Format.isEqual(record[key], this.record[key]) == false) {
                         return false;
                     }
                 }
