@@ -27,6 +27,7 @@ var Aui;
             selection;
             selections = new Map();
             expandedRows = new Map();
+            expandedRowsHash = null;
             store;
             autoLoad;
             autoExpand;
@@ -70,7 +71,7 @@ var Aui;
                 this.store.addEvent('update', () => {
                     this.onUpdate();
                     if (this.store.getFilters() !== null) {
-                        this.expandAll(true);
+                        this.expandAll(true, false);
                     }
                 });
                 this.store.addEvent('updateChildren', (_store, record) => {
@@ -495,38 +496,40 @@ var Aui;
              * 트리를 토글한다.
              *
              * @param {number[]} treeIndex - 토글할 아이탬(행) 인덱스
+             * @param {boolean} is_update - 확장상태를 저장할지 여부
              */
-            toggleRow(treeIndex) {
+            toggleRow(treeIndex, is_update = true) {
                 const $row = this.$getRow(treeIndex);
                 if ($row === null || $row.hasClass('edge') == true)
                     return;
                 if ($row.hasClass('expanded') == true) {
-                    this.collapseRow(treeIndex);
+                    this.collapseRow(treeIndex, is_update);
                 }
                 else {
-                    this.expandRow(treeIndex);
+                    this.expandRow(treeIndex, is_update);
                 }
             }
             /**
              * 전체 아이탬(행)을 확장한다.
              *
              * @param {number|boolean} depth - 확장할 깊이 (true인 경우 전체를 확장한다.)
+             * @param {boolean} is_update - 확장상태를 저장할지 여부
              */
-            async expandAll(depth, parents = []) {
+            async expandAll(depth, is_update = true, parents = []) {
                 if (depth === false || (depth !== true && parents.length > depth)) {
                     return;
                 }
                 if (parents.length == 0) {
                     for (let i = 0; i < this.getStore().getCount(); i++) {
-                        await this.expandAll(depth, [i]);
+                        await this.expandAll(depth, is_update, [i]);
                     }
                 }
                 else {
                     const record = this.getStore().getAt(parents);
                     if (record.hasChild() == true) {
-                        await this.expandRow(parents);
+                        await this.expandRow(parents, is_update);
                         for (let i = 0, loop = record.getChildren().length; i < loop; i++) {
-                            await this.expandAll(depth, [...parents, i]);
+                            await this.expandAll(depth, is_update, [...parents, i]);
                         }
                     }
                 }
@@ -573,7 +576,7 @@ var Aui;
                 }
                 const record = $row.getData('record');
                 this.selections.set(record.getHash(), record);
-                this.expandRow(treeIndex.slice(0, -1)).then(() => {
+                this.expandRow(treeIndex.slice(0, -1), false).then(() => {
                     Html.get('> div[data-role=leaf]', $row).addClass('selected');
                     this.focusRow(treeIndex);
                     if (is_event == true) {
@@ -590,7 +593,7 @@ var Aui;
                 if (this.selection.multiple == false) {
                     return;
                 }
-                this.expandAll(true).then(() => {
+                this.expandAll(true, false).then(() => {
                     Html.all('div[data-role=row]', this.$body).forEach(($row) => {
                         const record = $row.getData('record');
                         this.selections.set(record.getHash(), record);
@@ -696,7 +699,7 @@ var Aui;
                 }
                 else {
                     if (this.expandedDepth !== false) {
-                        await this.expandAll(this.expandedDepth);
+                        await this.expandAll(this.expandedDepth, false);
                     }
                 }
             }
@@ -711,6 +714,7 @@ var Aui;
                     this.expandedRows.clear();
                     this.expandedRows.set(depth, new Map());
                     records = this.getStore().getRecords();
+                    this.expandedRowsHash = this.getStore().getHash();
                 }
                 for (const record of records) {
                     const treeIndex = this.getStore().matchIndex(record);
@@ -1333,6 +1337,9 @@ var Aui;
              * 데이터가 변경되었을 때 이벤트를 처리한다.
              */
             onUpdate() {
+                if (this.expandedRowsHash != this.getStore().getHash()) {
+                    this.expandedRows.clear();
+                }
                 this.focusedCell = { treeIndex: null, columnIndex: null };
                 this.renderBody();
                 this.updateHeader();
