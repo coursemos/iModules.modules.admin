@@ -56,6 +56,14 @@ var Aui;
             this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 1;
         }
         /**
+         * 현재 데이터스토어의 고유해시를 가져온다.
+         *
+         * @return {string} hash
+         */
+        getHash() {
+            return Format.sha1(JSON.stringify({ page: this.page, filters: this.filters }));
+        }
+        /**
          * 데이터가 로딩되었는지 확인한다.
          *
          * @return {boolean} is_loaded
@@ -603,6 +611,14 @@ var Aui;
                 this.totalField = this.properties.totalField ?? 'total';
             }
             /**
+             * 현재 데이터스토어의 고유해시를 가져온다.
+             *
+             * @return {string} hash
+             */
+            getHash() {
+                return Format.sha1(JSON.stringify({ url: this.url, params: this.params, page: this.page, filters: this.filters }));
+            }
+            /**
              * 데이터를 가져온다.
              *
              * @return {Promise<Aui.Store.Remote>} this
@@ -755,6 +771,14 @@ var Aui;
             }
             this.limit = typeof this.properties?.limit == 'number' ? this.properties?.limit : 0;
             this.page = typeof this.properties?.page == 'number' ? this.properties?.page : 1;
+        }
+        /**
+         * 현재 데이터스토어의 고유해시를 가져온다.
+         *
+         * @return {string} hash
+         */
+        getHash() {
+            return Format.sha1(JSON.stringify({ page: this.page, filters: this.filters }));
         }
         /**
          * 데이터가 로딩되었는지 확인한다.
@@ -1565,6 +1589,14 @@ var Aui;
                 this.method = this.properties?.method?.toUpperCase() == 'POST' ? 'POST' : 'GET';
                 this.recordsField = this.properties.recordsField ?? 'records';
                 this.totalField = this.properties.totalField ?? 'total';
+            }
+            /**
+             * 현재 데이터스토어의 고유해시를 가져온다.
+             *
+             * @return {string} hash
+             */
+            getHash() {
+                return Format.sha1(JSON.stringify({ url: this.url, params: this.params, page: this.page, filters: this.filters }));
             }
             /**
              * 데이터를 가져온다.
