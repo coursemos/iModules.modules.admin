@@ -929,10 +929,10 @@ var modules;
                                                         label: this.printText('admin.sitemap.contexts.is_footer_menu'),
                                                         boxLabel: this.printText('admin.sitemap.contexts.is_footer_menu_help'),
                                                     }),
-                                                    new AdminUi.Form.Field.Permission({
+                                                    new Aui.Form.Field.Permission({
                                                         name: 'permission',
                                                         label: this.printText('admin.sitemap.contexts.permission'),
-                                                        boxLabel: this.printText('admin.sitemap.contexts.permission_help'),
+                                                        url: this.getProcessUrl('permissions'),
                                                         value: 'true',
                                                     }),
                                                 ],

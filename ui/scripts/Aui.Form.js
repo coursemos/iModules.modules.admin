@@ -5247,7 +5247,7 @@ var Aui;
                  */
                 constructor(properties = null) {
                     super(properties);
-                    this.url = this.properties.url ?? Admin.getProcessUrl('module', 'admin', 'permissions');
+                    this.url = this.properties.url ?? null;
                 }
                 /**
                  * 권한 선택폼을 가져온다.
@@ -5256,16 +5256,37 @@ var Aui;
                  */
                 getSelect() {
                     if (this.select === undefined) {
-                        this.select = new Aui.Form.Field.Select({
-                            store: new Aui.Store.Remote({
-                                url: this.url,
-                                sorters: { sort: 'ASC', label: 'ASC' },
-                            }),
-                            displayField: 'label',
-                            valueField: 'expression',
-                            value: 'true',
-                            flex: 1,
-                        });
+                        if (this.url === null) {
+                            this.select = new Aui.Form.Field.Select({
+                                store: new Aui.Store.Local({
+                                    fields: ['expression', 'label'],
+                                    records: (() => {
+                                        const permissions = [
+                                            ['true', Aui.printText('permissions.true')],
+                                            ['false', Aui.printText('permissions.false')],
+                                        ];
+                                        return permissions;
+                                    })(),
+                                    sorters: { sort: 'ASC', label: 'ASC' },
+                                }),
+                                displayField: 'label',
+                                valueField: 'expression',
+                                value: 'true',
+                                flex: 1,
+                            });
+                        }
+                        else {
+                            this.select = new Aui.Form.Field.Select({
+                                store: new Aui.Store.Remote({
+                                    url: this.url,
+                                    sorters: { sort: 'ASC', label: 'ASC' },
+                                }),
+                                displayField: 'label',
+                                valueField: 'expression',
+                                value: 'true',
+                                flex: 1,
+                            });
+                        }
                     }
                     return this.select;
                 }
