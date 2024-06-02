@@ -259,6 +259,7 @@ div[data-component][data-type='form'][data-role='field'] {
 
                 &.flex {
                     width: min-content;
+                    min-width: 0;
                 }
             }
 
@@ -857,6 +858,7 @@ div[data-component][data-type='form'][data-role='field'] {
                                                 color: var(--aui-color-accent-backward-500);
                                                 background: var(--aui-color-accent-500);
                                                 line-height: var(--aui-component-height-default);
+                                                font-size: var(--aui-font-size-large);
                                                 text-align: center;
                                                 border-radius: 3px;
                                                 position: relative;
