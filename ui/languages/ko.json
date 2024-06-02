@@ -19,6 +19,11 @@
         "light": "라이트",
         "dark": "다크"
     },
+    "permissions": {
+        "true": "전체허용",
+        "false": "최고관리자만 허용",
+        "custom": "사용자정의"
+    },
     "errors": {
         "TITLE": "에러",
         "INFO": "안내",
