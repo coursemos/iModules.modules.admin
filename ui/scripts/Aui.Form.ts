@@ -6721,6 +6721,148 @@ namespace Aui {
                     $content.append($inputs);
                 }
             }
+
+            export namespace Permission {
+                export interface Properties extends Aui.Form.Field.Base.Properties {
+                    /**
+                     * @type {string} url - 권한목록을 가져올 URL
+                     */
+                    url?: string;
+                }
+            }
+
+            export class Permission extends Aui.Form.Field.Base {
+                field: string = 'permission';
+
+                url: string;
+
+                select: Aui.Form.Field.Select;
+                check: Aui.Form.Field.Check;
+                input: Aui.Form.Field.Text;
+
+                /**
+                 * 텍스트필드 클래스 생성한다.
+                 *
+                 * @param {Aui.Form.Field.Permission.Properties} properties - 객체설정
+                 */
+                constructor(properties: Aui.Form.Field.Permission.Properties = null) {
+                    super(properties);
+
+                    this.url = this.properties.url ?? Admin.getProcessUrl('module', 'admin', 'permissions');
+                }
+
+                /**
+                 * 권한 선택폼을 가져온다.
+                 *
+                 * @return {Aui.Form.Field.Select} select
+                 */
+                getSelect(): Aui.Form.Field.Select {
+                    if (this.select === undefined) {
+                        this.select = new Aui.Form.Field.Select({
+                            store: new Aui.Store.Remote({
+                                url: this.url,
+                                sorters: { sort: 'ASC', label: 'ASC' },
+                            }),
+                            displayField: 'label',
+                            valueField: 'expression',
+                            value: 'true',
+                            flex: 1,
+                        });
+                    }
+
+                    return this.select;
+                }
+
+                /**
+                 * 사용자정의 체크박스를 가져온다.
+                 *
+                 * @return {Aui.Form.Field.Check} check
+                 */
+                getCheck(): Aui.Form.Field.Check {
+                    if (this.check === undefined) {
+                        this.check = new Aui.Form.Field.Check({
+                            boxLabel: Aui.printText('permissions.custom'),
+                            listeners: {
+                                change: (_field, checked) => {
+                                    this.getInput().setHidden(!checked);
+                                },
+                            },
+                        });
+                    }
+
+                    return this.check;
+                }
+
+                /**
+                 * 사용자정의 체크박스를 가져온다.
+                 *
+                 * @return {Aui.Form.Field.Text} input
+                 */
+                getInput(): Aui.Form.Field.Text {
+                    if (this.input === undefined) {
+                        this.input = new Aui.Form.Field.Text({
+                            hidden: true,
+                        });
+                    }
+
+                    return this.input;
+                }
+
+                /**
+                 * 필드값을 지정한다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                setValue(value: any, is_origin: boolean = false): void {
+                    if (value !== null) {
+                        this.getSelect()
+                            .getValueToRecord(value)
+                            .then((record) => {
+                                if (record === null) {
+                                    // @todo 사용자정의
+                                } else {
+                                    this.getSelect().setValue(value);
+                                }
+
+                                super.setValue(value, is_origin);
+                            });
+                    } else {
+                        super.setValue(value, is_origin);
+                    }
+                }
+
+                /**
+                 * 필드값을 가져온다..
+                 *
+                 * @return {any} value - 값
+                 */
+                getValue(): any {
+                    if (this.getCheck().getValue() == true) {
+                        return this.getInput().getValue();
+                    }
+
+                    return this.getSelect().getValue();
+                }
+
+                /**
+                 * 필드를 랜더링한다.
+                 */
+                renderContent(): void {
+                    const container = new Aui.Form.Field.Container({
+                        direction: 'column',
+                        items: [
+                            new Aui.Form.Field.Container({
+                                direction: 'row',
+                                items: [this.getSelect(), this.getCheck()],
+                            }),
+                            this.getInput(),
+                        ],
+                    });
+                    this.$getContent().append(container.$getComponent());
+                    container.render();
+                }
+            }
         }
     }
 }
