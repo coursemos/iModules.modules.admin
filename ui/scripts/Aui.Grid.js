@@ -37,6 +37,7 @@ var Aui;
             editingCell = { rowIndex: null, columnIndex: null };
             setRowClass;
             loading;
+            emptyText;
             /**
              * 그리드패널을 생성한다.
              *
@@ -80,6 +81,10 @@ var Aui;
                     direction: 'column',
                     text: this.properties.loadingText ?? null,
                 });
+                this.emptyText = this.properties.emptyText ?? null;
+                if (this.emptyText !== null) {
+                    this.$body.setAttr('data-empty-text', this.emptyText);
+                }
                 this.setRowClass = this.properties.setRowClass ?? null;
             }
             /**

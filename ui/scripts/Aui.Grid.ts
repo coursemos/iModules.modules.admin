@@ -163,6 +163,11 @@ namespace Aui {
                 loadingText?: string;
 
                 /**
+                 * @type {string} emptyText - 빈 데이터 메시지
+                 */
+                emptyText?: string;
+
+                /**
                  * @type {Aui.Grid.Panel.Listeners} listeners - 이벤트리스너
                  */
                 listeners?: Aui.Grid.Panel.Listeners;
@@ -200,6 +205,7 @@ namespace Aui {
             setRowClass: (record: Aui.Data.Record, rowIndex: number) => string;
 
             loading: Aui.Loading;
+            emptyText: string;
 
             /**
              * 그리드패널을 생성한다.
@@ -250,6 +256,11 @@ namespace Aui {
                     direction: 'column',
                     text: this.properties.loadingText ?? null,
                 });
+
+                this.emptyText = this.properties.emptyText ?? null;
+                if (this.emptyText !== null) {
+                    this.$body.setAttr('data-empty-text', this.emptyText);
+                }
 
                 this.setRowClass = this.properties.setRowClass ?? null;
             }
