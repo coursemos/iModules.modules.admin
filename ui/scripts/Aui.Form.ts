@@ -3170,6 +3170,16 @@ namespace Aui {
             export namespace Display {
                 export interface Properties extends Aui.Form.Field.Base.Properties {
                     /**
+                     * @type {string} textAlign - 필드 정렬
+                     */
+                    textAlign?: string;
+
+                    /**
+                     * @type {string} textClass - 필드 스타일시트
+                     */
+                    textClass?: string;
+
+                    /**
                      * @type {Function} renderer - 필드 랜더러
                      */
                     renderer?: (value: any, field: Aui.Form.Field.Display) => string;
@@ -3179,6 +3189,8 @@ namespace Aui {
             export class Display extends Aui.Form.Field.Base {
                 field: string = 'display';
 
+                textAlign: string;
+                textClass: string;
                 renderer: (value: string, field: Aui.Form.Field.Display) => string;
                 $display: Dom;
 
@@ -3190,6 +3202,8 @@ namespace Aui {
                 constructor(properties: Aui.Form.Field.Display.Properties = null) {
                     super(properties);
 
+                    this.textAlign = this.properties.textAlign ?? 'left';
+                    this.textClass = this.properties.textClass ?? null;
                     this.renderer = this.properties.renderer ?? null;
                     this.value = this.properties.value ?? null;
                 }
@@ -3202,6 +3216,11 @@ namespace Aui {
                 $getDisplay(): Dom {
                     if (this.$display === undefined) {
                         this.$display = Html.create('div');
+                        this.$display.setStyle('text-align', this.textAlign);
+
+                        if (this.textClass !== null) {
+                            this.$display.addClass(...this.textClass.split(' '));
+                        }
                     }
 
                     return this.$display;

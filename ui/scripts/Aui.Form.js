@@ -2462,6 +2462,8 @@ var Aui;
             Field.Number = Number;
             class Display extends Aui.Form.Field.Base {
                 field = 'display';
+                textAlign;
+                textClass;
                 renderer;
                 $display;
                 /**
@@ -2471,6 +2473,8 @@ var Aui;
                  */
                 constructor(properties = null) {
                     super(properties);
+                    this.textAlign = this.properties.textAlign ?? 'left';
+                    this.textClass = this.properties.textClass ?? null;
                     this.renderer = this.properties.renderer ?? null;
                     this.value = this.properties.value ?? null;
                 }
@@ -2482,6 +2486,10 @@ var Aui;
                 $getDisplay() {
                     if (this.$display === undefined) {
                         this.$display = Html.create('div');
+                        this.$display.setStyle('text-align', this.textAlign);
+                        if (this.textClass !== null) {
+                            this.$display.addClass(...this.textClass.split(' '));
+                        }
                     }
                     return this.$display;
                 }

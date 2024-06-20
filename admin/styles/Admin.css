@@ -125,6 +125,26 @@ body[data-type='login'] {
         }
 
         div[data-component][data-type='form'][data-role='field'] {
+            div[data-role='content'][data-field='display'] {
+                &.monospace {
+                    font-family: 'Roboto Mono', monospace !important;
+                    letter-spacing: -0.5px;
+                }
+
+                &.numeric {
+                    font-variant-numeric: tabular-nums;
+                }
+
+                &.small {
+                    font-size: 0.8rem !important;
+                }
+
+                &.link {
+                    color: var(--aui-color-accent-500);
+                    font-variant-numeric: tabular-nums;
+                }
+            }
+
             div[data-role='content'][data-field='icon'] {
                 display: inline-flex;
                 flex-direction: column;
