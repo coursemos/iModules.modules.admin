@@ -2207,7 +2207,9 @@ var Aui;
                             type: this.inputType,
                             name: this.inputName,
                             step: this.step.toString(),
-                            value: this.value?.toString() ?? '0',
+                            value: this.format == true
+                                ? Format.number(this.value ?? 0, this.locale)
+                                : this.value?.toString() ?? '0',
                         });
                         this.$input.setStyle('text-align', this.inputAlign);
                         if (this.readonly == true || this.editable == false) {
