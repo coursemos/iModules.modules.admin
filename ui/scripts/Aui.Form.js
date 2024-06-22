@@ -1556,6 +1556,14 @@ var Aui;
                             }
                             this.keydown(e);
                         });
+                        this.$input.on('copy', (e) => {
+                            if (this.value) {
+                                if (this.value instanceof moment) {
+                                    e.clipboardData.setData('text/plain', this.value.format('YYYY-MM-DD'));
+                                    e.preventDefault();
+                                }
+                            }
+                        });
                     }
                     return this.$input;
                 }
