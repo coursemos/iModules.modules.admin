@@ -52,7 +52,6 @@ div[data-role='scrollbar'] {
         height: 100%;
         background: transparent;
         position: relative;
-        transition: width 0.2s ease-in-out, height 0.2s ease-in-out, margin 0.2s ease-in-out;
 
         &::before {
             position: absolute;
@@ -74,8 +73,6 @@ div[data-role='scrollbar'] {
             opacity: 0.7;
             border: 1px solid transparent;
             background-clip: content-box;
-            transition: width 0.2s ease-in-out, height 0.2s ease-in-out, opacity 0.2s ease-in-out,
-                border 0.2s ease-in-out;
         }
     }
 
@@ -119,12 +116,14 @@ div[data-role='scrollbar'] {
         > div[data-role='track'] {
             height: 8px;
             margin-top: 6px;
+            transition: height 0.2s ease-in-out, margin 0.2s ease-in-out;
 
             > div[data-role='bar'] {
                 bottom: 1px;
                 left: 0px;
                 height: calc(100% - 2px);
                 min-width: 30px;
+                transition: height 0.2s ease-in-out, opacity 0.2s ease-in-out, border 0.2s ease-in-out;
             }
         }
 
@@ -150,12 +149,14 @@ div[data-role='scrollbar'] {
         > div[data-role='track'] {
             width: 8px;
             margin-left: 6px;
+            transition: width 0.2s ease-in-out, margin 0.2s ease-in-out;
 
             > div[data-role='bar'] {
                 top: 0px;
                 right: 1px;
                 width: calc(100% - 2px);
                 min-height: 30px;
+                transition: width 0.2s ease-in-out, opacity 0.2s ease-in-out, border 0.2s ease-in-out;
             }
         }
 
