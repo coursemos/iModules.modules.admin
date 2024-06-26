@@ -1226,7 +1226,6 @@ var Aui;
                 if (this.getStore().isLoaded() === false)
                     return;
                 this.getScroll(false)?.restorePosition(this.getStore().getCurrentParams());
-                this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
             }
             /**
@@ -2498,7 +2497,6 @@ var Aui;
                                 resize: (_$target, rect, position, $guide) => {
                                     this.grid.$getHeader().addClass('locked');
                                     $guide.setStyle('height', null);
-                                    console.log($guide.getAttr('style'));
                                     /**
                                      * 그리드 패널 우측으로 벗어났을 경우, 그리드패널을 우측으로 스크롤한다.
                                      */
@@ -2514,6 +2512,7 @@ var Aui;
                                             const speed = Math.min(Math.ceil((x - (offset.left + width - 15)) / 30), 15);
                                             this.grid.getScroll().setAutoScroll(speed, 0);
                                         }
+                                        this.grid.getScroll().active('x');
                                     }
                                     else if (this.isFreezeColumn() == false &&
                                         x < offset.left + this.grid.freezeWidth + 15) {
@@ -2524,6 +2523,7 @@ var Aui;
                                             const speed = Math.max(Math.floor((x - (offset.left + this.grid.freezeWidth - 15)) / 30), -15);
                                             this.grid.getScroll().setAutoScroll(speed, 0);
                                         }
+                                        this.grid.getScroll().active('x');
                                     }
                                     else {
                                         this.grid.getScroll().setAutoScroll(0, 0);

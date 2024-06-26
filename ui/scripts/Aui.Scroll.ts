@@ -10,7 +10,8 @@
  */
 namespace Aui {
     export class Scroll extends Aui.Base {
-        static scrollbars: WeakMap<HTMLElement, Aui.Scroll> = new WeakMap();
+        static scrolls: Map<HTMLElement, Aui.Scroll> = new Map();
+        static started: boolean = false;
 
         $component: Dom;
         $target: Dom;
@@ -22,6 +23,7 @@ namespace Aui {
         autoScroll: { x: number; y: number } = { x: 0, y: 0 };
 
         latestPosition: { x: number; y: number } = { x: 0, y: 0 };
+        latestTargetSize: { width: number; height: number } = { width: 0, height: 0 };
         storePositionData: any = null;
         storePositionCoordinate: { x: number; y: number } = { x: 0, y: 0 };
 
@@ -45,7 +47,7 @@ namespace Aui {
                 this.scrollable.y = scrollable === true || scrollable.toLowerCase() == 'y';
             }
 
-            Aui.Scroll.scrollbars.set(this.$target.getEl(), this);
+            Aui.Scroll.scrolls.set(this.$target.getEl(), this);
         }
 
         /**
@@ -56,8 +58,8 @@ namespace Aui {
          * @return {Aui.Scroll} scrollbar
          */
         static get($target: Dom, scrollable: boolean | string = false): Aui.Scroll {
-            if (Aui.Scroll.scrollbars.has($target.getEl()) == true) {
-                return Aui.Scroll.scrollbars.get($target.getEl());
+            if (Aui.Scroll.scrolls.has($target.getEl()) == true) {
+                return Aui.Scroll.scrolls.get($target.getEl());
             } else {
                 return new Aui.Scroll($target, scrollable);
             }
@@ -92,7 +94,39 @@ namespace Aui {
                 this.scrollable.y = scrollable == true || scrollable.toLowerCase() == 'y';
             }
 
-            this.scrollbarRender();
+            if (this.rendered !== true) {
+                this.render();
+            } else {
+                if (this.scrollable.x == true) {
+                    if (this.$target.getAttr('data-scroll-x') === 'false') {
+                        this.$target.setAttr('data-scroll-x', 'true');
+                    } else if (this.$target.getAttr('data-scroll-x') !== 'true') {
+                        this.$target.setAttr('data-scroll-x', 'true');
+                        this.$component.append(this.$getScrollbar('x'));
+                        this.updateTrack('x');
+                    }
+                } else {
+                    if (this.$target.getAttr('data-scroll-x') === 'true') {
+                        this.$target.setAttr('data-scroll-x', 'false');
+                    }
+                }
+
+                if (this.scrollable.y == true) {
+                    if (this.$target.getAttr('data-scroll-y') === 'false') {
+                        this.$target.setAttr('data-scroll-y', 'true');
+                    } else if (this.$target.getAttr('data-scroll-y') !== 'true') {
+                        this.$target.setAttr('data-scroll-y', 'true');
+                        this.$component.append(this.$getScrollbar('y'));
+                        this.updateTrack('y');
+                    }
+                } else {
+                    if (this.$target.getAttr('data-scroll-y') === 'true') {
+                        this.$target.setAttr('data-scroll-y', 'false');
+                    }
+                }
+            }
+
+            this.update();
         }
 
         /**
@@ -332,7 +366,7 @@ namespace Aui {
          * 스크롤바를 위한 이벤트를 등록한다.
          */
         setEvent(): void {
-            this.$target.on('scroll', (e) => {
+            this.$target.on('scroll', () => {
                 const current = this.getPosition();
                 if (this.latestPosition.x !== current.x) {
                     this.active('x', 1);
@@ -344,60 +378,6 @@ namespace Aui {
 
                 this.latestPosition = current;
             });
-            /*
-            this.$target.on('wheel', (e: WheelEvent) => {
-                const DELTA_MODE = [1.0, 28.0, 500.0];
-                const mode = DELTA_MODE[e.deltaMode] ?? DELTA_MODE[0];
-
-                const x = Math.round(e.deltaX * mode);
-                const y = Math.round(e.deltaY * mode);
-
-                if (this.isMovable(x, y) == true) {
-                    this.addMomentum(this.scrollable.x == true ? x : 0, this.scrollable.y == true ? y : 0);
-                    e.stopImmediatePropagation();
-                }
-            });
-
-            if (window.ontouchstart !== undefined) {
-                this.$target.addClass('touchscroll');
-
-                new Aui.Drag(this.$target, {
-                    pointerType: ['touch', 'pen'],
-                    listeners: {
-                        start: (_$target: Dom, _tracker: Aui.Drag.Tracker, e: PointerEvent) => {
-                            if (this.isScrollable('x') == true || this.isScrollable('y') == true) {
-                                e.stopPropagation();
-                            }
-                            this.setMomentum(0, 0);
-                        },
-                        drag: (_$target: Dom, tracker: Aui.Drag.Tracker) => {
-                            const { x, y } = tracker.getDelta();
-
-                            if (this.isMovable(-x, -y) == true) {
-                                this.movePosition(
-                                    this.scrollable.x == true ? -x : 0,
-                                    this.scrollable.y == true ? -y : 0,
-                                    true
-                                );
-                            }
-                        },
-                        end: (_$target: Dom, tracker: Aui.Drag.Tracker) => {
-                            const delta = tracker.getDelta();
-                            if (this.isMovable(-delta.x, -delta.y) == true) {
-                                this.movePosition(
-                                    this.scrollable.x == true ? -delta.x : 0,
-                                    this.scrollable.y == true ? -delta.y : 0,
-                                    true
-                                );
-                            }
-
-                            const { x, y } = tracker.getVelocity();
-                            this.addMomentum(-x, -y);
-                        },
-                    },
-                });
-            }
-            */
 
             this.setTrackEvent('x');
             this.setTrackEvent('y');
@@ -553,6 +533,8 @@ namespace Aui {
                 clearTimeout($scrollbar.getData('timer'));
             }
 
+            console.log('active');
+
             $scrollbar.addClass('active');
 
             if (delay > 0) {
@@ -621,7 +603,6 @@ namespace Aui {
         /**
          * 스크롤바 위치를 다시 조절한다.
          */
-        latestTargetSize = { width: 0, height: 0 };
         updatePosition(): void {
             if (
                 this.latestTargetSize.width === this.$target.getWidth() &&
@@ -656,17 +637,23 @@ namespace Aui {
         }
 
         /**
-         * 스크롤바를 랜더링하여 실제로 객체를 스크롤 한다.
+         * 스크롤영역을 업데이트한다.
          */
-        scrollbarRender() {
+        update() {
             if (Aui.has(this.getId()) == false) {
                 return;
             }
 
             if (this.$target.isHidden() === false) {
+                let updateX = this.scrollable.x == true;
+                let updateY = this.scrollable.y == true;
+
                 if (this.momentum.x != 0 || this.momentum.y != 0) {
                     const nextX = this.getNextTick('x');
                     const nextY = this.getNextTick('y');
+
+                    updateX = true;
+                    updateY = true;
 
                     this.setMomentum(nextX.momentum, nextY.momentum);
                     this.setPosition(nextX.position, nextY.position, true);
@@ -674,17 +661,13 @@ namespace Aui {
 
                 this.updatePosition();
 
-                if (this.scrollable.x == true) {
+                if (updateX == true) {
                     this.updateTrack('x');
                 }
 
-                if (this.scrollable.y == true) {
+                if (updateY == true) {
                     this.updateTrack('y');
                 }
-            }
-
-            if (Aui.has(this.getId()) == true) {
-                requestAnimationFrame(this.scrollbarRender.bind(this));
             }
         }
 
@@ -713,8 +696,38 @@ namespace Aui {
                 }
 
                 this.setEvent();
-                this.scrollbarRender();
+                Aui.Scroll.startRendering();
             }
+        }
+
+        /**
+         * 스크롤영역을 제거한다.
+         */
+        remove(): void {
+            Aui.Scroll.scrolls.delete(this.$target.getEl());
+        }
+
+        /**
+         * 스크롤영역 랜더링을 시작한다.
+         */
+        static startRendering(): void {
+            if (Aui.Scroll.started === true) {
+                return;
+            }
+
+            Aui.Scroll.started = true;
+            requestAnimationFrame(Aui.Scroll.rendering);
+        }
+
+        /**
+         * 스크롤영역을 지속적으로 랜더링한다.
+         */
+        static rendering(): void {
+            Aui.Scroll.scrolls.forEach((scroll) => {
+                scroll.update();
+            });
+
+            requestAnimationFrame(Aui.Scroll.rendering);
         }
     }
 }
