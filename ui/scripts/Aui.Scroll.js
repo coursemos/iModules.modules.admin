@@ -471,7 +471,6 @@ var Aui;
             if ($scrollbar.getData('timer')) {
                 clearTimeout($scrollbar.getData('timer'));
             }
-            console.log('active');
             $scrollbar.addClass('active');
             if (delay > 0) {
                 this.deactive(direction, delay);

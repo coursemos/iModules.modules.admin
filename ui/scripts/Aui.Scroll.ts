@@ -533,8 +533,6 @@ namespace Aui {
                 clearTimeout($scrollbar.getData('timer'));
             }
 
-            console.log('active');
-
             $scrollbar.addClass('active');
 
             if (delay > 0) {
