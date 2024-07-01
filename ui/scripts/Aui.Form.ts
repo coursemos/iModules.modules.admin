@@ -4713,8 +4713,6 @@ namespace Aui {
                     this.searchField = this.properties.searchField ?? this.displayField;
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
 
-                    this.rawValue = this.properties.value ?? null;
-
                     this.expandOnFocus = this.properties.expandOnFocus === true;
                     this.expandOnEnter = this.properties.expandOnEnter !== false;
 
@@ -5377,8 +5375,7 @@ namespace Aui {
                  * 필드가 랜더링되었을 때 이벤트를 처리한다.
                  */
                 onRender(): void {
-                    this.oValue = null;
-                    if (this.rawValue !== null) {
+                    if (this.oValue !== undefined && this.value === undefined) {
                         if (this.getStore().isLoaded() == false) {
                             this.getStore()
                                 .load()
@@ -5388,9 +5385,9 @@ namespace Aui {
                                 });
                         } else {
                             this.setValue(this.rawValue, true);
+                            super.onRender();
                         }
                     } else {
-                        this.setValue(null, true);
                         super.onRender();
                     }
                 }
