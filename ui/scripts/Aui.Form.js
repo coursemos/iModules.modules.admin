@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 2.
+ * @modified 2024. 7. 1.
  */
 var Aui;
 (function (Aui) {
@@ -3932,8 +3932,8 @@ var Aui;
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value, is_origin = false) {
+                    value ??= null;
                     this.rawValue = value;
-                    this.value = value;
                     if (value === null) {
                         this.$getEmptyText().show();
                         this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
@@ -4211,6 +4211,29 @@ var Aui;
                     const $emptyText = this.$getEmptyText();
                     $emptyText.html(this.emptyText ?? '');
                     this.$getContent().append($emptyText);
+                }
+                /**
+                 * 필드가 랜더링되었을 때 이벤트를 처리한다.
+                 */
+                onRender() {
+                    this.oValue = null;
+                    if (this.rawValue !== null) {
+                        if (this.getStore().isLoaded() == false) {
+                            this.getStore()
+                                .load()
+                                .then(() => {
+                                this.setValue(this.rawValue, true);
+                                super.onRender();
+                            });
+                        }
+                        else {
+                            this.setValue(this.rawValue, true);
+                        }
+                    }
+                    else {
+                        this.setValue(null, true);
+                        super.onRender();
+                    }
                 }
                 /**
                  * 셀렉트폼의 목록 데이터를 로딩하기전 이벤트를 처리한다.

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 2.
+ * @modified 2024. 7. 1.
  */
 namespace Aui {
     export namespace Form {
@@ -5069,8 +5069,8 @@ namespace Aui {
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value: any, is_origin: boolean = false): void {
+                    value ??= null;
                     this.rawValue = value;
-                    this.value = value;
 
                     if (value === null) {
                         this.$getEmptyText().show();
@@ -5371,6 +5371,28 @@ namespace Aui {
                     const $emptyText = this.$getEmptyText();
                     $emptyText.html(this.emptyText ?? '');
                     this.$getContent().append($emptyText);
+                }
+
+                /**
+                 * 필드가 랜더링되었을 때 이벤트를 처리한다.
+                 */
+                onRender(): void {
+                    this.oValue = null;
+                    if (this.rawValue !== null) {
+                        if (this.getStore().isLoaded() == false) {
+                            this.getStore()
+                                .load()
+                                .then(() => {
+                                    this.setValue(this.rawValue, true);
+                                    super.onRender();
+                                });
+                        } else {
+                            this.setValue(this.rawValue, true);
+                        }
+                    } else {
+                        this.setValue(null, true);
+                        super.onRender();
+                    }
                 }
 
                 /**
