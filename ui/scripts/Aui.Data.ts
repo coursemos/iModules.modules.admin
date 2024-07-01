@@ -55,7 +55,7 @@ namespace Aui {
                     }
                 }
 
-                this.records.push(new Aui.Data.Record(this, record, this.primaryKeys, this.childrenField));
+                this.records.push(new Aui.Data.Record(this, { ...record }, this.primaryKeys, this.childrenField));
             }
 
             this.originRecords = this.records;
@@ -318,7 +318,9 @@ namespace Aui {
                     parents.push(this);
                     this.children = [];
                     for (const child of this.record[childrenField]) {
-                        this.children.push(new Aui.Data.Record(data, child, primaryKeys, childrenField, parents));
+                        this.children.push(
+                            new Aui.Data.Record(data, { ...child }, primaryKeys, childrenField, parents)
+                        );
                     }
                     delete this.record[childrenField];
                 }
