@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 7.
+ * @modified 2024. 7. 1.
  */
 var Aui;
 (function (Aui) {
@@ -926,6 +926,9 @@ var Aui;
              */
             $getRow(treeIndex, record = null) {
                 if (record === null) {
+                    if (treeIndex === null) {
+                        return null;
+                    }
                     let $parent = this.$getBody();
                     for (const rowIndex of treeIndex) {
                         const $tree = Html.get('> div[data-role=tree]', $parent);

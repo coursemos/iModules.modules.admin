@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 7.
+ * @modified 2024. 7. 1.
  */
 namespace Aui {
     export namespace Grid {
@@ -1169,6 +1169,10 @@ namespace Aui {
              */
             $getRow(rowIndex: number, record: Aui.Data.Record = null): Dom {
                 if (record === null) {
+                    if (rowIndex === null) {
+                        return null;
+                    }
+
                     return Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex);
                 } else {
                     record.setObserver(() => {

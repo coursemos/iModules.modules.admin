@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 7.
+ * @modified 2024. 7. 1.
  */
 var Aui;
 (function (Aui) {
@@ -881,6 +881,9 @@ var Aui;
              */
             $getRow(rowIndex, record = null) {
                 if (record === null) {
+                    if (rowIndex === null) {
+                        return null;
+                    }
                     return Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex);
                 }
                 else {
