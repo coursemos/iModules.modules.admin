@@ -678,7 +678,6 @@ div[data-component][data-type='form'][data-role='field'] {
 
     > div[data-role='container'] > div[data-role='content'][data-field='display'] {
         position: relative;
-        background: var(--aui-color-background-500);
         z-index: 0;
 
         > div {
@@ -1779,7 +1778,7 @@ div[data-component][data-type='form'][data-role='field'] {
                     line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
                     vertical-align: top;
                     box-sizing: border-box;
-                    padding-left: calc(var(--aui-component-gap) * 2);
+                    padding-left: var(--aui-component-gap);
                     font-size: var(--aui-font-size-default);
                     font-family: var(--aui-font-family-default);
                     color: var(--aui-color-text-500);
