@@ -5380,11 +5380,11 @@ namespace Aui {
                             this.getStore()
                                 .load()
                                 .then(() => {
-                                    this.setValue(this.rawValue, true);
+                                    this.setValue(this.oValue, true);
                                     super.onRender();
                                 });
                         } else {
-                            this.setValue(this.rawValue, true);
+                            this.setValue(this.oValue, true);
                             super.onRender();
                         }
                     } else {
