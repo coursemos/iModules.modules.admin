@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 6.
+ * @modified 2024. 7. 1.
  */
 var Aui;
 (function (Aui) {
@@ -28,7 +28,7 @@ var Aui;
          * @param {Object} records - 데이터
          * @param {Object} fields - 필드명
          * @param {string[]} primaryKeys - 레코드 고유값 필드명
-         * @param {string} childrenFields - 자식 레코드 필드명
+         * @param {string} childrenField - 자식 레코드 필드명
          */
         constructor(records, fields = [], primaryKeys = [], childrenField = null) {
             this.fields = {};
