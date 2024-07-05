@@ -2407,10 +2407,13 @@ namespace Aui {
 
                         if (this.store instanceof Aui.Store) {
                             this.list = new Aui.Grid.Panel({
-                                maxHeight: 300,
+                                minHeight: 100,
+                                maxHeight: 280,
                                 columnHeaders: false,
                                 rowLines: false,
+                                columnLines: false,
                                 store: this.store,
+                                autoLoad: false,
                                 selection: { selectable: true, display: 'check', multiple: this.multiple },
                                 topbar: (() => {
                                     if (this.search === true) {
@@ -2420,6 +2423,7 @@ namespace Aui {
                                                 flex: 1,
                                                 emptyText: Aui.printText('filters.search'),
                                                 handler: async (keyword) => {
+                                                    return;
                                                     this.getList()
                                                         .getStore()
                                                         .setFilter(this.displayField, keyword, 'likecode');
@@ -2440,6 +2444,7 @@ namespace Aui {
                             });
                         }
                     }
+
                     return this.list;
                 }
 
