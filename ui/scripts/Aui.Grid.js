@@ -1908,7 +1908,6 @@ var Aui;
                                                 flex: 1,
                                                 emptyText: Aui.printText('filters.search'),
                                                 handler: async (keyword) => {
-                                                    return;
                                                     this.getList()
                                                         .getStore()
                                                         .setFilter(this.displayField, keyword, 'likecode');
@@ -1925,6 +1924,11 @@ var Aui;
                                         renderer: this.renderer,
                                     },
                                 ],
+                                listeners: {
+                                    update: (grid) => {
+                                        grid.setMinHeight(0);
+                                    },
+                                },
                             });
                         }
                     }
