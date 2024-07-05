@@ -63,6 +63,9 @@ var Aui;
             });
             const $content = Aui.Message.message.$getContent();
             const $messagebox = Html.create('div', { 'data-role': 'messagebox' });
+            if (properties.width) {
+                $messagebox.setStyle('max-width', properties.width + 'px');
+            }
             if (properties?.messageClass) {
                 $messagebox.addClass(...properties.messageClass.split(' '));
             }
