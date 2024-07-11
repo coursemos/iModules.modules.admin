@@ -868,8 +868,11 @@ div[data-component][data-type='panel'][data-role='tree'] {
                     div[data-role='tree'] {
                         gap: 1px;
                         background: var(--aui-color-background-300);
-                        &::before {
-                            content: ' ';
+
+                        &:not(:first-child) {
+                            &::before {
+                                content: ' ';
+                            }
                         }
                         &::after {
                             content: ' ';
