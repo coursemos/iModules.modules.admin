@@ -51,7 +51,7 @@ namespace Aui {
             /**
              * @type {Object} sorters - 데이터 정렬방식
              */
-            sorters?: { [field: string]: 'ASC' | 'DESC' };
+            sorters?: { [field: string]: 'ASC' | 'DESC' | string[] };
 
             /**
              * @type {boolean} remoteSort - store 외부에서 데이터를 정렬할지 여부
@@ -84,7 +84,7 @@ namespace Aui {
         primaryKeys: string[];
         fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[];
         params: { [key: string]: any };
-        sorters: { [field: string]: 'ASC' | 'DESC' };
+        sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
         filterMode: 'OR' | 'AND' = 'AND';
@@ -508,7 +508,7 @@ namespace Aui {
          *
          * @return {Object} sorters
          */
-        getSorters(): { [field: string]: 'ASC' | 'DESC' } {
+        getSorters(): { [field: string]: 'ASC' | 'DESC' | string[] } {
             return this.data?.sorters ?? this.sorters;
         }
 
@@ -1013,7 +1013,7 @@ namespace Aui {
         fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[];
         childrenField: string;
         params: { [key: string]: any };
-        sorters: { [field: string]: 'ASC' | 'DESC' };
+        sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
         filterMode: 'OR' | 'AND' = 'AND';
@@ -1702,7 +1702,7 @@ namespace Aui {
          *
          * @param {Object} sorters - 정렬기준
          */
-        async multiSort(sorters: { [field: string]: 'ASC' | 'DESC' }): Promise<void> {
+        async multiSort(sorters: { [field: string]: 'ASC' | 'DESC' | string[] }): Promise<void> {
             this.sorters = sorters;
             if (this.remoteSort == true) {
                 this.reload();
@@ -1718,7 +1718,7 @@ namespace Aui {
          *
          * @return {Object} sorters
          */
-        getSorters(): { [field: string]: 'ASC' | 'DESC' } {
+        getSorters(): { [field: string]: 'ASC' | 'DESC' | string[] } {
             return this.data?.sorters ?? this.sorters;
         }
 

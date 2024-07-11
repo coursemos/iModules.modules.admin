@@ -17,7 +17,7 @@ namespace Aui {
         primaryKeys: string[] = [];
         childrenField: string;
         sorting: boolean;
-        sorters: { [field: string]: 'ASC' | 'DESC' };
+        sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
         filtering: boolean;
         filters: { [field: string]: { value: any; operator: string } };
         filterMode: 'OR' | 'AND' = 'AND';
@@ -170,7 +170,7 @@ namespace Aui {
          * @param {Object} sorters - 정렬기준
          * @param {boolean} execute - 실제 정렬을 할지 여부
          */
-        async sort(sorters: { [field: string]: 'ASC' | 'DESC' }, execute: boolean = true): Promise<void> {
+        async sort(sorters: { [field: string]: 'ASC' | 'DESC' | string[] }, execute: boolean = true): Promise<void> {
             if (execute === false) {
                 this.sorters = sorters;
                 for (const record of this.records) {
@@ -191,9 +191,19 @@ namespace Aui {
             this.sorting = true;
             this.records.sort((left: Aui.Data.Record, right: Aui.Data.Record) => {
                 for (const field in sorters) {
-                    const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
-                    const leftValue = left.get(field);
-                    const rightValue = right.get(field);
+                    let direction = sorters[field];
+                    let leftValue = left.get(field);
+                    let rightValue = right.get(field);
+
+                    if (typeof direction == 'string') {
+                        direction = direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                    } else {
+                        leftValue = direction.indexOf(leftValue.toString());
+                        leftValue = leftValue == -1 ? direction.length : leftValue;
+                        rightValue = direction.indexOf(rightValue.toString());
+                        rightValue = rightValue == -1 ? direction.length : rightValue;
+                        direction = 'ASC';
+                    }
 
                     if (leftValue < rightValue) {
                         return direction == 'DESC' ? 1 : -1;
@@ -281,7 +291,7 @@ namespace Aui {
             childrenField: string;
             parents: Aui.Data.Record[];
             sorting: boolean;
-            sorters: { [field: string]: 'ASC' | 'DESC' };
+            sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
             filtering: boolean;
             filters: { [field: string]: { value: any; operator: string } };
             filterMode: 'OR' | 'AND' = 'AND';
@@ -571,7 +581,10 @@ namespace Aui {
              * @param {Object} sorters - 정렬기준
              * @param {boolean} execute - 실제 정렬을 할지 여부
              */
-            async sort(sorters: { [field: string]: 'ASC' | 'DESC' }, execute: boolean = true): Promise<void> {
+            async sort(
+                sorters: { [field: string]: 'ASC' | 'DESC' | string[] },
+                execute: boolean = true
+            ): Promise<void> {
                 if (execute === false) {
                     this.sorters = sorters;
                     for (const child of this.getChildren()) {
@@ -593,9 +606,19 @@ namespace Aui {
                     this.sorting = true;
                     this.children.sort((left: Aui.Data.Record, right: Aui.Data.Record) => {
                         for (const field in sorters) {
-                            const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
-                            const leftValue = left.get(field);
-                            const rightValue = right.get(field);
+                            let direction = sorters[field];
+                            let leftValue = left.get(field);
+                            let rightValue = right.get(field);
+
+                            if (typeof direction == 'string') {
+                                direction = direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                            } else {
+                                leftValue = direction.indexOf(leftValue.toString());
+                                leftValue = leftValue == -1 ? direction.length : leftValue;
+                                rightValue = direction.indexOf(rightValue.toString());
+                                rightValue = rightValue == -1 ? direction.length : rightValue;
+                                direction = 'ASC';
+                            }
 
                             if (leftValue < rightValue) {
                                 return direction == 'DESC' ? 1 : -1;

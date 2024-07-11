@@ -166,9 +166,19 @@ var Aui;
             this.sorting = true;
             this.records.sort((left, right) => {
                 for (const field in sorters) {
-                    const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
-                    const leftValue = left.get(field);
-                    const rightValue = right.get(field);
+                    let direction = sorters[field];
+                    let leftValue = left.get(field);
+                    let rightValue = right.get(field);
+                    if (typeof direction == 'string') {
+                        direction = direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                    }
+                    else {
+                        leftValue = direction.indexOf(leftValue.toString());
+                        leftValue = leftValue == -1 ? direction.length : leftValue;
+                        rightValue = direction.indexOf(rightValue.toString());
+                        rightValue = rightValue == -1 ? direction.length : rightValue;
+                        direction = 'ASC';
+                    }
                     if (leftValue < rightValue) {
                         return direction == 'DESC' ? 1 : -1;
                     }
@@ -517,9 +527,19 @@ var Aui;
                     this.sorting = true;
                     this.children.sort((left, right) => {
                         for (const field in sorters) {
-                            const direction = sorters[field].toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
-                            const leftValue = left.get(field);
-                            const rightValue = right.get(field);
+                            let direction = sorters[field];
+                            let leftValue = left.get(field);
+                            let rightValue = right.get(field);
+                            if (typeof direction == 'string') {
+                                direction = direction.toUpperCase() == 'DESC' ? 'DESC' : 'ASC';
+                            }
+                            else {
+                                leftValue = direction.indexOf(leftValue.toString());
+                                leftValue = leftValue == -1 ? direction.length : leftValue;
+                                rightValue = direction.indexOf(rightValue.toString());
+                                rightValue = rightValue == -1 ? direction.length : rightValue;
+                                direction = 'ASC';
+                            }
                             if (leftValue < rightValue) {
                                 return direction == 'DESC' ? 1 : -1;
                             }
