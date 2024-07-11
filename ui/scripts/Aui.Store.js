@@ -405,6 +405,18 @@ var Aui;
             return this.data?.sorters ?? this.sorters;
         }
         /**
+         * 특정 필드의 정렬방향을 가져온다.
+         *
+         * @return {'ASC'|'DESC'} direction
+         */
+        getSorterDirection(field) {
+            const sorter = this.data?.sorters[field] ?? null;
+            if (sorter === null) {
+                return null;
+            }
+            return typeof sorter == 'string' ? sorter : 'ASC';
+        }
+        /**
          * 필터를 설정한다.
          *
          * @param {string} field - 필터링할 필드명
@@ -1353,6 +1365,18 @@ var Aui;
          */
         getSorters() {
             return this.data?.sorters ?? this.sorters;
+        }
+        /**
+         * 특정 필드의 정렬방향을 가져온다.
+         *
+         * @return {'ASC'|'DESC'} direction
+         */
+        getSorterDirection(field) {
+            const sorter = this.data?.sorters[field] ?? null;
+            if (sorter === null) {
+                return null;
+            }
+            return typeof sorter == 'string' ? sorter : 'ASC';
         }
         /**
          * 필터를 설정한다.

@@ -492,7 +492,7 @@ namespace Aui {
          *
          * @param {Object} sorters - 정렬기준
          */
-        async multiSort(sorters: { [field: string]: 'ASC' | 'DESC' }): Promise<void> {
+        async multiSort(sorters: { [field: string]: 'ASC' | 'DESC' | string[] }): Promise<void> {
             this.sorters = sorters;
             if (this.remoteSort == true) {
                 await this.reload();
@@ -510,6 +510,20 @@ namespace Aui {
          */
         getSorters(): { [field: string]: 'ASC' | 'DESC' | string[] } {
             return this.data?.sorters ?? this.sorters;
+        }
+
+        /**
+         * 특정 필드의 정렬방향을 가져온다.
+         *
+         * @return {'ASC'|'DESC'} direction
+         */
+        getSorterDirection(field: string): 'ASC' | 'DESC' {
+            const sorter = this.data?.sorters[field] ?? null;
+            if (sorter === null) {
+                return null;
+            }
+
+            return typeof sorter == 'string' ? sorter : 'ASC';
         }
 
         /**
@@ -1720,6 +1734,20 @@ namespace Aui {
          */
         getSorters(): { [field: string]: 'ASC' | 'DESC' | string[] } {
             return this.data?.sorters ?? this.sorters;
+        }
+
+        /**
+         * 특정 필드의 정렬방향을 가져온다.
+         *
+         * @return {'ASC'|'DESC'} direction
+         */
+        getSorterDirection(field: string): 'ASC' | 'DESC' {
+            const sorter = this.data?.sorters[field] ?? null;
+            if (sorter === null) {
+                return null;
+            }
+
+            return typeof sorter == 'string' ? sorter : 'ASC';
         }
 
         /**

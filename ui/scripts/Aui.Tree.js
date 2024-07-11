@@ -1057,7 +1057,7 @@ var Aui;
                 $labels.forEach(($label) => {
                     for (const sorter in sorters) {
                         if ($label.getData('dataindex') === sorter || $label.getData('sortable') === sorter) {
-                            Html.get('i[data-role=sorter]', $label).addClass(sorters[sorter]);
+                            Html.get('i[data-role=sorter]', $label).addClass(this.getStore().getSorterDirection(sorter));
                         }
                     }
                 });
