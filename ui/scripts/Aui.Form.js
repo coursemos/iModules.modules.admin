@@ -587,7 +587,9 @@ var Aui;
                 setValue(value, is_origin = false) {
                     this.value = value;
                     if (Format.isEqual(value, this.pValue) == false) {
-                        this.onChange();
+                        if (is_origin === false) {
+                            this.onChange();
+                        }
                         this.pValue = value;
                     }
                     if (is_origin == true) {
