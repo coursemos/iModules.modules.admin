@@ -148,6 +148,15 @@ namespace Aui {
                 store: Aui.Store;
 
                 /**
+                 * @type {Object} grouper - 그룹설정
+                 */
+                grouper?: {
+                    dataIndex: string;
+                    sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
+                    renderer?: (value: string, record: Aui.Data.Record) => string;
+                };
+
+                /**
                  * @type {boolean} autoLoad - 객체가 랜더링된 후 데이터를 자동으로 불러올지 여부
                  */
                 autoLoad?: boolean;
@@ -191,6 +200,11 @@ namespace Aui {
             selections: Map<string, Aui.Data.Record> = new Map();
 
             store: Aui.Store;
+            grouper: {
+                dataIndex: string;
+                sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
+                renderer?: (value: string, record: Aui.Data.Record) => string;
+            };
             autoLoad: boolean;
 
             $header: Dom;
@@ -231,6 +245,15 @@ namespace Aui {
                 this.selection.keepable = this.selection.keepable ?? false;
 
                 this.store = this.properties.store ?? new Aui.Store();
+                this.grouper = this.properties.grouper ?? null;
+                if (this.grouper !== null) {
+                    if (!this.grouper.sorters) {
+                        this.grouper.sorters = {};
+                        this.grouper.sorters[this.grouper.dataIndex] = 'ASC';
+                    }
+                    this.grouper.renderer ??= (value) => value;
+                    this.store.sorters = { ...this.grouper.sorters, ...this.store.sorters };
+                }
                 this.store.addEvent('beforeLoad', () => {
                     this.onBeforeLoad();
                 });
@@ -919,7 +942,7 @@ namespace Aui {
              */
             resetSelections(is_event: boolean = true): void {
                 if (this.selections.size > 0) {
-                    Html.all('> div[data-role=row]', this.$getBody()).removeClass('selected');
+                    Html.all('div[data-role=row]', this.$getBody()).removeClass('selected');
                     this.selections.clear();
 
                     if (is_event == true) {
@@ -936,7 +959,7 @@ namespace Aui {
                     for (const selection of this.selections.values()) {
                         const rowIndex = this.getStore().matchIndex(selection);
                         if (rowIndex !== null) {
-                            Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex).addClass('selected');
+                            Html.all('div[data-role=row]', this.$getBody()).get(rowIndex).addClass('selected');
                         }
                     }
                 }
@@ -947,8 +970,8 @@ namespace Aui {
              */
             onSelectionChange(): void {
                 if (this.selection.display == 'check') {
-                    const rows = Html.all('> div[data-role=row]', this.$getBody());
-                    const selected = Html.all('> div[data-role=row].selected', this.$getBody());
+                    const rows = Html.all('div[data-role=row]', this.$getBody());
+                    const selected = Html.all('div[data-role=row].selected', this.$getBody());
 
                     if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
                         Html.get('div[data-role=check]', this.$header).addClass('checked');
@@ -1139,7 +1162,7 @@ namespace Aui {
                     });
                     this.freezeWidth = leftPosition;
 
-                    Html.all('> div[data-role=row]', this.$body).forEach(($row: Dom) => {
+                    Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
                         let leftPosition = 0;
                         Html.all('> div[data-role=column]', $row).forEach(($column: Dom, columnIndex: number) => {
                             const column = this.columns[columnIndex];
@@ -1162,6 +1185,41 @@ namespace Aui {
             }
 
             /**
+             * 데이터를 그룹핑한다.
+             *
+             * @param {string} dataIndex - 그룹핑할 기준 데이터인덱스
+             * @param {Object} sorters - 그룹정렬
+             * @param {Function} renderer - 그룹헤더 렌더러
+             */
+            group(
+                dataIndex: string,
+                sorters: { [field: string]: 'ASC' | 'DESC' | string[] },
+                renderer: (value: string, record: Aui.Data.Record) => string
+            ): void {
+                if (!sorters) {
+                    sorters = {};
+                    sorters[dataIndex] = 'ASC';
+                }
+                renderer ??= (value) => value;
+
+                this.grouper = {
+                    dataIndex: dataIndex,
+                    sorters: sorters,
+                    renderer: renderer,
+                };
+
+                this.getStore().multiSort({ ...sorters, ...(this.getStore().properties.sorters ?? {}) });
+            }
+
+            /**
+             * 데이터그룹핑을 해제한다.
+             */
+            ungroup(): void {
+                this.grouper = null;
+                this.getStore().multiSort(this.getStore().properties.sorters ?? {});
+            }
+
+            /**
              * 그리드패널의 아이탬(행) DOM 을 생성하거나 가져온다.
              *
              * @param {number} rowIndex - 생성하거나 가져올 행 인덱스
@@ -1173,7 +1231,7 @@ namespace Aui {
                         return null;
                     }
 
-                    return Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex);
+                    return Html.all('div[data-role=row]', this.$getBody()).get(rowIndex);
                 } else {
                     record.setObserver(() => {
                         this.updateRow(rowIndex);
@@ -1294,7 +1352,9 @@ namespace Aui {
                 $labels.forEach(($label) => {
                     for (const sorter in sorters) {
                         if ($label.getData('dataindex') === sorter || $label.getData('sortable') === sorter) {
-                            Html.get('i[data-role=sorter]', $label).addClass(sorters[sorter]);
+                            Html.get('i[data-role=sorter]', $label).addClass(
+                                this.getStore().getSorterDirection(sorter)
+                            );
                         }
                     }
                 });
@@ -1416,11 +1476,36 @@ namespace Aui {
              */
             renderBody(): void {
                 this.$body.empty();
+
+                let $group: Dom = null;
+                if (this.grouper === null) {
+                    $group = Html.create('div', { 'data-role': 'rows' });
+                    this.$body.append($group);
+                }
                 this.getStore()
                     .getRecords()
                     .forEach((record: Aui.Data.Record, rowIndex: number) => {
                         const $row = this.$getRow(rowIndex, record);
-                        this.$body.append($row);
+
+                        if (this.grouper !== null) {
+                            if ($group?.getData('group') !== record.get(this.grouper.dataIndex)) {
+                                $group = Html.create('div', { 'data-role': 'group' });
+                                $group.setData('group', record.get(this.grouper.dataIndex));
+                                this.$body.append($group);
+
+                                const $header = Html.create('div', { 'data-role': 'header' });
+                                const $label = Html.create('label');
+                                $label.on('click', (e) => {
+                                    const $group = Html.el(e.currentTarget).getParent().getParent();
+                                    $group.toggleClass('collapsed');
+                                });
+                                $label.html(this.grouper.renderer(record.get(this.grouper.dataIndex), record));
+                                $header.append($label);
+                                $group.append($header);
+                            }
+                        }
+
+                        $group.append($row);
                     });
 
                 if (this.columnLines == true) {
@@ -3816,7 +3901,6 @@ namespace Aui {
                 if (move !== null) {
                     this.store.loadPage(move);
                 }
-                //
             }
 
             /**

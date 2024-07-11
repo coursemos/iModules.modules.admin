@@ -27,6 +27,7 @@ var Aui;
             selection;
             selections = new Map();
             store;
+            grouper;
             autoLoad;
             $header;
             $body;
@@ -59,6 +60,15 @@ var Aui;
                     this.selection.deselectable ?? (this.selection.display == 'check' ? true : false);
                 this.selection.keepable = this.selection.keepable ?? false;
                 this.store = this.properties.store ?? new Aui.Store();
+                this.grouper = this.properties.grouper ?? null;
+                if (this.grouper !== null) {
+                    if (!this.grouper.sorters) {
+                        this.grouper.sorters = {};
+                        this.grouper.sorters[this.grouper.dataIndex] = 'ASC';
+                    }
+                    this.grouper.renderer ??= (value) => value;
+                    this.store.sorters = { ...this.grouper.sorters, ...this.store.sorters };
+                }
                 this.store.addEvent('beforeLoad', () => {
                     this.onBeforeLoad();
                 });
@@ -664,7 +674,7 @@ var Aui;
              */
             resetSelections(is_event = true) {
                 if (this.selections.size > 0) {
-                    Html.all('> div[data-role=row]', this.$getBody()).removeClass('selected');
+                    Html.all('div[data-role=row]', this.$getBody()).removeClass('selected');
                     this.selections.clear();
                     if (is_event == true) {
                         this.onSelectionChange();
@@ -679,7 +689,7 @@ var Aui;
                     for (const selection of this.selections.values()) {
                         const rowIndex = this.getStore().matchIndex(selection);
                         if (rowIndex !== null) {
-                            Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex).addClass('selected');
+                            Html.all('div[data-role=row]', this.$getBody()).get(rowIndex).addClass('selected');
                         }
                     }
                 }
@@ -689,8 +699,8 @@ var Aui;
              */
             onSelectionChange() {
                 if (this.selection.display == 'check') {
-                    const rows = Html.all('> div[data-role=row]', this.$getBody());
-                    const selected = Html.all('> div[data-role=row].selected', this.$getBody());
+                    const rows = Html.all('div[data-role=row]', this.$getBody());
+                    const selected = Html.all('div[data-role=row].selected', this.$getBody());
                     if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
                         Html.get('div[data-role=check]', this.$header).addClass('checked');
                     }
@@ -853,7 +863,7 @@ var Aui;
                         }
                     });
                     this.freezeWidth = leftPosition;
-                    Html.all('> div[data-role=row]', this.$body).forEach(($row) => {
+                    Html.all('div[data-role=row]', this.$body).forEach(($row) => {
                         let leftPosition = 0;
                         Html.all('> div[data-role=column]', $row).forEach(($column, columnIndex) => {
                             const column = this.columns[columnIndex];
@@ -874,6 +884,33 @@ var Aui;
                 }
             }
             /**
+             * 데이터를 그룹핑한다.
+             *
+             * @param {string} dataIndex - 그룹핑할 기준 데이터인덱스
+             * @param {Object} sorters - 그룹정렬
+             * @param {Function} renderer - 그룹헤더 렌더러
+             */
+            group(dataIndex, sorters, renderer) {
+                if (!sorters) {
+                    sorters = {};
+                    sorters[dataIndex] = 'ASC';
+                }
+                renderer ??= (value) => value;
+                this.grouper = {
+                    dataIndex: dataIndex,
+                    sorters: sorters,
+                    renderer: renderer,
+                };
+                this.getStore().multiSort({ ...sorters, ...(this.getStore().properties.sorters ?? {}) });
+            }
+            /**
+             * 데이터그룹핑을 해제한다.
+             */
+            ungroup() {
+                this.grouper = null;
+                this.getStore().multiSort(this.getStore().properties.sorters ?? {});
+            }
+            /**
              * 그리드패널의 아이탬(행) DOM 을 생성하거나 가져온다.
              *
              * @param {number} rowIndex - 생성하거나 가져올 행 인덱스
@@ -884,7 +921,7 @@ var Aui;
                     if (rowIndex === null) {
                         return null;
                     }
-                    return Html.all('> div[data-role=row]', this.$getBody()).get(rowIndex);
+                    return Html.all('div[data-role=row]', this.$getBody()).get(rowIndex);
                 }
                 else {
                     record.setObserver(() => {
@@ -994,7 +1031,7 @@ var Aui;
                 $labels.forEach(($label) => {
                     for (const sorter in sorters) {
                         if ($label.getData('dataindex') === sorter || $label.getData('sortable') === sorter) {
-                            Html.get('i[data-role=sorter]', $label).addClass(sorters[sorter]);
+                            Html.get('i[data-role=sorter]', $label).addClass(this.getStore().getSorterDirection(sorter));
                         }
                     }
                 });
@@ -1100,11 +1137,32 @@ var Aui;
              */
             renderBody() {
                 this.$body.empty();
+                let $group = null;
+                if (this.grouper === null) {
+                    $group = Html.create('div', { 'data-role': 'rows' });
+                    this.$body.append($group);
+                }
                 this.getStore()
                     .getRecords()
                     .forEach((record, rowIndex) => {
                     const $row = this.$getRow(rowIndex, record);
-                    this.$body.append($row);
+                    if (this.grouper !== null) {
+                        if ($group?.getData('group') !== record.get(this.grouper.dataIndex)) {
+                            $group = Html.create('div', { 'data-role': 'group' });
+                            $group.setData('group', record.get(this.grouper.dataIndex));
+                            this.$body.append($group);
+                            const $header = Html.create('div', { 'data-role': 'header' });
+                            const $label = Html.create('label');
+                            $label.on('click', (e) => {
+                                const $group = Html.el(e.currentTarget).getParent().getParent();
+                                $group.toggleClass('collapsed');
+                            });
+                            $label.html(this.grouper.renderer(record.get(this.grouper.dataIndex), record));
+                            $header.append($label);
+                            $group.append($header);
+                        }
+                    }
+                    $group.append($row);
                 });
                 if (this.columnLines == true) {
                     this.$body.addClass('column-lines');
@@ -2988,7 +3046,6 @@ var Aui;
                 if (move !== null) {
                     this.store.loadPage(move);
                 }
-                //
             }
             /**
              * 툴바를 랜더링한다.
