@@ -869,11 +869,10 @@ div[data-component][data-type='panel'][data-role='tree'] {
                         gap: 1px;
                         background: var(--aui-color-background-300);
 
-                        &:not(:first-child) {
-                            &::before {
-                                content: ' ';
-                            }
+                        &::before {
+                            content: ' ';
                         }
+
                         &::after {
                             content: ' ';
                         }
