@@ -1218,6 +1218,7 @@ namespace Aui {
                  * 포커스 해제시 이벤트를 처리한다.
                  */
                 onBlur(): void {
+                    this.isValid();
                     this.fireEvent('blur', [this]);
                 }
             }
