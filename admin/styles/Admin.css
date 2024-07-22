@@ -20,8 +20,6 @@ body[data-type='login'] {
 
     section[data-role='admin'],
     main[data-role='admin'] {
-        z-index: 0;
-
         i.icon,
         i.photo {
             font-style: normal;
