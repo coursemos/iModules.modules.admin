@@ -1858,13 +1858,13 @@ div[data-component][data-type='form'][data-role='field'] {
                         &:checked::after {
                             border-color: var(--aui-color-background-200);
                             background: var(--aui-color-background-400);
-                            color: var(--aui-color-background-400);
+                            color: var(--aui-color-text-300);
                         }
                     }
                 }
 
                 > span {
-                    color: var(--aui-color-background-400);
+                    color: var(--aui-color-text-300);
                 }
             }
         }
