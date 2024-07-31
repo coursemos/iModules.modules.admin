@@ -28,6 +28,7 @@ var Aui;
             selections = new Map();
             store;
             grouper;
+            summary;
             autoLoad;
             $header;
             $body;
@@ -67,6 +68,7 @@ var Aui;
                         this.grouper.sorters[this.grouper.dataIndex] = 'ASC';
                     }
                     this.grouper.renderer ??= (value) => value;
+                    this.grouper.summary ??= false;
                     this.store.sorters = { ...this.grouper.sorters, ...this.store.sorters };
                 }
                 this.store.addEvent('beforeLoad', () => {
@@ -81,6 +83,7 @@ var Aui;
                 this.store.addEvent('update', () => {
                     this.onUpdate();
                 });
+                this.summary = this.properties.summary === true;
                 this.autoLoad = this.properties.autoLoad !== false;
                 this.initColumns();
                 this.$header = Html.create('div').setData('role', 'header');
@@ -889,17 +892,20 @@ var Aui;
              * @param {string} dataIndex - 그룹핑할 기준 데이터인덱스
              * @param {Object} sorters - 그룹정렬
              * @param {Function} renderer - 그룹헤더 렌더러
+             * @param {boolean} summary - 그룹합계여부
              */
-            group(dataIndex, sorters, renderer) {
+            group(dataIndex, sorters, renderer, summary) {
                 if (!sorters) {
                     sorters = {};
                     sorters[dataIndex] = 'ASC';
                 }
                 renderer ??= (value) => value;
+                summary ??= false;
                 this.grouper = {
                     dataIndex: dataIndex,
                     sorters: sorters,
                     renderer: renderer,
+                    summary: summary,
                 };
                 this.getStore().multiSort({ ...sorters, ...(this.getStore().properties.sorters ?? {}) });
             }
@@ -1056,6 +1062,7 @@ var Aui;
                     return;
                 const record = this.getStore().getAt(rowIndex);
                 $row.replaceWith(this.$getRow(rowIndex, record));
+                this.updateSummary();
             }
             /**
              * 컬럼이 추가되거나 제거되었을 경우 컬럼을 업데이트하고 레이아웃을 조절한다.
@@ -1072,6 +1079,75 @@ var Aui;
                     this.renderHeader();
                     this.renderBody();
                 }
+            }
+            /**
+             * 합계열을 업데이트한다.
+             */
+            updateSummary() {
+                if (this.summary == false) {
+                    return;
+                }
+                const columns = {};
+                for (const column of this.getColumns()) {
+                    if (column.summary !== null) {
+                        columns[column.columnIndex] = column.summary;
+                    }
+                }
+                Html.all('div[data-role=summary]', this.$body).forEach(($summary) => {
+                    const summary = {};
+                    Html.all('div[data-role=row]', $summary.getParent()).forEach(($row) => {
+                        const record = $row.getData('record');
+                        for (const index in columns) {
+                            summary[index] ??= { ...columns[index] };
+                            if (typeof summary[index].type == 'function') {
+                                summary[index].value ??= [];
+                                summary[index].value.push(record);
+                            }
+                            else {
+                                switch (summary[index].type) {
+                                    case 'average':
+                                        summary[index].value ??= [0, 0];
+                                        summary[index].value[0] += record.get(summary[index].dataIndex) ?? 0;
+                                        summary[index].value[1]++;
+                                        break;
+                                    case 'sum':
+                                        summary[index].value ??= 0;
+                                        summary[index].value += record.get(summary[index].dataIndex) ?? 0;
+                                        break;
+                                    case 'count':
+                                        summary[index].value ??= 0;
+                                        summary[index].value++;
+                                        break;
+                                }
+                            }
+                        }
+                    });
+                    Html.all('div[data-role=column]', $summary).forEach(($column, index) => {
+                        if (summary[index] !== undefined) {
+                            const column = summary[index];
+                            let value = null;
+                            if (column.type instanceof Function) {
+                                value = column.type(column.value);
+                            }
+                            else if (column.type == 'average') {
+                                value = column.value[1] == 0 ? 0 : column.value[0] / column.value[1];
+                            }
+                            else {
+                                value = column.value;
+                            }
+                            $column.addClass(column.textAlign);
+                            if (column.textClass !== null) {
+                                $column.addClass(...column.textClass.split(' '));
+                            }
+                            if (column.renderer !== null) {
+                                $column.html('<div data-role="view">' + column.renderer(value) + '</div>');
+                            }
+                            else {
+                                $column.html('<div data-role="view">' + value + '</div>');
+                            }
+                        }
+                    });
+                });
             }
             /**
              * 로딩영역을 가져온다.
@@ -1136,6 +1212,9 @@ var Aui;
              * 그리드패널의 바디(데이터행)를 랜더링한다.
              */
             renderBody() {
+                if (this.getStore().isLoaded() == false) {
+                    return;
+                }
                 this.$body.empty();
                 let $group = null;
                 if (this.grouper === null) {
@@ -1160,16 +1239,75 @@ var Aui;
                             $label.html(this.grouper.renderer(record.get(this.grouper.dataIndex), record));
                             $header.append($label);
                             $group.append($header);
+                            if (this.grouper.summary == true) {
+                                let leftPosition = 0;
+                                const $summary = Html.create('div', { 'data-role': 'summary' });
+                                this.getColumns().forEach((column, columnIndex) => {
+                                    const $column = Html.create('div')
+                                        .setData('role', 'column')
+                                        .setData('column', columnIndex);
+                                    if (column.width) {
+                                        $column.setStyle('width', column.width + 'px');
+                                    }
+                                    else {
+                                        $column.setStyle('flexGrow', 1);
+                                    }
+                                    if (column.minWidth) {
+                                        $column.setStyle('flexBasis', column.minWidth + 'px');
+                                        $column.setStyle('width', column.minWidth + 'px');
+                                    }
+                                    $summary.append($column);
+                                    if (columnIndex < this.freezeColumn) {
+                                        $column.addClass('sticky');
+                                        $column.setStyle('left', leftPosition + 'px');
+                                        leftPosition += column.getMinWidth() + 1;
+                                        if (columnIndex == this.freezeColumn - 1) {
+                                            $column.addClass('end');
+                                        }
+                                    }
+                                });
+                                $summary.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+                                $group.append($summary);
+                            }
                         }
                     }
                     $group.append($row);
                 });
+                if (this.summary == true) {
+                    let leftPosition = 0;
+                    const $summary = Html.create('div', { 'data-role': 'summary' });
+                    this.getColumns().forEach((column, columnIndex) => {
+                        const $column = Html.create('div').setData('role', 'column').setData('column', columnIndex);
+                        if (column.width) {
+                            $column.setStyle('width', column.width + 'px');
+                        }
+                        else {
+                            $column.setStyle('flexGrow', 1);
+                        }
+                        if (column.minWidth) {
+                            $column.setStyle('flexBasis', column.minWidth + 'px');
+                            $column.setStyle('width', column.minWidth + 'px');
+                        }
+                        $summary.append($column);
+                        if (columnIndex < this.freezeColumn) {
+                            $column.addClass('sticky');
+                            $column.setStyle('left', leftPosition + 'px');
+                            leftPosition += column.getMinWidth() + 1;
+                            if (columnIndex == this.freezeColumn - 1) {
+                                $column.addClass('end');
+                            }
+                        }
+                    });
+                    $summary.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+                    this.$body.append($summary);
+                }
                 if (this.columnLines == true) {
                     this.$body.addClass('column-lines');
                 }
                 if (this.rowLines == true) {
                     this.$body.addClass('row-lines');
                 }
+                this.updateSummary();
             }
             /**
              * 그리드패널의 푸터(합계행)를 핸더링한다.
@@ -2113,6 +2251,7 @@ var Aui;
             clicksToEdit;
             filter;
             alternative;
+            summary;
             $header;
             /**
              * 그리드패널 컬럼객체를 생성한다.
@@ -2142,6 +2281,14 @@ var Aui;
                 this.clicksToEdit = Math.max(1, Math.min(2, this.properties.clicksToEdit ?? 2));
                 this.filter = this.properties.filter ?? null;
                 this.alternative = this.properties.alternative ?? null;
+                this.summary = this.properties.summary ?? null;
+                if (this.summary !== null) {
+                    this.summary.dataIndex ??= this.dataIndex;
+                    this.summary.textAlign ??= 'left';
+                    this.summary.textClass ??= null;
+                    this.summary.renderer ??= null;
+                    this.summary.value = null;
+                }
                 this.menu = this.properties.menu ?? null;
                 if (this.filter !== null) {
                     this.filter.setColumn(this);

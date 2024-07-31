@@ -154,7 +154,13 @@ namespace Aui {
                     dataIndex: string;
                     sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
                     renderer?: (value: string, record: Aui.Data.Record) => string;
+                    summary?: boolean;
                 };
+
+                /**
+                 * @type {boolean} summary - 합계 사용여부
+                 */
+                summary?: boolean;
 
                 /**
                  * @type {boolean} autoLoad - 객체가 랜더링된 후 데이터를 자동으로 불러올지 여부
@@ -203,8 +209,10 @@ namespace Aui {
             grouper: {
                 dataIndex: string;
                 sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
-                renderer?: (value: string, record: Aui.Data.Record) => string;
+                renderer: (value: string, record: Aui.Data.Record) => string;
+                summary: boolean;
             };
+            summary: boolean;
             autoLoad: boolean;
 
             $header: Dom;
@@ -252,6 +260,7 @@ namespace Aui {
                         this.grouper.sorters[this.grouper.dataIndex] = 'ASC';
                     }
                     this.grouper.renderer ??= (value) => value;
+                    this.grouper.summary ??= false;
                     this.store.sorters = { ...this.grouper.sorters, ...this.store.sorters };
                 }
                 this.store.addEvent('beforeLoad', () => {
@@ -266,6 +275,7 @@ namespace Aui {
                 this.store.addEvent('update', () => {
                     this.onUpdate();
                 });
+                this.summary = this.properties.summary === true;
                 this.autoLoad = this.properties.autoLoad !== false;
 
                 this.initColumns();
@@ -1190,22 +1200,26 @@ namespace Aui {
              * @param {string} dataIndex - 그룹핑할 기준 데이터인덱스
              * @param {Object} sorters - 그룹정렬
              * @param {Function} renderer - 그룹헤더 렌더러
+             * @param {boolean} summary - 그룹합계여부
              */
             group(
                 dataIndex: string,
                 sorters: { [field: string]: 'ASC' | 'DESC' | string[] },
-                renderer: (value: string, record: Aui.Data.Record) => string
+                renderer: (value: string, record: Aui.Data.Record) => string,
+                summary: boolean
             ): void {
                 if (!sorters) {
                     sorters = {};
                     sorters[dataIndex] = 'ASC';
                 }
                 renderer ??= (value) => value;
+                summary ??= false;
 
                 this.grouper = {
                     dataIndex: dataIndex,
                     sorters: sorters,
                     renderer: renderer,
+                    summary: summary,
                 };
 
                 this.getStore().multiSort({ ...sorters, ...(this.getStore().properties.sorters ?? {}) });
@@ -1380,6 +1394,7 @@ namespace Aui {
 
                 const record = this.getStore().getAt(rowIndex);
                 $row.replaceWith(this.$getRow(rowIndex, record));
+                this.updateSummary();
             }
 
             /**
@@ -1398,6 +1413,91 @@ namespace Aui {
                     this.renderHeader();
                     this.renderBody();
                 }
+            }
+
+            /**
+             * 합계열을 업데이트한다.
+             */
+            updateSummary(): void {
+                if (this.summary == false) {
+                    return;
+                }
+
+                const columns: {
+                    [index: number]: {
+                        type: 'sum' | 'count' | 'average' | ((records: Aui.Data.Record[]) => number);
+                        dataIndex: string;
+                        textAlign: string;
+                        textClass: string;
+                        renderer: (value: number | string) => string;
+                        value: any;
+                    };
+                } = {};
+                for (const column of this.getColumns()) {
+                    if (column.summary !== null) {
+                        columns[column.columnIndex] = column.summary;
+                    }
+                }
+
+                Html.all('div[data-role=summary]', this.$body).forEach(($summary) => {
+                    const summary = {};
+
+                    Html.all('div[data-role=row]', $summary.getParent()).forEach(($row) => {
+                        const record = $row.getData('record');
+
+                        for (const index in columns) {
+                            summary[index] ??= { ...columns[index] };
+
+                            if (typeof summary[index].type == 'function') {
+                                summary[index].value ??= [];
+                                summary[index].value.push(record);
+                            } else {
+                                switch (summary[index].type) {
+                                    case 'average':
+                                        summary[index].value ??= [0, 0];
+                                        summary[index].value[0] += record.get(summary[index].dataIndex) ?? 0;
+                                        summary[index].value[1]++;
+                                        break;
+
+                                    case 'sum':
+                                        summary[index].value ??= 0;
+                                        summary[index].value += record.get(summary[index].dataIndex) ?? 0;
+                                        break;
+
+                                    case 'count':
+                                        summary[index].value ??= 0;
+                                        summary[index].value++;
+                                        break;
+                                }
+                            }
+                        }
+                    });
+
+                    Html.all('div[data-role=column]', $summary).forEach(($column, index) => {
+                        if (summary[index] !== undefined) {
+                            const column = summary[index];
+                            let value = null;
+                            if (column.type instanceof Function) {
+                                value = (column.type as (records: Aui.Data.Record[]) => number)(column.value);
+                            } else if (column.type == 'average') {
+                                value = column.value[1] == 0 ? 0 : column.value[0] / column.value[1];
+                            } else {
+                                value = column.value;
+                            }
+
+                            $column.addClass(column.textAlign);
+                            if (column.textClass !== null) {
+                                $column.addClass(...column.textClass.split(' '));
+                            }
+
+                            if (column.renderer !== null) {
+                                $column.html('<div data-role="view">' + column.renderer(value) + '</div>');
+                            } else {
+                                $column.html('<div data-role="view">' + value + '</div>');
+                            }
+                        }
+                    });
+                });
             }
 
             /**
@@ -1475,6 +1575,10 @@ namespace Aui {
              * 그리드패널의 바디(데이터행)를 랜더링한다.
              */
             renderBody(): void {
+                if (this.getStore().isLoaded() == false) {
+                    return;
+                }
+
                 this.$body.empty();
 
                 let $group: Dom = null;
@@ -1502,11 +1606,77 @@ namespace Aui {
                                 $label.html(this.grouper.renderer(record.get(this.grouper.dataIndex), record));
                                 $header.append($label);
                                 $group.append($header);
+
+                                if (this.grouper.summary == true) {
+                                    let leftPosition = 0;
+                                    const $summary = Html.create('div', { 'data-role': 'summary' });
+                                    this.getColumns().forEach((column: Aui.Grid.Column, columnIndex: number) => {
+                                        const $column = Html.create('div')
+                                            .setData('role', 'column')
+                                            .setData('column', columnIndex);
+                                        if (column.width) {
+                                            $column.setStyle('width', column.width + 'px');
+                                        } else {
+                                            $column.setStyle('flexGrow', 1);
+                                        }
+
+                                        if (column.minWidth) {
+                                            $column.setStyle('flexBasis', column.minWidth + 'px');
+                                            $column.setStyle('width', column.minWidth + 'px');
+                                        }
+
+                                        $summary.append($column);
+
+                                        if (columnIndex < this.freezeColumn) {
+                                            $column.addClass('sticky');
+                                            $column.setStyle('left', leftPosition + 'px');
+                                            leftPosition += column.getMinWidth() + 1;
+
+                                            if (columnIndex == this.freezeColumn - 1) {
+                                                $column.addClass('end');
+                                            }
+                                        }
+                                    });
+                                    $summary.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+                                    $group.append($summary);
+                                }
                             }
                         }
 
                         $group.append($row);
                     });
+
+                if (this.summary == true) {
+                    let leftPosition = 0;
+                    const $summary = Html.create('div', { 'data-role': 'summary' });
+                    this.getColumns().forEach((column: Aui.Grid.Column, columnIndex: number) => {
+                        const $column = Html.create('div').setData('role', 'column').setData('column', columnIndex);
+                        if (column.width) {
+                            $column.setStyle('width', column.width + 'px');
+                        } else {
+                            $column.setStyle('flexGrow', 1);
+                        }
+
+                        if (column.minWidth) {
+                            $column.setStyle('flexBasis', column.minWidth + 'px');
+                            $column.setStyle('width', column.minWidth + 'px');
+                        }
+
+                        $summary.append($column);
+
+                        if (columnIndex < this.freezeColumn) {
+                            $column.addClass('sticky');
+                            $column.setStyle('left', leftPosition + 'px');
+                            leftPosition += column.getMinWidth() + 1;
+
+                            if (columnIndex == this.freezeColumn - 1) {
+                                $column.addClass('end');
+                            }
+                        }
+                    });
+                    $summary.prepend(Html.create('div', { 'data-column-type': 'fill' }));
+                    this.$body.append($summary);
+                }
 
                 if (this.columnLines == true) {
                     this.$body.addClass('column-lines');
@@ -1515,6 +1685,8 @@ namespace Aui {
                 if (this.rowLines == true) {
                     this.$body.addClass('row-lines');
                 }
+
+                this.updateSummary();
             }
 
             /**
@@ -2770,6 +2942,17 @@ namespace Aui {
                     ) => string;
                     filter?: Aui.Grid.Filter.Base;
                 };
+
+                /**
+                 * @type {Object} summary - 합계설정
+                 */
+                summary?: {
+                    type: 'sum' | 'count' | 'average' | ((records: Aui.Data.Record[]) => number);
+                    dataIndex?: string;
+                    textAlign?: string;
+                    textClass?: string;
+                    renderer?: (value: number | string) => string;
+                };
             }
         }
 
@@ -2832,6 +3015,15 @@ namespace Aui {
                 filter: Aui.Grid.Filter.Base;
             };
 
+            summary: {
+                type: 'sum' | 'count' | 'average' | ((records: Aui.Data.Record[]) => number);
+                dataIndex: string;
+                textAlign: string;
+                textClass: string;
+                renderer: (value: number | string) => string;
+                value: any;
+            };
+
             $header: Dom;
 
             /**
@@ -2863,6 +3055,14 @@ namespace Aui {
                 this.clicksToEdit = Math.max(1, Math.min(2, this.properties.clicksToEdit ?? 2));
                 this.filter = this.properties.filter ?? null;
                 this.alternative = this.properties.alternative ?? null;
+                this.summary = this.properties.summary ?? null;
+                if (this.summary !== null) {
+                    this.summary.dataIndex ??= this.dataIndex;
+                    this.summary.textAlign ??= 'left';
+                    this.summary.textClass ??= null;
+                    this.summary.renderer ??= null;
+                    this.summary.value = null;
+                }
 
                 this.menu = this.properties.menu ?? null;
                 if (this.filter !== null) {
