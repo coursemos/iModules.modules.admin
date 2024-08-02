@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Title.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 8. 2.
  */
 namespace Aui {
     export namespace Title {
@@ -58,6 +58,12 @@ namespace Aui {
             this.iconClass = this.properties.iconClass ?? '';
 
             this.tools = this.properties.tools ?? [];
+            if (this.tools.length > 0) {
+                this.tools.forEach((tool: Aui.Title.Tool) => {
+                    tool.setParent(this);
+                });
+                this.$setBottom();
+            }
         }
 
         /**
@@ -155,6 +161,7 @@ namespace Aui {
          */
         addTool(text: string, iconClass: string, handler: (tool: Aui.Title.Tool) => void): void {
             const tool = new Aui.Title.Tool({ text: text, iconClass: iconClass, handler: handler });
+            tool.setParent(this);
             this.tools.push(tool);
 
             this.renderBottom();
