@@ -457,14 +457,19 @@ var Aui;
          * @return {Aui.Component} this
          */
         setHidden(hidden) {
-            this.hidden = hidden;
+            if (this.hidden == hidden)
+                return;
             if (hidden == true) {
                 this.$component.hide();
             }
             else {
+                if (this.isRendered() == false) {
+                    this.hidden = false;
+                    this.render();
+                }
                 this.$component.show();
-                this.render();
             }
+            this.hidden = hidden;
             return this;
         }
         /**
