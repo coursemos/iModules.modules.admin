@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 6.
+ * @modified 2024. 8. 5.
  */
 var Aui;
 (function (Aui) {
@@ -457,13 +457,19 @@ var Aui;
                 }
                 return this.$button;
             }
+            /**
+             * 하위 컴포넌트가 존재할 경우 아이콘 영역을 랜더링한다.
+             */
             renderTop() {
                 if (this.items.length == 0) {
                     return;
                 }
+                const $icon = Html.create('i');
+                $icon.addClass('icon');
                 if (this.iconClass !== null) {
-                    this.$getTop().addClass(...this.iconClass.split(' '));
+                    $icon.addClass(...this.iconClass.split(' '));
                 }
+                this.$getTop().append($icon);
             }
             /**
              * 레이아웃을 렌더링한다.
@@ -474,15 +480,17 @@ var Aui;
                         this.$getContent().addClass('separator');
                     }
                     else {
+                        const $top = Html.create('i');
                         const $icon = Html.create('i').addClass('icon');
                         if (this.iconClass !== null) {
                             $icon.addClass(...this.iconClass.split(' '));
                         }
-                        this.$getButton().append($icon);
+                        $top.append($icon);
+                        this.$getButton().append($top);
                         const $text = Html.create('span').html(this.text);
                         this.$getButton().append($text);
                         if (this.menu !== null) {
-                            const $submenu = Html.create('i').addClass('mi', 'mi-caret-right');
+                            const $submenu = Html.create('aside').addClass('mi', 'mi-caret-right');
                             this.$getButton().append($submenu);
                         }
                         this.$getContent().append(this.$button);
@@ -498,8 +506,13 @@ var Aui;
              * @param {string} iconClass - 변경할 아이콘 클래스
              */
             setIconClass(iconClass = null) {
-                const $button = this.$getButton();
-                const $icon = Html.get('> i.icon', $button);
+                let $icon = null;
+                if (this.items.length == 0) {
+                    $icon = Html.get('> i > i.icon', this.$getButton());
+                }
+                else {
+                    $icon = Html.get('> i.icon', this.$getTop());
+                }
                 if (this.iconClass !== null) {
                     $icon.removeClass(...this.iconClass.split(' '));
                 }

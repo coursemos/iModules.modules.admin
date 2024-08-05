@@ -6,7 +6,7 @@
  * @file /styles/Aui.Menu.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 6.
+ * @modified 2024. 8. 5.
  */
 div[data-component][data-type='menu'][data-role='menu'] {
     position: absolute;
@@ -62,11 +62,16 @@ div[data-component][data-type='menu'][data-role='item'] {
                 flex-shrink: 0;
                 flex-grow: 0;
                 width: calc(var(--aui-component-height-default) + var(--aui-component-gap));
-                text-align: center;
                 line-height: var(--aui-component-height-default);
-                font-size: var(--aui-font-size-large);
-                color: var(--aui-color-text-500);
                 background: var(--aui-color-background-500);
+
+                > i.icon {
+                    width: 100%;
+                    text-align: center;
+                    line-height: var(--aui-component-height-default);
+                    font-size: var(--aui-font-size-large);
+                    color: var(--aui-color-text-500);
+                }
             }
 
             > div[data-role='content'] {
@@ -107,7 +112,7 @@ div[data-component][data-type='menu'][data-role='item'] {
                     color: var(--aui-color-text-500);
                     cursor: pointer;
 
-                    > i.icon {
+                    > i {
                         flex-shrink: 0;
                         width: calc(var(--aui-component-height-default) + var(--aui-component-gap));
                         height: calc(var(--aui-component-height-default) + var(--aui-component-gap));
@@ -115,6 +120,9 @@ div[data-component][data-type='menu'][data-role='item'] {
                         background: var(--aui-color-background-500);
                         text-align: center;
                         font-size: var(--aui-font-size-large);
+
+                        > i.icon {
+                        }
                     }
 
                     > span {
@@ -131,7 +139,7 @@ div[data-component][data-type='menu'][data-role='item'] {
                         text-overflow: ellipsis;
                     }
 
-                    > i {
+                    > aside {
                         flex-shrink: 0;
                         flex-grow: 0;
                         width: 16px;
@@ -146,6 +154,7 @@ div[data-component][data-type='menu'][data-role='item'] {
                         background: var(--aui-color-selection-500);
 
                         > i,
+                        > aside,
                         > span {
                             background: var(--aui-color-selection-500);
                         }
