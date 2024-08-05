@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 7. 1.
+ * @modified 2024. 8. 5.
  */
 var Aui;
 (function (Aui) {
@@ -3940,6 +3940,7 @@ var Aui;
                         this.$getEmptyText().show();
                         this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
                         super.setValue(value, is_origin);
+                        this.rawValue = null;
                     }
                     else {
                         if (this.multiple == true) {
@@ -3980,6 +3981,9 @@ var Aui;
                                     this.$getDisplay().show();
                                 }
                                 super.setValue(value, is_origin);
+                                if (Format.isEqual(value, this.rawValue) == true) {
+                                    this.rawValue = null;
+                                }
                                 this.searchingMode();
                             });
                         }
@@ -3997,6 +4001,9 @@ var Aui;
                                     this.$getDisplay().show();
                                 }
                                 super.setValue(value, is_origin);
+                                if (Format.isEqual(value, this.rawValue) == true) {
+                                    this.rawValue = null;
+                                }
                                 this.searchingMode();
                             });
                         }
@@ -4252,7 +4259,7 @@ var Aui;
                 onLoad() {
                     this.loading.hide();
                     this.getForm()?.setLoading(this, false);
-                    this.setValue(this.value);
+                    this.setValue(this.value ?? this.rawValue);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
                 /**

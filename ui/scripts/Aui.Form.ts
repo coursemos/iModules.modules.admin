@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 7. 1.
+ * @modified 2024. 8. 5.
  */
 namespace Aui {
     export namespace Form {
@@ -5077,6 +5077,7 @@ namespace Aui {
                         this.$getEmptyText().show();
                         this.$getDisplay().html(this.renderer('', null, this.$getDisplay(), this));
                         super.setValue(value, is_origin);
+                        this.rawValue = null;
                     } else {
                         if (this.multiple == true) {
                             if (Array.isArray(value) == false) {
@@ -5118,6 +5119,9 @@ namespace Aui {
                                 }
 
                                 super.setValue(value, is_origin);
+                                if (Format.isEqual(value, this.rawValue) == true) {
+                                    this.rawValue = null;
+                                }
                                 this.searchingMode();
                             });
                         } else {
@@ -5141,6 +5145,9 @@ namespace Aui {
                                 }
 
                                 super.setValue(value, is_origin);
+                                if (Format.isEqual(value, this.rawValue) == true) {
+                                    this.rawValue = null;
+                                }
                                 this.searchingMode();
                             });
                         }
@@ -5412,7 +5419,7 @@ namespace Aui {
                 onLoad(): void {
                     this.loading.hide();
                     this.getForm()?.setLoading(this, false);
-                    this.setValue(this.value);
+                    this.setValue(this.value ?? this.rawValue);
                     this.fireEvent('load', [this.getStore(), this]);
                 }
 
