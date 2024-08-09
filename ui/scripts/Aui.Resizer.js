@@ -149,7 +149,7 @@ var Aui;
                     if (this.maxHeight > 0 && guide.height > this.maxHeight) {
                         guide.height = this.maxHeight;
                     }
-                    guide.y = rect.y + (rect.height - guide.height);
+                    guide.y = rect.y - parentOffset.top + parentScroll.top + (rect.height - guide.height);
                 }
             }
             else if (direction.indexOf('bottom') === 0) {
@@ -169,7 +169,7 @@ var Aui;
                         if (this.maxWidth > 0 && guide.width > this.maxWidth) {
                             guide.width = this.maxWidth;
                         }
-                        guide.x = rect.x + (rect.width - guide.width);
+                        guide.x = rect.x - parentOffset.left + parentScroll.left + (rect.width - guide.width);
                     }
                     break;
                 case 'right':

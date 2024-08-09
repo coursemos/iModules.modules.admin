@@ -142,7 +142,6 @@ namespace Aui {
                         start: ($resizer: Dom, tracker: Aui.Drag.Tracker) => {
                             const direction = $resizer.getData('direction');
                             const rect = this.getResizeRect(direction, { x: null, y: null });
-
                             this.resetGuideline();
                             const $guide = this.setGuideline(rect);
                             this.$parent.append($guide);
@@ -154,7 +153,6 @@ namespace Aui {
                         drag: ($resizer: Dom, tracker: Aui.Drag.Tracker) => {
                             const direction = $resizer.getData('direction');
                             const rect = this.getResizeRect(direction, tracker.getLastPosition());
-
                             const $guide = this.setGuideline(rect);
 
                             this.fireEvent('resize', [this.$target, rect, tracker.getLastPosition(), $guide]);
@@ -220,7 +218,7 @@ namespace Aui {
                     if (this.maxHeight > 0 && guide.height > this.maxHeight) {
                         guide.height = this.maxHeight;
                     }
-                    guide.y = rect.y + (rect.height - guide.height);
+                    guide.y = rect.y - parentOffset.top + parentScroll.top + (rect.height - guide.height);
                 }
             } else if (direction.indexOf('bottom') === 0) {
                 if (position.y !== null) {
@@ -240,7 +238,7 @@ namespace Aui {
                         if (this.maxWidth > 0 && guide.width > this.maxWidth) {
                             guide.width = this.maxWidth;
                         }
-                        guide.x = rect.x + (rect.width - guide.width);
+                        guide.x = rect.x - parentOffset.left + parentScroll.left + (rect.width - guide.width);
                     }
                     break;
 
