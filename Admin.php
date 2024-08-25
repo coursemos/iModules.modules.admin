@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 15.
+ * @modified 2024. 8. 25.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -151,15 +151,15 @@ class Admin extends \Module
          * 관리자 루트인 경우, 관리자의 첫번째 컨텍스트를 반환한다.
          */
         if (count($routes) == 1) {
-            foreach ($navigation as $context) {
-                if ($context->getType() == 'FOLDER') {
-                    foreach ($context->getChildren() as $child) {
-                        if ($child->getType() != 'LINK') {
-                            return $child;
+            foreach ($navigation as $item) {
+                if ($item->type == 'FOLDER') {
+                    foreach ($item->children() as $child) {
+                        if ($item->type != 'LINK') {
+                            return $contexts[$child->path];
                         }
                     }
-                } elseif ($context->getType() != 'LINK') {
-                    return $context;
+                } elseif ($item->type != 'LINK') {
+                    return $contexts[$item->path];
                 }
             }
 

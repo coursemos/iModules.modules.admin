@@ -172,7 +172,7 @@ class Administrator
     /**
      * 네비게이션 설정에 따라 컨텍스트 목록을 가져온다.
      *
-     * @return \modules\admin\dtos\Context[] $navigation
+     * @return array $navigation
      */
     public function getNavigation(): array
     {
