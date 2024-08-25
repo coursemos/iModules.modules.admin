@@ -1581,6 +1581,10 @@ namespace Aui {
 
                 this.$body.empty();
 
+                if (this.getStore().getCount() == 0) {
+                    return;
+                }
+
                 let $group: Dom = null;
                 if (this.grouper === null) {
                     $group = Html.create('div', { 'data-role': 'rows' });

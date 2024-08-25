@@ -1216,6 +1216,9 @@ var Aui;
                     return;
                 }
                 this.$body.empty();
+                if (this.getStore().getCount() == 0) {
+                    return;
+                }
                 let $group = null;
                 if (this.grouper === null) {
                     $group = Html.create('div', { 'data-role': 'rows' });
