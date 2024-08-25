@@ -7,7 +7,7 @@
  * @file /modules/admin/dtos/Administrator.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 19.
+ * @modified 2024. 8. 25.
  */
 namespace modules\admin\dtos;
 class Administrator
@@ -190,151 +190,81 @@ class Administrator
             $mAdmin = \Modules::get('admin');
             $contexts = $mAdmin->getAdminContexts();
 
+            $smarts = [];
+
             /**
              * 접속한 관리자 네비게이션 설정을 가져온다.
              */
-            $navigation = $this->_administrator->navigation;
-
-            /**
-             * 네비게이션 설정이 없다면 기본메뉴 설정을 생성한다.
-             */
-            if ($navigation === null) {
-                $navigation = ['/dashboard'];
-
-                $components = new \stdClass();
-                $components->title = '@components';
-                $components->icon = 'xi xi-cube';
-                $components->smart = 'components';
-                $components->children = [];
-                $navigation[] = $components;
-
-                $modules = new \stdClass();
-                $modules->title = '@modules';
-                $modules->icon = 'mi mi-module';
-                $modules->smart = 'modules';
-                $modules->children = [];
-                $navigation[] = $modules;
-
-                $plugins = new \stdClass();
-                $plugins->title = '@plugins';
-                $plugins->icon = 'mi mi-plugin';
-                $plugins->smart = 'plugins';
-                $plugins->children = [];
-                $navigation[] = $plugins;
-
-                $navigation[] = '/sitemap';
-                $navigation[] = '/administrators';
-                $navigation[] = '/database';
-            }
-
-            /**
-             * 메뉴설정에서 스마트폴더 설정을 검색한다.
-             */
-            $folders = [];
-            $exists = [];
-            $smarts = [];
-            foreach ($navigation as $item) {
-                if (is_object($item) == true) {
-                    $folders[$item->title] = $item;
-
-                    if ($item->smart !== null) {
-                        $smarts[$item->smart] = $item;
-                    }
-
-                    foreach ($item->children as $child) {
-                        $exists[] = $child;
-                    }
-                } else {
-                    $exists[] = $item;
+            foreach ($this->_administrator->navigation ?? [] as $sort => $item) {
+                $item = \modules\admin\dtos\NavigationItem::set($item, $sort, true);
+                if ($item->isFolder() == true && $item->getSmart() !== 'none') {
+                    $smarts[$item->getSmart()] = $item;
                 }
             }
 
+            $components = [];
+            $components['module'] = new \stdClass();
+            $components['module']->title = \Modules::get('admin')->getText('admin.navigation.folder.preset.module');
+            $components['module']->icon = 'mi mi-module';
+            $components['module']->smart = 'module';
+
+            $components['plugin'] = new \stdClass();
+            $components['plugin']->title = \Modules::get('admin')->getText('admin.navigation.folder.preset.plugin');
+            $components['plugin']->icon = 'mi mi-plugin';
+            $components['plugin']->smart = 'plugin';
+
+            $components['widget'] = new \stdClass();
+            $components['widget']->title = \Modules::get('admin')->getText('admin.navigation.folder.preset.widget');
+            $components['widget']->icon = 'mi mi-widget';
+            $components['widget']->smart = 'widget';
+
+            if (isset($smarts['module']) == false) {
+                $smarts['module'] = \modules\admin\dtos\NavigationItem::set($components['module'], 1, false);
+            }
+
+            if (isset($smarts['plugin']) == false) {
+                $smarts['plugin'] = \modules\admin\dtos\NavigationItem::set($components['plugin'], 1, false);
+            }
+
+            if (isset($smarts['widget']) == false) {
+                $smarts['widget'] = \modules\admin\dtos\NavigationItem::set($components['widget'], 1, false);
+            }
+
             /**
-             * 기존 메뉴설정에서 누락된 신규 관리자메뉴를 추가한다.
+             * 전체 관리자 컨텍스트를 가져온다.
              */
             foreach ($contexts as $path => $context) {
-                if (in_array($path, $exists) == true) {
+                /**
+                 * 접속한 관리자 네비게이션 설정에 포함되어 있지 않은 경우, 현재 컨텍스트를 네비게이션에 추가한다.
+                 */
+                if (\modules\admin\dtos\NavigationItem::has($path) == true) {
                     continue;
                 }
 
-                if ($context->getDefaultFolderTitle() !== null) {
-                    if (isset($folders[$context->getDefaultFolderTitle()]) == true) {
-                        $folders[$context->getDefaultFolderTitle()]->children[] = $path;
+                /**
+                 * 폴더에 포함되어 있는 경우
+                 */
+                if ($context->isRoot() === false) {
+                    if ($context->getDefaultFolder() !== null) {
+                        $folder = \modules\admin\dtos\NavigationItem::set(
+                            $context->getDefaultFolder(),
+                            $context->getDefaultFolderSort(),
+                            false
+                        );
                     } else {
-                        $folder = new \stdClass();
-                        $folder->icon = $context->getDefaultFolderIcon();
-                        $folder->smart = 'none';
-                        $folder->title = $context->getDefaultFolderTitle();
-                        $folder->children = [$path];
-                        $folders[$context->getDefaultFolderTitle()] = $folder;
-                        $navigation[] = $folder;
+                        $folder = $smarts[$context->getComponent()->getType()];
                     }
 
-                    continue;
+                    $folder->addChild($context->getPath(), $context->getSort());
+                } else {
+                    \modules\admin\dtos\NavigationItem::set($context->getPath(), $context->getSort(), false);
                 }
-
-                if (
-                    in_array($path, ['/modules', '/plugins', '/widgets']) == true &&
-                    isset($smarts['components']) == true
-                ) {
-                    $smarts['components']->children[] = $path;
-                    continue;
-                }
-
-                if ($context->getComponent()->getType() == 'module' && isset($smarts['modules']) == true) {
-                    $smarts['modules']->children[] = $path;
-                    continue;
-                }
-
-                if ($context->getComponent()->getType() == 'plugin' && isset($smarts['plugins']) == true) {
-                    $smarts['plugins']->children[] = $path;
-                    continue;
-                }
-
-                if ($context->getComponent()->getType() == 'widget' && isset($smarts['widgets']) == true) {
-                    $smarts['widgets']->children[] = $path;
-                    continue;
-                }
-
-                $navigation[] = $path;
             }
 
             /**
-             * 최종 메뉴설정에서 권한여부를 확인하고 네비게이션을 재설정한다.
+             * 네비게이션 설정에서 접근가능한 모든 네비게이션을 가져온다.
              */
-            $this->_navigation = [];
-            foreach ($navigation as $item) {
-                if (is_string($item) == true) {
-                    if (isset($contexts[$item]) == false) {
-                        continue;
-                    }
-
-                    $this->_navigation[] = $contexts[$item];
-                } else {
-                    $children = [];
-                    foreach ($item->children as $child) {
-                        if (isset($contexts[$child]) == false) {
-                            continue;
-                        }
-
-                        $children[] = $contexts[$child];
-                    }
-
-                    if (strpos($item->title, '@') === 0) {
-                        if (count($children) == 0) {
-                            continue;
-                        }
-
-                        $item->title = $mAdmin->getText('admin.navigation.folder.preset.' . substr($item->title, 1));
-                    }
-
-                    $folder = new \modules\admin\dtos\Context($mAdmin->getAdmin());
-                    $folder->setTitle($item->title, $item->icon);
-                    $folder->setFolder($children, $item->smart);
-
-                    $this->_navigation[] = $folder;
-                }
-            }
+            $this->_navigation = \modules\admin\dtos\NavigationItem::all($contexts);
 
             return $this->_navigation;
         }

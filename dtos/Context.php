@@ -7,7 +7,7 @@
  * @file /modules/admin/dtos/Context.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 8. 25.
  */
 namespace modules\admin\dtos;
 class Context
@@ -33,6 +33,11 @@ class Context
     private string $_title;
 
     /**
+     * @var bool $_default_folder 기본폴더여부 (false 인 경우 폴더에 포함되어 있지 않은 최상위 컨텍스트)
+     */
+    private bool $_default_folder = true;
+
+    /**
      * @var string $_default_folder_title 기본폴더명
      */
     private ?string $_default_folder_title = null;
@@ -41,6 +46,11 @@ class Context
      * @var string $_default_folder_icon 기본폴더아이콘
      */
     private ?string $_default_folder_icon = null;
+
+    /**
+     * @var int $_default_folder_sort 기본폴더정렬순서
+     */
+    private int $_default_folder_sort = 0;
 
     /**
      * @var string $_target 링크타겟
@@ -53,14 +63,9 @@ class Context
     private ?string $_icon;
 
     /**
-     * @var string $_smart 스마트폴더 여부 (none, modules, plugins, widgets, others)
+     * @var int $_sort 컨텍스트 정렬순서
      */
-    private string $_smart = 'none';
-
-    /**
-     * @var \modules\admin\dtos\Context[] $_children 자식 컨텍스트
-     */
-    private array $_children = [];
+    private int $_sort = 0;
 
     /**
      * 관리자 컨텍스트 구조체를 정의한다.
@@ -88,12 +93,14 @@ class Context
      *
      * @param string $title 컨텍스트명
      * @param ?string $icon 컨텍스트 아이콘 (CSS 스타일명 또는 이미지파일 경로)
+     * @param int $sort 정렬순서
      * @return \modules\admin\dtos\Context $this
      */
-    public function setTitle(string $title, ?string $icon = null): \modules\admin\dtos\Context
+    public function setTitle(string $title, ?string $icon = null, int $sort = 0): \modules\admin\dtos\Context
     {
         $this->_title = $title;
         $this->_icon = $icon;
+        $this->_sort = $sort;
         return $this;
     }
 
@@ -126,32 +133,34 @@ class Context
     }
 
     /**
-     * 폴더 컨텍스트를 설정한다.
-     *
-     * @param \modules\admin\dtos\Context[] $children 자식컨텍스트
-     * @param string $smart 스마트폴더 여부
-     * @return \modules\admin\dtos\Context $this
-     */
-    public function setFolder(array $children, string $smart = 'none'): \modules\admin\dtos\Context
-    {
-        $this->_type = 'FOLDER';
-        $this->_smart = $smart;
-        $this->_children = $children;
-        return $this;
-    }
-
-    /**
      * 관리자가 네비게이션 설정을 하지 않았을 때 기본적으로 담길 폴더명을 설정한다.
      * 해당 폴더명을 가진 폴더가 없을 경우 자동으로 해당 폴더명을 생성한다.
      *
-     * @param ?string $title 기본폴더명 (NULL 인 경우 기본적으로 폴더에 담지 않는다.)
+     * @param string|bool $title 기본폴더명 (false 인 경우 최상위 컨텍스트로 설정한다.)
      * @param ?string $icon 기본폴더아이콘
+     * @param int $sort 기본폴더정렬순서
      * @return \modules\admin\dtos\Context $this
      */
-    public function setDefaultFolder(?string $title, ?string $icon = null): \modules\admin\dtos\Context
-    {
-        $this->_default_folder_title = $title;
-        $this->_default_folder_icon = $icon;
+    public function setDefaultFolder(
+        string|bool $title,
+        ?string $icon = null,
+        int $sort = 0
+    ): \modules\admin\dtos\Context {
+        if ($title === false) {
+            $this->_default_folder = false;
+        } else {
+            $this->_default_folder = true;
+            if (is_bool($title) === true) {
+                $this->_default_folder_title = null;
+                $this->_default_folder_icon = null;
+                $this->_default_folder_sort = 0;
+            } else {
+                $this->_default_folder_title = $title;
+                $this->_default_folder_icon = $icon;
+                $this->_default_folder_sort = $sort;
+            }
+        }
+
         return $this;
     }
 
@@ -173,6 +182,16 @@ class Context
     public function getComponent(): \Component
     {
         return $this->_admin->getComponent();
+    }
+
+    /**
+     * 해당 컨텍스트가 폴더에 포함되어 있지 않는 최상위 컨텍스트인지를 가져온다.
+     *
+     * @return bool $is_root
+     */
+    public function isRoot(): bool
+    {
+        return $this->_default_folder === false;
     }
 
     /**
@@ -198,6 +217,16 @@ class Context
             default:
                 return '#';
         }
+    }
+
+    /**
+     * 컨텍스트 정렬순서를 가져온다.
+     *
+     * @return int $sort
+     */
+    public function getSort(): int
+    {
+        return $this->_sort;
     }
 
     /**
@@ -264,26 +293,6 @@ class Context
     }
 
     /**
-     * 스마트폴더 설정을 가져온다.
-     *
-     * @return string $smart
-     */
-    public function getSmart(): string
-    {
-        return $this->_smart;
-    }
-
-    /**
-     * 자식 컨텍스트를 종류를 가져온다.
-     *
-     * @return \modules\admin\dtos\Context[] $children
-     */
-    public function getChildren(): array
-    {
-        return $this->_children;
-    }
-
-    /**
      * 링크대상을 가져온다.
      *
      * @return string $target (_self, _blank)
@@ -294,25 +303,35 @@ class Context
     }
 
     /**
-     * 기본폴더명을 가져온다.
-     * 컨텍스트 종류가 폴더인 경우 무조건 NULL 이 반환된다.
+     * 기본폴더를 가져온다.
      *
-     * @return ?string $title
+     * @return ?object $default_folder 기본폴더설정
      */
-    public function getDefaultFolderTitle(): ?string
+    public function getDefaultFolder(): ?object
     {
-        return $this->_type == 'FOLDER' ? null : $this->_default_folder_title;
+        if ($this->_default_folder === false) {
+            return null;
+        }
+
+        if ($this->_default_folder_title === null) {
+            return null;
+        }
+
+        $folder = new \stdClass();
+        $folder->title = $this->_default_folder_title;
+        $folder->icon = $this->_default_folder_icon ?? 'mi mi-folder';
+
+        return $folder;
     }
 
     /**
-     * 기본폴더아이콘을 가져온다.
-     * 컨텍스트 종류가 폴더인 경우 무조건 NULL 이 반환된다.
+     * 기본폴더 정렬순서를 가져온다.
      *
-     * @return ?string $icon
+     * @return int $sort
      */
-    public function getDefaultFolderIcon(): ?string
+    public function getDefaultFolderSort(): int
     {
-        return $this->getDefaultFolderTitle() !== null ? $this->_default_folder_icon ?? 'xi xi-folder' : null;
+        return $this->_default_folder_sort;
     }
 
     /**

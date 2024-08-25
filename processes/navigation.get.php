@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/navigation.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 8. 25.
  *
  * @var \modules\admin\Admin $me
  */
@@ -24,32 +24,5 @@ if ($me->getAdministrator()?->isAdministrator() !== true) {
     return;
 }
 
-$contexts = [];
-foreach ($me->getAdministrator()?->getNavigation() ?? [] as $context) {
-    $item = [
-        'icon' => $context->getIcon(),
-        'title' => $context->getTitle(),
-        'type' => $context->getType(),
-        'target' => $context->getTarget(),
-    ];
-
-    if ($context->getType() == 'FOLDER') {
-        $item['smart'] = $context->getSmart();
-        $item['children'] = [];
-        foreach ($context->getChildren() as $child) {
-            $item['children'][] = [
-                'icon' => $child->getIcon(),
-                'title' => $child->getTitle(),
-                'path' => $child->getPath(),
-                'type' => $child->getType(),
-            ];
-        }
-    } else {
-        $item['path'] = $context->getPath();
-    }
-
-    $contexts[] = $item;
-}
-
 $results->success = true;
-$results->contexts = $contexts;
+$results->contexts = $me->getAdministrator()?->getNavigation();

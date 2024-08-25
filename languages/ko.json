@@ -80,11 +80,10 @@
         "navigation": {
             "folder": {
                 "preset": {
-                    "components": "컴포넌트관리",
-                    "modules": "모듈",
-                    "plugins": "플러그인",
-                    "widgets": "위젯",
-                    "sites": "사이트"
+                    "component": "컴포넌트관리",
+                    "module": "설치된 모듈",
+                    "plugin": "설치된 플러그인",
+                    "widget": "설치된 위젯"
                 }
             }
         },

@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 13.
+ * @modified 2024. 8. 25.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -23,41 +23,50 @@ class Admin extends \modules\admin\admin\Component
 
         $contexts[] = \modules\admin\dtos\Context::init($this)
             ->setContext('dashboard')
-            ->setTitle($this->getText('admin.contexts.dashboard'), 'mi mi-dashboard');
+            ->setDefaultFolder(false)
+            ->setTitle($this->getText('admin.contexts.dashboard'), 'mi mi-dashboard', -1000);
 
         if ($this->hasPermission('modules') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('modules')
+                ->setDefaultFolder($this->getText('admin.navigation.folder.preset.component'), 'xi xi-cube', -999)
                 ->setTitle($this->getText('admin.contexts.modules'), 'mi mi-module');
         }
 
         if ($this->hasPermission('plugins') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('plugins')
+                ->setDefaultFolder($this->getText('admin.navigation.folder.preset.component'), 'xi xi-cube', -999)
                 ->setTitle($this->getText('admin.contexts.plugins'), 'mi mi-plugin');
         }
 
         if ($this->hasPermission('widgets') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('widgets')
+                ->setDefaultFolder($this->getText('admin.navigation.folder.preset.component'), 'xi xi-cube', -999)
                 ->setTitle($this->getText('admin.contexts.widgets'), 'mi mi-widget');
         }
 
         if ($this->hasPermission('sitemap') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('sitemap')
-                ->setTitle($this->getText('admin.contexts.sitemap'), 'mi mi-sitemap');
+                ->setDefaultFolder(false)
+                ->setTitle($this->getText('admin.contexts.sitemap'), 'mi mi-sitemap', 10000);
         }
 
         if ($this->hasPermission('administrators') == true) {
             $contexts[] = \modules\admin\dtos\Context::init($this)
                 ->setContext('administrators')
-                ->setTitle($this->getText('admin.contexts.administrators'), 'mi mi-admin');
+                ->setDefaultFolder(false)
+                ->setTitle($this->getText('admin.contexts.administrators'), 'mi mi-admin', 10001);
         }
 
         if ($this->hasPermission('database') == true) {
             $database = new \modules\admin\dtos\Context($this);
-            $database->setContext('database')->setTitle($this->getText('admin.contexts.database'), 'mi mi-database');
+            $database
+                ->setContext('database')
+                ->setDefaultFolder(false)
+                ->setTitle($this->getText('admin.contexts.database'), 'mi mi-database', 10002);
             $contexts[] = $database;
         }
 
