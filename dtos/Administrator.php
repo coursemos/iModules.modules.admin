@@ -219,15 +219,15 @@ class Administrator
             $components['widget']->smart = 'widget';
 
             if (isset($smarts['module']) == false) {
-                $smarts['module'] = \modules\admin\dtos\NavigationItem::set($components['module'], 1, false);
+                $smarts['module'] = \modules\admin\dtos\NavigationItem::set($components['module'], -900, false);
             }
 
             if (isset($smarts['plugin']) == false) {
-                $smarts['plugin'] = \modules\admin\dtos\NavigationItem::set($components['plugin'], 1, false);
+                $smarts['plugin'] = \modules\admin\dtos\NavigationItem::set($components['plugin'], -800, false);
             }
 
             if (isset($smarts['widget']) == false) {
-                $smarts['widget'] = \modules\admin\dtos\NavigationItem::set($components['widget'], 1, false);
+                $smarts['widget'] = \modules\admin\dtos\NavigationItem::set($components['widget'], -700, false);
             }
 
             /**

@@ -155,7 +155,7 @@
                 },
                 "url": {
                     "type": "varchar",
-                    "length": 100,
+                    "length": 255,
                     "comment": "접근주소"
                 },
                 "params": {
