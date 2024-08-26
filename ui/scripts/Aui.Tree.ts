@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 7. 1.
+ * @modified 2024. 8. 26.
  */
 namespace Aui {
     export namespace Tree {
@@ -184,6 +184,7 @@ namespace Aui {
             rowLines: boolean;
             selection: Aui.Tree.Panel.Selection;
             selections: Map<string, Aui.Data.Record> = new Map();
+            latestSelections: string[] = [];
             expandedRows: Map<number, Map<string, Aui.Data.Record>> = new Map();
             expandedRowsHash: string = null;
 
@@ -989,7 +990,10 @@ namespace Aui {
                     }
                 }
 
-                this.fireEvent('selectionChange', [this.getSelections(), this]);
+                if (Format.isEqual(this.latestSelections, [...this.selections.keys()]) == false) {
+                    this.latestSelections = [...this.selections.keys()];
+                    this.fireEvent('selectionChange', [this.getSelections(), this]);
+                }
             }
 
             /**
@@ -1649,7 +1653,7 @@ namespace Aui {
                 }
                 if (this.selection.keepable === false) {
                     this.selections.clear();
-                    this.fireEvent('selectionChange', [[], this]);
+                    this.onSelectionChange();
                 }
                 this.fireEvent('beforeLoad', [this]);
             }

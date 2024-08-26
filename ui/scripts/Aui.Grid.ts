@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 7. 1.
+ * @modified 2024. 8. 26.
  */
 namespace Aui {
     export namespace Grid {
@@ -204,6 +204,7 @@ namespace Aui {
             rowLines: boolean;
             selection: Aui.Grid.Panel.Selection;
             selections: Map<string, Aui.Data.Record> = new Map();
+            latestSelections: string[] = [];
 
             store: Aui.Store;
             grouper: {
@@ -990,7 +991,10 @@ namespace Aui {
                     }
                 }
 
-                this.fireEvent('selectionChange', [this.getSelections(), this]);
+                if (Format.isEqual(this.latestSelections, [...this.selections.keys()]) == false) {
+                    this.latestSelections = [...this.selections.keys()];
+                    this.fireEvent('selectionChange', [this.getSelections(), this]);
+                }
             }
 
             /**
@@ -1823,7 +1827,7 @@ namespace Aui {
 
                 if (this.selection.keepable === false) {
                     this.selections.clear();
-                    this.fireEvent('selectionChange', [[], this]);
+                    this.onSelectionChange();
                 }
                 this.fireEvent('beforeLoad', [this]);
             }

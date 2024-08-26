@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 7. 1.
+ * @modified 2024. 8. 26.
  */
 var Aui;
 (function (Aui) {
@@ -26,6 +26,7 @@ var Aui;
             rowLines;
             selection;
             selections = new Map();
+            latestSelections = [];
             store;
             grouper;
             summary;
@@ -711,7 +712,10 @@ var Aui;
                         Html.get('div[data-role=check]', this.$header).removeClass('checked');
                     }
                 }
-                this.fireEvent('selectionChange', [this.getSelections(), this]);
+                if (Format.isEqual(this.latestSelections, [...this.selections.keys()]) == false) {
+                    this.latestSelections = [...this.selections.keys()];
+                    this.fireEvent('selectionChange', [this.getSelections(), this]);
+                }
             }
             /**
              * 사용자입력에 의하여 선택항목이 변경되었을 때 이벤트를 처리한다.
@@ -1417,7 +1421,7 @@ var Aui;
                 }
                 if (this.selection.keepable === false) {
                     this.selections.clear();
-                    this.fireEvent('selectionChange', [[], this]);
+                    this.onSelectionChange();
                 }
                 this.fireEvent('beforeLoad', [this]);
             }
