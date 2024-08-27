@@ -190,6 +190,8 @@ var Aui;
                     await iModules.sleep(1000);
                     button.setValue(progress);
                     switch (method) {
+                        case 'SYNC':
+                            return progress.sync(url, params, callback);
                         case 'POST':
                             return progress.post(url, data, params, callback);
                         case 'DELETE':

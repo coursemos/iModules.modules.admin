@@ -83,7 +83,7 @@ namespace Aui {
                 /**
                  * @type {string} method - 프로그래스바를 호출할 메소드
                  */
-                method?: 'GET' | 'POST' | 'DELETE';
+                method?: 'GET' | 'POST' | 'SYNC' | 'DELETE';
 
                 /**
                  * @type {string} url - 프로그래스바를 호출할 URL
@@ -354,6 +354,9 @@ namespace Aui {
                     button.setValue(progress);
 
                     switch (method) {
+                        case 'SYNC':
+                            return progress.sync(url, params, callback);
+
                         case 'POST':
                             return progress.post(url, data, params, callback);
 
