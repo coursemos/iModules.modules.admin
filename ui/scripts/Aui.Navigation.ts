@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Navigation.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 27.
+ * @modified 2024. 8. 29.
  */
 namespace Aui {
     export namespace Navigation {
@@ -51,6 +51,27 @@ namespace Aui {
 
                 this.$setTop();
                 this.$scrollable = this.$getContent();
+
+                this.getScroll().addEvent('scroll', (x: number, y: number) => {
+                    this.storeStatus('scroll', { x: x, y: y });
+                });
+
+                if (Admin.session('navigation')?.collapsed === true) {
+                    this.$component.addClass('collapsed');
+                }
+            }
+
+            /**
+             * 네비게이션의 현재 상태를 저장하고, 페이지가 새로고침되었을 때 네비게이션의 마지막 상태를 복원한다.
+             *
+             * @param {string} name - 상태명
+             * @param {any} value - 상태값
+             */
+            storeStatus(name: string, value: any): void {
+                let navigation = Admin.session('navigation') ?? {};
+                navigation[name] = value;
+
+                Admin.session('navigation', navigation);
             }
 
             /**
@@ -67,7 +88,7 @@ namespace Aui {
              */
             collapse(): void {
                 this.$getComponent().addClass('collapsed');
-                Admin.session('navigation-collapsed', true);
+                this.storeStatus('collapsed', true);
             }
 
             /**
@@ -75,7 +96,7 @@ namespace Aui {
              */
             expand(): void {
                 this.$getComponent().removeClass('collapsed');
-                Admin.session('navigation-collapsed', false);
+                this.storeStatus('collapsed', false);
             }
 
             /**
@@ -362,6 +383,11 @@ namespace Aui {
 
                     this.sorter = new Aui.Navigation.Sorter(this);
 
+                    const scroll = Admin.session('navigation')?.scroll?.y ?? 0;
+                    if (scroll !== 0) {
+                        this.getScroll().setPosition(0, scroll, false, false);
+                    }
+
                     return true;
                 } else {
                     return false;
@@ -429,6 +455,19 @@ namespace Aui {
             }
 
             /**
+             * 컨텍스트의 현재 상태를 저장하고, 페이지가 새로고침되었을 때 컨텍스트의 마지막 상태를 복원한다.
+             *
+             * @param {string} name - 상태명
+             * @param {any} value - 상태값
+             */
+            storeStatus(name: string, value: any): void {
+                let contexts = Admin.session('navigation')?.contexts ?? {};
+                contexts[name] = value;
+
+                (this.getParent() as Aui.Navigation.Panel).storeStatus('contexts', contexts);
+            }
+
+            /**
              * 메뉴명을 변경한다.
              *
              * @param {string} title
@@ -478,7 +517,6 @@ namespace Aui {
              */
             renderContent(): void {
                 const $content = this.$getContent();
-                $content.setAttr('data-smart', this.smart);
 
                 const $context = Html.create('a', { draggable: 'false' });
                 $context.on('click', (e) => {
@@ -507,12 +545,17 @@ namespace Aui {
                 const $button = Html.create('button', { type: 'button', 'data-action': 'sort' });
 
                 if (this.contextType == 'FOLDER') {
+                    if (Admin.session('navigation')?.contexts[this.title] === true) {
+                        this.$getComponent().addClass('collapsed');
+                    }
+                    $content.setAttr('data-smart', this.smart);
                     $context.on('click', () => {
                         if (this.getParent().$getComponent().hasClass('sorting') == true) {
                             return;
                         }
 
                         this.$getComponent().toggleClass('collapsed');
+                        this.storeStatus(this.title, this.$getComponent().hasClass('collapsed'));
                     });
 
                     $title.on('click', (e: MouseEvent) => {

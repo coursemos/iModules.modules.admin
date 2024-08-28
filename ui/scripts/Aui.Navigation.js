@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Navigation.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 27.
+ * @modified 2024. 8. 29.
  */
 var Aui;
 (function (Aui) {
@@ -33,6 +33,23 @@ var Aui;
                 this.saveUrl = this.properties.saveUrl;
                 this.$setTop();
                 this.$scrollable = this.$getContent();
+                this.getScroll().addEvent('scroll', (x, y) => {
+                    this.storeStatus('scroll', { x: x, y: y });
+                });
+                if (Admin.session('navigation')?.collapsed === true) {
+                    this.$component.addClass('collapsed');
+                }
+            }
+            /**
+             * 네비게이션의 현재 상태를 저장하고, 페이지가 새로고침되었을 때 네비게이션의 마지막 상태를 복원한다.
+             *
+             * @param {string} name - 상태명
+             * @param {any} value - 상태값
+             */
+            storeStatus(name, value) {
+                let navigation = Admin.session('navigation') ?? {};
+                navigation[name] = value;
+                Admin.session('navigation', navigation);
             }
             /**
              * 뷰포트를 가져온다.
@@ -47,14 +64,14 @@ var Aui;
              */
             collapse() {
                 this.$getComponent().addClass('collapsed');
-                Admin.session('navigation-collapsed', true);
+                this.storeStatus('collapsed', true);
             }
             /**
              * 네비게이션 영역을 확장한다.
              */
             expand() {
                 this.$getComponent().removeClass('collapsed');
-                Admin.session('navigation-collapsed', false);
+                this.storeStatus('collapsed', false);
             }
             /**
              * 네비게이션 영역을 토글한다.
@@ -317,6 +334,10 @@ var Aui;
                         context.render();
                     }
                     this.sorter = new Aui.Navigation.Sorter(this);
+                    const scroll = Admin.session('navigation')?.scroll?.y ?? 0;
+                    if (scroll !== 0) {
+                        this.getScroll().setPosition(0, scroll, false, false);
+                    }
                     return true;
                 }
                 else {
@@ -378,6 +399,17 @@ var Aui;
                 }
             }
             /**
+             * 컨텍스트의 현재 상태를 저장하고, 페이지가 새로고침되었을 때 컨텍스트의 마지막 상태를 복원한다.
+             *
+             * @param {string} name - 상태명
+             * @param {any} value - 상태값
+             */
+            storeStatus(name, value) {
+                let contexts = Admin.session('navigation')?.contexts ?? {};
+                contexts[name] = value;
+                this.getParent().storeStatus('contexts', contexts);
+            }
+            /**
              * 메뉴명을 변경한다.
              *
              * @param {string} title
@@ -421,7 +453,6 @@ var Aui;
              */
             renderContent() {
                 const $content = this.$getContent();
-                $content.setAttr('data-smart', this.smart);
                 const $context = Html.create('a', { draggable: 'false' });
                 $context.on('click', (e) => {
                     const $target = Html.el(e.currentTarget);
@@ -446,11 +477,16 @@ var Aui;
                 const $title = Html.create('span', {}, this.title);
                 const $button = Html.create('button', { type: 'button', 'data-action': 'sort' });
                 if (this.contextType == 'FOLDER') {
+                    if (Admin.session('navigation')?.contexts[this.title] === true) {
+                        this.$getComponent().addClass('collapsed');
+                    }
+                    $content.setAttr('data-smart', this.smart);
                     $context.on('click', () => {
                         if (this.getParent().$getComponent().hasClass('sorting') == true) {
                             return;
                         }
                         this.$getComponent().toggleClass('collapsed');
+                        this.storeStatus(this.title, this.$getComponent().hasClass('collapsed'));
                     });
                     $title.on('click', (e) => {
                         if (this.getParent().$getComponent().hasClass('sorting') == true) {
