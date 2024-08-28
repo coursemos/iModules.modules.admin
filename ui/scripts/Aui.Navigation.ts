@@ -545,7 +545,7 @@ namespace Aui {
                 const $button = Html.create('button', { type: 'button', 'data-action': 'sort' });
 
                 if (this.contextType == 'FOLDER') {
-                    if (Admin.session('navigation')?.contexts[this.title] === true) {
+                    if ((Admin.session('navigation')?.contexts ?? {})[this.title] === true) {
                         this.$getComponent().addClass('collapsed');
                     }
                     $content.setAttr('data-smart', this.smart);
