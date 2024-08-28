@@ -338,6 +338,17 @@ var Aui;
                     if (scroll !== 0) {
                         this.getScroll().setPosition(0, scroll, false, false);
                     }
+                    const $selected = Html.get('div[data-role=content].selected', this.$getContent());
+                    if ($selected.getEl() !== null) {
+                        const selectedTop = $selected.getOffset().top - $content.getOffset().top;
+                        const selectedHeight = $selected.getOuterHeight();
+                        if (selectedTop - selectedHeight < selectedHeight) {
+                            this.getScroll().movePosition(null, selectedTop - selectedHeight);
+                        }
+                        else if (selectedTop + selectedHeight * 2 > $content.getHeight()) {
+                            this.getScroll().movePosition(null, selectedTop - $content.getHeight() + selectedHeight * 2);
+                        }
+                    }
                     return true;
                 }
                 else {
