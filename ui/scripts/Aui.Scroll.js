@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Scroll.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 27.
+ * @modified 2024. 8. 29.
  */
 var Aui;
 (function (Aui) {
@@ -28,12 +28,13 @@ var Aui;
          * 스크롤바 클래스를 생성한다.
          *
          * @param {Dom} $target - 스크롤할 대상의 DOM 객체
+         * @param {Dom} $component - 스크롤할 대상의 컴포넌트 DOM 객체
          * @param {boolean|string} scrollable - 스크롤 여부
          */
-        constructor($target, scrollable = false) {
+        constructor($target, $component, scrollable = false) {
             super();
             this.$target = $target;
-            this.$component = $target.getParents('div[data-component]');
+            this.$component = $component;
             if (scrollable === false) {
                 this.scrollable.x = false;
                 this.scrollable.y = false;
@@ -48,15 +49,16 @@ var Aui;
          * 스크롤바 이벤트 대상의 스크롤바 클래스 객체를 가져온다.
          *
          * @param {Dom} $target - 스크롤할 대상의 DOM 객체
+         * @param {Dom} $component - 스크롤할 대상의 컴포넌트 DOM 객체
          * @param {boolean|string} scrollable - 스크롤 여부
          * @return {Aui.Scroll} scrollbar
          */
-        static get($target, scrollable = false) {
+        static get($target, $component, scrollable = false) {
             if (Aui.Scroll.scrolls.has($target.getEl()) == true) {
                 return Aui.Scroll.scrolls.get($target.getEl());
             }
             else {
-                return new Aui.Scroll($target, scrollable);
+                return new Aui.Scroll($target, $component, scrollable);
             }
         }
         /**
@@ -338,6 +340,7 @@ var Aui;
                     this.active('y', 1);
                 }
                 this.latestPosition = current;
+                this.fireEvent('scroll', [current.x, current.y]);
             });
             this.setTrackEvent('x');
             this.setTrackEvent('y');

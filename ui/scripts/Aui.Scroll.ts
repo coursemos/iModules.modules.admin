@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Scroll.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 27.
+ * @modified 2024. 8. 29.
  */
 namespace Aui {
     export class Scroll extends Aui.Base {
@@ -31,13 +31,14 @@ namespace Aui {
          * 스크롤바 클래스를 생성한다.
          *
          * @param {Dom} $target - 스크롤할 대상의 DOM 객체
+         * @param {Dom} $component - 스크롤할 대상의 컴포넌트 DOM 객체
          * @param {boolean|string} scrollable - 스크롤 여부
          */
-        constructor($target: Dom, scrollable: boolean | string = false) {
+        constructor($target: Dom, $component: Dom, scrollable: boolean | string = false) {
             super();
 
             this.$target = $target;
-            this.$component = $target.getParents('div[data-component]');
+            this.$component = $component;
 
             if (scrollable === false) {
                 this.scrollable.x = false;
@@ -54,14 +55,15 @@ namespace Aui {
          * 스크롤바 이벤트 대상의 스크롤바 클래스 객체를 가져온다.
          *
          * @param {Dom} $target - 스크롤할 대상의 DOM 객체
+         * @param {Dom} $component - 스크롤할 대상의 컴포넌트 DOM 객체
          * @param {boolean|string} scrollable - 스크롤 여부
          * @return {Aui.Scroll} scrollbar
          */
-        static get($target: Dom, scrollable: boolean | string = false): Aui.Scroll {
+        static get($target: Dom, $component: Dom, scrollable: boolean | string = false): Aui.Scroll {
             if (Aui.Scroll.scrolls.has($target.getEl()) == true) {
                 return Aui.Scroll.scrolls.get($target.getEl());
             } else {
-                return new Aui.Scroll($target, scrollable);
+                return new Aui.Scroll($target, $component, scrollable);
             }
         }
 
@@ -377,6 +379,8 @@ namespace Aui {
                 }
 
                 this.latestPosition = current;
+
+                this.fireEvent('scroll', [current.x, current.y]);
             });
 
             this.setTrackEvent('x');
