@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 13.
+ * @modified 2024. 8. 29.
  */
 var Aui;
 (function (Aui) {
@@ -366,7 +366,7 @@ var Aui;
                     this.scroll = null;
                 }
                 else {
-                    this.scroll = Aui.Scroll.get(this.$scrollable, this.scrollable);
+                    this.scroll = Aui.Scroll.get(this.$scrollable, this.$component, this.scrollable);
                 }
             }
             return this.scroll;

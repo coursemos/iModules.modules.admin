@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 13.
+ * @modified 2024. 8. 29.
  */
 namespace Aui {
     export namespace Component {
@@ -520,7 +520,7 @@ namespace Aui {
                 if (this.scrollable === false) {
                     this.scroll = null;
                 } else {
-                    this.scroll = Aui.Scroll.get(this.$scrollable, this.scrollable);
+                    this.scroll = Aui.Scroll.get(this.$scrollable, this.$component, this.scrollable);
                 }
             }
 
