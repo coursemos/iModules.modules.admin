@@ -6,11 +6,11 @@
  * @file /styles/Aui.Menu.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 5.
+ * @modified 2024. 8. 29.
  */
 div[data-component][data-type='menu'][data-role='menu'] {
     position: absolute;
-    z-index: 1;
+    z-index: var(--active-z-index);
     border: 1px solid var(--aui-color-background-200);
     background: var(--aui-color-background-500);
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
@@ -44,6 +44,18 @@ div[data-component][data-type='menu'][data-role='menu'] {
 
     &.submenu {
         margin-top: -1px;
+    }
+
+    &::before {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: transparent;
+        opacity: 0.5;
+        z-index: -1;
+        content: ' ';
     }
 }
 
@@ -168,16 +180,4 @@ div[data-component][data-type='menu'][data-role='item'] {
             }
         }
     }
-}
-
-section[data-role='admin'][data-type='menu'] {
-    position: fixed;
-    width: 100vw;
-    width: 100svw;
-    height: 100vh;
-    height: 100svh;
-    top: 0;
-    left: 0;
-    z-index: 3000;
-    background: transparent;
 }

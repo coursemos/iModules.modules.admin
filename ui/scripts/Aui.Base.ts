@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 27.
+ * @modified 2024. 8. 29.
  */
 namespace Aui {
     export const items: Map<string, Aui.Base> = new Map();
@@ -77,6 +77,36 @@ namespace Aui {
      */
     export function getIndex(): number {
         return ++Aui.index;
+    }
+
+    /**
+     * 절대위치를 가지는 객체의 기준 DOM 을 가져온다.
+     *
+     * @return {Dom} $absolute
+     */
+    export let $absolute: Dom;
+    export function $getAbsolute(): Dom {
+        if (Aui.$absolute !== undefined) {
+            return Aui.$absolute;
+        }
+
+        if (Html.get('section[data-role=admin][data-type=absolute]', Html.get('body')).getEl() == null) {
+            Aui.$absolute = Html.create('section', { 'data-role': 'admin', 'data-type': 'absolute' });
+            Html.get('body').append(Aui.$absolute);
+        } else {
+            Aui.$absolute = Html.get('section[data-role=admin][data-type=absolute]', Html.get('body'));
+        }
+
+        return Aui.$absolute;
+    }
+
+    /**
+     * 절대위치를 가지는 객체의 Z-INDEX 를 가져온다.
+     *
+     * @returns {number} zIndex
+     */
+    export function getAbsoluteIndex(): number {
+        return new Date().getTime() - 1724900000000;
     }
 
     export async function initLanguage(baseUrl: string, retry: number = 0): Promise<void> {

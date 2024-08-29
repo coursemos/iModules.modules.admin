@@ -6,12 +6,11 @@
  * @file /scripts/Aui.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 5.
+ * @modified 2024. 8. 29.
  */
 var Aui;
 (function (Aui) {
     class Menu extends Aui.Component {
-        static $menu;
         static menu = null;
         static observer;
         static isObserve = false;
@@ -81,34 +80,6 @@ var Aui;
                 this.$getComponent().addClass('submenu');
             }
             return this;
-        }
-        /**
-         * 메뉴 랜더링 영역을 가져온다.
-         *
-         * @return {Dom} $menu
-         */
-        $getMenu() {
-            if (Aui.Menu.$menu !== undefined) {
-                return Aui.Menu.$menu;
-            }
-            if (Html.get('section[data-role=admin][data-type=menu]', Html.get('body')).getEl() == null) {
-                Aui.Menu.$menu = Html.create('section', { 'data-role': 'admin', 'data-type': 'menu' });
-                Html.get('body').append(Aui.Menu.$menu);
-                Aui.Menu.$menu.on('pointerdown', (e) => {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    Aui.Menu.menu?.close();
-                });
-                Aui.Menu.$menu.on('contextmenu', (e) => {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    Aui.Menu.menu?.close();
-                });
-            }
-            else {
-                Aui.Menu.$menu = Html.get('section[data-role=admin][data-type=menu]', Html.get('body'));
-            }
-            return Aui.Menu.$menu;
         }
         /**
          * 절대위치의 대상 DOM 의 위치를 가져온다.
@@ -257,8 +228,9 @@ var Aui;
         showAt($target, direction) {
             this.$getComponent().removeAttr('style');
             this.setHidden(false);
-            this.$getMenu().show();
-            this.$getMenu().append(this.$getComponent());
+            this.$getComponent().setStyleProperty('--active-z-index', Aui.getAbsoluteIndex());
+            Aui.$getAbsolute().append(this.$getComponent());
+            Aui.$getAbsolute().addClass('menu');
             this.render();
             const minWidth = $target instanceof Dom ? $target.getOuterWidth() : 150;
             if (direction == 'y') {
@@ -287,15 +259,11 @@ var Aui;
             for (const item of this.items) {
                 item.fireEvent('hide', [item]);
             }
-            if (this.isSubmenu() === false) {
-                Aui.Menu.menu = null;
-                Aui.Menu.$menu.empty();
-                Aui.Menu.$menu.hide();
-            }
             if (this.submenu !== null) {
                 this.submenu.hide();
                 this.submenu = null;
             }
+            Aui.$getAbsolute().removeClass('menu');
             super.hide();
             if (this.once == true) {
                 this.remove();
@@ -380,6 +348,10 @@ var Aui;
         onRender() {
             super.onRender();
             this.$getComponent().on('pointerdown', (e) => {
+                this.close();
+                e.stopPropagation();
+            });
+            this.$getContainer().on('pointerdown', (e) => {
                 e.stopPropagation();
             });
             this.$getComponent().on('keydown', (e) => {

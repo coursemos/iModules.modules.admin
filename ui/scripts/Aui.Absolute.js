@@ -6,12 +6,11 @@
  * @file /scripts/Aui.Absolute.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 24.
+ * @modified 2024. 8. 29.
  */
 var Aui;
 (function (Aui) {
     class Absolute extends Aui.Component {
-        static $absolutes;
         static $absolute = new Map();
         animationFrame;
         type = 'absolute';
@@ -33,28 +32,6 @@ var Aui;
             this.direction = this.properties.direction ?? 'y';
             this.hideOnClick = this.properties.hideOnClick === true;
             this.border = this.properties.border ?? true;
-        }
-        /**
-         * 절대위치를 가지는 DOM 을 랜더링할 기준 DOM 객체를 가져온다.
-         *
-         * @return {Dom} $absolutes
-         */
-        $getAbsolutes() {
-            if (Aui.Absolute.$absolutes !== undefined) {
-                return Aui.Absolute.$absolutes;
-            }
-            if (Html.get('section[data-role=admin][data-type=absolutes]', Html.get('body')).getEl() == null) {
-                Aui.Absolute.$absolutes = Html.create('section', { 'data-role': 'admin', 'data-type': 'absolutes' });
-                Aui.Absolute.$absolutes.on('mousedown', (e) => {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                });
-                Html.get('body').append(Aui.Absolute.$absolutes);
-            }
-            else {
-                Aui.Absolute.$absolutes = Html.get('section[data-role=admin][data-type=absolutes]', Html.get('body'));
-            }
-            return Aui.Absolute.$absolutes;
         }
         /**
          * 절대위치의 대상 DOM 의 위치를 가져온다.
@@ -169,7 +146,12 @@ var Aui;
             const isShow = this.fireEvent('beforeShow', [this]);
             if (isShow === false)
                 return;
-            this.$getAbsolutes().append(this.$getComponent());
+            this.$getComponent().on('pointerdown', (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            });
+            this.$getComponent().setStyleProperty('--active-z-index', Aui.getAbsoluteIndex());
+            Aui.$getAbsolute().append(this.$getComponent());
             this.render();
             super.show();
             this.updatePosition();
@@ -209,11 +191,9 @@ var Aui;
          * 모든 절대위치 컴포넌트를 숨긴다.
          */
         static hideAll() {
-            if (Aui.Absolute.$absolutes !== undefined) {
-                Html.all('div[data-component][data-type=absolute]', Aui.Absolute.$absolutes).forEach(($dom) => {
-                    Aui.getComponent($dom.getData('component')).hide();
-                });
-            }
+            Html.all('div[data-component][data-type=absolute]', Aui.$getAbsolute()).forEach(($dom) => {
+                Aui.getComponent($dom.getData('component')).hide();
+            });
         }
         /**
          * 절대위치 컴포넌트를 닫는다.

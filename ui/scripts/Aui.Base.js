@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 27.
+ * @modified 2024. 8. 29.
  */
 var Aui;
 (function (Aui) {
@@ -79,6 +79,29 @@ var Aui;
         return ++Aui.index;
     }
     Aui.getIndex = getIndex;
+    function $getAbsolute() {
+        if (Aui.$absolute !== undefined) {
+            return Aui.$absolute;
+        }
+        if (Html.get('section[data-role=admin][data-type=absolute]', Html.get('body')).getEl() == null) {
+            Aui.$absolute = Html.create('section', { 'data-role': 'admin', 'data-type': 'absolute' });
+            Html.get('body').append(Aui.$absolute);
+        }
+        else {
+            Aui.$absolute = Html.get('section[data-role=admin][data-type=absolute]', Html.get('body'));
+        }
+        return Aui.$absolute;
+    }
+    Aui.$getAbsolute = $getAbsolute;
+    /**
+     * 절대위치를 가지는 객체의 Z-INDEX 를 가져온다.
+     *
+     * @returns {number} zIndex
+     */
+    function getAbsoluteIndex() {
+        return new Date().getTime() - 1724900000000;
+    }
+    Aui.getAbsoluteIndex = getAbsoluteIndex;
     async function initLanguage(baseUrl, retry = 0) {
         const language = Aui.getLanguage();
         if (Aui.language !== language) {

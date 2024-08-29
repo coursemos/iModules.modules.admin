@@ -6,12 +6,11 @@
  * @file /scripts/Aui.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 8. 29.
  */
 var Aui;
 (function (Aui) {
     class Window extends Aui.Component {
-        static $windows;
         static windows = new Map();
         static zIndex = 0;
         static observer;
@@ -105,24 +104,6 @@ var Aui;
             super.initItems();
         }
         /**
-         * 전체 윈도우 랜더링 영역을 가져온다.
-         *
-         * @return {Dom} $windows
-         */
-        $getWindows() {
-            if (Aui.Window.$windows !== undefined) {
-                return Aui.Window.$windows;
-            }
-            if (Html.get('section[data-role=admin][data-type=windows]', Html.get('body')).getEl() == null) {
-                Aui.Window.$windows = Html.create('section', { 'data-role': 'admin', 'data-type': 'windows' });
-                Html.get('body').append(Aui.Window.$windows);
-            }
-            else {
-                Aui.Window.$windows = Html.get('section[data-role=admin][data-type=windows]', Html.get('body'));
-            }
-            return Aui.Window.$windows;
-        }
-        /**
          * 윈도우의 제목 객체를 가져온다.
          *
          * @return {Aui.Title} title
@@ -171,47 +152,16 @@ var Aui;
             this.resizer?.setMaxHeight(maxHeight);
         }
         /**
-         * 윈도우의 Z-INDEX 를 가져온다.
-         *
-         * @return {number} z-index
-         */
-        getIndex() {
-            const zIndex = this.$component.getStyle('z-index');
-            return zIndex.length > 0 ? parseInt(zIndex, 10) : 0;
-        }
-        /**
          * 윈도우를 최상단에 배치한다.
          */
         setFront() {
-            if (this.getIndex() != Aui.Window.zIndex) {
-                this.$component.setStyle('z-index', Aui.Window.zIndex + 2);
-                this.updateWindows();
-            }
+            this.$component.setStyleProperty('--active-z-index', Aui.getAbsoluteIndex());
         }
         /**
          * 윈도우를 최하단에 배치한다.
          */
         setBack() {
-            this.$component.setStyle('z-index', 0);
-        }
-        /**
-         * 전체 윈도우를 대상으로 윈도우 상태값을 업데이트한다.
-         */
-        updateWindows() {
-            let zIndex = 0;
-            let isModal = false;
-            for (const window of Aui.Window.windows.values()) {
-                zIndex = Math.max(zIndex, window.getIndex());
-                isModal = isModal || window.modal == true;
-            }
-            Aui.Window.zIndex = zIndex;
-            this.$getWindows().setStyleProperty('--active-z-index', zIndex);
-            if (isModal == true) {
-                this.$getWindows().addClass('modal');
-            }
-            else {
-                this.$getWindows().removeClass('modal');
-            }
+            this.$component.setStyle('--active-z-index', 0);
         }
         /**
          * 윈도우 위치를 가져온다.
@@ -266,7 +216,7 @@ var Aui;
             const isShow = this.fireEvent('beforeShow', [this]);
             if (isShow === false)
                 return;
-            this.$getWindows().append(this.$component);
+            Aui.$getAbsolute().append(this.$component);
             this.render();
             this.setPosition(this.top, this.left);
             this.setFront();
@@ -281,7 +231,6 @@ var Aui;
             const isHide = this.fireEvent('beforeHide', [this]);
             if (isHide === false)
                 return;
-            this.updateWindows();
             if (this.hasWindow(true) == false) {
                 Aui.Window.disconnect();
             }
@@ -296,7 +245,6 @@ var Aui;
                 return;
             Aui.Window.windows.delete(this.id);
             this.remove();
-            this.updateWindows();
             if (this.hasWindow(true) == false) {
                 Aui.Window.disconnect();
             }
@@ -409,7 +357,7 @@ var Aui;
             super.render();
             if (this.resizable == false || this.resizer !== undefined)
                 return;
-            this.resizer = new Aui.Resizer(this.$component, this.$getWindows(), {
+            this.resizer = new Aui.Resizer(this.$component, Aui.$getAbsolute(), {
                 directions: [true, true, true, true],
                 listeners: {
                     end: (_$target, rect) => {
@@ -425,6 +373,9 @@ var Aui;
          */
         onRender() {
             super.onRender();
+            if (this.modal == true) {
+                this.$getComponent().addClass('modal');
+            }
             this.$getComponent().on('keydown', (e) => {
                 if (e.key == 'Escape' && this.closable === true) {
                     this.close();
