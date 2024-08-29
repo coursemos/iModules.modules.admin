@@ -92,7 +92,7 @@ namespace Admin {
      */
     export function storage(key: string, value: any = undefined): any {
         const storage = window.localStorage?.getItem('iModules-Admin-Storage') ?? null;
-        const datas = session !== null ? JSON.parse(storage) : {};
+        const datas = storage !== null ? JSON.parse(storage) : {};
 
         if (value === undefined) {
             return datas[key] ?? null;

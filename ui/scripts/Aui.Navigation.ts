@@ -52,11 +52,11 @@ namespace Aui {
                 this.$setTop();
                 this.$scrollable = this.$getContent();
 
-                this.getScroll().addEvent('scroll', (x: number, y: number) => {
-                    this.storeStatus('scroll', { x: x, y: y });
+                this.getScroll().addEvent('scroll', (_x: number, y: number) => {
+                    this.storeScroll(y);
                 });
 
-                if (Admin.session('navigation')?.collapsed === true) {
+                if (Aui.session('navigation')?.collapsed === true) {
                     this.$component.addClass('collapsed');
                 }
             }
@@ -68,10 +68,43 @@ namespace Aui {
              * @param {any} value - 상태값
              */
             storeStatus(name: string, value: any): void {
-                let navigation = Admin.session('navigation') ?? {};
+                let navigation = Aui.storage('navigation') ?? {};
                 navigation[name] = value;
 
-                Admin.session('navigation', navigation);
+                Aui.storage('navigation', navigation);
+            }
+
+            /**
+             * 네비게이션의 마지막 상태를 가져온다.
+             *
+             * @param {string} name - 상태명
+             * @return {any} status - 상태값
+             */
+            getStoredStatus(name: string): object {
+                let navigation = Aui.storage('navigation') ?? {};
+                return navigation[name] ?? null;
+            }
+
+            /**
+             * 네비게이션의 스크롤 위치를 저장하고, 페이지가 새로고침되었을 때 네비게이션의 마지막 스크롤 위치를 복원한다.
+             *
+             * @param {number} y - Y 스크롤 좌표
+             */
+            storeScroll(y: number): void {
+                let navigation = Aui.session('navigation') ?? {};
+                navigation.scroll = y;
+
+                Aui.session('navigation', navigation);
+            }
+
+            /**
+             * 네비게이션의 스크롤 위치를 저장하고, 페이지가 새로고침되었을 때 네비게이션의 마지막 스크롤 위치를 복원한다.
+             *
+             * @return {number} y - Y 스크롤 좌표
+             */
+            getStoredScroll(): number {
+                let navigation = Aui.session('navigation') ?? {};
+                return navigation.scroll ?? 0;
             }
 
             /**
@@ -382,11 +415,7 @@ namespace Aui {
                     }
 
                     this.sorter = new Aui.Navigation.Sorter(this);
-
-                    const scroll = Admin.session('navigation')?.scroll?.y ?? 0;
-                    if (scroll !== 0) {
-                        this.getScroll().setPosition(0, scroll, false, false);
-                    }
+                    this.getScroll().setPosition(0, this.getStoredScroll(), false, false);
 
                     const $selected = Html.get('div[data-role=content].selected', this.$getContent());
                     if ($selected.getEl() !== null) {
@@ -475,10 +504,11 @@ namespace Aui {
              * @param {any} value - 상태값
              */
             storeStatus(name: string, value: any): void {
-                let contexts = Admin.session('navigation')?.contexts ?? {};
+                const navigation = this.getParent() as Aui.Navigation.Panel;
+                let contexts = navigation.getStoredStatus('contexts') ?? {};
                 contexts[name] = value;
 
-                (this.getParent() as Aui.Navigation.Panel).storeStatus('contexts', contexts);
+                navigation.storeStatus('contexts', contexts);
             }
 
             /**
@@ -530,6 +560,7 @@ namespace Aui {
              * 메뉴를 랜더링한다.
              */
             renderContent(): void {
+                const navigation = this.getParent() as Aui.Navigation.Panel;
                 const $content = this.$getContent();
 
                 const $context = Html.create('a', { draggable: 'false' });
@@ -559,7 +590,7 @@ namespace Aui {
                 const $button = Html.create('button', { type: 'button', 'data-action': 'sort' });
 
                 if (this.contextType == 'FOLDER') {
-                    if ((Admin.session('navigation')?.contexts ?? {})[this.title] === true) {
+                    if ((navigation.getStoredStatus('contexts') ?? {})[this.title] === true) {
                         this.$getComponent().addClass('collapsed');
                     }
                     $content.setAttr('data-smart', this.smart);

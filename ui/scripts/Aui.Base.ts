@@ -17,6 +17,44 @@ namespace Aui {
     export let readyListeners: Function[] = [];
 
     /**
+     * 세션 스토리지의 데이터를 처리한다.
+     *
+     * @param {string} key - 데이터키
+     * @param {any} value - 저장할 데이터 (undefined 인 경우 저장된 데이터를 가져온다.)
+     * @return {any} data - 데이터를 가져올 경우 해당 데이터값
+     */
+    export function session(key: string, value: any = undefined): any {
+        const session = window.sessionStorage?.getItem('Aui-Session') ?? null;
+        const datas = session !== null ? JSON.parse(session) : {};
+
+        if (value === undefined) {
+            return datas[key] ?? null;
+        } else {
+            datas[key] = value;
+            window.sessionStorage?.setItem('Aui-Session', JSON.stringify(datas));
+        }
+    }
+
+    /**
+     * 로컬 스토리지의 데이터를 처리한다.
+     *
+     * @param {string} key - 데이터키
+     * @param {any} value - 저장할 데이터 (undefined 인 경우 저장된 데이터를 가져온다.)
+     * @return {any} data - 데이터를 가져올 경우 해당 데이터값
+     */
+    export function storage(key: string, value: any = undefined): any {
+        const storage = window.localStorage?.getItem('Aui-Storage') ?? null;
+        const datas = storage !== null ? JSON.parse(storage) : {};
+
+        if (value === undefined) {
+            return datas[key] ?? null;
+        } else {
+            datas[key] = value;
+            window.localStorage?.setItem('Aui-Storage', JSON.stringify(datas));
+        }
+    }
+
+    /**
      * 객체를 등록한다.
      *
      * @param {Aui.Base} item - 객체
