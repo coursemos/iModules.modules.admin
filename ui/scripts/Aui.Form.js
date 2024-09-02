@@ -1043,6 +1043,12 @@ var Aui;
                     const $text = Html.create('p');
                     $text.html(text);
                     $bottom.append($text);
+                    if (this.getLabelPosition() == 'left') {
+                        this.$getBottom().setStyle('padding-left', this.label == null ? 0 : this.getLabelWidth() + 'px');
+                    }
+                    if (this.getLabelPosition() == 'right') {
+                        this.$getBottom().setStyle('padding-right', this.label == null ? 0 : this.getLabelWidth() + 'px');
+                    }
                 }
                 /**
                  * 에러메시지를 변경한다.
@@ -1078,6 +1084,12 @@ var Aui;
                         $text.html(messages.join('<br>'));
                         $bottom.append($text);
                         this.$getBottom().addClass('error');
+                        if (this.getLabelPosition() == 'left') {
+                            this.$getBottom().setStyle('padding-left', this.label == null ? 0 : this.getLabelWidth() + 'px');
+                        }
+                        if (this.getLabelPosition() == 'right') {
+                            this.$getBottom().setStyle('padding-right', this.label == null ? 0 : this.getLabelWidth() + 'px');
+                        }
                     }
                 }
                 /**
