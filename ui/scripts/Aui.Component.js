@@ -390,6 +390,21 @@ var Aui;
             return this.parent;
         }
         /**
+         * 부모객체 중 특정 컴포넌트를 가져온다.
+         *
+         * @param {Function} component - 찾을 부모 인스턴스
+         * @return {Aui.Component} parent - 부모
+         */
+        getParents(component) {
+            let parent = this;
+            while ((parent = parent.getParent()) !== null) {
+                if (parent instanceof component) {
+                    return parent;
+                }
+            }
+            return parent;
+        }
+        /**
          * 컴포넌트에 해당하는 하위 요소만 가져온다.
          *
          * @return {Aui.Component[]} items - 하위요소
