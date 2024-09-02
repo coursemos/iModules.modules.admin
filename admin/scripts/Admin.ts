@@ -12,6 +12,53 @@ namespace modules {
     export namespace admin {
         export namespace admin {
             export class Admin extends Component {
+                /**
+                 * 모듈 환경설정 폼을 가져온다.
+                 *
+                 * @return {Promise<Aui.Form.Panel>} configs
+                 */
+                async getConfigsForm(): Promise<Aui.Form.Panel> {
+                    return new Aui.Form.Panel({
+                        items: [
+                            new Aui.Form.FieldSet({
+                                title: (await this.getText('admin.configs.default')) as string,
+                                items: [
+                                    new AdminUi.Form.Field.Theme({
+                                        label: (await this.getText('admin.configs.theme')) as string,
+                                        name: 'theme',
+                                        category: 'admin',
+                                        componentType: this.getType(),
+                                        componentName: this.getName(),
+                                    }),
+                                ],
+                            }),
+                            new Aui.Form.FieldSet({
+                                title: (await this.getText('admin.configs.security')) as string,
+                                items: [
+                                    new Aui.Form.Field.Container({
+                                        label: (await this.getText('admin.configs.use_whitelist')) as string,
+                                        direction: 'column',
+                                        items: [
+                                            new Aui.Form.Field.Check({
+                                                name: 'use_whitelist',
+                                                boxLabel: (await this.getText(
+                                                    'admin.configs.use_whitelist_help'
+                                                )) as string,
+                                            }),
+                                            new Aui.Form.Field.TextArea({
+                                                name: 'whitelist',
+                                                helpText: (await this.getText(
+                                                    'admin.configs.whitelist_help'
+                                                )) as string,
+                                            }),
+                                        ],
+                                    }),
+                                ],
+                            }),
+                        ],
+                    });
+                }
+
                 modules = {
                     /**
                      * 모듈정보를 확인한다.

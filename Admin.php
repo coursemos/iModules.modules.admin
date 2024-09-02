@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 25.
+ * @modified 2024. 9. 2.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -295,6 +295,25 @@ class Admin extends \Module
      */
     public function doRoute(\Route $route): string
     {
+        /**
+         * IP제한설정을 확인한다.
+         */
+        if ($this->getConfigs('use_whitelist') == true) {
+            $whitelist = explode("\n", $this->getConfigs('whitelist') ?? '');
+            $checked = false;
+            foreach ($whitelist as $ip) {
+                $ip = \Format::reg($ip);
+                $ip = str_replace('\*', '[0-9a-f]+', $ip);
+                if (preg_match('/' . $ip . '/', $_SERVER['REMOTE_ADDR']) == true) {
+                    $checked = true;
+                }
+            }
+
+            if ($checked === false) {
+                return \ErrorHandler::print(\ErrorHandler::error('NOT_FOUND_URL'));
+            }
+        }
+
         /**
          * 아이모듈 관리자 테마를 설정한다.
          */

@@ -15,6 +15,48 @@ var modules;
         let admin;
         (function (admin) {
             class Admin extends admin.Component {
+                /**
+                 * 모듈 환경설정 폼을 가져온다.
+                 *
+                 * @return {Promise<Aui.Form.Panel>} configs
+                 */
+                async getConfigsForm() {
+                    return new Aui.Form.Panel({
+                        items: [
+                            new Aui.Form.FieldSet({
+                                title: (await this.getText('admin.configs.default')),
+                                items: [
+                                    new AdminUi.Form.Field.Theme({
+                                        label: (await this.getText('admin.configs.theme')),
+                                        name: 'theme',
+                                        category: 'admin',
+                                        componentType: this.getType(),
+                                        componentName: this.getName(),
+                                    }),
+                                ],
+                            }),
+                            new Aui.Form.FieldSet({
+                                title: (await this.getText('admin.configs.security')),
+                                items: [
+                                    new Aui.Form.Field.Container({
+                                        label: (await this.getText('admin.configs.use_whitelist')),
+                                        direction: 'column',
+                                        items: [
+                                            new Aui.Form.Field.Check({
+                                                name: 'use_whitelist',
+                                                boxLabel: (await this.getText('admin.configs.use_whitelist_help')),
+                                            }),
+                                            new Aui.Form.Field.TextArea({
+                                                name: 'whitelist',
+                                                helpText: (await this.getText('admin.configs.whitelist_help')),
+                                            }),
+                                        ],
+                                    }),
+                                ],
+                            }),
+                        ],
+                    });
+                }
                 modules = {
                     /**
                      * 모듈정보를 확인한다.

@@ -23,12 +23,17 @@
     "admin": true,
     "configs": {
         "theme": {
-            "label": {
-                "ko": "관리자테마"
-            },
             "type": "theme",
             "category": "admin",
             "default": "/modules/admin/default"
+        },
+        "use_whitelist": {
+            "type": "check",
+            "value": false
+        },
+        "whitelist": {
+            "type": "textarea",
+            "default": ""
         }
     },
     "databases": {
