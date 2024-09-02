@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 7.
+ * @modified 2024. 9. 2.
  */
 namespace Aui {
     export namespace Store {
@@ -233,10 +233,49 @@ namespace Aui {
         /**
          * 데이터를 불러오기 위한 매개변수를 가져온다.
          *
+         * @param {boolean} include_loader_params - 데이터를 불러오기 위한 매개변수 포함여부
          * @return {Object} params - 매개변수
          */
-        getParams(): { [key: string]: any } {
-            return this.params ?? {};
+        getParams(include_loader_params: boolean = false): { [key: string]: any } {
+            let params = { ...(this.params ?? {}) };
+
+            if (include_loader_params == true) {
+                if (this.fields.length > 0) {
+                    const fields = [];
+                    for (const field of this.fields) {
+                        if (typeof field == 'string') {
+                            fields.push(field);
+                        } else if (field?.name !== undefined) {
+                            fields.push(field.name);
+                        }
+                    }
+                    params.fields = fields.join(',');
+                }
+
+                if (this.limit > 0) {
+                    params.start = (this.page - 1) * this.limit;
+                    params.limit = this.limit;
+                }
+
+                if (this.remoteSort == true) {
+                    if (this.sorters === null) {
+                        params.sorters = null;
+                    } else {
+                        params.sorters = JSON.stringify(this.sorters);
+                    }
+                }
+
+                if (this.remoteFilter == true) {
+                    if (this.filters === null) {
+                        params.filters = null;
+                    } else {
+                        params.filters = JSON.stringify(this.filters);
+                        params.filterMode = this.filterMode;
+                    }
+                }
+            }
+
+            return params;
         }
 
         /**
@@ -824,42 +863,7 @@ namespace Aui {
                     return this;
                 }
 
-                const params = { ...this.params };
-
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        } else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
-                    }
-                    params.fields = fields.join(',');
-                }
-
-                if (this.limit > 0) {
-                    params.start = (this.page - 1) * this.limit;
-                    params.limit = this.limit;
-                }
-
-                if (this.remoteSort == true) {
-                    if (this.sorters === null) {
-                        params.sorters = null;
-                    } else {
-                        params.sorters = JSON.stringify(this.sorters);
-                    }
-                }
-
-                if (this.remoteFilter == true) {
-                    if (this.filters === null) {
-                        params.filters = null;
-                    } else {
-                        params.filters = JSON.stringify(this.filters);
-                        params.filterMode = this.filterMode;
-                    }
-                }
-
+                const params = this.getParams(true);
                 const results = await Ajax.get(this.url, params);
                 for (const key in results) {
                     if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
@@ -1183,10 +1187,49 @@ namespace Aui {
         /**
          * 데이터를 불러오기 위한 매개변수를 가져온다.
          *
+         * @param {boolean} include_loader_params - 데이터를 불러오기 위한 매개변수 포함여부
          * @return {Object} params - 매개변수
          */
-        getParams(): { [key: string]: any } {
-            return this.params ?? {};
+        getParams(include_loader_params: boolean = false): { [key: string]: any } {
+            let params = { ...(this.params ?? {}) };
+
+            if (include_loader_params == true) {
+                if (this.fields.length > 0) {
+                    const fields = [];
+                    for (const field of this.fields) {
+                        if (typeof field == 'string') {
+                            fields.push(field);
+                        } else if (field?.name !== undefined) {
+                            fields.push(field.name);
+                        }
+                    }
+                    params.fields = fields.join(',');
+                }
+
+                if (this.limit > 0) {
+                    params.start = (this.page - 1) * this.limit;
+                    params.limit = this.limit;
+                }
+
+                if (this.remoteSort == true) {
+                    if (this.sorters === null) {
+                        params.sorters = null;
+                    } else {
+                        params.sorters = JSON.stringify(this.sorters);
+                    }
+                }
+
+                if (this.remoteFilter == true) {
+                    if (this.filters === null) {
+                        params.filters = null;
+                    } else {
+                        params.filters = JSON.stringify(this.filters);
+                        params.filterMode = this.filterMode;
+                    }
+                }
+            }
+
+            return params;
         }
 
         /**
@@ -2077,42 +2120,7 @@ namespace Aui {
                     return this;
                 }
 
-                const params = { ...this.params };
-
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        } else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
-                    }
-                    params.fields = fields.join(',');
-                }
-
-                if (this.limit > 0) {
-                    params.start = (this.page - 1) * this.limit;
-                    params.limit = this.limit;
-                }
-
-                if (this.remoteSort == true) {
-                    if (this.sorters === null) {
-                        params.sorters = null;
-                    } else {
-                        params.sorters = JSON.stringify(this.sorters);
-                    }
-                }
-
-                if (this.remoteFilter == true) {
-                    if (this.filters === null) {
-                        params.filters = null;
-                    } else {
-                        params.filters = JSON.stringify(this.filters);
-                        params.filterMode = this.filterMode;
-                    }
-                }
-
+                const params = this.getParams(true);
                 const results = await Ajax.get(this.url, params);
                 for (const key in results) {
                     if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
