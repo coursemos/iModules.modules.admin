@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 9. 2.
  */
 namespace modules {
     export namespace admin {
@@ -92,8 +92,8 @@ namespace modules {
                                                                     renderer: (value: string) => {
                                                                         const $box = Html.create('div');
                                                                         $box.setStyle(
-                                                                            'margin',
-                                                                            'calc(var(--padding-default) * -1)'
+                                                                            'margin-bottom',
+                                                                            'calc(var(--aui-component-gap) * -1)'
                                                                         );
                                                                         $box.setStyle('width', '100px');
                                                                         $box.setStyle('height', '100px');
@@ -103,7 +103,7 @@ namespace modules {
                                                                         );
                                                                         $box.setStyle(
                                                                             'border-color',
-                                                                            'var(--input-border-color-default)'
+                                                                            'var(--aui-color-background-200)'
                                                                         );
                                                                         $box.setStyle('border-radius', '5px');
                                                                         $box.setStyle('padding', '20px');
@@ -126,8 +126,8 @@ namespace modules {
                                                                     renderer: (value: string) => {
                                                                         const $box = Html.create('div', null, value);
                                                                         $box.setStyle(
-                                                                            'margin',
-                                                                            'calc(var(--padding-default) * -1)'
+                                                                            'margin-top',
+                                                                            'calc(var(--aui-component-gap) * -1)'
                                                                         );
                                                                         $box.setStyle('width', '100px');
                                                                         $box.setStyle('height', '30px');

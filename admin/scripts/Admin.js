@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 9. 2.
  */
 var modules;
 (function (modules) {
@@ -89,11 +89,11 @@ var modules;
                                                                     name: 'icon',
                                                                     renderer: (value) => {
                                                                         const $box = Html.create('div');
-                                                                        $box.setStyle('margin', 'calc(var(--padding-default) * -1)');
+                                                                        $box.setStyle('margin-bottom', 'calc(var(--aui-component-gap) * -1)');
                                                                         $box.setStyle('width', '100px');
                                                                         $box.setStyle('height', '100px');
                                                                         $box.setStyle('border', '1px solid transparent');
-                                                                        $box.setStyle('border-color', 'var(--input-border-color-default)');
+                                                                        $box.setStyle('border-color', 'var(--aui-color-background-200)');
                                                                         $box.setStyle('border-radius', '5px');
                                                                         $box.setStyle('padding', '20px');
                                                                         $box.setStyle('box-sizing', 'border-box');
@@ -111,7 +111,7 @@ var modules;
                                                                     name: 'version',
                                                                     renderer: (value) => {
                                                                         const $box = Html.create('div', null, value);
-                                                                        $box.setStyle('margin', 'calc(var(--padding-default) * -1)');
+                                                                        $box.setStyle('margin-top', 'calc(var(--aui-component-gap) * -1)');
                                                                         $box.setStyle('width', '100px');
                                                                         $box.setStyle('height', '30px');
                                                                         $box.setStyle('background', 'var(--input-background-select)');

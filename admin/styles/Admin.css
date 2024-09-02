@@ -18,8 +18,13 @@ body[data-type='login'] {
     touch-action: none;
     -webkit-touch-callout: none;
 
-    section[data-role='admin'],
-    main[data-role='admin'] {
+    section[data-role='admin'] {
+        a {
+            color: var(--aui-color-accent-500);
+            font-variant-numeric: tabular-nums;
+            text-decoration: none;
+        }
+
         i.icon,
         i.photo {
             font-style: normal;
