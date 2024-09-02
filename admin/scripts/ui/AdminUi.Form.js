@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/AdminUi.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 13.
+ * @modified 2024. 9. 2.
  */
 var AdminUi;
 (function (AdminUi) {
@@ -32,6 +32,30 @@ var AdminUi;
                                     return records;
                                 })(field.options),
                             }),
+                        });
+                    case 'check':
+                        if (field.options === null) {
+                            return new Aui.Form.Field.Check({
+                                name: field.name ?? null,
+                                label: field.label ?? null,
+                                boxLabel: field.boxLabel ?? null,
+                                checked: field.value ?? false,
+                            });
+                        }
+                        else {
+                            return new Aui.Form.Field.CheckGroup({
+                                name: field.name ?? null,
+                                label: field.label ?? null,
+                                options: field.options,
+                                value: field.value ?? [],
+                            });
+                        }
+                    case 'radio':
+                        return new Aui.Form.Field.RadioGroup({
+                            name: field.name ?? null,
+                            label: field.label ?? null,
+                            options: field.options,
+                            value: field.value ?? [],
                         });
                     case 'fieldset':
                         return new Aui.Form.FieldSet({
