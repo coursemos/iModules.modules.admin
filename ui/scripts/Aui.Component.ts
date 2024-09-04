@@ -41,7 +41,7 @@ namespace Aui {
             /**
              * @type {'auto'|'fit'|'column'|'column-item'} layout - 컴포넌트 레이아웃
              */
-            layout?: 'auto' | 'fit' | 'column' | 'column-item';
+            layout?: 'auto' | 'fit' | 'column' | 'column-item' | 'row' | 'row-item';
 
             /**
              * @type {number} height - 컴포넌트너비
@@ -203,6 +203,10 @@ namespace Aui {
                     item.setParent(this);
                     if (this.getLayoutType() == 'column') {
                         item.setLayoutType('column-item');
+                    }
+
+                    if (this.getLayoutType() == 'row') {
+                        item.setLayoutType('row-item');
                     }
                 }
             }
@@ -858,6 +862,30 @@ namespace Aui {
                     } else {
                         if (this.properties.width !== undefined) {
                             this.$getComponent().setStyle('width', this.properties.width + 'px');
+                            this.$getComponent().setStyle('flex-grow', 0);
+                            this.$getComponent().setStyle('flex-shrink', 0);
+                        }
+                    }
+                }
+
+                if (this.getLayoutType() == 'row') {
+                    if (this.properties.gap !== undefined && this.properties.gap > 0) {
+                        this.$getContent().setStyle('row-gap', this.properties.gap + 'px');
+                    }
+                }
+
+                if (this.getLayoutType() == 'row-item') {
+                    if (this.properties.flex !== undefined && this.properties.flex > 0) {
+                        this.$getComponent().setStyle('flex-grow', this.properties.flex);
+                        this.$getComponent().setStyle('flex-basis', 0);
+                        this.$getComponent().setStyle('flex-shrink', 0);
+
+                        if (this.properties.minHeight !== undefined && this.properties.minHeight > 0) {
+                            this.$getComponent().setStyle('min-height', this.properties.minHeight + 'px');
+                        }
+                    } else {
+                        if (this.properties.height !== undefined) {
+                            this.$getComponent().setStyle('height', this.properties.height + 'px');
                             this.$getComponent().setStyle('flex-grow', 0);
                             this.$getComponent().setStyle('flex-shrink', 0);
                         }
