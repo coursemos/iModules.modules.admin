@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 26.
+ * @modified 2024. 9. 6.
  */
 namespace Aui {
     export namespace Grid {
@@ -81,9 +81,9 @@ namespace Aui {
                 selectable?: boolean;
 
                 /**
-                 * @type {'row'|'check'} display - 선택표시 (row : 별도의 표시없이 선택된 ROW 강조, check : 체크박스로 표시)
+                 * @type {'row'|'column'|'check'|'manual'} type - 선택방법
                  */
-                display?: 'row' | 'check';
+                type?: 'row' | 'column' | 'check' | 'manual';
 
                 /**
                  * @type {boolean} multiple - 다중선택 여부 (display 가 row 인 경우 Ctrl 또는 Shift 키와 함께 선택, check 인 경우 항상 true)
@@ -94,6 +94,11 @@ namespace Aui {
                  * @type {boolean} deselectable - 선택된 항목을 선택해제 할 수 있는지 여부 (display 가 check 인 경우 항상 true)
                  */
                 deselectable?: boolean;
+
+                /**
+                 * @type {boolean} cancelable - ESC 키를 이용하여 선택항목 취소여부
+                 */
+                cancelable?: boolean;
 
                 /**
                  * @type {boolean} keepable - 선택사항 보관여부 (페이지 이동 등으로 그리드 데이터가 변경되더라도 이전 선택사항을 보관할 지 여부)
@@ -247,10 +252,11 @@ namespace Aui {
 
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
-                this.selection.display = this.selection.display ?? 'row';
-                this.selection.multiple = this.selection.multiple ?? (this.selection.display == 'check' ? true : false);
+                this.selection.type = this.selection.type ?? 'row';
+                this.selection.multiple = this.selection.multiple ?? (this.selection.type == 'check' ? true : false);
                 this.selection.deselectable =
-                    this.selection.deselectable ?? (this.selection.display == 'check' ? true : false);
+                    this.selection.deselectable ?? (this.selection.type == 'check' ? true : false);
+                this.selection.cancelable = this.selection.cancelable ?? false;
                 this.selection.keepable = this.selection.keepable ?? false;
 
                 this.store = this.properties.store ?? new Aui.Store();
@@ -980,7 +986,7 @@ namespace Aui {
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
              */
             onSelectionChange(): void {
-                if (this.selection.display == 'check') {
+                if (this.selection.type == 'check') {
                     const rows = Html.all('div[data-role=row]', this.$getBody());
                     const selected = Html.all('div[data-role=row].selected', this.$getBody());
 
@@ -1268,7 +1274,7 @@ namespace Aui {
                         }
                     }
 
-                    if (this.selection.display == 'check') {
+                    if (this.selection.type == 'check') {
                         const $check = Html.create('div', { 'data-role': 'check' });
                         const $button = Html.create('button', { 'type': 'button' });
 
@@ -1300,6 +1306,18 @@ namespace Aui {
                         }
                         $row.append($column);
 
+                        if (this.selection.type == 'column' && column.selectable == true) {
+                            $column.on('click', (e: PointerEvent) => {
+                                if (this.selection.deselectable == true && this.isRowSelected(rowIndex) == true) {
+                                    this.deselectRow(rowIndex);
+                                } else {
+                                    this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
+                                }
+
+                                this.onSelectionComplete();
+                            });
+                        }
+
                         if (columnIndex < this.freezeColumn) {
                             $column.addClass('sticky');
                             $column.setStyle('left', leftPosition + 'px');
@@ -1313,8 +1331,12 @@ namespace Aui {
                     $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
 
                     $row.on('click', (e: PointerEvent) => {
-                        if (this.selection.selectable == true) {
-                            if (this.selection.display == 'check') {
+                        if (
+                            this.selection.selectable == true &&
+                            this.selection.type != 'column' &&
+                            this.selection.type != 'manual'
+                        ) {
+                            if (this.selection.type == 'check') {
                                 if (e.metaKey == true || e.ctrlKey == true) {
                                     this.selectRow(rowIndex, true);
                                 } else {
@@ -1521,7 +1543,7 @@ namespace Aui {
                 this.freezeColumn = 0;
                 this.$header.empty();
 
-                if (this.selection.display == 'check') {
+                if (this.selection.type == 'check') {
                     const $check = Html.create('div', { 'data-role': 'check' });
                     const $button = Html.create('button', { 'type': 'button' });
 
@@ -1807,6 +1829,16 @@ namespace Aui {
                     if ((e.metaKey == true || e.ctrlKey == true) && e.key == 'a') {
                         this.selectAll();
                         e.preventDefault();
+                    }
+
+                    if (e.key == 'Escape') {
+                        if (
+                            this.selection.selectable == true &&
+                            this.selection.cancelable == true &&
+                            this.getSelections().length > 0
+                        ) {
+                            this.deselectAll();
+                        }
                     }
                 });
 
@@ -2679,7 +2711,7 @@ namespace Aui {
                                 columnLines: false,
                                 store: this.store,
                                 autoLoad: false,
-                                selection: { selectable: true, display: 'check', multiple: this.multiple },
+                                selection: { selectable: true, type: 'check', multiple: this.multiple },
                                 topbar: (() => {
                                     if (this.search === true) {
                                         return [
@@ -2847,6 +2879,11 @@ namespace Aui {
                 sortable?: boolean | string;
 
                 /**
+                 * @type {boolean} selectable - 그리드의 선택종류가 column 일 경우, 현재 컬럼 클릭시 행 선택여부
+                 */
+                selectable?: boolean;
+
+                /**
                  * @type {boolean} hidden - 숨김여부
                  */
                 hidden?: boolean;
@@ -2974,6 +3011,7 @@ namespace Aui {
             minWidth: number;
             resizable: boolean;
             sortable: boolean;
+            selectable: boolean;
             hidden: boolean;
             headerWrap: boolean;
             headerAlign: string;
@@ -3049,6 +3087,7 @@ namespace Aui {
                 this.minWidth ??= this.width == null ? 50 : null;
                 this.resizable = this.properties.resizable ?? true;
                 this.sortable = this.properties.sortable ?? false;
+                this.selectable = this.properties.selectable ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 26.
+ * @modified 2024. 9. 6.
  */
 var Aui;
 (function (Aui) {
@@ -54,10 +54,11 @@ var Aui;
                 this.rowLines = this.properties.rowLines !== false;
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
-                this.selection.display = this.selection.display ?? 'row';
-                this.selection.multiple = this.selection.multiple ?? (this.selection.display == 'check' ? true : false);
+                this.selection.type = this.selection.type ?? 'row';
+                this.selection.multiple = this.selection.multiple ?? (this.selection.type == 'check' ? true : false);
                 this.selection.deselectable =
-                    this.selection.deselectable ?? (this.selection.display == 'check' ? true : false);
+                    this.selection.deselectable ?? (this.selection.type == 'check' ? true : false);
+                this.selection.cancelable = this.selection.cancelable ?? false;
                 this.selection.keepable = this.selection.keepable ?? false;
                 this.store = this.properties.store ?? new Aui.TreeStore();
                 this.store.addEvent('beforeLoad', () => {
@@ -734,7 +735,7 @@ var Aui;
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
              */
             onSelectionChange() {
-                if (this.selection.display == 'check') {
+                if (this.selection.type == 'check') {
                     const rows = Html.all('div[data-role=leaf]', this.$getBody());
                     const selected = Html.all('div[data-role=leaf].selected', this.$getBody());
                     if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
@@ -958,7 +959,7 @@ var Aui;
                         .setData('index', rowIndex)
                         .setData('record', record, false);
                     const $leaf = Html.create('div', { 'data-role': 'leaf' });
-                    if (this.selection.display == 'check') {
+                    if (this.selection.type == 'check') {
                         const $check = Html.create('div', { 'data-role': 'check' });
                         const $button = Html.create('button', { 'type': 'button' });
                         $check.on('click', (e) => {
@@ -985,6 +986,18 @@ var Aui;
                             $column.addClass('updated');
                         }
                         $leaf.append($column);
+                        if (this.selection.type == 'column' && column.selectable == true) {
+                            $column.on('click', (e) => {
+                                console.log('click', rowIndex);
+                                if (this.selection.deselectable == true && this.isRowSelected(treeIndex) == true) {
+                                    this.deselectRow(treeIndex);
+                                }
+                                else {
+                                    this.selectRow(treeIndex, e.metaKey == true || e.ctrlKey == true);
+                                }
+                                this.onSelectionComplete();
+                            });
+                        }
                         if (columnIndex < this.freezeColumn) {
                             $column.addClass('sticky');
                             $column.setStyle('left', leftPosition + 'px');
@@ -996,8 +1009,10 @@ var Aui;
                     });
                     $leaf.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                     $leaf.on('click', (e) => {
-                        if (this.selection.selectable == true) {
-                            if (this.selection.display == 'check') {
+                        if (this.selection.selectable == true &&
+                            this.selection.type != 'column' &&
+                            this.selection.type != 'manual') {
+                            if (this.selection.type == 'check') {
                                 this.selectRow(treeIndex, false);
                             }
                             else if (this.selection.deselectable == true && this.isRowSelected(treeIndex) == true) {
@@ -1098,7 +1113,7 @@ var Aui;
                 let leftPosition = 0;
                 this.freezeColumn = 0;
                 this.$header.empty();
-                if (this.selection.display == 'check') {
+                if (this.selection.type == 'check') {
                     const $check = Html.create('div', { 'data-role': 'check' });
                     const $button = Html.create('button', { 'type': 'button' });
                     $check.on('click', (e) => {
@@ -1279,6 +1294,13 @@ var Aui;
                             this.toggleRow(this.focusedCell.treeIndex);
                         }
                     }
+                    if (e.key == 'Escape') {
+                        if (this.selection.selectable == true &&
+                            this.selection.cancelable == true &&
+                            this.getSelections().length > 0) {
+                            this.deselectAll();
+                        }
+                    }
                 });
                 this.$getComponent().on('blur', () => {
                     this.blurCell();
@@ -1442,6 +1464,7 @@ var Aui;
             minWidth;
             resizable;
             sortable;
+            selectable;
             hidden;
             headerWrap;
             headerAlign;
@@ -1468,6 +1491,7 @@ var Aui;
                 this.minWidth ??= this.width == null ? 50 : null;
                 this.resizable = this.properties.resizable ?? true;
                 this.sortable = this.properties.sortable ?? false;
+                this.selectable = this.properties.selectable ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';

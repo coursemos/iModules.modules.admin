@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 26.
+ * @modified 2024. 9. 6.
  */
 var Aui;
 (function (Aui) {
@@ -56,10 +56,11 @@ var Aui;
                 this.rowLines = this.properties.rowLines !== false;
                 this.selection = this.properties.selection ?? { selectable: false };
                 this.selection.selectable = this.selection.selectable ?? true;
-                this.selection.display = this.selection.display ?? 'row';
-                this.selection.multiple = this.selection.multiple ?? (this.selection.display == 'check' ? true : false);
+                this.selection.type = this.selection.type ?? 'row';
+                this.selection.multiple = this.selection.multiple ?? (this.selection.type == 'check' ? true : false);
                 this.selection.deselectable =
-                    this.selection.deselectable ?? (this.selection.display == 'check' ? true : false);
+                    this.selection.deselectable ?? (this.selection.type == 'check' ? true : false);
+                this.selection.cancelable = this.selection.cancelable ?? false;
                 this.selection.keepable = this.selection.keepable ?? false;
                 this.store = this.properties.store ?? new Aui.Store();
                 this.grouper = this.properties.grouper ?? null;
@@ -702,7 +703,7 @@ var Aui;
              * 선택항목이 변경되었을 때 이벤트를 처리한다.
              */
             onSelectionChange() {
-                if (this.selection.display == 'check') {
+                if (this.selection.type == 'check') {
                     const rows = Html.all('div[data-role=row]', this.$getBody());
                     const selected = Html.all('div[data-role=row].selected', this.$getBody());
                     if (rows.getCount() > 0 && rows.getCount() == selected.getCount()) {
@@ -948,7 +949,7 @@ var Aui;
                             $row.addClass(...rowClass.split(' '));
                         }
                     }
-                    if (this.selection.display == 'check') {
+                    if (this.selection.type == 'check') {
                         const $check = Html.create('div', { 'data-role': 'check' });
                         const $button = Html.create('button', { 'type': 'button' });
                         $check.on('click', (e) => {
@@ -975,6 +976,17 @@ var Aui;
                             $column.addClass('updated');
                         }
                         $row.append($column);
+                        if (this.selection.type == 'column' && column.selectable == true) {
+                            $column.on('click', (e) => {
+                                if (this.selection.deselectable == true && this.isRowSelected(rowIndex) == true) {
+                                    this.deselectRow(rowIndex);
+                                }
+                                else {
+                                    this.selectRow(rowIndex, e.metaKey == true || e.ctrlKey == true);
+                                }
+                                this.onSelectionComplete();
+                            });
+                        }
                         if (columnIndex < this.freezeColumn) {
                             $column.addClass('sticky');
                             $column.setStyle('left', leftPosition + 'px');
@@ -986,8 +998,10 @@ var Aui;
                     });
                     $row.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                     $row.on('click', (e) => {
-                        if (this.selection.selectable == true) {
-                            if (this.selection.display == 'check') {
+                        if (this.selection.selectable == true &&
+                            this.selection.type != 'column' &&
+                            this.selection.type != 'manual') {
+                            if (this.selection.type == 'check') {
                                 if (e.metaKey == true || e.ctrlKey == true) {
                                     this.selectRow(rowIndex, true);
                                 }
@@ -1168,7 +1182,7 @@ var Aui;
                 let leftPosition = 0;
                 this.freezeColumn = 0;
                 this.$header.empty();
-                if (this.selection.display == 'check') {
+                if (this.selection.type == 'check') {
                     const $check = Html.create('div', { 'data-role': 'check' });
                     const $button = Html.create('button', { 'type': 'button' });
                     $check.on('click', (e) => {
@@ -1405,6 +1419,13 @@ var Aui;
                     if ((e.metaKey == true || e.ctrlKey == true) && e.key == 'a') {
                         this.selectAll();
                         e.preventDefault();
+                    }
+                    if (e.key == 'Escape') {
+                        if (this.selection.selectable == true &&
+                            this.selection.cancelable == true &&
+                            this.getSelections().length > 0) {
+                            this.deselectAll();
+                        }
                     }
                 });
                 this.$getComponent().on('blur', () => {
@@ -2102,7 +2123,7 @@ var Aui;
                                 columnLines: false,
                                 store: this.store,
                                 autoLoad: false,
-                                selection: { selectable: true, display: 'check', multiple: this.multiple },
+                                selection: { selectable: true, type: 'check', multiple: this.multiple },
                                 topbar: (() => {
                                     if (this.search === true) {
                                         return [
@@ -2241,6 +2262,7 @@ var Aui;
             minWidth;
             resizable;
             sortable;
+            selectable;
             hidden;
             headerWrap;
             headerAlign;
@@ -2274,6 +2296,7 @@ var Aui;
                 this.minWidth ??= this.width == null ? 50 : null;
                 this.resizable = this.properties.resizable ?? true;
                 this.sortable = this.properties.sortable ?? false;
+                this.selectable = this.properties.selectable ?? false;
                 this.hidden = this.properties.hidden ?? false;
                 this.headerWrap = this.properties.headerAlign ?? true;
                 this.headerAlign = this.properties.headerAlign ?? 'left';
