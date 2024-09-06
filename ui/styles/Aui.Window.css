@@ -6,7 +6,7 @@
  * @file /styles/Aui.Window.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2024. 9. 6.
  */
 div[data-component][data-type='window'] {
     position: absolute;
@@ -37,11 +37,6 @@ div[data-component][data-type='window'] {
             display: flex;
             flex-direction: column;
             align-items: stretch;
-
-            > div[data-component].fit {
-                height: auto;
-                flex-grow: 1;
-            }
         }
 
         > div[data-role='bottom'] {
