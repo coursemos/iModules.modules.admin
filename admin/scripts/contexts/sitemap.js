@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 23.
+ * @modified 2024. 9. 6.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -235,7 +235,7 @@ Admin.ready(async () => {
                 flex: 2,
                 minWidth: 400,
                 columnResizable: true,
-                selection: { selectable: true, display: 'check' },
+                selection: { selectable: true, type: 'check' },
                 disabled: true,
                 autoLoad: false,
                 topbar: [

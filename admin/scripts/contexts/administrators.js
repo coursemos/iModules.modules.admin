@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/administrators.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 22.
+ * @modified 2024. 9. 6.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -224,7 +224,7 @@ Admin.ready(async () => {
                         border: [false, true, false, false],
                         minWidth: 300,
                         flex: 1,
-                        selection: { selectable: true, display: 'check' },
+                        selection: { selectable: true, type: 'check' },
                         autoLoad: false,
                         disabled: true,
                         topbar: [

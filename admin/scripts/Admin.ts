@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 2.
+ * @modified 2024. 9. 6.
  */
 namespace modules {
     export namespace admin {
@@ -1604,7 +1604,7 @@ namespace modules {
                                             layout: 'fit',
                                             width: mode == 'add' ? 500 : null,
                                             flex: mode == 'add' ? null : 1,
-                                            selection: { selectable: true, display: 'check', keepable: true },
+                                            selection: { selectable: true, type: 'check', keepable: true },
                                             autoLoad: mode != 'edit',
                                             freeze: 1,
                                             hidden: mode == 'edit',

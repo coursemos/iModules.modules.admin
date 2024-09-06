@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/database.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 22.
+ * @modified 2024. 9. 6.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -183,7 +183,7 @@ Admin.ready(async () => {
                                             primaryKeys: ['name'],
                                         }),
                                         freeze: 1,
-                                        selection: { selectable: true, display: 'check' },
+                                        selection: { selectable: true, type: 'check' },
                                         columns: [
                                             {
                                                 text: me.printText('admin.database.tables.name'),
@@ -374,7 +374,7 @@ Admin.ready(async () => {
                                                     primaryKeys: ['name'],
                                                 }),
                                                 freeze: 1,
-                                                selection: { selectable: true, display: 'check' },
+                                                selection: { selectable: true, type: 'check' },
                                                 columns: [
                                                     {
                                                         text: me.printText('admin.database.columns.name'),
@@ -535,7 +535,7 @@ Admin.ready(async () => {
                                                     primaryKeys: ['name'],
                                                 }),
                                                 freeze: 1,
-                                                selection: { selectable: true, display: 'check' },
+                                                selection: { selectable: true, type: 'check' },
                                                 columns: [
                                                     {
                                                         text: me.printText('admin.database.indexes.name'),
@@ -666,7 +666,7 @@ Admin.ready(async () => {
                                                 }),
                                                 autoLoad: false,
                                                 freeze: 1,
-                                                selection: { selectable: true, display: 'check' },
+                                                selection: { selectable: true, type: 'check' },
                                                 columns: [
                                                     {
                                                         text: 'Loading...',
