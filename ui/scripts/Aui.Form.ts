@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 5.
+ * @modified 2024. 9. 6.
  */
 namespace Aui {
     export namespace Form {
@@ -3396,10 +3396,7 @@ namespace Aui {
                         this.list = new Aui.Grid.Panel({
                             store: this.properties.store,
                             parent: this,
-                            selection: {
-                                selectable: true,
-                                display: 'row',
-                            },
+                            selection: { selectable: true },
                             columnHeaders: false,
                             rowLines: false,
                             border: false,
@@ -4821,7 +4818,7 @@ namespace Aui {
                             parent: this,
                             selection: {
                                 selectable: true,
-                                display: this.multiple ? 'check' : 'row',
+                                type: this.multiple ? 'check' : 'row',
                                 multiple: this.multiple,
                                 deselectable: this.multiple,
                                 keepable: true,
@@ -4863,6 +4860,19 @@ namespace Aui {
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
                                 },
+                                selectionChange: (selections: Aui.Data.Record[]) => {
+                                    if (selections.length == 0) {
+                                        this.setValue(null);
+                                    } else if (selections.length == 1) {
+                                        this.setValue(selections[0].get(this.valueField));
+                                    } else {
+                                        const values = [];
+                                        for (const selection of selections) {
+                                            values.push(selection.get(this.valueField));
+                                        }
+                                        this.setValue(values);
+                                    }
+                                },
                                 selectionComplete: (selections: Aui.Data.Record[]) => {
                                     if (selections.length == 0) {
                                         this.setValue(null);
@@ -4875,6 +4885,7 @@ namespace Aui {
                                         }
                                         this.setValue(values);
                                     }
+
                                     this.collapse();
                                     this.$getButton().focus();
                                 },

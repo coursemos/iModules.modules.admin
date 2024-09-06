@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 5.
+ * @modified 2024. 9. 6.
  */
 var Aui;
 (function (Aui) {
@@ -2615,10 +2615,7 @@ var Aui;
                         this.list = new Aui.Grid.Panel({
                             store: this.properties.store,
                             parent: this,
-                            selection: {
-                                selectable: true,
-                                display: 'row',
-                            },
+                            selection: { selectable: true },
                             columnHeaders: false,
                             rowLines: false,
                             border: false,
@@ -3687,7 +3684,7 @@ var Aui;
                             parent: this,
                             selection: {
                                 selectable: true,
-                                display: this.multiple ? 'check' : 'row',
+                                type: this.multiple ? 'check' : 'row',
                                 multiple: this.multiple,
                                 deselectable: this.multiple,
                                 keepable: true,
@@ -3729,6 +3726,21 @@ var Aui;
                                     this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
+                                },
+                                selectionChange: (selections) => {
+                                    if (selections.length == 0) {
+                                        this.setValue(null);
+                                    }
+                                    else if (selections.length == 1) {
+                                        this.setValue(selections[0].get(this.valueField));
+                                    }
+                                    else {
+                                        const values = [];
+                                        for (const selection of selections) {
+                                            values.push(selection.get(this.valueField));
+                                        }
+                                        this.setValue(values);
+                                    }
                                 },
                                 selectionComplete: (selections) => {
                                     if (selections.length == 0) {
