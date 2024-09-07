@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 9. 7.
  */
 var Aui;
 (function (Aui) {
@@ -89,6 +89,14 @@ var Aui;
                 });
             }
             return this.$button;
+        }
+        /**
+         * 버튼의 메뉴를 가져온다.
+         *
+         * @return {Aui.Menu} menu
+         */
+        getMenu() {
+            return this.menu;
         }
         /**
          * 아이콘 클래스를 변경한다.

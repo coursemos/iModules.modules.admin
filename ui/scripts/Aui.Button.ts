@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 9. 7.
  */
 namespace Aui {
     export namespace Button {
@@ -25,6 +25,11 @@ namespace Aui {
              * @type {Function} change - 버튼값이 변경되었을 때
              */
             change?: (button: Aui.Button, value: any) => void;
+
+            /**
+             * @type {Function} render - 버튼이 랜더링되었을 때
+             */
+            render?: (button: Aui.Button) => void;
         }
 
         export interface Properties extends Aui.Component.Properties {
@@ -186,6 +191,15 @@ namespace Aui {
             }
 
             return this.$button;
+        }
+
+        /**
+         * 버튼의 메뉴를 가져온다.
+         *
+         * @return {Aui.Menu} menu
+         */
+        getMenu(): Aui.Menu {
+            return this.menu;
         }
 
         /**
