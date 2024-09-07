@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 9. 7.
  */
 namespace Aui {
     export namespace Grid {
@@ -1215,8 +1215,8 @@ namespace Aui {
             group(
                 dataIndex: string,
                 sorters: { [field: string]: 'ASC' | 'DESC' | string[] },
-                renderer: (value: string, record: Aui.Data.Record) => string,
-                summary: boolean
+                renderer: (value: string, record: Aui.Data.Record) => string = null,
+                summary: boolean = false
             ): void {
                 if (!sorters) {
                     sorters = {};
@@ -3938,7 +3938,6 @@ namespace Aui {
                     this.store.addEvent('beforeLoad', () => {
                         this.setDisabled(true);
                     });
-
                     this.store.addEvent('update', () => {
                         this.onUpdate();
                     });
@@ -4115,6 +4114,10 @@ namespace Aui {
              * @param {'FIRST'|'PREV'|'NEXT'|'END'} position - 이동할위치
              */
             movePage(position: 'FIRST' | 'PREV' | 'NEXT' | 'LAST'): void {
+                if (this.store == null) {
+                    return;
+                }
+
                 const page = this.store?.getPage() ?? 1;
                 const totalPage = this.store?.getTotalPage() ?? 1;
 
@@ -4156,7 +4159,7 @@ namespace Aui {
             render(): void {
                 super.render();
 
-                if (this.store.isLoaded() == true) {
+                if (this.store !== null && this.store.isLoaded() == true) {
                     this.onUpdate();
                 }
             }

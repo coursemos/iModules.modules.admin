@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 9. 7.
  */
 var Aui;
 (function (Aui) {
@@ -899,7 +899,7 @@ var Aui;
              * @param {Function} renderer - 그룹헤더 렌더러
              * @param {boolean} summary - 그룹합계여부
              */
-            group(dataIndex, sorters, renderer, summary) {
+            group(dataIndex, sorters, renderer = null, summary = false) {
                 if (!sorters) {
                     sorters = {};
                     sorters[dataIndex] = 'ASC';
@@ -3195,6 +3195,9 @@ var Aui;
              * @param {'FIRST'|'PREV'|'NEXT'|'END'} position - 이동할위치
              */
             movePage(position) {
+                if (this.store == null) {
+                    return;
+                }
                 const page = this.store?.getPage() ?? 1;
                 const totalPage = this.store?.getTotalPage() ?? 1;
                 let move = null;
@@ -3229,7 +3232,7 @@ var Aui;
              */
             render() {
                 super.render();
-                if (this.store.isLoaded() == true) {
+                if (this.store !== null && this.store.isLoaded() == true) {
                     this.onUpdate();
                 }
             }
