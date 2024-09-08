@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 9. 8.
  */
 var Aui;
 (function (Aui) {
@@ -4506,6 +4506,7 @@ var Aui;
                 editor;
                 uploader;
                 $files;
+                toolbars;
                 hiddenFiles;
                 /**
                  * 에디터 클래스 생성한다.
@@ -4517,6 +4518,7 @@ var Aui;
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.minHeight = this.properties.minHeight ?? 200;
+                    this.toolbars = this.properties.toolbars ?? null;
                     this.hiddenFiles = this.properties.hiddenFiles === true;
                 }
                 /**
@@ -4602,6 +4604,13 @@ var Aui;
                     return this.editor.getValue();
                 }
                 /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus() {
+                    this.editor.focus();
+                    this.onFocus();
+                }
+                /**
                  * 필드태그를 랜더링한다.
                  */
                 renderContent() {
@@ -4623,6 +4632,7 @@ var Aui;
                     this.$getContent().setAttr('data-module', 'wysiwyg');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
                         heightMin: this.minHeight,
+                        toolbars: this.toolbars,
                         uploader: this.getUploader(),
                         listeners: {
                             render: (editor) => {

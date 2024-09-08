@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 9. 8.
  */
 namespace Aui {
     export namespace Form {
@@ -5749,6 +5749,11 @@ namespace Aui {
                     hiddenFiles?: boolean;
 
                     /**
+                     * @type {string[]} toolbars - 툴바
+                     */
+                    toolbars?: string[];
+
+                    /**
                      * @type {Aui.Form.Field.Editor.Listeners} listeners - 이벤트리스너
                      */
                     listeners?: Aui.Form.Field.Editor.Listeners;
@@ -5766,6 +5771,7 @@ namespace Aui {
                 editor: modules.wysiwyg.Editor;
                 uploader: modules.attachment.Uploader;
                 $files: Dom;
+                toolbars: string[];
                 hiddenFiles: boolean;
 
                 /**
@@ -5779,6 +5785,7 @@ namespace Aui {
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.minHeight = this.properties.minHeight ?? 200;
+                    this.toolbars = this.properties.toolbars ?? null;
                     this.hiddenFiles = this.properties.hiddenFiles === true;
                 }
 
@@ -5863,7 +5870,6 @@ namespace Aui {
                  */
                 setValue(value: { content: string; attachments: string[] }, is_origin: boolean = false): void {
                     this.editor.setValue(value);
-
                     super.setValue(value, is_origin);
                 }
 
@@ -5874,6 +5880,14 @@ namespace Aui {
                  */
                 getValue(): { content: string; attachments: string[] } {
                     return this.editor.getValue();
+                }
+
+                /**
+                 * 필드에 포커스를 지정한다.
+                 */
+                focus(): void {
+                    this.editor.focus();
+                    this.onFocus();
                 }
 
                 /**
@@ -5901,6 +5915,7 @@ namespace Aui {
                     this.$getContent().setAttr('data-module', 'wysiwyg');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
                         heightMin: this.minHeight,
+                        toolbars: this.toolbars,
                         uploader: this.getUploader(),
                         listeners: {
                             render: (editor) => {

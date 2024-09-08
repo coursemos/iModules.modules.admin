@@ -6,7 +6,7 @@
  * @file /styles/Aui.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 2.
+ * @modified 2024. 9. 8.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
@@ -921,7 +921,7 @@ div[data-component][data-type='form'][data-role='field'] {
         --im-wysiwyg-border-color-active: var(--aui-color-accent-500);
         --im-wysiwyg-border-radius: 0;
 
-        --im-wysiwyg-button-height: var(--aui-component-height-default);
+        --im-wysiwyg-button-height: calc(var(--aui-component-height-default) * 1.2);
         --im-wysiwyg-button-icon-size: calc(var(--im-wysiwyg-button-height) / 2);
         --im-wysiwyg-button-font-size: calc(var(--im-wysiwyg-button-icon-size) * 0.875);
         --im-wysiwyg-button-color-default: var(--aui-color-text-400);
@@ -939,7 +939,7 @@ div[data-component][data-type='form'][data-role='field'] {
         --im-wysiwyg-font-family: var(--aui-font-family-default);
         --im-wysiwyg-color-default: var(--aui-color-text-500);
         --im-wysiwyg-color-help: var(--aui-color-text-300);
-        --im-wysiwyg-padding: var(--aui-component-gap);
+        --im-wysiwyg-padding: calc(var(--aui-component-gap) * 2);
 
         --im-wysiwyg-content-background-default: var(--aui-color-background-500);
         --im-wysiwyg-content-color-default: var(--aui-color-text-500);
