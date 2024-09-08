@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 9. 9.
  */
 var Aui;
 (function (Aui) {
@@ -58,6 +58,9 @@ var Aui;
                 this.selection.multiple = this.selection.multiple ?? (this.selection.type == 'check' ? true : false);
                 this.selection.deselectable =
                     this.selection.deselectable ?? (this.selection.type == 'check' ? true : false);
+                if (this.selection.type == 'column') {
+                    this.selection.multiple = false;
+                }
                 this.selection.cancelable = this.selection.cancelable ?? false;
                 this.selection.keepable = this.selection.keepable ?? false;
                 this.store = this.properties.store ?? new Aui.TreeStore();
@@ -418,9 +421,28 @@ var Aui;
                 const $row = this.$getRow(treeIndex);
                 if ($row === null)
                     return;
-                const record = $row.getData('record');
-                this.select(record);
                 const menu = new Aui.Menu();
+                const record = $row.getData('record');
+                if (this.isRowSelected(treeIndex) == true) {
+                    if (this.selections.size !== 1) {
+                        this.resetSelections(false);
+                        this.selectRow(treeIndex);
+                    }
+                    else {
+                        this.focusRow(treeIndex);
+                    }
+                }
+                else {
+                    if (this.selection.selectable == false || this.selection.type == 'column') {
+                        $row.addClass('menu');
+                        menu.addEvent('hide', () => {
+                            $row.removeClass('menu');
+                        });
+                    }
+                    else {
+                        this.selectRow(treeIndex);
+                    }
+                }
                 this.fireEvent('openMenu', [menu, record, treeIndex, this]);
                 if (menu.getItems()?.length == 0) {
                     menu.remove();

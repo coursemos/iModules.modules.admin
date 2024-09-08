@@ -6,7 +6,7 @@
  * @file /styles/Aui.Tree.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 5. 7.
+ * @modified 2024. 9. 9.
  */
 div[data-component][data-type='panel'][data-role='tree'] {
     > div[data-role='container'] {
@@ -770,7 +770,8 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                 }
                             }
 
-                            &.selected {
+                            &.selected,
+                            &.menu {
                                 position: relative;
                                 background: var(--aui-color-accent-300) !important;
                                 border-color: transparent !important;

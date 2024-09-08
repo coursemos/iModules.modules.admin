@@ -6,7 +6,7 @@
  * @file /styles/Aui.Grid.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 28.
+ * @modified 2024. 9. 9.
  */
 div[data-component][data-type='panel'][data-role='grid'] {
     > div[data-role='container'] {
@@ -764,7 +764,8 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             }
                         }
 
-                        &.selected {
+                        &.selected,
+                        &.menu {
                             position: relative;
                             background: var(--aui-color-accent-300) !important;
                             border-color: transparent !important;

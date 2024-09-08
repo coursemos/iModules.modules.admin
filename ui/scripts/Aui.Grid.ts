@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 8.
+ * @modified 2024. 9. 9.
  */
 namespace Aui {
     export namespace Grid {
@@ -261,6 +261,9 @@ namespace Aui {
                 this.selection.multiple = this.selection.multiple ?? (this.selection.type == 'check' ? true : false);
                 this.selection.deselectable =
                     this.selection.deselectable ?? (this.selection.type == 'check' ? true : false);
+                if (this.selection.type == 'column') {
+                    this.selection.multiple = false;
+                }
                 this.selection.cancelable = this.selection.cancelable ?? false;
                 this.selection.keepable = this.selection.keepable ?? false;
 
@@ -787,10 +790,26 @@ namespace Aui {
                 const $row = this.$getRow(rowIndex);
                 if ($row === null) return;
 
-                const record = $row.getData('record') as Aui.Data.Record;
-                this.select(record);
-
                 const menu = new Aui.Menu();
+
+                const record = $row.getData('record') as Aui.Data.Record;
+                if (this.isRowSelected(rowIndex) == true) {
+                    if (this.selections.size !== 1) {
+                        this.resetSelections(false);
+                        this.selectRow(rowIndex);
+                    } else {
+                        this.focusRow(rowIndex);
+                    }
+                } else {
+                    if (this.selection.selectable == false || this.selection.type == 'column') {
+                        $row.addClass('menu');
+                        menu.addEvent('hide', () => {
+                            $row.removeClass('menu');
+                        });
+                    } else {
+                        this.selectRow(rowIndex);
+                    }
+                }
 
                 this.fireEvent('openMenu', [menu, record, rowIndex, this]);
 
