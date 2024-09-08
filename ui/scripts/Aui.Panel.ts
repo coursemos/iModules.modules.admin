@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 27.
+ * @modified 2024. 9. 8.
  */
 namespace Aui {
     export namespace Panel {
@@ -251,6 +251,9 @@ namespace Aui {
                     listeners: {
                         end: (_$target: Dom, rect: DOMRect) => {
                             this.setWidth(rect.width);
+                            this.setHeight(rect.height);
+
+                            this.fireEvent('resize', [this, rect.width, rect.height]);
                         },
                     },
                 });

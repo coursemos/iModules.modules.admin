@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 27.
+ * @modified 2024. 9. 8.
  */
 var Aui;
 (function (Aui) {
@@ -184,6 +184,8 @@ var Aui;
                     listeners: {
                         end: (_$target, rect) => {
                             this.setWidth(rect.width);
+                            this.setHeight(rect.height);
+                            this.fireEvent('resize', [this, rect.width, rect.height]);
                         },
                     },
                 });
