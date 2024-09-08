@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2024. 9. 8.
  */
 namespace Aui {
     export namespace Component {
@@ -39,9 +39,9 @@ namespace Aui {
             items?: (Aui.Component | any)[];
 
             /**
-             * @type {'auto'|'fit'|'column'|'column-item'} layout - 컴포넌트 레이아웃
+             * @type {'auto'|'fit'|'content'|'column'|'column-item'|'row'|'row-content'} layout - 컴포넌트 레이아웃
              */
-            layout?: 'auto' | 'fit' | 'column' | 'column-item' | 'row' | 'row-item';
+            layout?: 'auto' | 'fit' | 'content' | 'column' | 'column-item' | 'row' | 'row-item';
 
             /**
              * @type {number} height - 컴포넌트너비
