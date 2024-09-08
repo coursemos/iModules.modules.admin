@@ -67,8 +67,8 @@ var Aui;
                 this.selection.keepable = this.selection.keepable ?? false;
                 this.store = this.properties.store ?? new Aui.Store();
                 this.grouper = this.properties.grouper ?? null;
-                if (this.grouper !== null) {
-                    if (!this.grouper.sorters) {
+                if (this.grouper !== null && this.grouper.dataIndex !== null) {
+                    if (this.grouper.sorters === null || Object.keys(this.grouper.sorters).length == 0) {
                         this.grouper.sorters = {};
                         this.grouper.sorters[this.grouper.dataIndex] = 'ASC';
                     }
