@@ -441,11 +441,13 @@ var Aui;
                     }
                     else {
                         this.selectRow(treeIndex);
+                        $row.removeClass('menu');
                     }
                 }
                 this.fireEvent('openMenu', [menu, record, treeIndex, this]);
                 if (menu.getItems()?.length == 0) {
                     menu.remove();
+                    $row.removeClass('menu');
                 }
                 else {
                     menu.showAt(pointerEvent, 'y');

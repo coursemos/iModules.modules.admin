@@ -593,7 +593,7 @@ namespace Aui {
          * @param {any} data - 스크롤 위치를 복원할 시점의 고유데이터
          * @param {string[]} forced - 복원시점과 무관하게 항상 복원할 축
          */
-        restorePosition(data: any, forced: 'x' | 'y'[] = []): void {
+        restorePosition(data: any, forced: ('x' | 'y')[] = []): void {
             if (Format.isEqual(data, this.storePositionData) == true) {
                 this.setPosition(this.storePositionCoordinate.x, this.storePositionCoordinate.y, false, false);
             } else {

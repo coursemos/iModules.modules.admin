@@ -815,6 +815,7 @@ namespace Aui {
 
                 if (menu.getItems()?.length == 0) {
                     menu.remove();
+                    $row.removeClass('menu');
                 } else {
                     menu.showAt(pointerEvent, 'y');
                 }

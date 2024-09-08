@@ -549,6 +549,7 @@ var Aui;
                 this.fireEvent('openMenu', [menu, record, rowIndex, this]);
                 if (menu.getItems()?.length == 0) {
                     menu.remove();
+                    $row.removeClass('menu');
                 }
                 else {
                     menu.showAt(pointerEvent, 'y');

@@ -660,6 +660,7 @@ namespace Aui {
                         });
                     } else {
                         this.selectRow(treeIndex);
+                        $row.removeClass('menu');
                     }
                 }
 
@@ -667,6 +668,7 @@ namespace Aui {
 
                 if (menu.getItems()?.length == 0) {
                     menu.remove();
+                    $row.removeClass('menu');
                 } else {
                     menu.showAt(pointerEvent, 'y');
                 }
