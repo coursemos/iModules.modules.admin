@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 7.
+ * @modified 2024. 9. 8.
  */
 var Aui;
 (function (Aui) {
@@ -1238,7 +1238,7 @@ var Aui;
                     return;
                 }
                 let $group = null;
-                if (this.grouper === null) {
+                if (this.grouper === null || this.grouper.dataIndex === null) {
                     $group = Html.create('div', { 'data-role': 'rows' });
                     this.$body.append($group);
                 }
@@ -1246,7 +1246,7 @@ var Aui;
                     .getRecords()
                     .forEach((record, rowIndex) => {
                     const $row = this.$getRow(rowIndex, record);
-                    if (this.grouper !== null) {
+                    if (this.grouper !== null && this.grouper.dataIndex !== null) {
                         if ($group?.getData('group') !== record.get(this.grouper.dataIndex)) {
                             $group = Html.create('div', { 'data-role': 'group' });
                             $group.setData('group', record.get(this.grouper.dataIndex));
@@ -1257,7 +1257,7 @@ var Aui;
                                 const $group = Html.el(e.currentTarget).getParent().getParent();
                                 $group.toggleClass('collapsed');
                             });
-                            $label.html(this.grouper.renderer(record.get(this.grouper.dataIndex), record));
+                            $label.html(this.grouper.renderer(record.get(this.grouper.dataIndex), this.grouper.dataIndex, record, this));
                             $header.append($label);
                             $group.append($header);
                             if (this.grouper.summary == true) {

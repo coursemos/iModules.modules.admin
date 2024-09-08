@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 7.
+ * @modified 2024. 9. 8.
  */
 namespace Aui {
     export namespace Grid {
@@ -158,7 +158,12 @@ namespace Aui {
                 grouper?: {
                     dataIndex: string;
                     sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
-                    renderer?: (value: string, record: Aui.Data.Record) => string;
+                    renderer?: (
+                        value: string,
+                        dataIndex: string,
+                        record: Aui.Data.Record,
+                        grid: Aui.Grid.Panel
+                    ) => string;
                     summary?: boolean;
                 };
 
@@ -215,7 +220,7 @@ namespace Aui {
             grouper: {
                 dataIndex: string;
                 sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
-                renderer: (value: string, record: Aui.Data.Record) => string;
+                renderer: (value: string, dataIndex: string, record: Aui.Data.Record, grid: Aui.Grid.Panel) => string;
                 summary: boolean;
             };
             summary: boolean;
@@ -1215,7 +1220,12 @@ namespace Aui {
             group(
                 dataIndex: string,
                 sorters: { [field: string]: 'ASC' | 'DESC' | string[] },
-                renderer: (value: string, record: Aui.Data.Record) => string = null,
+                renderer: (
+                    value: string,
+                    dataIndex: string,
+                    record: Aui.Data.Record,
+                    grid: Aui.Grid.Panel
+                ) => string = null,
                 summary: boolean = false
             ): void {
                 if (!sorters) {
@@ -1612,7 +1622,7 @@ namespace Aui {
                 }
 
                 let $group: Dom = null;
-                if (this.grouper === null) {
+                if (this.grouper === null || this.grouper.dataIndex === null) {
                     $group = Html.create('div', { 'data-role': 'rows' });
                     this.$body.append($group);
                 }
@@ -1621,7 +1631,7 @@ namespace Aui {
                     .forEach((record: Aui.Data.Record, rowIndex: number) => {
                         const $row = this.$getRow(rowIndex, record);
 
-                        if (this.grouper !== null) {
+                        if (this.grouper !== null && this.grouper.dataIndex !== null) {
                             if ($group?.getData('group') !== record.get(this.grouper.dataIndex)) {
                                 $group = Html.create('div', { 'data-role': 'group' });
                                 $group.setData('group', record.get(this.grouper.dataIndex));
@@ -1633,7 +1643,14 @@ namespace Aui {
                                     const $group = Html.el(e.currentTarget).getParent().getParent();
                                     $group.toggleClass('collapsed');
                                 });
-                                $label.html(this.grouper.renderer(record.get(this.grouper.dataIndex), record));
+                                $label.html(
+                                    this.grouper.renderer(
+                                        record.get(this.grouper.dataIndex),
+                                        this.grouper.dataIndex,
+                                        record,
+                                        this
+                                    )
+                                );
                                 $header.append($label);
                                 $group.append($header);
 
