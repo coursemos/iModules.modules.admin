@@ -945,6 +945,22 @@ var Aui;
                 this.getStore().multiSort(this.getStore().properties.sorters ?? {});
             }
             /**
+             * 그룹설정을 가져온다.
+             * 그룹 렌더러를 반환하지 않는다.
+             *
+             * @return {object} grouper
+             */
+            getGrouper() {
+                if (this.grouper === null) {
+                    return null;
+                }
+                return {
+                    dataIndex: this.grouper.dataIndex,
+                    sorters: this.grouper.sorters,
+                    summary: this.grouper.summary,
+                };
+            }
+            /**
              * 그리드패널의 아이탬(행) DOM 을 생성하거나 가져온다.
              *
              * @param {number} rowIndex - 생성하거나 가져올 행 인덱스
