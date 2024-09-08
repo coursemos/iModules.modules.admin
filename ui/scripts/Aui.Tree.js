@@ -1370,7 +1370,7 @@ var Aui;
             onLoad() {
                 if (this.getStore().isLoaded() === false)
                     return;
-                this.getScroll(false)?.restorePosition(this.getStore().getCurrentParams());
+                this.getScroll(false)?.restorePosition(this.getStore().getCurrentParams(), ['x']);
                 this.loading.hide();
                 this.fireEvent('load', [this, this.getStore()]);
             }
