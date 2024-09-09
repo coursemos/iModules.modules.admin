@@ -58,6 +58,11 @@ namespace Aui {
                 load?: (grid: Aui.Grid.Panel, store: Aui.Store) => void;
 
                 /**
+                 * @type {Function} beforeUpdate - 데이터가 변경되었 때
+                 */
+                beforeUpdate?: (grid: Aui.Grid.Panel) => void;
+
+                /**
                  * @type {Function} update - 데이터가 변경되었 때
                  */
                 update?: (grid: Aui.Grid.Panel, store: Aui.Store) => void;
@@ -2703,6 +2708,11 @@ namespace Aui {
                     search?: boolean;
 
                     /**
+                     * 목록 갯수제한
+                     */
+                    limit?: number;
+
+                    /**
                      * @type {Function} renderer - 컬럼 랜더러
                      */
                     renderer?: (
@@ -2763,7 +2773,7 @@ namespace Aui {
 
                         if (this.store instanceof Aui.Store) {
                             this.list = new Aui.Grid.Panel({
-                                minHeight: 100,
+                                minHeight: 200,
                                 maxHeight: 280,
                                 columnHeaders: false,
                                 rowLines: false,
@@ -2789,6 +2799,7 @@ namespace Aui {
 
                                     return null;
                                 })(),
+                                bottombar: this.store.limit > 0 ? new Aui.Grid.Pagination([], 'simple') : null,
                                 columns: [
                                     {
                                         dataIndex: this.displayField,
@@ -2798,7 +2809,10 @@ namespace Aui {
                                 ],
                                 listeners: {
                                     update: (grid) => {
-                                        grid.setMinHeight(0);
+                                        grid.setMinHeight(null);
+                                    },
+                                    beforeUpdate: (grid) => {
+                                        grid.setMinHeight(grid.$getComponent().getHeight());
                                     },
                                 },
                             });
@@ -2868,6 +2882,8 @@ namespace Aui {
                                     this.getList().setParent(item);
                                     if (this.getList().getStore().isLoaded() == false) {
                                         await this.getList().getStore().load();
+                                    } else {
+                                        this.getList().setMinHeight(null);
                                     }
 
                                     const value = this.getFilter()?.value ?? null;
@@ -3967,6 +3983,7 @@ namespace Aui {
             grid: Aui.Grid.Panel = null;
             store: Aui.Store = null;
 
+            mode: string;
             firstButton: Aui.Button;
             prevButton: Aui.Button;
             nextButton: Aui.Button;
@@ -3979,8 +3996,10 @@ namespace Aui {
              *
              * @param {(Aui.Component|string)[]} items - 추가 툴바 아이템
              */
-            constructor(items: (Aui.Component | string)[] = null) {
+            constructor(items: (Aui.Component | string)[] = [], mode: string = 'default') {
                 super(items);
+
+                this.mode = mode;
             }
 
             /**
@@ -4094,6 +4113,7 @@ namespace Aui {
                         width: 50,
                         spinner: false,
                         format: false,
+                        hidden: this.mode == 'simple',
                     });
 
                     this.pageInput.$getInput().on('keydown', (e: KeyboardEvent) => {
@@ -4123,6 +4143,7 @@ namespace Aui {
                 if (this.pageDisplay === undefined) {
                     this.pageDisplay = new Aui.Form.Field.Display({
                         value: '1',
+                        hidden: this.mode == 'simple',
                         renderer: (value) => {
                             return '/ ' + Format.number(value) + ' ' + Aui.printText('texts.page');
                         },
@@ -4142,10 +4163,16 @@ namespace Aui {
                     if (this.grid !== null) {
                         this.items.push(this.getFirstButton());
                         this.items.push(this.getPrevButton());
-                        this.items.push(new Aui.Toolbar.Item('-'));
+                        if (this.mode == 'default') {
+                            this.items.push(new Aui.Toolbar.Item('-'));
+                        }
                         this.items.push(this.getPageInput());
                         this.items.push(this.getPageDisplay());
-                        this.items.push(new Aui.Toolbar.Item('-'));
+                        if (this.mode == 'default') {
+                            this.items.push(new Aui.Toolbar.Item('-'));
+                        } else {
+                            this.items.push(new Aui.Toolbar.Item('->'));
+                        }
                         this.items.push(this.getNextButton());
                         this.items.push(this.getLastButton());
 

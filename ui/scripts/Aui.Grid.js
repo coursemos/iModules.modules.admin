@@ -2155,7 +2155,7 @@ var Aui;
                         }
                         if (this.store instanceof Aui.Store) {
                             this.list = new Aui.Grid.Panel({
-                                minHeight: 100,
+                                minHeight: 200,
                                 maxHeight: 280,
                                 columnHeaders: false,
                                 rowLines: false,
@@ -2180,6 +2180,7 @@ var Aui;
                                     }
                                     return null;
                                 })(),
+                                bottombar: this.store.limit > 0 ? new Aui.Grid.Pagination([], 'simple') : null,
                                 columns: [
                                     {
                                         dataIndex: this.displayField,
@@ -2189,7 +2190,10 @@ var Aui;
                                 ],
                                 listeners: {
                                     update: (grid) => {
-                                        grid.setMinHeight(0);
+                                        grid.setMinHeight(null);
+                                    },
+                                    beforeUpdate: (grid) => {
+                                        grid.setMinHeight(grid.$getComponent().getHeight());
                                     },
                                 },
                             });
@@ -2258,6 +2262,9 @@ var Aui;
                                     this.getList().setParent(item);
                                     if (this.getList().getStore().isLoaded() == false) {
                                         await this.getList().getStore().load();
+                                    }
+                                    else {
+                                        this.getList().setMinHeight(null);
                                     }
                                     const value = this.getFilter()?.value ?? null;
                                     if (value !== null) {
@@ -3051,6 +3058,7 @@ var Aui;
         class Pagination extends Aui.Toolbar {
             grid = null;
             store = null;
+            mode;
             firstButton;
             prevButton;
             nextButton;
@@ -3062,8 +3070,9 @@ var Aui;
              *
              * @param {(Aui.Component|string)[]} items - 추가 툴바 아이템
              */
-            constructor(items = null) {
+            constructor(items = [], mode = 'default') {
                 super(items);
+                this.mode = mode;
             }
             /**
              * 부모객체를 지정한다.
@@ -3166,6 +3175,7 @@ var Aui;
                         width: 50,
                         spinner: false,
                         format: false,
+                        hidden: this.mode == 'simple',
                     });
                     this.pageInput.$getInput().on('keydown', (e) => {
                         if (e.key == 'Enter') {
@@ -3190,6 +3200,7 @@ var Aui;
                 if (this.pageDisplay === undefined) {
                     this.pageDisplay = new Aui.Form.Field.Display({
                         value: '1',
+                        hidden: this.mode == 'simple',
                         renderer: (value) => {
                             return '/ ' + Format.number(value) + ' ' + Aui.printText('texts.page');
                         },
@@ -3206,10 +3217,17 @@ var Aui;
                     if (this.grid !== null) {
                         this.items.push(this.getFirstButton());
                         this.items.push(this.getPrevButton());
-                        this.items.push(new Aui.Toolbar.Item('-'));
+                        if (this.mode == 'default') {
+                            this.items.push(new Aui.Toolbar.Item('-'));
+                        }
                         this.items.push(this.getPageInput());
                         this.items.push(this.getPageDisplay());
-                        this.items.push(new Aui.Toolbar.Item('-'));
+                        if (this.mode == 'default') {
+                            this.items.push(new Aui.Toolbar.Item('-'));
+                        }
+                        else {
+                            this.items.push(new Aui.Toolbar.Item('->'));
+                        }
                         this.items.push(this.getNextButton());
                         this.items.push(this.getLastButton());
                         if (this.properties.items.length > 0) {
