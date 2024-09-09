@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 2.
+ * @modified 2024. 9. 9.
  */
 var Aui;
 (function (Aui) {
@@ -185,6 +185,11 @@ var Aui;
                         params.filters = null;
                     }
                     else {
+                        if (this.limit > 0) {
+                            this.page = 1;
+                            params.start = (this.page - 1) * this.limit;
+                            params.limit = this.limit;
+                        }
                         params.filters = JSON.stringify(this.filters);
                         params.filterMode = this.filterMode;
                     }
@@ -918,6 +923,11 @@ var Aui;
                         params.filters = null;
                     }
                     else {
+                        if (this.limit > 0) {
+                            this.page = 1;
+                            params.start = (this.page - 1) * this.limit;
+                            params.limit = this.limit;
+                        }
                         params.filters = JSON.stringify(this.filters);
                         params.filterMode = this.filterMode;
                     }
