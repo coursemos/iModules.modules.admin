@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 7. 1.
+ * @modified 2024. 9. 12.
  */
 var Aui;
 (function (Aui) {
@@ -303,6 +303,14 @@ var Aui;
              */
             get(key) {
                 return this.record[key] ?? null;
+            }
+            /**
+             * 원본데이터를 가져온다.
+             *
+             * @return {object} origin
+             */
+            getOrigins() {
+                return this.origin ?? this.record;
             }
             /**
              * 데이터를 변경한다.

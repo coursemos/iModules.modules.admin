@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Data.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 7. 1.
+ * @modified 2024. 9. 12.
  */
 namespace Aui {
     export class Data {
@@ -350,6 +350,15 @@ namespace Aui {
              */
             get(key: string): any {
                 return this.record[key] ?? null;
+            }
+
+            /**
+             * 원본데이터를 가져온다.
+             *
+             * @return {object} origin
+             */
+            getOrigins(): { [key: string]: any } {
+                return this.origin ?? this.record;
             }
 
             /**
