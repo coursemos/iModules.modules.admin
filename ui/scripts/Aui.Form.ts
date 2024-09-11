@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 8.
+ * @modified 2024. 9. 12.
  */
 namespace Aui {
     export namespace Form {
@@ -4860,30 +4860,30 @@ namespace Aui {
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
                                 },
-                                selectionChange: (selections: Aui.Data.Record[]) => {
+                                selectionChange: async (selections: Aui.Data.Record[]) => {
                                     if (selections.length == 0) {
-                                        this.setValue(null);
+                                        await this.setValue(null);
                                     } else if (selections.length == 1) {
-                                        this.setValue(selections[0].get(this.valueField));
+                                        await this.setValue(selections[0].get(this.valueField));
                                     } else {
                                         const values = [];
                                         for (const selection of selections) {
                                             values.push(selection.get(this.valueField));
                                         }
-                                        this.setValue(values);
+                                        await this.setValue(values);
                                     }
                                 },
-                                selectionComplete: (selections: Aui.Data.Record[]) => {
+                                selectionComplete: async (selections: Aui.Data.Record[]) => {
                                     if (selections.length == 0) {
-                                        this.setValue(null);
+                                        await this.setValue(null);
                                     } else if (selections.length == 1) {
-                                        this.setValue(selections[0].get(this.valueField));
+                                        await this.setValue(selections[0].get(this.valueField));
                                     } else {
                                         const values = [];
                                         for (const selection of selections) {
                                             values.push(selection.get(this.valueField));
                                         }
-                                        this.setValue(values);
+                                        await this.setValue(values);
                                     }
 
                                     this.collapse();
@@ -5106,7 +5106,7 @@ namespace Aui {
                  * @param {any} value - 값
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
-                setValue(value: any, is_origin: boolean = false): void {
+                async setValue(value: any, is_origin: boolean = false): Promise<void> {
                     value ??= null;
                     this.rawValue = value;
 
@@ -5131,62 +5131,61 @@ namespace Aui {
                             for (const v of value) {
                                 promises.push(this.getValueToRecord(v));
                             }
-                            Promise.all(promises).then((results) => {
-                                const displays = [];
-                                const values = [];
-                                const records = [];
 
-                                for (const record of results) {
-                                    if (record !== null) {
-                                        displays.push(record.get(this.displayField));
-                                        values.push(record.get(this.valueField));
-                                        records.push(record);
-                                    }
-                                }
+                            const results = await Promise.all(promises);
+                            const displays = [];
+                            const values = [];
+                            const records = [];
 
-                                if (values.length == 0) {
-                                    value = null;
-                                    this.$getDisplay().hide();
-                                    this.$getEmptyText().show();
-                                } else {
-                                    value = values;
-                                    this.$getEmptyText().hide();
-                                    this.$getDisplay().html(this.renderer(displays, records, this.$getDisplay(), this));
-                                    this.$getDisplay().show();
+                            for (const record of results) {
+                                if (record !== null) {
+                                    displays.push(record.get(this.displayField));
+                                    values.push(record.get(this.valueField));
+                                    records.push(record);
                                 }
+                            }
 
-                                super.setValue(value, is_origin);
-                                if (Format.isEqual(value, this.rawValue) == true) {
-                                    this.rawValue = null;
-                                }
-                                this.searchingMode();
-                            });
+                            if (values.length == 0) {
+                                value = null;
+                                this.$getDisplay().hide();
+                                this.$getEmptyText().show();
+                            } else {
+                                value = values;
+                                this.$getEmptyText().hide();
+                                this.$getDisplay().html(this.renderer(displays, records, this.$getDisplay(), this));
+                                this.$getDisplay().show();
+                            }
+
+                            super.setValue(value, is_origin);
+                            if (Format.isEqual(value, this.rawValue) == true) {
+                                this.rawValue = null;
+                            }
+                            this.searchingMode();
                         } else {
-                            this.getValueToRecord(value).then((record) => {
-                                if (record == null) {
-                                    value = null;
-                                    this.$getDisplay().hide();
-                                    this.$getEmptyText().show();
-                                } else {
-                                    value = record.get(this.valueField);
-                                    this.$getEmptyText().hide();
-                                    this.$getDisplay().html(
-                                        this.renderer(
-                                            record?.get(this.displayField) ?? '',
-                                            record,
-                                            this.$getDisplay(),
-                                            this
-                                        )
-                                    );
-                                    this.$getDisplay().show();
-                                }
+                            const record = await this.getValueToRecord(value);
+                            if (record == null) {
+                                value = null;
+                                this.$getDisplay().hide();
+                                this.$getEmptyText().show();
+                            } else {
+                                value = record.get(this.valueField);
+                                this.$getEmptyText().hide();
+                                this.$getDisplay().html(
+                                    this.renderer(
+                                        record?.get(this.displayField) ?? '',
+                                        record,
+                                        this.$getDisplay(),
+                                        this
+                                    )
+                                );
+                                this.$getDisplay().show();
+                            }
 
-                                super.setValue(value, is_origin);
-                                if (Format.isEqual(value, this.rawValue) == true) {
-                                    this.rawValue = null;
-                                }
-                                this.searchingMode();
-                            });
+                            super.setValue(value, is_origin);
+                            if (Format.isEqual(value, this.rawValue) == true) {
+                                this.rawValue = null;
+                            }
+                            this.searchingMode();
                         }
                     }
                 }
