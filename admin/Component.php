@@ -251,6 +251,7 @@ abstract class Component
                 return $scope;
             }
         }
+
         return null;
     }
 
