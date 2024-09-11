@@ -4114,6 +4114,7 @@ var Aui;
                                         this.getList().focusRow(lastIndex);
                                     }
                                 }
+                                this.fireEvent('expand', [this]);
                             });
                         }
                         else {
@@ -4127,10 +4128,10 @@ var Aui;
                                 else {
                                     this.getList().focusCell(index, 0);
                                 }
+                                this.fireEvent('expand', [this]);
                             });
                         }
                     }
-                    this.fireEvent('expand', [this]);
                 }
                 /**
                  * 검색중인 상태인 경우 검색폼을 활성화한다.

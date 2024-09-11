@@ -13,17 +13,17 @@ namespace Aui {
         export namespace Panel {
             export interface Listeners extends Aui.Panel.Listeners {
                 /**
-                 * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+                 * @type {Function} render - 컴포넌트가 랜더링 되었을 때
                  */
                 render?: (panel: Aui.Form.Panel) => void;
 
                 /**
-                 * @var {Function} load - 폼 데이터가 로딩되었을 때
+                 * @type {Function} load - 폼 데이터가 로딩되었을 때
                  */
                 load?: (panel: Aui.Form.Panel, response: Ajax.Results) => void;
 
                 /**
-                 * @var {Function} submit - 폼 데이터가 전송되었을 때
+                 * @type {Function} submit - 폼 데이터가 전송되었을 때
                  */
                 submit?: (panel: Aui.Form.Panel, response: Ajax.Results) => void;
             }
@@ -656,7 +656,7 @@ namespace Aui {
             export namespace Base {
                 export interface Listeners extends Aui.Component.Listeners {
                     /**
-                     * @var {Function} change - 필드값이 변경되었을 때
+                     * @type {Function} change - 필드값이 변경되었을 때
                      */
                     change?: (
                         field: Aui.Form.Field.Base,
@@ -665,6 +665,11 @@ namespace Aui {
                         previousValue: any,
                         originValue: any
                     ) => void;
+
+                    /**
+                     * @type {Function} render - 필드가 랜더링 되었을 때
+                     */
+                    render?: (field: Aui.Form.Field.Base) => void;
                 }
 
                 export interface Properties extends Aui.Component.Properties {
@@ -1711,12 +1716,12 @@ namespace Aui {
             export namespace Text {
                 export interface Listeners extends Aui.Form.Field.Base.Listeners {
                     /**
-                     * @var {Function} keydown - 필드에서 키보드 입력이 되었을 때
+                     * @type {Function} keydown - 필드에서 키보드 입력이 되었을 때
                      */
                     keydown?: (field: Aui.Form.Field.Base, e: KeyboardEvent) => void;
 
                     /**
-                     * @var {Function} enter - 필드에서 엔터키 입력이 되었을 때
+                     * @type {Function} enter - 필드에서 엔터키 입력이 되었을 때
                      */
                     enter?: (field: Aui.Form.Field.Base, value: any, e: KeyboardEvent) => void;
                 }
@@ -4565,7 +4570,20 @@ namespace Aui {
 
             export namespace Select {
                 export interface Listeners extends Aui.Form.Field.Base.Listeners {
-                    //
+                    /**
+                     * @type {Function} expand - 선택항목이 열렸을 때
+                     */
+                    expand?: (field: Aui.Form.Field.Select) => void;
+
+                    /**
+                     * @type {Function} collapse - 선택항목이 숨겨졌을 때
+                     */
+                    collapse?: (field: Aui.Form.Field.Select) => void;
+
+                    /**
+                     * @type {Function} render - 필드가 랜더링 되었을 때
+                     */
+                    render?: (field: Aui.Form.Field.Select) => void;
                 }
 
                 export interface Properties extends Aui.Form.Field.Base.Properties {
@@ -4650,12 +4668,12 @@ namespace Aui {
                     listClass?: string;
 
                     /**
-                     * @var {boolean} expandOnFocus - 포커스 지정시 자동으로 확장할지 여부
+                     * @type {boolean} expandOnFocus - 포커스 지정시 자동으로 확장할지 여부
                      */
                     expandOnFocus?: boolean;
 
                     /**
-                     * @var {boolean} expandOnFocus - 엔터키로 확장할지 여부
+                     * @type {boolean} expandOnFocus - 엔터키로 확장할지 여부
                      */
                     expandOnEnter?: boolean;
 
@@ -5279,6 +5297,8 @@ namespace Aui {
                                         (this.getList() as Aui.Grid.Panel).focusRow(lastIndex as number);
                                     }
                                 }
+
+                                this.fireEvent('expand', [this]);
                             });
                         } else {
                             this.getValueToIndex(value).then((index) => {
@@ -5291,11 +5311,11 @@ namespace Aui {
                                 } else {
                                     (this.getList() as Aui.Grid.Panel).focusCell(index as number, 0);
                                 }
+
+                                this.fireEvent('expand', [this]);
                             });
                         }
                     }
-
-                    this.fireEvent('expand', [this]);
                 }
 
                 /**
