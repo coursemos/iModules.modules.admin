@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 8.
+ * @modified 2024. 9. 11.
  */
 var Aui;
 (function (Aui) {
@@ -86,7 +86,7 @@ var Aui;
             if (this.items === null) {
                 this.items = [];
                 if (this.properties.html) {
-                    this.items.push(new Aui.Text({ html: this.properties.html }));
+                    this.items.push(new Aui.Text({ html: this.properties.html, layout: 'content' }));
                 }
                 for (let item of this.properties.items ?? []) {
                     if (item instanceof Aui.Component) {
