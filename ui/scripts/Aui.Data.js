@@ -320,7 +320,7 @@ var Aui;
              */
             set(key, value) {
                 const hash = this.getHash();
-                this.origin ??= JSON.parse(JSON.stringify(this.record));
+                this.origin ??= { ...this.record };
                 const updated = this.updated ?? {};
                 if (Format.isEqual(this.origin[key], value) == false) {
                     updated[key] = value;
@@ -347,6 +347,8 @@ var Aui;
             }
             /**
              * 변경된 데이터를 커밋한다.
+             *
+             * @param {string} key - 특정 키만 커밋할 경우 (NULL 인 경우 전체 데이터를 커밋한다.)
              */
             commit(key = null) {
                 if (this.isUpdated(key) === false) {
@@ -355,7 +357,7 @@ var Aui;
                 const keys = [];
                 const hash = this.getHash();
                 if (key === null) {
-                    this.origin = this.record;
+                    this.origin = { ...this.record };
                     keys.push(...Object.keys(this.updated));
                     this.updated = null;
                     delete this.data.updatedRecords[hash];
@@ -375,6 +377,42 @@ var Aui;
                 if (this.observer !== null) {
                     for (const key of keys) {
                         this.observer(key, this.record[key], this.origin[key] ?? null);
+                    }
+                }
+            }
+            /**
+             * 변경된 데이터를 롤백한다.
+             *
+             * @param {string} key - 특정 키만 롤백할 경우 (NULL 인 경우 전체 데이터를 롤백한다.)
+             */
+            rollback(key = null) {
+                if (this.isUpdated(key) === false) {
+                    return;
+                }
+                const updated = { ...this.record };
+                const keys = [];
+                const hash = this.getHash();
+                if (key === null) {
+                    this.record = { ...this.origin };
+                    keys.push(...Object.keys(this.updated));
+                    this.updated = null;
+                    delete this.data.updatedRecords[hash];
+                }
+                else {
+                    this.record[key] = this.origin[key];
+                    keys.push(key);
+                    delete this.updated[key];
+                    if (Object.keys(this.updated).length == 0) {
+                        this.updated = null;
+                        delete this.data.updatedRecords[hash];
+                    }
+                    else {
+                        this.data.updatedRecords[hash] = this;
+                    }
+                }
+                if (this.observer !== null) {
+                    for (const key of keys) {
+                        this.observer(key, this.record[key], updated[key] ?? null);
                     }
                 }
             }
