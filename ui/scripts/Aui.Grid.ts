@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 9. 12.
  */
 namespace Aui {
     export namespace Grid {
@@ -77,6 +77,11 @@ namespace Aui {
                     record: Aui.Data.Record,
                     grid: Aui.Grid.Panel
                 ) => void;
+
+                /**
+                 * @type {Function} edit - 데이터를 편집하였을 때
+                 */
+                edit?: (record: Aui.Data.Record, grid: Aui.Grid.Panel) => void;
             }
 
             export interface Selection {
@@ -237,6 +242,7 @@ namespace Aui {
 
             focusedRow: number = null;
             focusedCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
+            editable: boolean = true;
             editingField: Aui.Form.Field.Base = null;
             editingCell: { rowIndex: number; columnIndex: number } = { rowIndex: null, columnIndex: null };
 
@@ -632,7 +638,7 @@ namespace Aui {
             }
 
             /**
-             * 특정 셀을 데이터 수정모드로 변경한다.
+             * 특정 셀을 편집모드로 변경한다.
              *
              * @param {number} rowIndex
              * @param {number} columnIndex
@@ -649,6 +655,10 @@ namespace Aui {
                     return;
                 }
 
+                if (this.editable === false) {
+                    return;
+                }
+
                 const $row = this.$getRow(rowIndex);
                 if ($row === null) return;
 
@@ -660,7 +670,7 @@ namespace Aui {
                     return;
                 }
 
-                const record = $column.getData('record') as Aui.Data.Record;
+                const record = $row.getData('record') as Aui.Data.Record;
                 this.editingField = this.columns[columnIndex].editor(
                     record.get(column.dataIndex ?? '') ?? '',
                     record,
@@ -700,7 +710,16 @@ namespace Aui {
             }
 
             /**
-             * 셀 에디트 모드를 종료한다.
+             * 셀 편집가능여부를 설정한다.
+             *
+             * @param {boolean} editable
+             */
+            setEditable(editable: boolean): void {
+                this.editable = editable;
+            }
+
+            /**
+             * 셀 편집모드를 종료한다.
              *
              * @param {boolean} is_rollback - 롤백여부
              */
@@ -715,6 +734,8 @@ namespace Aui {
                 const $row = this.$getRow(rowIndex ?? -1);
                 if ($row === null) return;
 
+                const record = $row.getData('record') as Aui.Data.Record;
+
                 const $column = Html.get('div[data-role=column][data-column="' + columnIndex ?? 0 + '"]', $row);
                 if ($column.getEl() == null) return;
 
@@ -727,10 +748,11 @@ namespace Aui {
                 this.editingField.remove();
                 this.editingField = null;
 
-                if (is_rollback === true) {
+                if (is_rollback === true || record.get(column.dataIndex) == value) {
                     Html.get('div[data-role=view]', $column).show();
                 } else {
                     this.getStore().getAt(rowIndex).set(column.dataIndex, value);
+                    this.fireEvent('edit', [record, this]);
                 }
 
                 setTimeout(() => {
@@ -777,12 +799,14 @@ namespace Aui {
              * @param {number} rowIndex - 아이탬(행) 인덱스
              */
             openItem(rowIndex: number): void {
-                const $row = this.$getRow(rowIndex);
-                if ($row === null) return;
+                if ((this.listeners.openItem ?? []).length > 0) {
+                    const $row = this.$getRow(rowIndex);
+                    if ($row === null) return;
 
-                const record = $row.getData('record') as Aui.Data.Record;
-                this.select(record);
-                this.fireEvent('openItem', [record, rowIndex, this]);
+                    const record = $row.getData('record') as Aui.Data.Record;
+                    this.select(record);
+                    this.fireEvent('openItem', [record, rowIndex, this]);
+                }
             }
 
             /**
@@ -792,37 +816,39 @@ namespace Aui {
              * @param {PointerEvent} pointerEvent - 포인트이벤트
              */
             openMenu(rowIndex: number, pointerEvent: PointerEvent): void {
-                const $row = this.$getRow(rowIndex);
-                if ($row === null) return;
+                if ((this.listeners.openMenu ?? []).length > 0) {
+                    const $row = this.$getRow(rowIndex);
+                    if ($row === null) return;
 
-                const menu = new Aui.Menu();
+                    const menu = new Aui.Menu();
 
-                const record = $row.getData('record') as Aui.Data.Record;
-                if (this.isRowSelected(rowIndex) == true) {
-                    if (this.selections.size !== 1) {
-                        this.resetSelections(false);
-                        this.selectRow(rowIndex);
+                    const record = $row.getData('record') as Aui.Data.Record;
+                    if (this.isRowSelected(rowIndex) == true) {
+                        if (this.selections.size !== 1) {
+                            this.resetSelections(false);
+                            this.selectRow(rowIndex);
+                        } else {
+                            this.focusRow(rowIndex);
+                        }
                     } else {
-                        this.focusRow(rowIndex);
+                        if (this.selection.selectable == false || this.selection.type == 'column') {
+                            $row.addClass('menu');
+                            menu.addEvent('hide', () => {
+                                $row.removeClass('menu');
+                            });
+                        } else {
+                            this.selectRow(rowIndex);
+                        }
                     }
-                } else {
-                    if (this.selection.selectable == false || this.selection.type == 'column') {
-                        $row.addClass('menu');
-                        menu.addEvent('hide', () => {
-                            $row.removeClass('menu');
-                        });
+
+                    this.fireEvent('openMenu', [menu, record, rowIndex, this]);
+
+                    if (menu.getItems()?.length == 0) {
+                        menu.remove();
+                        $row.removeClass('menu');
                     } else {
-                        this.selectRow(rowIndex);
+                        menu.showAt(pointerEvent, 'y');
                     }
-                }
-
-                this.fireEvent('openMenu', [menu, record, rowIndex, this]);
-
-                if (menu.getItems()?.length == 0) {
-                    menu.remove();
-                    $row.removeClass('menu');
-                } else {
-                    menu.showAt(pointerEvent, 'y');
                 }
             }
 
