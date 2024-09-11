@@ -6,23 +6,23 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 8.
+ * @modified 2024. 9. 12.
  */
 namespace Aui {
     export namespace Component {
         export interface Listeners extends Aui.Base.Listeners {
             /**
-             * @var {Function} render - 컴포넌트가 랜더링 되었을 때
+             * @type {Function} render - 컴포넌트가 랜더링 되었을 때
              */
             render?: (component: Aui.Component) => void;
 
             /**
-             * @var {Function} show - 컴포넌트가 보여질 떄
+             * @type {Function} show - 컴포넌트가 보여질 떄
              */
             show?: (component: Aui.Component) => void;
 
             /**
-             * @var {Function} hide - 컴포넌트가 숨겨질 떄
+             * @type {Function} hide - 컴포넌트가 숨겨질 떄
              */
             hide?: (component: Aui.Component) => void;
         }
