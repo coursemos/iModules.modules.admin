@@ -23,8 +23,6 @@ div[data-component][data-type='panel'][data-role='form'] {
 
 div[data-component][data-type='form'][data-role='fieldset'] {
     > div[data-role='container'] {
-        overflow: hidden;
-
         > div[data-role='top'] {
             position: relative;
             height: calc(var(--aui-component-height-default) / 2 - var(--aui-component-gap) - 2px);
@@ -933,7 +931,9 @@ div[data-component][data-type='form'][data-role='field'] {
 
         --im-wysiwyg-tooltip-background: var(--aui-color-text-400);
         --im-wysiwyg-tooltip-color: var(--aui-color-background-500);
-        --im-wysiwyg-tooltip-font-size: calc(var(--im-wysiwyg-button-icon-size) * 0.6);
+        --im-wysiwyg-tooltip-font-size: var(--aui-font-size-default);
+
+        --im-wysiwyg-command-font-size: calc(var(--aui-font-size-default));
 
         --im-wysiwyg-font-size: var(--aui-font-size-default);
         --im-wysiwyg-font-family: var(--aui-font-family-default);
