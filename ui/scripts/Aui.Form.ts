@@ -5760,7 +5760,12 @@ namespace Aui {
                     /**
                      * @type {number} minHeight - 에디터최소높이
                      */
-                    minHeight?: number;
+                    editorHeight?: number;
+
+                    /**
+                     * @type {number} editorMaxHeight - 에디터최대높이
+                     */
+                    editorMaxHeight?: number;
 
                     /**
                      * @type {boolean} hiddenFiles - 파일목록을 숨길지 여부
@@ -5771,6 +5776,21 @@ namespace Aui {
                      * @type {string[]} toolbars - 툴바
                      */
                     toolbars?: string[];
+
+                    /**
+                     * @type {boolean} fileUpload - 파일업로드여부
+                     */
+                    fileUpload?: boolean;
+
+                    /**
+                     * @type {boolean} imageUpload - 이미지업로드여부
+                     */
+                    imageUpload?: boolean;
+
+                    /**
+                     * @type {boolean} videoUpload - 비디오업로드여부
+                     */
+                    videoUpload?: boolean;
 
                     /**
                      * @type {Aui.Form.Field.Editor.Listeners} listeners - 이벤트리스너
@@ -5787,8 +5807,14 @@ namespace Aui {
                 $input: Dom;
                 $emptyText: Dom;
 
+                editorHeight: number;
+                editorMaxHeight: number;
+
                 editor: modules.wysiwyg.Editor;
                 uploader: modules.attachment.Uploader;
+                fileUpload: boolean;
+                imageUpload: boolean;
+                videoUpload: boolean;
                 $files: Dom;
                 toolbars: string[];
                 hiddenFiles: boolean;
@@ -5803,8 +5829,12 @@ namespace Aui {
 
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
-                    this.minHeight = this.properties.minHeight ?? 200;
+                    this.editorHeight = this.properties.editorHeight ?? 150;
+                    this.editorMaxHeight = this.properties.editorMaxHeight ?? null;
                     this.toolbars = this.properties.toolbars ?? null;
+                    this.fileUpload = this.properties.fileUpload ?? true;
+                    this.imageUpload = this.properties.imageUpload ?? true;
+                    this.videoUpload = this.properties.videoUpload ?? true;
                     this.hiddenFiles = this.properties.hiddenFiles === true;
                 }
 
@@ -5870,13 +5900,7 @@ namespace Aui {
                  * @return {Aui.Form.Field.TextArea} this
                  */
                 setDisabled(disabled: boolean): this {
-                    if (disabled == true) {
-                        this.$getInput().setAttr('disabled', 'disabled');
-                    } else {
-                        this.$getInput().removeAttr('disabled');
-                    }
-
-                    super.setDisabled(disabled);
+                    this.editor.setDisabled(disabled);
 
                     return this;
                 }
@@ -5910,6 +5934,26 @@ namespace Aui {
                 }
 
                 /**
+                 * 에디터의 최소높이를 설정한다.
+                 *
+                 * @param {number} editorHeight - 에디터최소높이
+                 * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
+                 */
+                setEditorHeight(editorHeight: number, includedToolbar: boolean): void {
+                    this.editor.setHeight(editorHeight, includedToolbar);
+                }
+
+                /**
+                 * 에디터의 최대높이를 설정한다.
+                 *
+                 * @param {number} editorMaxHeight - 에디터최소높이
+                 * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
+                 */
+                setEditorMaxHeight(editorMaxHeight: number, includedToolbar: boolean): void {
+                    this.editor.setMaxHeight(editorMaxHeight, includedToolbar);
+                }
+
+                /**
                  * 필드태그를 랜더링한다.
                  */
                 renderContent(): void {
@@ -5929,11 +5973,10 @@ namespace Aui {
                  * 필드를 랜더링한다.
                  */
                 render(): void {
-                    super.render();
-
                     this.$getContent().setAttr('data-module', 'wysiwyg');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
-                        heightMin: this.minHeight,
+                        height: this.editorHeight,
+                        maxHeight: this.editorMaxHeight,
                         toolbars: this.toolbars,
                         uploader: this.getUploader(),
                         listeners: {
@@ -5942,6 +5985,8 @@ namespace Aui {
                             },
                         },
                     });
+
+                    super.render();
 
                     let sticky = '0px';
                     let parent = this.getParent();

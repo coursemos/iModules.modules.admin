@@ -4502,8 +4502,13 @@ var Aui;
                 emptyText;
                 $input;
                 $emptyText;
+                editorHeight;
+                editorMaxHeight;
                 editor;
                 uploader;
+                fileUpload;
+                imageUpload;
+                videoUpload;
                 $files;
                 toolbars;
                 hiddenFiles;
@@ -4516,8 +4521,12 @@ var Aui;
                     super(properties);
                     this.emptyText = this.properties.emptyText ?? '';
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
-                    this.minHeight = this.properties.minHeight ?? 200;
+                    this.editorHeight = this.properties.editorHeight ?? 150;
+                    this.editorMaxHeight = this.properties.editorMaxHeight ?? null;
                     this.toolbars = this.properties.toolbars ?? null;
+                    this.fileUpload = this.properties.fileUpload ?? true;
+                    this.imageUpload = this.properties.imageUpload ?? true;
+                    this.videoUpload = this.properties.videoUpload ?? true;
                     this.hiddenFiles = this.properties.hiddenFiles === true;
                 }
                 /**
@@ -4575,13 +4584,7 @@ var Aui;
                  * @return {Aui.Form.Field.TextArea} this
                  */
                 setDisabled(disabled) {
-                    if (disabled == true) {
-                        this.$getInput().setAttr('disabled', 'disabled');
-                    }
-                    else {
-                        this.$getInput().removeAttr('disabled');
-                    }
-                    super.setDisabled(disabled);
+                    this.editor.setDisabled(disabled);
                     return this;
                 }
                 /**
@@ -4610,6 +4613,24 @@ var Aui;
                     this.onFocus();
                 }
                 /**
+                 * 에디터의 최소높이를 설정한다.
+                 *
+                 * @param {number} editorHeight - 에디터최소높이
+                 * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
+                 */
+                setEditorHeight(editorHeight, includedToolbar) {
+                    this.editor.setHeight(editorHeight, includedToolbar);
+                }
+                /**
+                 * 에디터의 최대높이를 설정한다.
+                 *
+                 * @param {number} editorMaxHeight - 에디터최소높이
+                 * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
+                 */
+                setEditorMaxHeight(editorMaxHeight, includedToolbar) {
+                    this.editor.setMaxHeight(editorMaxHeight, includedToolbar);
+                }
+                /**
                  * 필드태그를 랜더링한다.
                  */
                 renderContent() {
@@ -4627,10 +4648,10 @@ var Aui;
                  * 필드를 랜더링한다.
                  */
                 render() {
-                    super.render();
                     this.$getContent().setAttr('data-module', 'wysiwyg');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
-                        heightMin: this.minHeight,
+                        height: this.editorHeight,
+                        maxHeight: this.editorMaxHeight,
                         toolbars: this.toolbars,
                         uploader: this.getUploader(),
                         listeners: {
@@ -4639,6 +4660,7 @@ var Aui;
                             },
                         },
                     });
+                    super.render();
                     let sticky = '0px';
                     let parent = this.getParent();
                     while (parent !== null) {
