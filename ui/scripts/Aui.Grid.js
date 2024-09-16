@@ -2035,7 +2035,6 @@ var Aui;
                                                     return records;
                                                 })(),
                                             }),
-                                            value: 'today',
                                             listeners: {
                                                 change: (field, value) => {
                                                     const form = field.getForm();
