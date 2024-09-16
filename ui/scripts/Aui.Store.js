@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 9. 16.
  */
 var Aui;
 (function (Aui) {
@@ -126,6 +126,14 @@ var Aui;
          */
         getCount() {
             return this.data?.getCount() ?? 0;
+        }
+        /**
+         * 레코드 고유값을 설정한다.
+         *
+         * @param string[] primaryKeys
+         */
+        setPrimaryKeys(primaryKeys) {
+            this.primaryKeys = primaryKeys;
         }
         /**
          * 데이터를 불러오기 위한 매개변수를 설정한다.
@@ -865,6 +873,14 @@ var Aui;
          */
         getCount() {
             return this.data?.getCount() ?? 0;
+        }
+        /**
+         * 레코드 고유값을 설정한다.
+         *
+         * @param string[] primaryKeys
+         */
+        setPrimaryKeys(primaryKeys) {
+            this.primaryKeys = primaryKeys;
         }
         /**
          * 데이터를 불러오기 위한 매개변수를 설정한다.

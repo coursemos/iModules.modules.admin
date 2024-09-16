@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 9. 16.
  */
 namespace Aui {
     export namespace Store {
@@ -206,6 +206,15 @@ namespace Aui {
          */
         getCount(): number {
             return this.data?.getCount() ?? 0;
+        }
+
+        /**
+         * 레코드 고유값을 설정한다.
+         *
+         * @param string[] primaryKeys
+         */
+        setPrimaryKeys(primaryKeys: string[]): void {
+            this.primaryKeys = primaryKeys;
         }
 
         /**
@@ -1167,6 +1176,15 @@ namespace Aui {
          */
         getCount(): number {
             return this.data?.getCount() ?? 0;
+        }
+
+        /**
+         * 레코드 고유값을 설정한다.
+         *
+         * @param string[] primaryKeys
+         */
+        setPrimaryKeys(primaryKeys: string[]): void {
+            this.primaryKeys = primaryKeys;
         }
 
         /**
