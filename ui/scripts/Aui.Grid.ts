@@ -2776,6 +2776,7 @@ namespace Aui {
                 multiple: boolean;
                 search: boolean;
                 list: Aui.Grid.Panel | Aui.Tree.Panel;
+                button: Aui.Button;
                 renderer: (
                     value: any,
                     record: Aui.Data.Record,
@@ -2813,6 +2814,8 @@ namespace Aui {
                             this.list = null;
                         }
 
+                        this.store.setPrimaryKeys([this.valueField]);
+
                         if (this.store instanceof Aui.Store) {
                             this.list = new Aui.Grid.Panel({
                                 minHeight: 200,
@@ -2822,7 +2825,7 @@ namespace Aui {
                                 columnLines: false,
                                 store: this.store,
                                 autoLoad: false,
-                                selection: { selectable: true, type: 'check', multiple: this.multiple },
+                                selection: { selectable: true, type: 'check', multiple: this.multiple, keepable: true },
                                 topbar: (() => {
                                     if (this.search === true) {
                                         return [
@@ -2856,12 +2859,56 @@ namespace Aui {
                                     beforeUpdate: (grid) => {
                                         grid.setMinHeight(grid.$getComponent().getHeight());
                                     },
+                                    selectionChange: (selections) => {
+                                        const button = this.getButton();
+                                        if (selections.length == 0) {
+                                            button.setText(Aui.printText('filters.set'));
+                                        } else {
+                                            button.setText(
+                                                Aui.printText('filters.set') + '(' + selections.length + ')'
+                                            );
+                                        }
+                                    },
                                 },
                             });
                         }
                     }
 
                     return this.list;
+                }
+
+                /**
+                 * 필터적용버튼을 가져온다.
+                 *
+                 * @return {Aui.Button} button
+                 */
+                getButton(): Aui.Button {
+                    if (this.button === undefined) {
+                        this.button = new Aui.Button({
+                            text: Aui.printText('filters.set'),
+                            buttonClass: 'confirm',
+                            handler: () => {
+                                const selections = this.getList().getSelections();
+                                if (selections.length == 0) {
+                                    this.resetFilter();
+                                } else {
+                                    if (this.multiple == true) {
+                                        const values = [];
+                                        for (const record of selections) {
+                                            values.push(record.get(this.valueField));
+                                        }
+                                        this.setFilter(values, 'in');
+                                    } else {
+                                        this.setFilter(selections[0].get(this.valueField), '=');
+                                    }
+                                }
+
+                                this.close();
+                            },
+                        });
+                    }
+
+                    return this.button;
                 }
 
                 /**
@@ -2892,28 +2939,7 @@ namespace Aui {
                                                         this.close();
                                                     },
                                                 }),
-                                                new Aui.Button({
-                                                    text: Aui.printText('filters.set'),
-                                                    buttonClass: 'confirm',
-                                                    handler: () => {
-                                                        const selections = this.getList().getSelections();
-                                                        if (selections.length == 0) {
-                                                            this.resetFilter();
-                                                        } else {
-                                                            if (this.multiple == true) {
-                                                                const values = [];
-                                                                for (const record of selections) {
-                                                                    values.push(record.get(this.valueField));
-                                                                }
-                                                                this.setFilter(values, 'in');
-                                                            } else {
-                                                                this.setFilter(selections[0].get(this.valueField), '=');
-                                                            }
-                                                        }
-
-                                                        this.close();
-                                                    },
-                                                }),
+                                                this.getButton(),
                                             ],
                                         }),
                                     ],
@@ -2937,9 +2963,13 @@ namespace Aui {
                                             values.push(...value);
                                         }
 
+                                        const selections = [];
                                         for (const value of values) {
-                                            const record = {};
-                                            record[this.valueField] = value;
+                                            const data = {};
+                                            data[this.valueField] = value;
+                                            const record = new Aui.Data.Record(null, data, [this.valueField]);
+                                            selections.push(record);
+                                            /*
                                             const index = this.getList().getStore().findIndex(record);
                                             if (index !== null) {
                                                 if (this.store instanceof Aui.Store) {
@@ -2951,7 +2981,10 @@ namespace Aui {
                                                     );
                                                 }
                                             }
+                                            */
                                         }
+
+                                        this.getList().setSelections(selections);
                                     }
                                 },
                             },
@@ -4076,6 +4109,7 @@ namespace Aui {
                     this.firstButton = new Aui.Button({
                         iconClass: 'mi mi-step-backward',
                         disabled: true,
+                        hidden: this.mode == 'simple',
                         handler: () => {
                             this.movePage('FIRST');
                         },
@@ -4133,6 +4167,7 @@ namespace Aui {
                     this.lastButton = new Aui.Button({
                         iconClass: 'mi mi-step-forward',
                         disabled: true,
+                        hidden: this.mode == 'simple',
                         handler: () => {
                             this.movePage('LAST');
                         },
@@ -4183,13 +4218,37 @@ namespace Aui {
              */
             getPageDisplay(): Aui.Form.Field.Display {
                 if (this.pageDisplay === undefined) {
-                    this.pageDisplay = new Aui.Form.Field.Display({
-                        value: '1',
-                        hidden: this.mode == 'simple',
-                        renderer: (value) => {
-                            return '/ ' + Format.number(value) + ' ' + Aui.printText('texts.page');
-                        },
-                    });
+                    if (this.mode == 'simple') {
+                        this.pageDisplay = new Aui.Form.Field.Display({
+                            value: '1',
+                            flex: 1,
+                            textAlign: 'center',
+                            renderer: (value) => {
+                                if (this.mode == 'simple') {
+                                    return (
+                                        this.store?.getPage() +
+                                        ' / ' +
+                                        Format.number(value) +
+                                        ' ' +
+                                        Aui.printText('texts.page')
+                                    );
+                                }
+                                return '/ ' + Format.number(value) + ' ' + Aui.printText('texts.page');
+                            },
+                            listeners: {
+                                render: (field) => {
+                                    field.$getComponent().setStyle('flex', 1);
+                                },
+                            },
+                        });
+                    } else {
+                        this.pageDisplay = new Aui.Form.Field.Display({
+                            value: '1',
+                            renderer: (value) => {
+                                return '/ ' + Format.number(value) + ' ' + Aui.printText('texts.page');
+                            },
+                        });
+                    }
                 }
 
                 return this.pageDisplay;
@@ -4212,8 +4271,6 @@ namespace Aui {
                         this.items.push(this.getPageDisplay());
                         if (this.mode == 'default') {
                             this.items.push(new Aui.Toolbar.Item('-'));
-                        } else {
-                            this.items.push(new Aui.Toolbar.Item('->'));
                         }
                         this.items.push(this.getNextButton());
                         this.items.push(this.getLastButton());

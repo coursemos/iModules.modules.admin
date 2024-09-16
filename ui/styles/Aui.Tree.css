@@ -6,7 +6,7 @@
  * @file /styles/Aui.Tree.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 9. 16.
  */
 div[data-component][data-type='panel'][data-role='tree'] {
     > div[data-role='container'] {

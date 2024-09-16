@@ -6,7 +6,7 @@
  * @file /styles/Aui.Grid.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 9. 16.
  */
 div[data-component][data-type='panel'][data-role='grid'] {
     > div[data-role='container'] {
@@ -365,15 +365,6 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     content: '\e234';
                                     color: var(--aui-color-background-100);
                                     font-size: var(--aui-font-size-default);
-                                }
-                            }
-
-                            > label.filtered + button {
-                                display: block;
-
-                                &::before {
-                                    font-family: xeicon;
-                                    content: '\e7f7';
                                 }
                             }
                         }
