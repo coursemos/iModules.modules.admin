@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 12.
+ * @modified 2024. 9. 16.
  */
 namespace Aui {
     export namespace Grid {
@@ -772,6 +772,22 @@ namespace Aui {
                 }
 
                 return Array.from(this.selections.values());
+            }
+
+            /**
+             * 선택된 항목을 강제로 지정한다.
+             *
+             * @param {Aui.Data.Record[]} selections
+             */
+            setSelections(selections: Aui.Data.Record[]): void {
+                this.selections.clear();
+                for (const selection of selections) {
+                    this.selections.set(selection.getHash(), selection);
+                }
+
+                this.onSelectionChange();
+
+                this.restoreSelections();
             }
 
             /**

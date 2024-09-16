@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 9. 16.
  */
 var Aui;
 (function (Aui) {
@@ -342,6 +342,19 @@ var Aui;
                     return [];
                 }
                 return Array.from(this.selections.values());
+            }
+            /**
+             * 선택된 항목을 강제로 지정한다.
+             *
+             * @param {Aui.Data.Record[]} selections
+             */
+            setSelections(selections) {
+                this.selections.clear();
+                for (const selection of selections) {
+                    this.selections.set(selection.getHash(), selection);
+                }
+                this.onSelectionChange();
+                this.restoreSelections();
             }
             /**
              * 트리 아이템(행)이 선택여부를 확인한다.
