@@ -186,7 +186,6 @@ var Aui;
                     }
                     else {
                         if (this.limit > 0) {
-                            this.page = 1;
                             params.start = (this.page - 1) * this.limit;
                             params.limit = this.limit;
                         }
@@ -466,6 +465,7 @@ var Aui;
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
         async setFilter(field, value, operator = '=') {
+            this.page = 1;
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
             await this.filter();
@@ -477,6 +477,7 @@ var Aui;
          * @param {'OR'|'AND'} filterMode - 필터모드
          */
         async setFilters(filters, filterMode = 'AND') {
+            this.page = 1;
             this.filters = filters;
             this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
             await this.filter();

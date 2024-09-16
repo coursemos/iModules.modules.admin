@@ -270,7 +270,6 @@ namespace Aui {
                         params.filters = null;
                     } else {
                         if (this.limit > 0) {
-                            this.page = 1;
                             params.start = (this.page - 1) * this.limit;
                             params.limit = this.limit;
                         }
@@ -579,6 +578,7 @@ namespace Aui {
          * @param {string} operator - 필터 명령어 (=, !=, >=, <= 또는 remoteFilter 가 true 인 경우 사용자 정의 명령어)
          */
         async setFilter(field: string, value: any, operator: string = '='): Promise<void> {
+            this.page = 1;
             this.filters ??= {};
             this.filters[field] = { value: value, operator: operator };
             await this.filter();
@@ -594,6 +594,7 @@ namespace Aui {
             filters: { [field: string]: { value: any; operator: string } },
             filterMode: 'OR' | 'AND' = 'AND'
         ): Promise<void> {
+            this.page = 1;
             this.filters = filters;
             this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
             await this.filter();
