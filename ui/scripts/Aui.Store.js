@@ -85,7 +85,7 @@ var Aui;
          * @return {number} page
          */
         getPage() {
-            return this.page;
+            return Math.max(1, this.page ?? 1);
         }
         /**
          * 전체페이지를 가져온다.
@@ -93,7 +93,7 @@ var Aui;
          * @return {number} totalPage
          */
         getTotalPage() {
-            return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+            return this.limit > 0 ? Math.max(1, Math.ceil(this.total / this.limit)) : 1;
         }
         /**
          * 레코드를 제외한 추가 응답데이터를 가져온다.
@@ -831,7 +831,7 @@ var Aui;
          * @return {number} page
          */
         getPage() {
-            return this.page;
+            return Math.max(1, this.page ?? 1);
         }
         /**
          * 전체페이지를 가져온다.
@@ -839,7 +839,7 @@ var Aui;
          * @return {number} totalPage
          */
         getTotalPage() {
-            return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+            return this.limit > 0 ? Math.max(1, Math.ceil(this.total / this.limit)) : 1;
         }
         /**
          * 레코드를 제외한 추가 응답데이터를 가져온다.

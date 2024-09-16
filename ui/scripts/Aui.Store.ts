@@ -162,7 +162,7 @@ namespace Aui {
          * @return {number} page
          */
         getPage(): number {
-            return this.page;
+            return Math.max(1, this.page ?? 1);
         }
 
         /**
@@ -171,7 +171,7 @@ namespace Aui {
          * @return {number} totalPage
          */
         getTotalPage(): number {
-            return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+            return this.limit > 0 ? Math.max(1, Math.ceil(this.total / this.limit)) : 1;
         }
 
         /**
@@ -1131,7 +1131,7 @@ namespace Aui {
          * @return {number} page
          */
         getPage(): number {
-            return this.page;
+            return Math.max(1, this.page ?? 1);
         }
 
         /**
@@ -1140,7 +1140,7 @@ namespace Aui {
          * @return {number} totalPage
          */
         getTotalPage(): number {
-            return this.limit > 0 ? Math.ceil(this.total / this.limit) : 1;
+            return this.limit > 0 ? Math.max(1, Math.ceil(this.total / this.limit)) : 1;
         }
 
         /**
