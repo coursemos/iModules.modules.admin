@@ -609,7 +609,6 @@ var Aui;
                 super(properties);
                 this.records = this.properties.records ?? [];
                 this.remoteSort = false;
-                this.load();
             }
             /**
              * 데이터를 가져온다.
@@ -1618,7 +1617,6 @@ var Aui;
                 super(properties);
                 this.records = this.properties.records ?? [];
                 this.remoteSort = false;
-                this.load();
             }
             /**
              * 데이터를 가져온다.

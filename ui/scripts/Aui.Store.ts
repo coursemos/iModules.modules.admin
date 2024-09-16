@@ -748,7 +748,6 @@ namespace Aui {
 
                 this.records = this.properties.records ?? [];
                 this.remoteSort = false;
-                this.load();
             }
 
             /**
@@ -2019,7 +2018,6 @@ namespace Aui {
 
                 this.records = this.properties.records ?? [];
                 this.remoteSort = false;
-                this.load();
             }
 
             /**

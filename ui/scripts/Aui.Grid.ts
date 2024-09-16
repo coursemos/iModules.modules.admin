@@ -2969,19 +2969,6 @@ namespace Aui {
                                             data[this.valueField] = value;
                                             const record = new Aui.Data.Record(null, data, [this.valueField]);
                                             selections.push(record);
-                                            /*
-                                            const index = this.getList().getStore().findIndex(record);
-                                            if (index !== null) {
-                                                if (this.store instanceof Aui.Store) {
-                                                    (this.getList() as Aui.Grid.Panel).selectRow(index as number, true);
-                                                } else {
-                                                    (this.getList() as Aui.Tree.Panel).selectRow(
-                                                        index as number[],
-                                                        true
-                                                    );
-                                                }
-                                            }
-                                            */
                                         }
 
                                         this.getList().setSelections(selections);
