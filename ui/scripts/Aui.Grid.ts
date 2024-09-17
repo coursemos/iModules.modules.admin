@@ -3865,6 +3865,8 @@ namespace Aui {
                             e.stopImmediatePropagation();
                         });
                     }
+
+                    $column.addClass('editable');
                 }
 
                 const $view = Html.create('div').setData('role', 'view');

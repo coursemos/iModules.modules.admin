@@ -644,6 +644,25 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     }
                                 }
 
+                                &.editable:hover,
+                                &.editable.focused {
+                                    position: relative;
+
+                                    &:not(:has(div[data-role='field'])) {
+                                        &::after {
+                                            position: absolute;
+                                            top: 0;
+                                            right: 0;
+                                            width: 0;
+                                            height: 0;
+                                            border-top: 10px solid var(--aui-color-accent-700);
+                                            border-left: 10px solid transparent;
+                                            content: ' ';
+                                            z-index: 1;
+                                        }
+                                    }
+                                }
+
                                 > div[data-role='view'] {
                                     width: 100%;
                                     flex-grow: 1;
