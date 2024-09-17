@@ -3579,8 +3579,10 @@ var Aui;
                 valueField;
                 listField;
                 rawValue;
+                storeParams = null;
                 renderer;
                 listRenderer;
+                listGrouper;
                 $button;
                 $display;
                 $emptyText;
@@ -3607,6 +3609,7 @@ var Aui;
                     this.valueField = this.properties.valueField ?? 'value';
                     this.listField = this.properties.listField ?? this.displayField;
                     this.listRenderer = this.properties.listRenderer ?? null;
+                    this.listGrouper = this.properties.listGrouper ?? null;
                     this.searchField = this.properties.searchField ?? this.displayField;
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
                     this.expandOnFocus = this.properties.expandOnFocus === true;
@@ -3689,6 +3692,7 @@ var Aui;
                                 deselectable: this.multiple,
                                 keepable: true,
                             },
+                            grouper: this.listGrouper,
                             columnHeaders: false,
                             rowLines: false,
                             border: false,
@@ -3958,6 +3962,21 @@ var Aui;
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 async setValue(value, is_origin = false) {
+                    if (this.matchingValue !== null) {
+                        await this.matchingValue;
+                    }
+                    this.matchingValue = this.matchValue(value, is_origin).then(() => {
+                        this.matchingValue = null;
+                    });
+                }
+                /**
+                 * 필드값을 검색하여 찾는다.
+                 *
+                 * @param {any} value - 값
+                 * @param {boolean} is_origin - 원본값 변경여부
+                 */
+                matchingValue;
+                async matchValue(value, is_origin = false) {
                     value ??= null;
                     this.rawValue = value;
                     if (value === null) {
@@ -4085,9 +4104,12 @@ var Aui;
                 /**
                  * 선택목록을 확장한다.
                  */
-                expand() {
+                async expand() {
                     if (this.isExpand() == true) {
                         return;
+                    }
+                    if (this.matchingValue !== null) {
+                        await this.matchingValue;
                     }
                     this.getAbsolute().show();
                     this.loading.hide();
@@ -4249,20 +4271,13 @@ var Aui;
                  */
                 onRender() {
                     if (this.oValue !== undefined && this.value === undefined) {
-                        if (this.getStore().isLoaded() == false) {
-                            this.getStore()
-                                .load()
-                                .then(() => {
-                                this.setValue(this.oValue, true);
-                                super.onRender();
-                            });
-                        }
-                        else {
-                            this.setValue(this.oValue, true);
+                        this.setValue(this.oValue, true).then(() => {
+                            this.oValue = undefined;
                             super.onRender();
-                        }
+                        });
                     }
                     else {
+                        this.matchingValue = null;
                         super.onRender();
                     }
                 }
@@ -4280,10 +4295,22 @@ var Aui;
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad() {
-                    this.loading.hide();
-                    this.getForm()?.setLoading(this, false);
-                    this.setValue(this.value ?? this.rawValue);
-                    this.fireEvent('load', [this.getStore(), this]);
+                    if (Format.isEqual(this.storeParams, this.getStore().getCurrentParams()) == false) {
+                        this.storeParams = this.getStore().getCurrentParams();
+                        this.loading.hide();
+                        this.getForm()?.setLoading(this, false);
+                        this.fireEvent('load', [this.getStore(), this]);
+                        if (this.matchingValue !== null) {
+                            this.matchingValue.then(() => {
+                                if (this.rawValue !== null) {
+                                    this.setValue(this.rawValue);
+                                }
+                            });
+                        }
+                        else if (this.rawValue !== null) {
+                            this.setValue(this.rawValue);
+                        }
+                    }
                 }
                 /**
                  * 셀렉트폼의 목록 데이터가 변경되었을 때 이벤트를 처리한다.
