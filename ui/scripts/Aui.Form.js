@@ -3667,6 +3667,8 @@ var Aui;
                                 },
                                 hide: () => {
                                     this.$getContent().removeClass('expand');
+                                    this.match('');
+                                    this.fireEvent('collapse', [this]);
                                 },
                             },
                         });

@@ -4840,6 +4840,8 @@ namespace Aui {
                                 },
                                 hide: () => {
                                     this.$getContent().removeClass('expand');
+                                    this.match('');
+                                    this.fireEvent('collapse', [this]);
                                 },
                             },
                         });
@@ -5397,7 +5399,6 @@ namespace Aui {
                     if (this.isExpand() == true) {
                         this.getAbsolute().hide();
                         this.match('');
-
                         this.fireEvent('collapse', [this]);
                     }
                 }
