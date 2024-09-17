@@ -205,7 +205,7 @@ namespace Aui {
          */
         show(is_hide_all: boolean = true): void {
             if (is_hide_all == true) {
-                Aui.Absolute.hideAll();
+                Aui.Absolute.hideAll(this.id);
             }
 
             const isShow = this.fireEvent('beforeShow', [this]);
@@ -262,9 +262,14 @@ namespace Aui {
         /**
          * 모든 절대위치 컴포넌트를 숨긴다.
          */
-        static hideAll(): void {
+        static hideAll(current: string = null): void {
             Html.all('div[data-component][data-type=absolute]', Aui.$getAbsolute()).forEach(($dom: Dom) => {
-                Aui.getComponent($dom.getData('component')).hide();
+                if (
+                    current !== $dom.getData('component') &&
+                    Aui.getComponent($dom.getData('component')).isShow() == true
+                ) {
+                    Aui.getComponent($dom.getData('component')).hide();
+                }
             });
         }
 
