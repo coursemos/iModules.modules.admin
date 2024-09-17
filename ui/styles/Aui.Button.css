@@ -6,7 +6,7 @@
  * @file /styles/Aui.Button.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 30.
+ * @modified 2024. 9. 18.
  */
 div[data-component][data-type='button'][data-role='button'] {
     > div[data-role='container'] {
@@ -90,6 +90,10 @@ div[data-component][data-type='button'][data-role='button'] {
                     &:hover {
                         background: var(--aui-color-accent-600);
                     }
+
+                    &[disabled] {
+                        background: var(--aui-color-accent-500);
+                    }
                 }
 
                 &.begining {
@@ -100,6 +104,10 @@ div[data-component][data-type='button'][data-role='button'] {
                     &:hover {
                         background: var(--aui-color-begining-600);
                     }
+
+                    &[disabled] {
+                        background: var(--aui-color-begining-500);
+                    }
                 }
 
                 &.danger {
@@ -109,6 +117,10 @@ div[data-component][data-type='button'][data-role='button'] {
 
                     &:hover {
                         background: var(--aui-color-danger-600);
+                    }
+
+                    &[disabled] {
+                        background: var(--aui-color-danger-500);
                     }
                 }
 
@@ -136,7 +148,8 @@ div[data-component][data-type='button'][data-role='button'] {
 
                 &[disabled] {
                     cursor: not-allowed;
-                    opacity: 0.7;
+                    opacity: 0.4;
+                    background: var(--aui-color-background-300);
                 }
 
                 &.menu {
