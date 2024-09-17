@@ -99,45 +99,63 @@ body[data-type='login'] {
             text-align: center;
         }
 
-        div[data-role='column'] {
-            &.monospace {
+        .numeric,
+        .numeric > * {
+            font-variant-numeric: tabular-nums !important;
+        }
+
+        .monospace,
+        .monospace > * {
+            font-family: 'Roboto Mono', monospace, var(--aui-font-family-default) !important;
+        }
+
+        div[data-role='row'] {
+            div[data-role='column'] {
+                &.small {
+                    > div[data-role='view'] {
+                        font-size: 0.8rem !important;
+                    }
+                }
+
                 > div[data-role='view'] {
-                    font-family: 'Roboto Mono', monospace !important;
-                    letter-spacing: -0.5px;
+                    a {
+                        color: var(--aui-color-accent-backward-500);
+                        font-variant-numeric: tabular-nums;
+                    }
+
+                    > small {
+                        display: inline-block;
+                        color: var(--aui-color-text-300);
+                        vertical-align: baseline;
+                        margin-bottom: -2px;
+                        height: 1lh;
+                    }
                 }
             }
 
-            &.numeric {
-                > div[data-role='view'] {
-                    font-variant-numeric: tabular-nums;
-                }
-            }
+            &.selected {
+                div[data-role='column'] {
+                    > div[data-role='view'] {
+                        a {
+                            color: var(--aui-color-accent-backward-500);
+                            font-variant-numeric: tabular-nums;
+                        }
 
-            &.small {
-                > div[data-role='view'] {
-                    font-size: 0.8rem !important;
-                }
-            }
-
-            &.link {
-                > div[data-role='view'] {
-                    color: var(--aui-color-accent-500);
-                    font-variant-numeric: tabular-nums;
+                        > small {
+                            display: inline-block;
+                            color: var(--aui-color-accent-backward-500);
+                            opacity: 0.8;
+                            vertical-align: baseline;
+                            margin-bottom: -2px;
+                            height: 1lh;
+                        }
+                    }
                 }
             }
         }
 
         div[data-component][data-type='form'][data-role='field'] {
             div[data-role='content'][data-field='display'] {
-                &.monospace {
-                    font-family: 'Roboto Mono', monospace !important;
-                    letter-spacing: -0.5px;
-                }
-
-                &.numeric {
-                    font-variant-numeric: tabular-nums;
-                }
-
                 &.small {
                     font-size: 0.8rem !important;
                 }
