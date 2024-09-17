@@ -466,7 +466,7 @@ var AdminUi;
                     super.initItems();
                 }
                 /**
-                 * 테마설정을 위한 셀렉트필드를 가져온다.
+                 * 모듈 선택을 위한 셀렉트필드를 가져온다.
                  *
                  * @return {Aui.Form.Field.Select} select
                  */

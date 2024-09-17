@@ -882,9 +882,7 @@ namespace Aui {
                     this.value = value;
 
                     if (Format.isEqual(value, this.pValue) == false) {
-                        if (is_origin === false) {
-                            this.onChange();
-                        }
+                        this.onChange();
                         this.pValue = value;
                     }
 
@@ -5151,6 +5149,12 @@ namespace Aui {
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 async setValue(value: any, is_origin: boolean = false): Promise<void> {
+                    if (this.isRendered() === false) {
+                        this.oValue = value;
+                        this.value = undefined;
+                        return;
+                    }
+
                     if (this.matchingValue !== null) {
                         await this.matchingValue;
                     }
@@ -5165,7 +5169,7 @@ namespace Aui {
                  * @param {any} value - 값
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
-                matchingValue: Promise<void>;
+                matchingValue: Promise<void> = null;
                 async matchValue(value: any, is_origin: boolean = false): Promise<void> {
                     value ??= null;
                     this.rawValue = value;

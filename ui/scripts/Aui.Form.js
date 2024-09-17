@@ -587,9 +587,7 @@ var Aui;
                 setValue(value, is_origin = false) {
                     this.value = value;
                     if (Format.isEqual(value, this.pValue) == false) {
-                        if (is_origin === false) {
-                            this.onChange();
-                        }
+                        this.onChange();
                         this.pValue = value;
                     }
                     if (is_origin == true) {
@@ -3962,6 +3960,11 @@ var Aui;
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 async setValue(value, is_origin = false) {
+                    if (this.isRendered() === false) {
+                        this.oValue = value;
+                        this.value = undefined;
+                        return;
+                    }
                     if (this.matchingValue !== null) {
                         await this.matchingValue;
                     }
@@ -3975,7 +3978,7 @@ var Aui;
                  * @param {any} value - 값
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
-                matchingValue;
+                matchingValue = null;
                 async matchValue(value, is_origin = false) {
                     value ??= null;
                     this.rawValue = value;
