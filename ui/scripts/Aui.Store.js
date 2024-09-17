@@ -352,7 +352,7 @@ var Aui;
             for (const record of this.getRecords()) {
                 let matched = true;
                 for (const field in target) {
-                    if (record.get(field) !== target[field]) {
+                    if (Format.isEqual(record.get(field), target[field]) == false) {
                         matched = false;
                         break;
                     }
@@ -375,7 +375,7 @@ var Aui;
                 const record = this.getRecords().at(index);
                 let matched = true;
                 for (const field in target) {
-                    if (record.get(field) !== target[field]) {
+                    if (Format.isEqual(record.get(field), target[field]) == false) {
                         matched = false;
                         break;
                     }
