@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Absolute.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2024. 9. 18.
  */
 var Aui;
 (function (Aui) {
