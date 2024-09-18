@@ -6,7 +6,7 @@
  * @file /styles/Aui.Toolbar.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 31.
+ * @modified 2024. 9. 18.
  */
 div[data-component][data-type='toolbar'][data-role='bar'] {
     > div[data-role='container'] {
@@ -40,23 +40,30 @@ div[data-component][data-type='toolbar'][data-role='bar'] {
             width: 100%;
             flex-grow: 1;
             display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: var(--aui-component-gap);
-            padding: var(--aui-component-gap);
 
-            > div[data-component] {
-                flex-shrink: 0;
+            &:not(:has(div[data-type='toolbar'][data-role='bar'])) {
+                flex-direction: row;
+                align-items: center;
+                gap: var(--aui-component-gap);
+                padding: var(--aui-component-gap);
 
-                &:last-child::after {
-                    content: ' ';
-                    display: block;
-                    position: absolute;
-                    top: 0;
-                    right: calc(var(--aui-component-gap) * -1);
-                    width: var(--aui-component-gap);
-                    height: 1px;
+                > div[data-component] {
+                    flex-shrink: 0;
+
+                    &:last-child::after {
+                        content: ' ';
+                        display: block;
+                        position: absolute;
+                        top: 0;
+                        right: calc(var(--aui-component-gap) * -1);
+                        width: var(--aui-component-gap);
+                        height: 1px;
+                    }
                 }
+            }
+
+            &:has(div[data-type='toolbar'][data-role='bar']) {
+                flex-direction: column;
             }
         }
 

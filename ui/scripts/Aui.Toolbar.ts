@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Toolbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 23.
+ * @modified 2024. 9. 18.
  */
 namespace Aui {
     export namespace Toolbar {
@@ -56,7 +56,9 @@ namespace Aui {
             if (this.items === null) {
                 this.items = [];
                 for (const item of this.properties.items ?? []) {
-                    if (item instanceof Aui.Component) {
+                    if (item instanceof Aui.Toolbar) {
+                        this.items.push(item);
+                    } else if (item instanceof Aui.Component) {
                         item.setLayoutType('column-item');
                         this.items.push(item);
                     } else if (typeof item == 'string') {
