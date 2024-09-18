@@ -260,6 +260,21 @@ namespace Aui {
         }
 
         /**
+         * 클릭시 숨김 설정을 변경한다.
+         *
+         * @param {boolean} hideOnClick - 클릭시 숨김
+         */
+        setHideOnClick(hideOnClick: boolean): void {
+            if (hideOnClick === true) {
+                Aui.Absolute.$absolute.set(this.getId(), this.$getComponent());
+            } else {
+                Aui.Absolute.$absolute.delete(this.getId());
+            }
+
+            this.hideOnClick = hideOnClick;
+        }
+
+        /**
          * 모든 절대위치 컴포넌트를 숨긴다.
          */
         static hideAll(current: string = null): void {
