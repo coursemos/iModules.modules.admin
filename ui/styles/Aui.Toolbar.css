@@ -32,6 +32,13 @@ div[data-component][data-type='toolbar'][data-role='bar'] {
             }
         }
 
+        &:has(> div[data-role='content'] > div[data-type='toolbar'][data-role='bar']) {
+            &.border {
+                border-top-width: 0px;
+                border-bottom-width: 0px;
+            }
+        }
+
         > div[data-role='top'] {
             /* @todo 좌로이동 버튼 */
         }
