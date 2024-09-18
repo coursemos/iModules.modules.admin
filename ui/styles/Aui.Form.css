@@ -1468,7 +1468,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 box-sizing: border-box;
                 text-align: left;
                 padding: var(--aui-component-gap);
-                height: var(--aui-component-height-default);
+                height: calc(var(--aui-component-height-default) - 2px);
                 line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 2px);
                 white-space: nowrap;
                 overflow: hidden;

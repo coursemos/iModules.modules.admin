@@ -12,7 +12,8 @@
         "configs": "환경설정",
         "file_select": "파일선택",
         "image_select": "이미지선택",
-        "delete": "삭제"
+        "delete": "삭제",
+        "select_complete": "선택완료"
     },
     "colors": {
         "auto": "자동",

@@ -3696,6 +3696,18 @@ var Aui;
                             columnHeaders: false,
                             rowLines: false,
                             border: false,
+                            topbar: this.multiple == true
+                                ? [
+                                    '->',
+                                    new Aui.Button({
+                                        text: Aui.printText('buttons.select_complete'),
+                                        buttonClass: 'confirm',
+                                        handler: () => {
+                                            this.getList().onSelectionComplete();
+                                        },
+                                    }),
+                                ]
+                                : null,
                             columns: [
                                 {
                                     text: 'display',
@@ -3731,19 +3743,14 @@ var Aui;
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                     this.onUpdate();
                                 },
-                                selectionChange: async (selections) => {
-                                    if (selections.length == 0) {
-                                        await this.setValue(null);
-                                    }
-                                    else if (selections.length == 1) {
-                                        await this.setValue(selections[0].get(this.valueField));
-                                    }
-                                    else {
-                                        const values = [];
-                                        for (const selection of selections) {
-                                            values.push(selection.get(this.valueField));
+                                selectionChange: async (selections, panel) => {
+                                    if (this.multiple == true) {
+                                        let text = Aui.printText('buttons.select_complete');
+                                        if (selections.length > 0) {
+                                            text += '(' + selections.length + ')';
                                         }
-                                        await this.setValue(values);
+                                        const button = panel.getToolbar('top').getItemAt(1);
+                                        button.setText(text);
                                     }
                                 },
                                 selectionComplete: async (selections) => {
@@ -4002,11 +4009,10 @@ var Aui;
                             }
                         }
                         if (Array.isArray(value) == true) {
-                            const promises = [];
+                            const results = [];
                             for (const v of value) {
-                                promises.push(this.getValueToRecord(v));
+                                results.push(await this.getValueToRecord(v));
                             }
-                            const results = await Promise.all(promises);
                             const displays = [];
                             const values = [];
                             const records = [];
@@ -4118,6 +4124,7 @@ var Aui;
                     }
                     this.getAbsolute().show();
                     this.loading.hide();
+                    this.getList().resetSelections();
                     const value = this.value;
                     if (value !== null) {
                         if (Array.isArray(value) == true) {
@@ -4190,8 +4197,6 @@ var Aui;
                 collapse() {
                     if (this.isExpand() == true) {
                         this.getAbsolute().hide();
-                        this.match('');
-                        this.fireEvent('collapse', [this]);
                     }
                 }
                 /**

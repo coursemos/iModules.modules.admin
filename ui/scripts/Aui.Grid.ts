@@ -1925,10 +1925,19 @@ namespace Aui {
                         }
                     }
 
-                    if (e.key == ' ' || e.key == 'Enter') {
+                    if (e.key == ' ') {
                         if (this.focusedRow !== null) {
-                            this.selectRow(this.focusedRow);
-                            this.onSelectionComplete();
+                            this.selectRow(this.focusedRow, true);
+                        }
+                    }
+
+                    if (e.key == 'Enter') {
+                        if (this.focusedRow !== null) {
+                            if (this.isRowSelected(this.focusedRow) == true) {
+                                this.onSelectionComplete();
+                            } else {
+                                this.selectRow(this.focusedRow);
+                            }
                         }
                     }
 
