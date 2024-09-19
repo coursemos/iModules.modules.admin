@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 16.
+ * @modified 2024. 9. 19.
  */
 namespace Aui {
     export namespace Store {
@@ -1585,7 +1585,7 @@ namespace Aui {
 
                 matched = record;
                 for (const field in target) {
-                    if (record.get(field) !== target[field]) {
+                    if (Format.isEqual(record.get(field), target[field]) == false) {
                         matched = null;
                         break;
                     }
@@ -1642,7 +1642,7 @@ namespace Aui {
 
                 matched = treeIndex;
                 for (const field in target) {
-                    if (record.get(field) !== target[field]) {
+                    if (Format.isEqual(record.get(field), target[field]) == false) {
                         matched = null;
                         break;
                     }

@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 16.
+ * @modified 2024. 9. 19.
  */
 var Aui;
 (function (Aui) {
@@ -1241,7 +1241,7 @@ var Aui;
                 }
                 matched = record;
                 for (const field in target) {
-                    if (record.get(field) !== target[field]) {
+                    if (Format.isEqual(record.get(field), target[field]) == false) {
                         matched = null;
                         break;
                     }
@@ -1292,7 +1292,7 @@ var Aui;
                 }
                 matched = treeIndex;
                 for (const field in target) {
-                    if (record.get(field) !== target[field]) {
+                    if (Format.isEqual(record.get(field), target[field]) == false) {
                         matched = null;
                         break;
                     }
