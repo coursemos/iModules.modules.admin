@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 16.
+ * @modified 2024. 9. 19.
  */
 namespace Aui {
     export namespace Grid {
@@ -748,7 +748,7 @@ namespace Aui {
                 this.editingField.remove();
                 this.editingField = null;
 
-                if (is_rollback === true || record.get(column.dataIndex) == value) {
+                if (is_rollback === true || Format.isEqual(record.get(column.dataIndex), value) == true) {
                     Html.get('div[data-role=view]', $column).show();
                 } else {
                     this.getStore().getAt(rowIndex).set(column.dataIndex, value);
