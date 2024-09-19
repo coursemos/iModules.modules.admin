@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 12.
+ * @modified 2024. 9. 19.
  */
 namespace Aui {
     export namespace Form {
@@ -5170,9 +5170,8 @@ namespace Aui {
                     if (this.matchingValue !== null) {
                         await this.matchingValue;
                     }
-                    this.matchingValue = this.matchValue(value, is_origin).then(() => {
-                        this.matchingValue = null;
-                    });
+                    this.matchingValue = this.matchValue(value, is_origin);
+                    await this.matchingValue;
                 }
 
                 /**

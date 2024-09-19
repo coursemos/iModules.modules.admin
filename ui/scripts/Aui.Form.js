@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 12.
+ * @modified 2024. 9. 19.
  */
 var Aui;
 (function (Aui) {
@@ -3977,9 +3977,8 @@ var Aui;
                     if (this.matchingValue !== null) {
                         await this.matchingValue;
                     }
-                    this.matchingValue = this.matchValue(value, is_origin).then(() => {
-                        this.matchingValue = null;
-                    });
+                    this.matchingValue = this.matchValue(value, is_origin);
+                    await this.matchingValue;
                 }
                 /**
                  * 필드값을 검색하여 찾는다.
