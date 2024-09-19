@@ -3220,6 +3220,11 @@ namespace Aui {
                     textClass?: string;
 
                     /**
+                     * @type {boolean} textWrap - 텍스트 줄바꿈여부
+                     */
+                    textWrap?: boolean;
+
+                    /**
                      * @type {Function} renderer - 필드 랜더러
                      */
                     renderer?: (value: any, field: Aui.Form.Field.Display) => string;
@@ -3231,6 +3236,7 @@ namespace Aui {
 
                 textAlign: string;
                 textClass: string;
+                textWrap: boolean;
                 renderer: (value: string, field: Aui.Form.Field.Display) => string;
                 $display: Dom;
 
@@ -3244,6 +3250,7 @@ namespace Aui {
 
                     this.textAlign = this.properties.textAlign ?? 'left';
                     this.textClass = this.properties.textClass ?? null;
+                    this.textWrap = this.properties.textWrap !== false;
                     this.renderer = this.properties.renderer ?? null;
                     this.value = this.properties.value ?? null;
                 }
@@ -3257,6 +3264,10 @@ namespace Aui {
                     if (this.$display === undefined) {
                         this.$display = Html.create('div');
                         this.$display.setStyle('text-align', this.textAlign);
+
+                        if (this.textWrap == false) {
+                            this.$display.addClass('nowrap');
+                        }
 
                         if (this.textClass !== null) {
                             this.$display.addClass(...this.textClass.split(' '));
@@ -4932,7 +4943,6 @@ namespace Aui {
                                     }
                                 },
                                 selectionComplete: async (selections: Aui.Data.Record[]) => {
-                                    console.log('selectionComplete', selections);
                                     if (selections.length == 0) {
                                         await this.setValue(null);
                                     } else if (this.multiple == false && selections.length == 1) {
@@ -5396,7 +5406,7 @@ namespace Aui {
                             this.$getEmptyText().hide();
                         }
                     } else {
-                        if (this.getValue() !== null) {
+                        if (this.getValue() !== null || this.emptyText == null) {
                             this.$getDisplay().show();
                             this.$getEmptyText().hide();
                         } else {

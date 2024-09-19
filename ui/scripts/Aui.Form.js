@@ -2485,6 +2485,7 @@ var Aui;
                 field = 'display';
                 textAlign;
                 textClass;
+                textWrap;
                 renderer;
                 $display;
                 /**
@@ -2496,6 +2497,7 @@ var Aui;
                     super(properties);
                     this.textAlign = this.properties.textAlign ?? 'left';
                     this.textClass = this.properties.textClass ?? null;
+                    this.textWrap = this.properties.textWrap !== false;
                     this.renderer = this.properties.renderer ?? null;
                     this.value = this.properties.value ?? null;
                 }
@@ -2508,6 +2510,9 @@ var Aui;
                     if (this.$display === undefined) {
                         this.$display = Html.create('div');
                         this.$display.setStyle('text-align', this.textAlign);
+                        if (this.textWrap == false) {
+                            this.$display.addClass('nowrap');
+                        }
                         if (this.textClass !== null) {
                             this.$display.addClass(...this.textClass.split(' '));
                         }
@@ -3757,7 +3762,6 @@ var Aui;
                                     }
                                 },
                                 selectionComplete: async (selections) => {
-                                    console.log('selectionComplete', selections);
                                     if (selections.length == 0) {
                                         await this.setValue(null);
                                     }
@@ -4184,7 +4188,7 @@ var Aui;
                         }
                     }
                     else {
-                        if (this.getValue() !== null) {
+                        if (this.getValue() !== null || this.emptyText == null) {
                             this.$getDisplay().show();
                             this.$getEmptyText().hide();
                         }
