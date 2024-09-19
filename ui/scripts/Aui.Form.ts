@@ -327,9 +327,9 @@ namespace Aui {
             labelPosition?: 'top' | 'left';
 
             /**
-             * @type {string} labelAlign - 필드라벨 텍스트정렬(기본값 : left)
+             * @type {'left'|'center'|'right'} labelAlign - 필드라벨 텍스트정렬(기본값 : left)
              */
-            labelAlign?: 'left' | 'right';
+            labelAlign?: 'left' | 'center' | 'right';
 
             /**
              * @type {string} labelSeparator - 필드라벨 구분자(기본값 : ":")
@@ -699,9 +699,9 @@ namespace Aui {
                     labelPosition?: 'top' | 'left';
 
                     /**
-                     * @type {'left'|'right'} labelAlign - 라벨정렬
+                     * @type {'left'|'center'|'right'} labelAlign - 라벨정렬
                      */
-                    labelAlign?: 'left' | 'right';
+                    labelAlign?: 'left' | 'center' | 'right';
 
                     /**
                      * @type {number} labelWidth - 라벨너비
@@ -1121,7 +1121,7 @@ namespace Aui {
 
                     const $top = this.$getTop();
                     const $label = Html.create('label');
-                    $label.html((this.labelSeparator ?? '<i>:</i>') + this.label);
+                    $label.html((this.labelSeparator ?? '<i class="separator">:</i>') + this.label);
                     $label.addClass(this.getLabelAlign());
                     $top.append($label);
                 }
@@ -4932,9 +4932,10 @@ namespace Aui {
                                     }
                                 },
                                 selectionComplete: async (selections: Aui.Data.Record[]) => {
+                                    console.log('selectionComplete', selections);
                                     if (selections.length == 0) {
                                         await this.setValue(null);
-                                    } else if (selections.length == 1) {
+                                    } else if (this.multiple == false && selections.length == 1) {
                                         await this.setValue(selections[0].get(this.valueField));
                                     } else {
                                         const values = [];

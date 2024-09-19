@@ -800,7 +800,7 @@ var Aui;
                         return;
                     const $top = this.$getTop();
                     const $label = Html.create('label');
-                    $label.html((this.labelSeparator ?? '<i>:</i>') + this.label);
+                    $label.html((this.labelSeparator ?? '<i class="separator">:</i>') + this.label);
                     $label.addClass(this.getLabelAlign());
                     $top.append($label);
                 }
@@ -3757,10 +3757,11 @@ var Aui;
                                     }
                                 },
                                 selectionComplete: async (selections) => {
+                                    console.log('selectionComplete', selections);
                                     if (selections.length == 0) {
                                         await this.setValue(null);
                                     }
-                                    else if (selections.length == 1) {
+                                    else if (this.multiple == false && selections.length == 1) {
                                         await this.setValue(selections[0].get(this.valueField));
                                     }
                                     else {
