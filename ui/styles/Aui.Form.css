@@ -149,7 +149,7 @@ div[data-component][data-type='form'][data-role='field'] {
                 position: relative;
                 box-sizing: border-box;
 
-                > i {
+                > i.separator {
                     font-style: normal;
                     float: right;
                     margin: 0px 2px;
@@ -157,6 +157,11 @@ div[data-component][data-type='form'][data-role='field'] {
                     vertical-align: middle;
                     height: var(--aui-component-height-default);
                     line-height: var(--aui-component-height-default);
+                }
+
+                &.center {
+                    width: 100%;
+                    text-align: center;
                 }
 
                 &.right {
