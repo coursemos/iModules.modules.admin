@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 11.
+ * @modified 2024. 9. 19.
  */
 namespace Aui {
     export namespace Panel {
@@ -25,6 +25,13 @@ namespace Aui {
              * @var {Function} hide - 컴포넌트가 숨겨질 떄
              */
             hide?: (panel: Aui.Panel) => void;
+
+            /**
+             * 패널 크기가 변경될 때
+             *
+             * @type {Function} resize - 패널 크기가 변경될 때
+             */
+            resize?: (panel: Aui.Panel, width: number, height: number) => void;
         }
 
         export interface Properties extends Aui.Component.Properties {

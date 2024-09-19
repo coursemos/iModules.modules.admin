@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Panel.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 11.
+ * @modified 2024. 9. 19.
  */
 var Aui;
 (function (Aui) {
