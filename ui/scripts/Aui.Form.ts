@@ -5540,11 +5540,10 @@ namespace Aui {
                  * 셀렉트폼의 목록 데이터가 로딩되었을 때 이벤트를 처리한다.
                  */
                 onLoad(): void {
+                    this.loading.hide();
+
                     if (Format.isEqual(this.storeParams, this.getStore().getCurrentParams()) == false) {
                         this.storeParams = this.getStore().getCurrentParams();
-                        this.loading.hide();
-                        this.getForm()?.setLoading(this, false);
-                        this.fireEvent('load', [this.getStore(), this]);
 
                         if (this.matchingValue !== null) {
                             this.matchingValue.then(() => {
@@ -5556,6 +5555,9 @@ namespace Aui {
                             this.setValue(this.rawValue);
                         }
                     }
+
+                    this.getForm()?.setLoading(this, false);
+                    this.fireEvent('load', [this.getStore(), this]);
                 }
 
                 /**
