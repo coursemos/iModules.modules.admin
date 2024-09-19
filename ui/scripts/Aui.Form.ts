@@ -4670,9 +4670,9 @@ namespace Aui {
                     };
 
                     /**
-                     * @type {boolean} listWrap - 목록 줄바꿈여부
+                     * @type {number} listWidth - 목록너비 (NULL 인 경우 필드너비)
                      */
-                    listWrap?: boolean;
+                    listWidth?: number;
 
                     /**
                      * @type {string} listClass - 목록 스타일 클래스명
@@ -4743,6 +4743,7 @@ namespace Aui {
                         grid: Aui.Grid.Panel
                     ) => string;
                 };
+                listWidth: number;
 
                 $button: Dom;
                 $display: Dom;
@@ -4777,6 +4778,7 @@ namespace Aui {
                     this.listField = this.properties.listField ?? this.displayField;
                     this.listRenderer = this.properties.listRenderer ?? null;
                     this.listGrouper = this.properties.listGrouper ?? null;
+                    this.listWidth = this.properties.listWidth ?? null;
 
                     this.searchField = this.properties.searchField ?? this.displayField;
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
@@ -4824,6 +4826,7 @@ namespace Aui {
                             direction: 'y',
                             hideOnClick: true,
                             parent: this,
+                            width: this.listWidth,
                             listeners: {
                                 render: () => {
                                     this.getAbsolute()

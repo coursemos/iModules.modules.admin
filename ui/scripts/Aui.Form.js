@@ -3581,6 +3581,7 @@ var Aui;
                 renderer;
                 listRenderer;
                 listGrouper;
+                listWidth;
                 $button;
                 $display;
                 $emptyText;
@@ -3608,6 +3609,7 @@ var Aui;
                     this.listField = this.properties.listField ?? this.displayField;
                     this.listRenderer = this.properties.listRenderer ?? null;
                     this.listGrouper = this.properties.listGrouper ?? null;
+                    this.listWidth = this.properties.listWidth ?? null;
                     this.searchField = this.properties.searchField ?? this.displayField;
                     this.searchOperator = this.properties.searchOperator ?? 'likecode';
                     this.expandOnFocus = this.properties.expandOnFocus === true;
@@ -3651,6 +3653,7 @@ var Aui;
                             direction: 'y',
                             hideOnClick: true,
                             parent: this,
+                            width: this.listWidth,
                             listeners: {
                                 render: () => {
                                     this.getAbsolute()
