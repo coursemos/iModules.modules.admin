@@ -873,6 +873,15 @@ namespace Aui {
                 }
 
                 /**
+                 * 필드명을 가져온다.
+                 *
+                 * @return {string} name
+                 */
+                getName(): string {
+                    return this.name;
+                }
+
+                /**
                  * 필드값을 지정한다.
                  *
                  * @param {any} value - 값
@@ -1106,11 +1115,13 @@ namespace Aui {
                     }
 
                     if (this.getParent() instanceof Aui.Form.Field.Base) {
+                        super.setDisabled(disabled);
                     } else {
-                        this.onChange();
+                        if (this.disabled != disabled) {
+                            super.setDisabled(disabled);
+                            this.onChange();
+                        }
                     }
-
-                    super.setDisabled(disabled);
 
                     return this;
                 }
