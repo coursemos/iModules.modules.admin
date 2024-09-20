@@ -1211,7 +1211,7 @@ var Aui;
                         return;
                     const $top = this.$getTop();
                     const $label = Html.create('label');
-                    $label.html((this.labelSeparator ?? '<i>:</i>') + this.label);
+                    $label.html((this.labelSeparator ?? '<i class="separator">:</i>') + this.label);
                     $label.addClass(this.getLabelAlign());
                     $top.append($label);
                 }
