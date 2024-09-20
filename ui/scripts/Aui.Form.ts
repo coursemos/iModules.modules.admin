@@ -890,15 +890,11 @@ namespace Aui {
                 setValue(value: any, is_origin: boolean = false): void {
                     this.value = value;
 
-                    if (Format.isEqual(value, this.pValue) == false) {
-                        if (is_origin == false) {
-                            this.onChange();
-                        }
-                        this.pValue = value;
-                    }
-
                     if (is_origin == true) {
                         this.oValue = value;
+                    } else {
+                        this.onChange();
+                        this.pValue = value;
                     }
                 }
 
@@ -940,10 +936,20 @@ namespace Aui {
 
                 /**
                  * 필드값을 원상태로 복원한다.
+                 *
+                 * @param {boolean} is_fire_event - 변경이벤트 발생여부
                  */
-                rollback(): void {
+                rollback(is_fire_event: boolean = true): void {
                     if (this.isDirty() == true) {
-                        this.setValue(this.oValue);
+                        if (this.oValue !== undefined) {
+                            this.setValue(this.oValue, true);
+                        } else {
+                            this.setValue(null, true);
+                        }
+
+                        if (is_fire_event == true) {
+                            this.onChange();
+                        }
                     }
                 }
 
@@ -1119,7 +1125,10 @@ namespace Aui {
                     } else {
                         if (this.disabled != disabled) {
                             super.setDisabled(disabled);
-                            this.onChange();
+
+                            if (disabled == false) {
+                                this.onChange();
+                            }
                         }
                     }
 
@@ -1220,7 +1229,9 @@ namespace Aui {
                  * 입력값이 변경되었을 때 이벤트를 처리한다.
                  */
                 onChange(): void {
-                    this.fireEvent('change', [this, this.getValue(), this.getRawValue(), this.pValue, this.oValue]);
+                    if (Format.isEqual(this.getValue(), this.pValue) == false) {
+                        this.fireEvent('change', [this, this.getValue(), this.getRawValue(), this.pValue, this.oValue]);
+                    }
                 }
 
                 /**
