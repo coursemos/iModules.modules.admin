@@ -34,7 +34,7 @@ var Aui;
             this.fields = {};
             for (const field of fields) {
                 if (typeof field == 'string') {
-                    this.fields[field] = 'string';
+                    this.fields[field] = 'auto';
                 }
                 else {
                     this.fields[field.name] = field.type;
@@ -60,7 +60,7 @@ var Aui;
          * 데이터를 타입을 지정하여 반환한다.
          *
          * @param {any} value - 데이터
-         * @param {'int'|'float'|'string'|'boolean'|'object'} type - 타입
+         * @param {'auto'|'int'|'float'|'string'|'boolean'|'object'} type - 타입
          * @return {any} value - 타입지정된 데이터
          */
         setType(value, type) {
@@ -80,6 +80,8 @@ var Aui;
                 case 'string':
                     value = value.toString();
                     break;
+                default:
+                    value = value;
             }
             return value;
         }

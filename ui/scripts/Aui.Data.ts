@@ -13,7 +13,7 @@ namespace Aui {
         originRecords: Aui.Data.Record[] = [];
         records: Aui.Data.Record[] = [];
         updatedRecords: { [hash: string]: Aui.Data.Record } = {};
-        fields: { [key: string]: 'int' | 'float' | 'string' | 'boolean' | 'object' } = {};
+        fields: { [key: string]: 'auto' | 'int' | 'float' | 'string' | 'boolean' | 'object' } = {};
         primaryKeys: string[] = [];
         childrenField: string;
         sorting: boolean;
@@ -32,14 +32,17 @@ namespace Aui {
          */
         constructor(
             records: { [key: string]: any }[],
-            fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[] = [],
+            fields: (
+                | string
+                | { name: string; type: 'auto' | 'int' | 'float' | 'string' | 'boolean' | 'object' }
+            )[] = [],
             primaryKeys: string[] = [],
             childrenField: string = null
         ) {
             this.fields = {};
             for (const field of fields) {
                 if (typeof field == 'string') {
-                    this.fields[field] = 'string';
+                    this.fields[field] = 'auto';
                 } else {
                     this.fields[field.name] = field.type;
                 }
@@ -69,10 +72,10 @@ namespace Aui {
          * 데이터를 타입을 지정하여 반환한다.
          *
          * @param {any} value - 데이터
-         * @param {'int'|'float'|'string'|'boolean'|'object'} type - 타입
+         * @param {'auto'|'int'|'float'|'string'|'boolean'|'object'} type - 타입
          * @return {any} value - 타입지정된 데이터
          */
-        setType(value: any, type: 'int' | 'float' | 'string' | 'boolean' | 'object'): any {
+        setType(value: any, type: 'auto' | 'int' | 'float' | 'string' | 'boolean' | 'object'): any {
             if (value === null || value === undefined) {
                 return null;
             }
@@ -93,6 +96,9 @@ namespace Aui {
                 case 'string':
                     value = value.toString();
                     break;
+
+                default:
+                    value = value;
             }
 
             return value;
