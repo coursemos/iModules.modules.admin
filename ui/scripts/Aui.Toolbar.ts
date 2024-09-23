@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Toolbar.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 18.
+ * @modified 2024. 9. 22.
  */
 namespace Aui {
     export namespace Toolbar {
@@ -68,6 +68,21 @@ namespace Aui {
             }
 
             super.initItems();
+        }
+
+        /**
+         * 툴바의 비활성화여부를 설정한다.
+         *
+         * @param {boolean} disabled - 비활성여부
+         * @return {Aui.Component} this
+         */
+        setDisabled(disabled: boolean): this {
+            if (disabled == true) {
+                this.$getComponent().addClass('disabled');
+            } else {
+                this.$getComponent().removeClass('disabled');
+            }
+            return super.setDisabled(disabled);
         }
 
         /**
