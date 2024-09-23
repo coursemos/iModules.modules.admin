@@ -575,11 +575,11 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     &::after {
                                         position: absolute;
                                         top: 0;
-                                        left: 0;
+                                        right: 0;
                                         width: 0;
                                         height: 0;
                                         border-top: 8px solid var(--aui-color-danger-500);
-                                        border-right: 8px solid transparent;
+                                        border-left: 8px solid transparent;
                                         content: ' ';
                                     }
                                 }
@@ -649,16 +649,18 @@ div[data-component][data-type='panel'][data-role='grid'] {
                                     position: relative;
 
                                     &:not(:has(div[data-role='field'])) {
-                                        &::after {
-                                            position: absolute;
-                                            top: 0;
-                                            right: 0;
-                                            width: 0;
-                                            height: 0;
-                                            border-top: 10px solid var(--aui-color-accent-700);
-                                            border-left: 10px solid transparent;
-                                            content: ' ';
-                                            z-index: 1;
+                                        &:not(.updated) {
+                                            &::after {
+                                                position: absolute;
+                                                top: 0;
+                                                right: 0;
+                                                width: 0;
+                                                height: 0;
+                                                border-top: 8px solid var(--aui-color-accent-700);
+                                                border-left: 8px solid transparent;
+                                                content: ' ';
+                                                z-index: 1;
+                                            }
                                         }
                                     }
                                 }
