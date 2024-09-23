@@ -307,11 +307,19 @@ var Aui;
                 return this.record[key] ?? null;
             }
             /**
+             * 전체데이터를 가져온다.
+             *
+             * @return {object} record
+             */
+            getRecord() {
+                return this.record;
+            }
+            /**
              * 원본데이터를 가져온다.
              *
              * @return {object} origin
              */
-            getOrigins() {
+            getOrigin() {
                 return this.origin ?? this.record;
             }
             /**

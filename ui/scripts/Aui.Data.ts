@@ -359,11 +359,20 @@ namespace Aui {
             }
 
             /**
+             * 전체데이터를 가져온다.
+             *
+             * @return {object} record
+             */
+            getRecord(): { [key: string]: any } {
+                return this.record;
+            }
+
+            /**
              * 원본데이터를 가져온다.
              *
              * @return {object} origin
              */
-            getOrigins(): { [key: string]: any } {
+            getOrigin(): { [key: string]: any } {
                 return this.origin ?? this.record;
             }
 
