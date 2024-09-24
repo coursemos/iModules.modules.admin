@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 3.
+ * @modified 2024. 9. 24.
  */
 namespace modules {
     export namespace admin {
@@ -46,6 +46,9 @@ namespace modules {
                             render: () => {
                                 if (typeof globalThis.Admin.viewportListener == 'function') {
                                     globalThis.Admin.viewportListener().then((component) => {
+                                        component.addEvent('render', () => {
+                                            globalThis.Admin.render(component);
+                                        });
                                         Aui.getComponent('AdminContext').append(component);
                                     });
                                 }
