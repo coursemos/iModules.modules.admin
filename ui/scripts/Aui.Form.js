@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 19.
+ * @modified 2024. 9. 25.
  */
 var Aui;
 (function (Aui) {
@@ -4636,17 +4636,22 @@ var Aui;
                  */
                 getUploader() {
                     if (this.uploader === undefined) {
-                        this.uploader = new modules.attachment.Uploader(this.$getContent(), {
-                            multiple: true,
-                            listeners: {
-                                start: () => {
-                                    this.onUploadstart();
+                        if (this.fileUpload || this.imageUpload || this.videoUpload) {
+                            this.uploader = new modules.attachment.Uploader(this.$getContent(), {
+                                multiple: true,
+                                listeners: {
+                                    start: () => {
+                                        this.onUploadstart();
+                                    },
+                                    complete: () => {
+                                        this.onUploadComplete();
+                                    },
                                 },
-                                complete: () => {
-                                    this.onUploadComplete();
-                                },
-                            },
-                        });
+                            });
+                        }
+                        else {
+                            this.uploader = null;
+                        }
                     }
                     return this.uploader;
                 }
@@ -4721,11 +4726,17 @@ var Aui;
                  * 필드를 랜더링한다.
                  */
                 render() {
-                    this.$getContent().setAttr('data-module', 'wysiwyg');
+                    this.$getContent()
+                        .setAttr('data-module', 'wysiwyg')
+                        .setAttr('data-id', this.id + '-Editor');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
+                        id: this.id + '-Editor',
                         height: this.editorHeight,
                         maxHeight: this.editorMaxHeight,
                         toolbars: this.toolbars,
+                        fileUpload: this.fileUpload,
+                        imageUpload: this.imageUpload,
+                        videoUpload: this.videoUpload,
                         uploader: this.getUploader(),
                         listeners: {
                             render: (editor) => {

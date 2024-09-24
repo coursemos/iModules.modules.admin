@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 19.
+ * @modified 2024. 9. 25.
  */
 namespace Aui {
     export namespace Form {
@@ -670,6 +670,16 @@ namespace Aui {
                      * @type {Function} render - 필드가 랜더링 되었을 때
                      */
                     render?: (field: Aui.Form.Field.Base) => void;
+
+                    /**
+                     * @type {Function} show - 필드가 보일 때
+                     */
+                    show?: (field: Aui.Form.Field.Base) => void;
+
+                    /**
+                     * @type {Function} hide - 필드가 숨겨질 때
+                     */
+                    hide?: (field: Aui.Form.Field.Base) => void;
                 }
 
                 export interface Properties extends Aui.Component.Properties {
@@ -5986,17 +5996,21 @@ namespace Aui {
                  */
                 getUploader(): modules.attachment.Uploader {
                     if (this.uploader === undefined) {
-                        this.uploader = new modules.attachment.Uploader(this.$getContent(), {
-                            multiple: true,
-                            listeners: {
-                                start: () => {
-                                    this.onUploadstart();
+                        if (this.fileUpload || this.imageUpload || this.videoUpload) {
+                            this.uploader = new modules.attachment.Uploader(this.$getContent(), {
+                                multiple: true,
+                                listeners: {
+                                    start: () => {
+                                        this.onUploadstart();
+                                    },
+                                    complete: () => {
+                                        this.onUploadComplete();
+                                    },
                                 },
-                                complete: () => {
-                                    this.onUploadComplete();
-                                },
-                            },
-                        });
+                            });
+                        } else {
+                            this.uploader = null;
+                        }
                     }
 
                     return this.uploader;
@@ -6082,11 +6096,17 @@ namespace Aui {
                  * 필드를 랜더링한다.
                  */
                 render(): void {
-                    this.$getContent().setAttr('data-module', 'wysiwyg');
+                    this.$getContent()
+                        .setAttr('data-module', 'wysiwyg')
+                        .setAttr('data-id', this.id + '-Editor');
                     this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
+                        id: this.id + '-Editor',
                         height: this.editorHeight,
                         maxHeight: this.editorMaxHeight,
                         toolbars: this.toolbars,
+                        fileUpload: this.fileUpload,
+                        imageUpload: this.imageUpload,
+                        videoUpload: this.videoUpload,
                         uploader: this.getUploader(),
                         listeners: {
                             render: (editor) => {
