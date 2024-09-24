@@ -6,11 +6,12 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 9. 24.
  */
 var Admin;
 (function (Admin) {
     Admin.language = null;
+    Admin.viewportRenderers = [];
     Admin.modules = new Map();
     /**
      * 모듈의 관리자 클래스를 가져온다.
@@ -231,4 +232,20 @@ var Admin;
         this.viewportListener = listener;
     }
     Admin.ready = ready;
+    /**
+     * 관리자 UI 처리가 완료되었을 때 이벤트리스너를 등록하거나, 이벤트리스너를 실행한다.
+     *
+     * @param {EventListener|Aui.Component} listener - 이벤트리스너 (Aui.Component 인 경우 이벤트를 실행한다.)
+     */
+    function render(listener) {
+        if (listener instanceof Aui.Component) {
+            for (const renderer of this.viewportRenderers) {
+                renderer(listener);
+            }
+        }
+        else if (typeof listener == 'function') {
+            this.viewportRenderers.push(listener);
+        }
+    }
+    Admin.render = render;
 })(Admin || (Admin = {}));

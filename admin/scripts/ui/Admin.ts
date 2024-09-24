@@ -6,11 +6,12 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 1.
+ * @modified 2024. 9. 24.
  */
 namespace Admin {
     export let language: string = null;
     export let viewportListener: () => Promise<Aui.Component>;
+    export let viewportRenderers: ((component: Aui.Component) => Promise<void>)[] = [];
     export const modules: Map<string, modules.admin.admin.Component> = new Map();
 
     /**
@@ -246,5 +247,20 @@ namespace Admin {
      */
     export function ready(listener: () => Promise<Aui.Component>): void {
         this.viewportListener = listener;
+    }
+
+    /**
+     * 관리자 UI 처리가 완료되었을 때 이벤트리스너를 등록하거나, 이벤트리스너를 실행한다.
+     *
+     * @param {EventListener|Aui.Component} listener - 이벤트리스너 (Aui.Component 인 경우 이벤트를 실행한다.)
+     */
+    export function render(listener: ((component: Aui.Component) => Promise<void>) | Aui.Component): void {
+        if (listener instanceof Aui.Component) {
+            for (const renderer of this.viewportRenderers) {
+                renderer(listener);
+            }
+        } else if (typeof listener == 'function') {
+            this.viewportRenderers.push(listener);
+        }
     }
 }
