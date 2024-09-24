@@ -2733,6 +2733,11 @@ namespace Aui {
             export namespace List {
                 export interface Properties extends Aui.Grid.Filter.Properties {
                     /**
+                     * @type {number} width - 목록너비
+                     */
+                    width?: number;
+
+                    /**
                      * @type {Aui.Store|Aui.TreeStore} store - 스토어
                      */
                     store: Aui.Store | Aui.TreeStore;
@@ -2785,15 +2790,26 @@ namespace Aui {
                 search: boolean;
                 list: Aui.Grid.Panel | Aui.Tree.Panel;
                 button: Aui.Button;
-                renderer: (
-                    value: any,
-                    record: Aui.Data.Record,
-                    $dom: Dom,
-                    rowIndex: number,
-                    columnIndex: number,
-                    column: Aui.Grid.Column,
-                    grid: Aui.Grid.Panel
-                ) => string;
+                width: number;
+                renderer:
+                    | ((
+                          value: any,
+                          record: Aui.Data.Record,
+                          $dom: Dom,
+                          rowIndex: number,
+                          columnIndex: number,
+                          column: Aui.Grid.Column,
+                          grid: Aui.Grid.Panel
+                      ) => string)
+                    | ((
+                          value: any,
+                          record: Aui.Data.Record,
+                          $dom: Dom,
+                          rowIndex: number,
+                          columnIndex: number,
+                          column: Aui.Tree.Column,
+                          tree: Aui.Tree.Panel
+                      ) => string);
 
                 /**
                  * 컬럼 필터객체를 생성한다.
@@ -2803,6 +2819,7 @@ namespace Aui {
                 constructor(properties: Aui.Grid.Filter.List.Properties = null) {
                     super(properties);
 
+                    this.width = properties?.width ?? null;
                     this.store = properties?.store ?? null;
                     this.displayField = properties?.displayField ?? 'display';
                     this.valueField = properties?.valueField ?? 'value';
@@ -2857,7 +2874,15 @@ namespace Aui {
                                     {
                                         dataIndex: this.displayField,
                                         flex: 1,
-                                        renderer: this.renderer,
+                                        renderer: this.renderer as (
+                                            value: any,
+                                            record: Aui.Data.Record,
+                                            $dom: Dom,
+                                            rowIndex: number,
+                                            columnIndex: number,
+                                            column: Aui.Grid.Column,
+                                            grid: Aui.Grid.Panel
+                                        ) => string,
                                     },
                                 ],
                                 listeners: {
@@ -2866,6 +2891,71 @@ namespace Aui {
                                     },
                                     beforeUpdate: (grid) => {
                                         grid.setMinHeight(grid.$getComponent().getHeight());
+                                    },
+                                    selectionChange: (selections) => {
+                                        const button = this.getButton();
+                                        if (selections.length == 0) {
+                                            button.setText(Aui.printText('filters.set'));
+                                        } else {
+                                            button.setText(
+                                                Aui.printText('filters.set') + '(' + selections.length + ')'
+                                            );
+                                        }
+                                    },
+                                },
+                            });
+                        }
+
+                        if (this.store instanceof Aui.TreeStore) {
+                            this.list = new Aui.Tree.Panel({
+                                minHeight: 200,
+                                maxHeight: 280,
+                                columnHeaders: false,
+                                rowLines: false,
+                                columnLines: false,
+                                store: this.store,
+                                autoLoad: false,
+                                selection: { selectable: true, type: 'check', multiple: this.multiple, keepable: true },
+                                topbar: (() => {
+                                    if (this.search === true) {
+                                        return [
+                                            new Aui.Form.Field.Search({
+                                                liveSearch: true,
+                                                flex: 1,
+                                                emptyText: Aui.printText('filters.search'),
+                                                handler: async (keyword) => {
+                                                    this.getList()
+                                                        .getStore()
+                                                        .setFilter(this.displayField, keyword, 'likecode');
+                                                },
+                                            }),
+                                        ];
+                                    }
+
+                                    return null;
+                                })(),
+                                bottombar: this.store.limit > 0 ? new Aui.Grid.Pagination([], 'simple') : null,
+                                columns: [
+                                    {
+                                        dataIndex: this.displayField,
+                                        flex: 1,
+                                        renderer: this.renderer as (
+                                            value: any,
+                                            record: Aui.Data.Record,
+                                            $dom: Dom,
+                                            rowIndex: number,
+                                            columnIndex: number,
+                                            column: Aui.Tree.Column,
+                                            tree: Aui.Tree.Panel
+                                        ) => string,
+                                    },
+                                ],
+                                listeners: {
+                                    update: (grid) => {
+                                        grid.setMinHeight(null);
+                                    },
+                                    beforeUpdate: (tree) => {
+                                        tree.setMinHeight(tree.$getComponent().getHeight());
                                     },
                                     selectionChange: (selections) => {
                                         const button = this.getButton();
@@ -2930,7 +3020,7 @@ namespace Aui {
                             iconClass: 'xi xi-funnel',
                             items: [
                                 new Aui.Form.Panel({
-                                    width: 200,
+                                    width: this.width ?? 200,
                                     padding: 0,
                                     border: false,
                                     items: [
