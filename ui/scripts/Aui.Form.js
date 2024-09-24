@@ -863,8 +863,10 @@ var Aui;
                     this.setWidth(this.width);
                     if (this.label !== null) {
                         if (this.getLabelPosition() == 'left' || this.getLabelPosition() == 'right') {
-                            this.$getTop().setStyle('width', this.getLabelWidth() + 'px');
-                            this.$getContent().setStyle('width', 'calc(100% - ' + this.getLabelWidth() + 'px)');
+                            if (this.getLabelWidth() > 0) {
+                                this.$getTop().setStyle('width', this.getLabelWidth() + 'px');
+                                this.$getContent().setStyle('width', 'calc(100% - ' + this.getLabelWidth() + 'px)');
+                            }
                         }
                         else {
                             this.$getTop().setStyle('width', '100%');
@@ -1263,8 +1265,10 @@ var Aui;
                     this.setWidth(this.width);
                     if (this.label !== null) {
                         if (this.getLabelPosition() == 'left' || this.getLabelPosition() == 'right') {
-                            this.$getTop().setStyle('width', this.getLabelWidth() + 'px');
-                            this.$getContent().setStyle('width', 'calc(100% - ' + this.getLabelWidth() + 'px)');
+                            if (this.getLabelWidth() > 0) {
+                                this.$getTop().setStyle('width', this.getLabelWidth() + 'px');
+                                this.$getContent().setStyle('width', 'calc(100% - ' + this.getLabelWidth() + 'px)');
+                            }
                         }
                         else {
                             this.$getTop().setStyle('width', '100%');
