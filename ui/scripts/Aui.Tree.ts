@@ -53,6 +53,11 @@ namespace Aui {
                 load?: (tree: Aui.Tree.Panel, store: Aui.TreeStore) => void;
 
                 /**
+                 * @type {Function} beforeUpdate - 데이터가 변경되었 때
+                 */
+                beforeUpdate?: (grid: Aui.Tree.Panel) => void;
+
+                /**
                  * @type {Function} update - 데이터가 변경되었 때
                  */
                 update?: (tree: Aui.Tree.Panel, store: Aui.TreeStore) => void;
