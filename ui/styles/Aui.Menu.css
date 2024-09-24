@@ -20,7 +20,7 @@ div[data-component][data-type='menu'][data-role='menu'] {
         width: 100%;
         display: flex;
         flex-direction: column;
-        max-width: 300px;
+        max-width: 320px;
 
         > div[data-role='top'] {
             flex-shrink: 0;
