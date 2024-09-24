@@ -1784,7 +1784,7 @@ namespace Aui {
                     is_null?: boolean;
 
                     /**
-                     * @type {Aui.Form.Field.Base.Listeners} listeners - 이벤트리스너
+                     * @type {Aui.Form.Field.Text.Listeners} listeners - 이벤트리스너
                      */
                     listeners?: Aui.Form.Field.Text.Listeners;
                 }
