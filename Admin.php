@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 2.
+ * @modified 2024. 9. 26.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -295,6 +295,8 @@ class Admin extends \Module
      */
     public function doRoute(\Route $route): string
     {
+        \iModules::session_start();
+
         /**
          * IP제한설정을 확인한다.
          */
