@@ -737,7 +737,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
                             &.focused {
                                 position: relative;
 
-                                &::after {
+                                &::before {
                                     width: 1px;
                                     height: 100%;
                                     background: var(--aui-color-accent-700);

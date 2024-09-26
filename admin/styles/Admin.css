@@ -107,6 +107,9 @@ body[data-type='login'] {
         .monospace,
         .monospace > * {
             font-family: 'Roboto Mono', monospace, var(--aui-font-family-default) !important;
+            display: inline-block;
+            line-height: calc(1lh - 1px);
+            vertical-align: top;
         }
 
         div[data-role='row'] {
