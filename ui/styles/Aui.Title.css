@@ -6,7 +6,7 @@
  * @file /styles/Aui.Title.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 31.
+ * @modified 2024. 9. 29.
  */
 div[data-component][data-type='title'][data-role='title'] {
     > div[data-role='container'] {
@@ -74,6 +74,7 @@ div[data-component][data-type='title'][data-role='title'] {
                 > div[data-role='container'] {
                     > div[data-role='content'] {
                         height: 1lh;
+
                         > button {
                             height: 100%;
                             aspect-ratio: 1/1;
@@ -82,6 +83,26 @@ div[data-component][data-type='title'][data-role='title'] {
                             border: 0;
                             color: var(--aui-color-theme-100);
                             font-size: var(--aui-font-size-default);
+
+                            &.loading {
+                                visibility: hidden;
+
+                                &::after {
+                                    visibility: visible;
+                                    position: absolute;
+                                    top: calc(50% - 0.5lh);
+                                    left: calc(50% - 0.5lh);
+                                    width: 1lh;
+                                    height: 1lh;
+                                    line-height: 1lh;
+                                    text-align: center;
+                                    font-family: moimz;
+                                    content: '\efff';
+                                    z-index: 1;
+                                    color: inherit;
+                                    animation: mi-loading 2s infinite linear;
+                                }
+                            }
                         }
                     }
                 }

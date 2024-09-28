@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Title.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 2.
+ * @modified 2024. 9. 29.
  */
 namespace Aui {
     export namespace Title {
@@ -168,6 +168,16 @@ namespace Aui {
         }
 
         /**
+         * 툴버튼을 가져온다.
+         *
+         * @param {number} index - 가져올 툴버튼 인덱스
+         * @return {Aui.Title.Tool} tool
+         */
+        getToolAt(index: number): Aui.Title.Tool {
+            return this.tools.at(index) ?? null;
+        }
+
+        /**
          * 제목 아이콘을 랜더링한다.
          */
         renderTop(): void {}
@@ -206,14 +216,14 @@ namespace Aui {
         export namespace Tool {
             export interface Properties extends Aui.Component.Properties {
                 /**
+                 * @type {string} iconClass - 아이콘 스타일시트 클래스
+                 */
+                iconClass: string;
+
+                /**
                  * @type {string} title - 제목텍스트
                  */
                 text?: string;
-
-                /**
-                 * @type {string} iconClass - 아이콘 스타일시트 클래스
-                 */
-                iconClass?: string;
 
                 /**
                  * @type {string} handler - 클릭 핸들러
@@ -229,6 +239,8 @@ namespace Aui {
             iconClass: string;
             handler: (tool: Aui.Title.Tool) => void;
 
+            $button: Dom;
+
             /**
              * 툴버튼 객체를 생성한다.
              *
@@ -243,13 +255,54 @@ namespace Aui {
             }
 
             /**
+             * 버튼 DOM 객체를 가져온다.
+             *
+             * @return {Dom} $button
+             */
+            $getButton(): Dom {
+                if (this.$button === undefined) {
+                    this.$button = Html.create('button', { 'type': 'button' });
+                }
+
+                return this.$button;
+            }
+
+            /**
+             * 버튼의 로딩상태여부를 설정한다.
+             *
+             * @param {boolean} loading - 로딩상태여부
+             * @return {Aui.Button} this
+             */
+            setLoading(loading: boolean): this {
+                if (loading == true) {
+                    this.$getButton().addClass('loading');
+                } else {
+                    this.$getButton().removeClass('loading');
+                }
+
+                this.setDisabled(loading);
+                return this;
+            }
+
+            /**
+             * 버튼 비활성화여부를 설정한다.
+             *
+             * @param {boolean} disabled - 비활성화여부
+             * @return {this} this
+             */
+            setDisabled(disabled: boolean): this {
+                this.$getButton().setDisabled(disabled);
+                super.setDisabled(disabled);
+
+                return this;
+            }
+
+            /**
              * 버튼을 랜더링한다.
              */
             renderContent(): void {
-                const $button = Html.create('button', { 'type': 'button' });
-                if (this.iconClass != null) {
-                    $button.addClass(...this.iconClass.split(' '));
-                }
+                const $button = this.$getButton();
+                $button.addClass(...this.iconClass.split(' '));
                 this.$content.append($button);
                 $button.on('click', () => {
                     this.handler(this);
