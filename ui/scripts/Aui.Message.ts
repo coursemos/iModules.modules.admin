@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 9. 29.
  */
 namespace Aui {
     export namespace Message {
@@ -138,6 +138,11 @@ namespace Aui {
                  * @type {Function} handler - 삭제완료 후 실행할 핸들러
                  */
                 handler?: (results: Ajax.Results) => Promise<void>;
+
+                /**
+                 * @type {Function} beforeHandler - 삭제직전 실행할 핸들러 (false 반환시 삭제중단)
+                 */
+                beforeHandler?: () => Promise<boolean>;
             }
         }
     }
@@ -473,6 +478,12 @@ namespace Aui {
                     if (button.action == 'ok') {
                         (button.getParent() as Aui.Window).buttons.at(0).hide();
                         button.setLoading(true);
+
+                        if (typeof properties.beforeHandler == 'function') {
+                            if ((await properties.beforeHandler()) == false) {
+                                return;
+                            }
+                        }
 
                         if (properties?.url !== null) {
                             const results = await Ajax.delete(properties.url, properties.params ?? null);

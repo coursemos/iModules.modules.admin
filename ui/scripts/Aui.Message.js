@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 14.
+ * @modified 2024. 9. 29.
  */
 var Aui;
 (function (Aui) {
@@ -293,6 +293,11 @@ var Aui;
                     if (button.action == 'ok') {
                         button.getParent().buttons.at(0).hide();
                         button.setLoading(true);
+                        if (typeof properties.beforeHandler == 'function') {
+                            if ((await properties.beforeHandler()) == false) {
+                                return;
+                            }
+                        }
                         if (properties?.url !== null) {
                             const results = await Ajax.delete(properties.url, properties.params ?? null);
                             if (results.success == true) {
