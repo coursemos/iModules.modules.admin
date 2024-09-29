@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 19.
+ * @modified 2024. 9. 29.
  */
 var Aui;
 (function (Aui) {
@@ -27,6 +27,7 @@ var Aui;
         total = 0;
         currentParams = null;
         response = {};
+        updatedAt = 0;
         /**
          * 데이터스토어를 생성한다.
          *
@@ -273,6 +274,14 @@ var Aui;
          */
         getPrimaryKeys() {
             return this.primaryKeys;
+        }
+        /**
+         * 데이터스토어 갱신시각을 가져온다.
+         *
+         * @return {number} updated_at
+         */
+        getUpdatedAt() {
+            return this.updatedAt;
         }
         /**
          * 데이터를 추가한다.
@@ -537,6 +546,14 @@ var Aui;
             this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
         }
         /**
+         * 필터모드를 가져온다.
+         *
+         * @return {'OR'|'AND'} filterMode - 필터모드
+         */
+        getFilterMode() {
+            return this.filterMode;
+        }
+        /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter() {
@@ -638,6 +655,7 @@ var Aui;
                 this.data = new Aui.Data(records, this.fields, this.primaryKeys);
                 this.count = records.length;
                 this.total = this.count;
+                this.updatedAt = Math.round(new Date().getTime() / 1000);
                 await this.onLoad();
                 return this;
             }
@@ -711,6 +729,7 @@ var Aui;
                         const filters = params.filters ? JSON.parse(params.filters) : null;
                         this.data.filter(filters, params.filterMode, false);
                     }
+                    this.updatedAt = results.updated_at ?? Math.round(new Date().getTime() / 1000);
                     await this.onLoad();
                 }
                 else {
@@ -769,6 +788,7 @@ var Aui;
         total = 0;
         currentParams = null;
         response = {};
+        updatedAt = 0;
         /**
          * 데이터스토어를 생성한다.
          *
@@ -1076,6 +1096,14 @@ var Aui;
                 }
                 return null;
             }
+        }
+        /**
+         * 데이터스토어 갱신시각을 가져온다.
+         *
+         * @return {number} updated_at
+         */
+        getUpdatedAt() {
+            return this.updatedAt;
         }
         /**
          * 데이터를 추가한다.
@@ -1524,6 +1552,14 @@ var Aui;
             this.filterMode = filterMode.toUpperCase() == 'OR' ? 'OR' : 'AND';
         }
         /**
+         * 필터모드를 가져온다.
+         *
+         * @return {'OR'|'AND'} filterMode - 필터모드
+         */
+        getFilterMode() {
+            return this.filterMode;
+        }
+        /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter() {
@@ -1646,6 +1682,7 @@ var Aui;
                 this.data = new Aui.Data(records, this.fields, this.primaryKeys, this.childrenField);
                 this.count = records.length;
                 this.total = this.count;
+                this.updatedAt = Math.round(new Date().getTime() / 1000);
                 await this.onLoad();
                 return this;
             }
@@ -1719,6 +1756,7 @@ var Aui;
                         const filters = params.filters ? JSON.parse(params.filters) : null;
                         this.data.filter(filters, params.filterMode, false);
                     }
+                    this.updatedAt = results.updated_at ?? Math.round(new Date().getTime() / 1000);
                     await this.onLoad();
                 }
                 else {

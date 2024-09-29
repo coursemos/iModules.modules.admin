@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 19.
+ * @modified 2024. 9. 29.
  */
 namespace Aui {
     export namespace Store {
@@ -97,6 +97,7 @@ namespace Aui {
         total: number = 0;
         currentParams: { [key: string]: any } = null;
         response: { [key: string]: any } = {};
+        updatedAt: number = 0;
 
         /**
          * 데이터스토어를 생성한다.
@@ -368,6 +369,15 @@ namespace Aui {
          */
         getPrimaryKeys(): string[] {
             return this.primaryKeys;
+        }
+
+        /**
+         * 데이터스토어 갱신시각을 가져온다.
+         *
+         * @return {number} updated_at
+         */
+        getUpdatedAt(): number {
+            return this.updatedAt;
         }
 
         /**
@@ -661,6 +671,15 @@ namespace Aui {
         }
 
         /**
+         * 필터모드를 가져온다.
+         *
+         * @return {'OR'|'AND'} filterMode - 필터모드
+         */
+        getFilterMode(): 'OR' | 'AND' {
+            return this.filterMode;
+        }
+
+        /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter(): Promise<void> {
@@ -779,6 +798,8 @@ namespace Aui {
                 this.data = new Aui.Data(records, this.fields, this.primaryKeys);
                 this.count = records.length;
                 this.total = this.count;
+
+                this.updatedAt = Math.round(new Date().getTime() / 1000);
 
                 await this.onLoad();
 
@@ -901,6 +922,8 @@ namespace Aui {
                         const filters = params.filters ? JSON.parse(params.filters) : null;
                         this.data.filter(filters, params.filterMode, false);
                     }
+
+                    this.updatedAt = results.updated_at ?? Math.round(new Date().getTime() / 1000);
 
                     await this.onLoad();
                 } else {
@@ -1062,6 +1085,7 @@ namespace Aui {
         total: number = 0;
         currentParams: { [key: string]: any } = null;
         response: { [key: string]: any } = {};
+        updatedAt: number = 0;
 
         /**
          * 데이터스토어를 생성한다.
@@ -1404,6 +1428,15 @@ namespace Aui {
 
                 return null;
             }
+        }
+
+        /**
+         * 데이터스토어 갱신시각을 가져온다.
+         *
+         * @return {number} updated_at
+         */
+        getUpdatedAt(): number {
+            return this.updatedAt;
         }
 
         /**
@@ -1912,6 +1945,15 @@ namespace Aui {
         }
 
         /**
+         * 필터모드를 가져온다.
+         *
+         * @return {'OR'|'AND'} filterMode - 필터모드
+         */
+        getFilterMode(): 'OR' | 'AND' {
+            return this.filterMode;
+        }
+
+        /**
          * 정의된 필터링 규칙에 따라 필터링한다.
          */
         async filter(): Promise<void> {
@@ -2049,6 +2091,7 @@ namespace Aui {
                 this.data = new Aui.Data(records, this.fields, this.primaryKeys, this.childrenField);
                 this.count = records.length;
                 this.total = this.count;
+                this.updatedAt = Math.round(new Date().getTime() / 1000);
 
                 await this.onLoad();
 
@@ -2176,6 +2219,8 @@ namespace Aui {
                         const filters = params.filters ? JSON.parse(params.filters) : null;
                         this.data.filter(filters, params.filterMode, false);
                     }
+
+                    this.updatedAt = results.updated_at ?? Math.round(new Date().getTime() / 1000);
 
                     await this.onLoad();
                 } else {
