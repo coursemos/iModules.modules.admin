@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2024. 9. 30.
  */
 var Aui;
 (function (Aui) {
@@ -220,8 +220,8 @@ var Aui;
             this.render();
             this.setPosition(this.top, this.left);
             this.setFront();
-            super.show();
             this.$getComponent().focus();
+            super.show();
             Aui.Window.observe();
         }
         /**

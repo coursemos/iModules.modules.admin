@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2024. 9. 30.
  */
 namespace Aui {
     export namespace Window {
@@ -331,10 +331,10 @@ namespace Aui {
 
             this.setPosition(this.top, this.left);
             this.setFront();
+            this.$getComponent().focus();
 
             super.show();
 
-            this.$getComponent().focus();
             Aui.Window.observe();
         }
 
