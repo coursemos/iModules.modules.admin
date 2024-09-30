@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 29.
+ * @modified 2024. 9. 30.
  */
 namespace Aui {
     export namespace Message {
@@ -199,6 +199,17 @@ namespace Aui {
                 listeners: {
                     show: (window: Aui.Window) => {
                         window.$getComponent().setAttr('data-role', 'message');
+
+                        let focus: Aui.Button = null;
+                        for (const button of buttons) {
+                            focus ??= button;
+                            if (button.action == 'ok') {
+                                focus = button;
+                                break;
+                            }
+                        }
+
+                        focus?.focus();
                     },
                 },
             });

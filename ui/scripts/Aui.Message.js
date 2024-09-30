@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 29.
+ * @modified 2024. 9. 30.
  */
 var Aui;
 (function (Aui) {
@@ -55,6 +55,15 @@ var Aui;
                 listeners: {
                     show: (window) => {
                         window.$getComponent().setAttr('data-role', 'message');
+                        let focus = null;
+                        for (const button of buttons) {
+                            focus ??= button;
+                            if (button.action == 'ok') {
+                                focus = button;
+                                break;
+                            }
+                        }
+                        focus?.focus();
                     },
                 },
             });
