@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 7.
+ * @modified 2024. 9. 30.
  */
 namespace Aui {
     export namespace Button {
@@ -334,6 +334,13 @@ namespace Aui {
          */
         isPressed(): boolean {
             return this.pressed;
+        }
+
+        /**
+         * 버튼에 포커스를 지정한다.
+         */
+        focus(): void {
+            this.$getButton().focus();
         }
 
         /**

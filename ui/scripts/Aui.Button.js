@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Button.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 7.
+ * @modified 2024. 9. 30.
  */
 var Aui;
 (function (Aui) {
@@ -223,6 +223,12 @@ var Aui;
          */
         isPressed() {
             return this.pressed;
+        }
+        /**
+         * 버튼에 포커스를 지정한다.
+         */
+        focus() {
+            this.$getButton().focus();
         }
         /**
          * 레이아웃을 렌더링한다.
