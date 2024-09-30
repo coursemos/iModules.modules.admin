@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 19.
+ * @modified 2024. 9. 30.
  */
 namespace Aui {
     export namespace Grid {
@@ -1937,6 +1937,9 @@ namespace Aui {
                                 this.onSelectionComplete();
                             } else {
                                 this.selectRow(this.focusedRow);
+                                if (this.selection.multiple == false) {
+                                    this.onSelectionComplete();
+                                }
                             }
                         }
                     }

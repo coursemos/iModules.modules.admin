@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 19.
+ * @modified 2024. 9. 30.
  */
 var Aui;
 (function (Aui) {
@@ -1492,6 +1492,9 @@ var Aui;
                             }
                             else {
                                 this.selectRow(this.focusedRow);
+                                if (this.selection.multiple == false) {
+                                    this.onSelectionComplete();
+                                }
                             }
                         }
                     }
