@@ -49,6 +49,11 @@ namespace Aui {
             params?: { [key: string]: any };
 
             /**
+             * @type {Object} paramBuilder - 데이터를 가져올때 사용할 매개변수를 생성하는 함수
+             */
+            paramBuilder?: () => Promise<{ [key: string]: any }>;
+
+            /**
              * @type {Object} sorters - 데이터 정렬방식
              */
             sorters?: { [field: string]: 'ASC' | 'DESC' | string[] };
@@ -84,6 +89,7 @@ namespace Aui {
         primaryKeys: string[];
         fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[];
         params: { [key: string]: any };
+        paramBuilder: () => Promise<{ [key: string]: any }>;
         sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
@@ -110,6 +116,7 @@ namespace Aui {
             this.primaryKeys = this.properties.primaryKeys ?? [];
             this.fields = this.properties.fields ?? [];
             this.params = this.properties.params ?? null;
+            this.paramBuilder = this.properties.paramBuilder ?? null;
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
@@ -241,52 +248,62 @@ namespace Aui {
         }
 
         /**
-         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         * 매개변수를 가져온다.
          *
-         * @param {boolean} include_loader_params - 데이터를 불러오기 위한 매개변수 포함여부
          * @return {Object} params - 매개변수
          */
-        getParams(include_loader_params: boolean = false): { [key: string]: any } {
-            let params = { ...(this.params ?? {}) };
+        getParams(): { [key: string]: any } {
+            return { ...(this.params ?? {}) };
+        }
 
-            if (include_loader_params == true) {
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        } else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
-                    }
-                    params.fields = fields.join(',');
-                }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @return {Object} params - 매개변수
+         */
+        async getLoaderParams(): Promise<{ [key: string]: any }> {
+            let params = this.getParams();
 
-                if (this.limit > 0) {
-                    params.start = (this.page - 1) * this.limit;
-                    params.limit = this.limit;
-                }
+            if (this.paramBuilder !== null) {
+                params = { ...params, ...(await this.paramBuilder()) };
+            }
 
-                if (this.remoteSort == true) {
-                    if (this.sorters === null) {
-                        params.sorters = null;
-                    } else {
-                        params.sorters = JSON.stringify(this.sorters);
+            if (this.fields.length > 0) {
+                const fields = [];
+                for (const field of this.fields) {
+                    if (typeof field == 'string') {
+                        fields.push(field);
+                    } else if (field?.name !== undefined) {
+                        fields.push(field.name);
                     }
                 }
+                params.fields = fields.join(',');
+            }
 
-                if (this.remoteFilter == true) {
-                    if (this.filters === null) {
-                        params.filters = null;
-                    } else {
-                        if (this.limit > 0) {
-                            params.start = (this.page - 1) * this.limit;
-                            params.limit = this.limit;
-                        }
+            if (this.limit > 0) {
+                params.start = (this.page - 1) * this.limit;
+                params.limit = this.limit;
+            }
 
-                        params.filters = JSON.stringify(this.filters);
-                        params.filterMode = this.filterMode;
+            if (this.remoteSort == true) {
+                if (this.sorters === null) {
+                    params.sorters = null;
+                } else {
+                    params.sorters = JSON.stringify(this.sorters);
+                }
+            }
+
+            if (this.remoteFilter == true) {
+                if (this.filters === null) {
+                    params.filters = null;
+                } else {
+                    if (this.limit > 0) {
+                        params.start = (this.page - 1) * this.limit;
+                        params.limit = this.limit;
                     }
+
+                    params.filters = JSON.stringify(this.filters);
+                    params.filterMode = this.filterMode;
                 }
             }
 
@@ -899,7 +916,7 @@ namespace Aui {
                     return this;
                 }
 
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 const results = await Ajax.get(this.url, params);
                 for (const key in results) {
                     if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
@@ -952,7 +969,11 @@ namespace Aui {
                     }
                 }
 
-                const results = await Ajax.patch(this.url, { records: records }, this.getParams(true) ?? null);
+                const results = await Ajax.patch(
+                    this.url,
+                    { records: records },
+                    (await this.getLoaderParams()) ?? null
+                );
                 if (results.success == true) {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
@@ -1016,6 +1037,11 @@ namespace Aui {
             params?: { [key: string]: any };
 
             /**
+             * @type {Object} paramBuilder - 데이터를 가져올때 사용할 매개변수를 생성하는 함수
+             */
+            paramBuilder?: () => Promise<{ [key: string]: any }>;
+
+            /**
              * @type {Object} sorters - 데이터 정렬방식
              */
             sorters?: { [field: string]: 'ASC' | 'DESC' };
@@ -1069,6 +1095,7 @@ namespace Aui {
         fields: (string | { name: string; type: 'int' | 'float' | 'string' | 'boolean' | 'object' })[];
         childrenField: string;
         params: { [key: string]: any };
+        paramBuilder: () => Promise<{ [key: string]: any }>;
         sorters: { [field: string]: 'ASC' | 'DESC' | string[] };
         remoteSort: boolean = false;
         filters: { [field: string]: { value: any; operator: string } };
@@ -1099,6 +1126,7 @@ namespace Aui {
             this.fields = this.properties.fields ?? [];
             this.childrenField = this.properties.childrenField ?? 'children';
             this.params = this.properties.params ?? null;
+            this.paramBuilder = this.properties.paramBuilder ?? null;
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
             this.remoteExpand = this.properties.remoteExpand === true;
@@ -1233,52 +1261,62 @@ namespace Aui {
         }
 
         /**
-         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         * 매개변수를 가져온다.
          *
-         * @param {boolean} include_loader_params - 데이터를 불러오기 위한 매개변수 포함여부
          * @return {Object} params - 매개변수
          */
-        getParams(include_loader_params: boolean = false): { [key: string]: any } {
-            let params = { ...(this.params ?? {}) };
+        getParams(): { [key: string]: any } {
+            return { ...(this.params ?? {}) };
+        }
 
-            if (include_loader_params == true) {
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        } else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
-                    }
-                    params.fields = fields.join(',');
-                }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @return {Object} params - 매개변수
+         */
+        async getLoaderParams(): Promise<{ [key: string]: any }> {
+            let params = this.getParams();
 
-                if (this.limit > 0) {
-                    params.start = (this.page - 1) * this.limit;
-                    params.limit = this.limit;
-                }
+            if (this.paramBuilder !== null) {
+                params = { ...params, ...(await this.paramBuilder()) };
+            }
 
-                if (this.remoteSort == true) {
-                    if (this.sorters === null) {
-                        params.sorters = null;
-                    } else {
-                        params.sorters = JSON.stringify(this.sorters);
+            if (this.fields.length > 0) {
+                const fields = [];
+                for (const field of this.fields) {
+                    if (typeof field == 'string') {
+                        fields.push(field);
+                    } else if (field?.name !== undefined) {
+                        fields.push(field.name);
                     }
                 }
+                params.fields = fields.join(',');
+            }
 
-                if (this.remoteFilter == true) {
-                    if (this.filters === null) {
-                        params.filters = null;
-                    } else {
-                        if (this.limit > 0) {
-                            this.page = 1;
-                            params.start = (this.page - 1) * this.limit;
-                            params.limit = this.limit;
-                        }
-                        params.filters = JSON.stringify(this.filters);
-                        params.filterMode = this.filterMode;
+            if (this.limit > 0) {
+                params.start = (this.page - 1) * this.limit;
+                params.limit = this.limit;
+            }
+
+            if (this.remoteSort == true) {
+                if (this.sorters === null) {
+                    params.sorters = null;
+                } else {
+                    params.sorters = JSON.stringify(this.sorters);
+                }
+            }
+
+            if (this.remoteFilter == true) {
+                if (this.filters === null) {
+                    params.filters = null;
+                } else {
+                    if (this.limit > 0) {
+                        this.page = 1;
+                        params.start = (this.page - 1) * this.limit;
+                        params.limit = this.limit;
                     }
+                    params.filters = JSON.stringify(this.filters);
+                    params.filterMode = this.filterMode;
                 }
             }
 
@@ -2191,7 +2229,7 @@ namespace Aui {
                     return this;
                 }
 
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 const results = await Ajax.get(this.url, params);
                 for (const key in results) {
                     if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
@@ -2237,7 +2275,7 @@ namespace Aui {
              * @return {Promise<Aui.TreeStore.Remote>} this
              */
             async loadChildren(record: Aui.Data.Record): Promise<Aui.TreeStore.Remote> {
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 params.parent = JSON.stringify(record.getPrimary());
 
                 const results = await Ajax.get(this.url, params);
@@ -2267,7 +2305,7 @@ namespace Aui {
              * @return {Promise<Aui.TreeStore.Remote>} this
              */
             async loadParents(record: { [key: string]: any }): Promise<Aui.TreeStore.Remote> {
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 params.child = JSON.stringify(record);
 
                 const results = await Ajax.get(this.url, params);
@@ -2305,7 +2343,11 @@ namespace Aui {
                     }
                 }
 
-                const results = await Ajax.patch(this.url, { records: records }, this.getParams(true) ?? null);
+                const results = await Ajax.patch(
+                    this.url,
+                    { records: records },
+                    (await this.getLoaderParams()) ?? null
+                );
                 if (results.success == true) {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();

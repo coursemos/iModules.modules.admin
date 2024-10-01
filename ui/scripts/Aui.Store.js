@@ -14,6 +14,7 @@ var Aui;
         primaryKeys;
         fields;
         params;
+        paramBuilder;
         sorters;
         remoteSort = false;
         filters;
@@ -38,6 +39,7 @@ var Aui;
             this.primaryKeys = this.properties.primaryKeys ?? [];
             this.fields = this.properties.fields ?? [];
             this.params = this.properties.params ?? null;
+            this.paramBuilder = this.properties.paramBuilder ?? null;
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
             this.filters = this.properties.filters ?? null;
@@ -157,50 +159,58 @@ var Aui;
             this.params[key] = value;
         }
         /**
-         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         * 매개변수를 가져온다.
          *
-         * @param {boolean} include_loader_params - 데이터를 불러오기 위한 매개변수 포함여부
          * @return {Object} params - 매개변수
          */
-        getParams(include_loader_params = false) {
-            let params = { ...(this.params ?? {}) };
-            if (include_loader_params == true) {
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        }
-                        else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
+        getParams() {
+            return { ...(this.params ?? {}) };
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @return {Object} params - 매개변수
+         */
+        async getLoaderParams() {
+            let params = this.getParams();
+            if (this.paramBuilder !== null) {
+                params = { ...params, ...(await this.paramBuilder()) };
+            }
+            if (this.fields.length > 0) {
+                const fields = [];
+                for (const field of this.fields) {
+                    if (typeof field == 'string') {
+                        fields.push(field);
                     }
-                    params.fields = fields.join(',');
-                }
-                if (this.limit > 0) {
-                    params.start = (this.page - 1) * this.limit;
-                    params.limit = this.limit;
-                }
-                if (this.remoteSort == true) {
-                    if (this.sorters === null) {
-                        params.sorters = null;
-                    }
-                    else {
-                        params.sorters = JSON.stringify(this.sorters);
+                    else if (field?.name !== undefined) {
+                        fields.push(field.name);
                     }
                 }
-                if (this.remoteFilter == true) {
-                    if (this.filters === null) {
-                        params.filters = null;
+                params.fields = fields.join(',');
+            }
+            if (this.limit > 0) {
+                params.start = (this.page - 1) * this.limit;
+                params.limit = this.limit;
+            }
+            if (this.remoteSort == true) {
+                if (this.sorters === null) {
+                    params.sorters = null;
+                }
+                else {
+                    params.sorters = JSON.stringify(this.sorters);
+                }
+            }
+            if (this.remoteFilter == true) {
+                if (this.filters === null) {
+                    params.filters = null;
+                }
+                else {
+                    if (this.limit > 0) {
+                        params.start = (this.page - 1) * this.limit;
+                        params.limit = this.limit;
                     }
-                    else {
-                        if (this.limit > 0) {
-                            params.start = (this.page - 1) * this.limit;
-                            params.limit = this.limit;
-                        }
-                        params.filters = JSON.stringify(this.filters);
-                        params.filterMode = this.filterMode;
-                    }
+                    params.filters = JSON.stringify(this.filters);
+                    params.filterMode = this.filterMode;
                 }
             }
             return params;
@@ -709,7 +719,7 @@ var Aui;
                     await this.onLoad();
                     return this;
                 }
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 const results = await Ajax.get(this.url, params);
                 for (const key in results) {
                     if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
@@ -755,7 +765,7 @@ var Aui;
                         records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
                     }
                 }
-                const results = await Ajax.patch(this.url, { records: records }, this.getParams(true) ?? null);
+                const results = await Ajax.patch(this.url, { records: records }, (await this.getLoaderParams()) ?? null);
                 if (results.success == true) {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
@@ -772,6 +782,7 @@ var Aui;
         fields;
         childrenField;
         params;
+        paramBuilder;
         sorters;
         remoteSort = false;
         filters;
@@ -800,6 +811,7 @@ var Aui;
             this.fields = this.properties.fields ?? [];
             this.childrenField = this.properties.childrenField ?? 'children';
             this.params = this.properties.params ?? null;
+            this.paramBuilder = this.properties.paramBuilder ?? null;
             this.sorters = this.properties.sorters ?? null;
             this.remoteSort = this.properties.remoteSort === true;
             this.remoteExpand = this.properties.remoteExpand === true;
@@ -922,51 +934,59 @@ var Aui;
             this.params[key] = value;
         }
         /**
-         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         * 매개변수를 가져온다.
          *
-         * @param {boolean} include_loader_params - 데이터를 불러오기 위한 매개변수 포함여부
          * @return {Object} params - 매개변수
          */
-        getParams(include_loader_params = false) {
-            let params = { ...(this.params ?? {}) };
-            if (include_loader_params == true) {
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        }
-                        else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
+        getParams() {
+            return { ...(this.params ?? {}) };
+        }
+        /**
+         * 데이터를 불러오기 위한 매개변수를 가져온다.
+         *
+         * @return {Object} params - 매개변수
+         */
+        async getLoaderParams() {
+            let params = this.getParams();
+            if (this.paramBuilder !== null) {
+                params = { ...params, ...(await this.paramBuilder()) };
+            }
+            if (this.fields.length > 0) {
+                const fields = [];
+                for (const field of this.fields) {
+                    if (typeof field == 'string') {
+                        fields.push(field);
                     }
-                    params.fields = fields.join(',');
-                }
-                if (this.limit > 0) {
-                    params.start = (this.page - 1) * this.limit;
-                    params.limit = this.limit;
-                }
-                if (this.remoteSort == true) {
-                    if (this.sorters === null) {
-                        params.sorters = null;
-                    }
-                    else {
-                        params.sorters = JSON.stringify(this.sorters);
+                    else if (field?.name !== undefined) {
+                        fields.push(field.name);
                     }
                 }
-                if (this.remoteFilter == true) {
-                    if (this.filters === null) {
-                        params.filters = null;
+                params.fields = fields.join(',');
+            }
+            if (this.limit > 0) {
+                params.start = (this.page - 1) * this.limit;
+                params.limit = this.limit;
+            }
+            if (this.remoteSort == true) {
+                if (this.sorters === null) {
+                    params.sorters = null;
+                }
+                else {
+                    params.sorters = JSON.stringify(this.sorters);
+                }
+            }
+            if (this.remoteFilter == true) {
+                if (this.filters === null) {
+                    params.filters = null;
+                }
+                else {
+                    if (this.limit > 0) {
+                        this.page = 1;
+                        params.start = (this.page - 1) * this.limit;
+                        params.limit = this.limit;
                     }
-                    else {
-                        if (this.limit > 0) {
-                            this.page = 1;
-                            params.start = (this.page - 1) * this.limit;
-                            params.limit = this.limit;
-                        }
-                        params.filters = JSON.stringify(this.filters);
-                        params.filterMode = this.filterMode;
-                    }
+                    params.filters = JSON.stringify(this.filters);
+                    params.filterMode = this.filterMode;
                 }
             }
             return params;
@@ -1736,7 +1756,7 @@ var Aui;
                     await this.onLoad();
                     return this;
                 }
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 const results = await Ajax.get(this.url, params);
                 for (const key in results) {
                     if (['success', 'message', this.recordsField, this.totalField].includes(key) == false) {
@@ -1771,7 +1791,7 @@ var Aui;
              * @return {Promise<Aui.TreeStore.Remote>} this
              */
             async loadChildren(record) {
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 params.parent = JSON.stringify(record.getPrimary());
                 const results = await Ajax.get(this.url, params);
                 if (results.success == true) {
@@ -1797,7 +1817,7 @@ var Aui;
              * @return {Promise<Aui.TreeStore.Remote>} this
              */
             async loadParents(record) {
-                const params = this.getParams(true);
+                const params = await this.getLoaderParams();
                 params.child = JSON.stringify(record);
                 const results = await Ajax.get(this.url, params);
                 if (results.success == true) {
@@ -1831,7 +1851,7 @@ var Aui;
                         records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
                     }
                 }
-                const results = await Ajax.patch(this.url, { records: records }, this.getParams(true) ?? null);
+                const results = await Ajax.patch(this.url, { records: records }, (await this.getLoaderParams()) ?? null);
                 if (results.success == true) {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
