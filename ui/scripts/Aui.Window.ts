@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Window.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 30.
+ * @modified 2024. 10. 1.
  */
 namespace Aui {
     export namespace Window {
@@ -129,8 +129,8 @@ namespace Aui {
             this.closable = this.properties.closable ?? true;
             this.movable = this.properties.movable ?? true;
 
-            this.maxWidth = this.properties.maxWidth ?? Html.get('body').getWidth();
-            this.maxHeight = this.properties.maxHeight ?? Html.get('body').getHeight();
+            this.maxWidth = this.properties.maxWidth ?? window.innerWidth;
+            this.maxHeight = this.properties.maxHeight ?? window.innerHeight;
 
             this.scrollable = this.properties.scrollable ?? 'Y';
 
@@ -223,7 +223,7 @@ namespace Aui {
          * @param {string|number} maxWidth - 최대너비
          */
         setMaxWidth(maxWidth: string | number): void {
-            const bodyWidth = Html.get('body').getWidth();
+            const bodyWidth = window.innerWidth;
             maxWidth = maxWidth ?? bodyWidth;
 
             if (typeof maxWidth == 'string') {
@@ -243,7 +243,7 @@ namespace Aui {
          * @param {string|number} maxHeight - 최대높이
          */
         setMaxHeight(maxHeight: string | number): void {
-            const bodyHeight = Html.get('body').getHeight();
+            const bodyHeight = window.innerHeight;
             maxHeight = maxHeight ?? bodyHeight;
 
             if (typeof maxHeight == 'string') {
@@ -423,8 +423,8 @@ namespace Aui {
         static windowResize(): void {
             Aui.Window.windows.forEach((window) => {
                 if (window.isShow() == true) {
-                    window.setMaxWidth(window.maxWidth);
-                    window.setMaxHeight(window.maxHeight);
+                    window.setMaxWidth(null);
+                    window.setMaxHeight(null);
                 }
             });
         }
