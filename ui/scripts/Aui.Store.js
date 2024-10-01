@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Store.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 29.
+ * @modified 2024. 10. 1.
  */
 var Aui;
 (function (Aui) {
@@ -755,7 +755,7 @@ var Aui;
                         records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
                     }
                 }
-                const results = await Ajax.patch(this.url, { records: records }, this.params ?? null);
+                const results = await Ajax.patch(this.url, { records: records }, this.getParams(true) ?? null);
                 if (results.success == true) {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
@@ -1771,37 +1771,8 @@ var Aui;
              * @return {Promise<Aui.TreeStore.Remote>} this
              */
             async loadChildren(record) {
-                const params = { ...this.params };
+                const params = this.getParams(true);
                 params.parent = JSON.stringify(record.getPrimary());
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        }
-                        else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
-                    }
-                    params.fields = fields.join(',');
-                }
-                if (this.remoteSort == true) {
-                    if (this.sorters === null) {
-                        params.sorters = null;
-                    }
-                    else {
-                        params.sorters = JSON.stringify(this.sorters);
-                    }
-                }
-                if (this.remoteFilter == true) {
-                    if (this.filters === null) {
-                        params.filters = null;
-                    }
-                    else {
-                        params.filters = JSON.stringify(this.filters);
-                        params.filterMode = this.filterMode;
-                    }
-                }
                 const results = await Ajax.get(this.url, params);
                 if (results.success == true) {
                     if (this.remoteSort == true) {
@@ -1826,20 +1797,8 @@ var Aui;
              * @return {Promise<Aui.TreeStore.Remote>} this
              */
             async loadParents(record) {
-                const params = { ...this.params };
+                const params = this.getParams(true);
                 params.child = JSON.stringify(record);
-                if (this.fields.length > 0) {
-                    const fields = [];
-                    for (const field of this.fields) {
-                        if (typeof field == 'string') {
-                            fields.push(field);
-                        }
-                        else if (field?.name !== undefined) {
-                            fields.push(field.name);
-                        }
-                    }
-                    params.fields = fields.join(',');
-                }
                 const results = await Ajax.get(this.url, params);
                 if (results.success == true) {
                     for (const parent of results.records) {
@@ -1872,7 +1831,7 @@ var Aui;
                         records.push({ origin: record.getPrimary(true), updated: record.getUpdated() });
                     }
                 }
-                const results = await Ajax.patch(this.url, { records: records }, this.params ?? null);
+                const results = await Ajax.patch(this.url, { records: records }, this.getParams(true) ?? null);
                 if (results.success == true) {
                     for (const record of this.getUpdatedRecords() ?? []) {
                         record.commit();
