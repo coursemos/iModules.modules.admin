@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Scroll.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 10. 3.
  */
 var Aui;
 (function (Aui) {
@@ -520,6 +520,7 @@ var Aui;
         restorePosition(data, forced = []) {
             if (Format.isEqual(data, this.storePositionData) == true) {
                 this.setPosition(this.storePositionCoordinate.x, this.storePositionCoordinate.y, false, false);
+                return { x: this.storePositionCoordinate.x, y: this.storePositionCoordinate.y };
             }
             else {
                 let position = { x: 0, y: 0 };
@@ -529,6 +530,7 @@ var Aui;
                 this.setPosition(position.x, position.y, false, false);
                 this.storePositionData = null;
                 this.storePositionCoordinate = { x: 0, y: 0 };
+                return position;
             }
         }
         /**

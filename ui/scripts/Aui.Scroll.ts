@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Scroll.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 9.
+ * @modified 2024. 10. 3.
  */
 namespace Aui {
     export class Scroll extends Aui.Base {
@@ -593,9 +593,10 @@ namespace Aui {
          * @param {any} data - 스크롤 위치를 복원할 시점의 고유데이터
          * @param {string[]} forced - 복원시점과 무관하게 항상 복원할 축
          */
-        restorePosition(data: any, forced: ('x' | 'y')[] = []): void {
+        restorePosition(data: any, forced: ('x' | 'y')[] = []): { x: number; y: number } {
             if (Format.isEqual(data, this.storePositionData) == true) {
                 this.setPosition(this.storePositionCoordinate.x, this.storePositionCoordinate.y, false, false);
+                return { x: this.storePositionCoordinate.x, y: this.storePositionCoordinate.y };
             } else {
                 let position = { x: 0, y: 0 };
                 for (const direction of forced) {
@@ -604,6 +605,8 @@ namespace Aui {
                 this.setPosition(position.x, position.y, false, false);
                 this.storePositionData = null;
                 this.storePositionCoordinate = { x: 0, y: 0 };
+
+                return position;
             }
         }
 
