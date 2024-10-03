@@ -147,6 +147,12 @@ namespace Aui {
         return new Date().getTime() - 1724900000000;
     }
 
+    /**
+     * AUI 의 언어팩을 가져온다.
+     *
+     * @param {string} baseUrl - AUI 기본경로
+     * @param {number} retry - 재시도횟수
+     */
     export async function initLanguage(baseUrl: string, retry: number = 0): Promise<void> {
         const language = Aui.getLanguage();
 

@@ -627,6 +627,7 @@ var Aui;
     (function (Store) {
         class Local extends Aui.Store {
             records;
+            recordBuilder;
             /**
              * Array 스토어를 생성한다.
              *
@@ -635,6 +636,7 @@ var Aui;
             constructor(properties = null) {
                 super(properties);
                 this.records = this.properties.records ?? [];
+                this.recordBuilder = this.properties.recordBuilder ?? null;
                 this.remoteSort = false;
             }
             /**
@@ -647,6 +649,9 @@ var Aui;
                 if (this.loaded == true) {
                     await this.onLoad();
                     return this;
+                }
+                if (this.recordBuilder !== null) {
+                    this.records = await this.recordBuilder();
                 }
                 const records = [];
                 this.records.forEach((item) => {
@@ -1664,6 +1669,7 @@ var Aui;
     (function (TreeStore) {
         class Local extends Aui.TreeStore {
             records;
+            recordBuilder;
             /**
              * Array 스토어를 생성한다.
              *
@@ -1684,6 +1690,9 @@ var Aui;
                 if (this.loaded == true) {
                     await this.onLoad();
                     return this;
+                }
+                if (this.recordBuilder !== null) {
+                    this.records = await this.recordBuilder();
                 }
                 const records = [];
                 this.records.forEach((item) => {

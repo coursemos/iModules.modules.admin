@@ -768,11 +768,17 @@ namespace Aui {
                  * @type {string[][]} records - 데이터
                  */
                 records?: any[][];
+
+                /**
+                 * @type {Function} recordBuilder - 데이터를 생성하는 비동기함수
+                 */
+                recordBuilder?: () => Promise<any[][]>;
             }
         }
 
         export class Local extends Aui.Store {
             records: any[][];
+            recordBuilder?: () => Promise<any[][]>;
 
             /**
              * Array 스토어를 생성한다.
@@ -783,6 +789,7 @@ namespace Aui {
                 super(properties);
 
                 this.records = this.properties.records ?? [];
+                this.recordBuilder = this.properties.recordBuilder ?? null;
                 this.remoteSort = false;
             }
 
@@ -797,6 +804,10 @@ namespace Aui {
                 if (this.loaded == true) {
                     await this.onLoad();
                     return this;
+                }
+
+                if (this.recordBuilder !== null) {
+                    this.records = await this.recordBuilder();
                 }
 
                 const records = [];
@@ -2082,11 +2093,17 @@ namespace Aui {
                  * @type {string[][]} records - 데이터
                  */
                 records?: any[][];
+
+                /**
+                 * @type {Function} recordBuilder - 데이터를 생성하는 비동기함수
+                 */
+                recordBuilder?: () => Promise<any[][]>;
             }
         }
 
         export class Local extends Aui.TreeStore {
             records: any[][];
+            recordBuilder?: () => Promise<any[][]>;
 
             /**
              * Array 스토어를 생성한다.
@@ -2111,6 +2128,10 @@ namespace Aui {
                 if (this.loaded == true) {
                     await this.onLoad();
                     return this;
+                }
+
+                if (this.recordBuilder !== null) {
+                    this.records = await this.recordBuilder();
                 }
 
                 const records = [];
