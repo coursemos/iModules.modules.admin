@@ -6,7 +6,7 @@
  * @file /styles/Aui.Grid.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 16.
+ * @modified 2024. 10. 4.
  */
 div[data-component][data-type='panel'][data-role='grid'] {
     > div[data-role='container'] {
@@ -20,8 +20,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
             align-items: stretch;
             justify-content: flex-start;
             position: relative;
-            width: calc(100% + 1px);
-            margin-right: -1px;
+            width: 100%;
             color: var(--aui-color-text-500);
 
             > div[data-role='resize-guide'] {
@@ -646,7 +645,9 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                                 &.editable:hover,
                                 &.editable.focused {
-                                    position: relative;
+                                    &:not(.sticky) {
+                                        position: relative;
+                                    }
 
                                     &:not(:has(div[data-role='field'])) {
                                         &:not(.updated) {
