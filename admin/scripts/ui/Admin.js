@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 24.
+ * @modified 2024. 10. 5.
  */
 var Admin;
 (function (Admin) {
@@ -64,7 +64,14 @@ var Admin;
             return datas[key] ?? null;
         }
         else {
-            datas[key] = value;
+            if (value === null) {
+                if (datas[key] !== undefined) {
+                    delete datas[key];
+                }
+            }
+            else {
+                datas[key] = value;
+            }
             window.sessionStorage?.setItem('iModules-Admin-Session', JSON.stringify(datas));
         }
     }
@@ -83,7 +90,14 @@ var Admin;
             return datas[key] ?? null;
         }
         else {
-            datas[key] = value;
+            if (value === null) {
+                if (datas[key] !== undefined) {
+                    delete datas[key];
+                }
+            }
+            else {
+                datas[key] = value;
+            }
             window.localStorage?.setItem('iModules-Admin-Storage', JSON.stringify(datas));
         }
     }
