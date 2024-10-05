@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 25.
+ * @modified 2024. 10. 5.
  */
 namespace Aui {
     export namespace Form {
@@ -680,6 +680,16 @@ namespace Aui {
                      * @type {Function} hide - 필드가 숨겨질 때
                      */
                     hide?: (field: Aui.Form.Field.Base) => void;
+
+                    /**
+                     * @type {Function} render - 필드가 포커싱 되었을 때
+                     */
+                    focus?: (field: Aui.Form.Field.Base) => void;
+
+                    /**
+                     * @type {Function} render - 필드가 포커싱이 해제되었을 때
+                     */
+                    blur?: (field: Aui.Form.Field.Base) => void;
                 }
 
                 export interface Properties extends Aui.Component.Properties {
@@ -5867,7 +5877,15 @@ namespace Aui {
 
             export namespace Editor {
                 export interface Listeners extends Aui.Form.Field.Base.Listeners {
+                    /**
+                     * @type {Function} editorRender - 에디터가 랜더링되었을 때
+                     */
                     editorRender?: (editor: modules.wysiwyg.Editor) => void;
+
+                    /**
+                     * @type {Function} editorRender - 에디터의 데이터가 변경되었을 때 (10초 간격)
+                     */
+                    edit?: (field: Aui.Form.Field.Editor, value: { content: string; attachments: string[] }) => void;
                 }
 
                 export interface Properties extends Aui.Form.Field.Base.Properties {
@@ -5930,6 +5948,7 @@ namespace Aui {
                 editorMaxHeight: number;
 
                 editor: modules.wysiwyg.Editor;
+                editorRendered: boolean = false;
                 uploader: modules.attachment.Uploader;
                 fileUpload: boolean;
                 imageUpload: boolean;
@@ -5967,6 +5986,18 @@ namespace Aui {
                         this.$input = Html.create('textarea', {
                             name: this.inputName,
                         });
+
+                        this.$input.on('edit', () => {
+                            this.fireEvent('edit', [this, this.getValue()]);
+                        });
+
+                        this.$input.on('editorFocus', () => {
+                            this.onFocus();
+                        });
+
+                        this.$input.on('editorBlur', () => {
+                            this.onBlur();
+                        });
                     }
 
                     return this.$input;
@@ -5987,6 +6018,37 @@ namespace Aui {
                     }
 
                     return this.$files;
+                }
+
+                /**
+                 * 에디터를 가져온다.
+                 *
+                 * @return {modules.wysiwyg.Editor} editor
+                 */
+                getEditor(): modules.wysiwyg.Editor {
+                    if (this.editor === undefined) {
+                        if (this.isRendered() == false) {
+                            this.renderContent();
+                        }
+
+                        this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
+                            id: this.id + '-Editor',
+                            height: this.editorHeight,
+                            maxHeight: this.editorMaxHeight,
+                            toolbars: this.toolbars,
+                            fileUpload: this.fileUpload,
+                            imageUpload: this.imageUpload,
+                            videoUpload: this.videoUpload,
+                            uploader: this.getUploader(),
+                            listeners: {
+                                render: (editor) => {
+                                    this.fireEvent('editorRender', [editor]);
+                                },
+                            },
+                        });
+                    }
+
+                    return this.editor;
                 }
 
                 /**
@@ -6023,7 +6085,7 @@ namespace Aui {
                  * @return {Aui.Form.Field.TextArea} this
                  */
                 setDisabled(disabled: boolean): this {
-                    this.editor.setDisabled(disabled);
+                    this.getEditor().setDisabled(disabled);
 
                     return this;
                 }
@@ -6035,7 +6097,7 @@ namespace Aui {
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value: { content: string; attachments: string[] }, is_origin: boolean = false): void {
-                    this.editor.setValue(value);
+                    this.getEditor().setValue(value);
                     super.setValue(value, is_origin);
                 }
 
@@ -6045,14 +6107,14 @@ namespace Aui {
                  * @return {Object} value - 값
                  */
                 getValue(): { content: string; attachments: string[] } {
-                    return this.editor.getValue();
+                    return this.getEditor().getValue();
                 }
 
                 /**
                  * 필드에 포커스를 지정한다.
                  */
                 focus(): void {
-                    this.editor.focus();
+                    this.getEditor().focus();
                     this.onFocus();
                 }
 
@@ -6063,7 +6125,7 @@ namespace Aui {
                  * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
                  */
                 setEditorHeight(editorHeight: number, includedToolbar: boolean): void {
-                    this.editor.setHeight(editorHeight, includedToolbar);
+                    this.getEditor().setHeight(editorHeight, includedToolbar);
                 }
 
                 /**
@@ -6073,16 +6135,18 @@ namespace Aui {
                  * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
                  */
                 setEditorMaxHeight(editorMaxHeight: number, includedToolbar: boolean): void {
-                    this.editor.setMaxHeight(editorMaxHeight, includedToolbar);
+                    this.getEditor().setMaxHeight(editorMaxHeight, includedToolbar);
                 }
 
                 /**
                  * 필드태그를 랜더링한다.
                  */
                 renderContent(): void {
-                    const $input = this.$getInput();
-                    this.$getContent().append($input);
-                    this.$getContent().append(this.$getFiles());
+                    if (this.editorRendered == false) {
+                        this.editorRendered = true;
+                        this.$getContent().append(this.$getInput());
+                        this.$getContent().append(this.$getFiles());
+                    }
                 }
 
                 /**
@@ -6099,21 +6163,7 @@ namespace Aui {
                     this.$getContent()
                         .setAttr('data-module', 'wysiwyg')
                         .setAttr('data-id', this.id + '-Editor');
-                    this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
-                        id: this.id + '-Editor',
-                        height: this.editorHeight,
-                        maxHeight: this.editorMaxHeight,
-                        toolbars: this.toolbars,
-                        fileUpload: this.fileUpload,
-                        imageUpload: this.imageUpload,
-                        videoUpload: this.videoUpload,
-                        uploader: this.getUploader(),
-                        listeners: {
-                            render: (editor) => {
-                                this.fireEvent('editorRender', [editor]);
-                            },
-                        },
-                    });
+                    this.getEditor();
 
                     super.render();
 

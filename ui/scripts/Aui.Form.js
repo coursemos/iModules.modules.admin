@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 25.
+ * @modified 2024. 10. 5.
  */
 var Aui;
 (function (Aui) {
@@ -4578,6 +4578,7 @@ var Aui;
                 editorHeight;
                 editorMaxHeight;
                 editor;
+                editorRendered = false;
                 uploader;
                 fileUpload;
                 imageUpload;
@@ -4612,6 +4613,15 @@ var Aui;
                         this.$input = Html.create('textarea', {
                             name: this.inputName,
                         });
+                        this.$input.on('edit', () => {
+                            this.fireEvent('edit', [this, this.getValue()]);
+                        });
+                        this.$input.on('editorFocus', () => {
+                            this.onFocus();
+                        });
+                        this.$input.on('editorBlur', () => {
+                            this.onBlur();
+                        });
                     }
                     return this.$input;
                 }
@@ -4628,6 +4638,34 @@ var Aui;
                         this.$files.hide();
                     }
                     return this.$files;
+                }
+                /**
+                 * 에디터를 가져온다.
+                 *
+                 * @return {modules.wysiwyg.Editor} editor
+                 */
+                getEditor() {
+                    if (this.editor === undefined) {
+                        if (this.isRendered() == false) {
+                            this.renderContent();
+                        }
+                        this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
+                            id: this.id + '-Editor',
+                            height: this.editorHeight,
+                            maxHeight: this.editorMaxHeight,
+                            toolbars: this.toolbars,
+                            fileUpload: this.fileUpload,
+                            imageUpload: this.imageUpload,
+                            videoUpload: this.videoUpload,
+                            uploader: this.getUploader(),
+                            listeners: {
+                                render: (editor) => {
+                                    this.fireEvent('editorRender', [editor]);
+                                },
+                            },
+                        });
+                    }
+                    return this.editor;
                 }
                 /**
                  * 업로더를 가져온다.
@@ -4662,7 +4700,7 @@ var Aui;
                  * @return {Aui.Form.Field.TextArea} this
                  */
                 setDisabled(disabled) {
-                    this.editor.setDisabled(disabled);
+                    this.getEditor().setDisabled(disabled);
                     return this;
                 }
                 /**
@@ -4672,7 +4710,7 @@ var Aui;
                  * @param {boolean} is_origin - 원본값 변경여부
                  */
                 setValue(value, is_origin = false) {
-                    this.editor.setValue(value);
+                    this.getEditor().setValue(value);
                     super.setValue(value, is_origin);
                 }
                 /**
@@ -4681,13 +4719,13 @@ var Aui;
                  * @return {Object} value - 값
                  */
                 getValue() {
-                    return this.editor.getValue();
+                    return this.getEditor().getValue();
                 }
                 /**
                  * 필드에 포커스를 지정한다.
                  */
                 focus() {
-                    this.editor.focus();
+                    this.getEditor().focus();
                     this.onFocus();
                 }
                 /**
@@ -4697,7 +4735,7 @@ var Aui;
                  * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
                  */
                 setEditorHeight(editorHeight, includedToolbar) {
-                    this.editor.setHeight(editorHeight, includedToolbar);
+                    this.getEditor().setHeight(editorHeight, includedToolbar);
                 }
                 /**
                  * 에디터의 최대높이를 설정한다.
@@ -4706,15 +4744,17 @@ var Aui;
                  * @param {boolean} includedToolbar - 툴바높이를 포함하여 계산할지 여부
                  */
                 setEditorMaxHeight(editorMaxHeight, includedToolbar) {
-                    this.editor.setMaxHeight(editorMaxHeight, includedToolbar);
+                    this.getEditor().setMaxHeight(editorMaxHeight, includedToolbar);
                 }
                 /**
                  * 필드태그를 랜더링한다.
                  */
                 renderContent() {
-                    const $input = this.$getInput();
-                    this.$getContent().append($input);
-                    this.$getContent().append(this.$getFiles());
+                    if (this.editorRendered == false) {
+                        this.editorRendered = true;
+                        this.$getContent().append(this.$getInput());
+                        this.$getContent().append(this.$getFiles());
+                    }
                 }
                 /**
                  * 필드 레이아웃을 업데이트한다.
@@ -4729,21 +4769,7 @@ var Aui;
                     this.$getContent()
                         .setAttr('data-module', 'wysiwyg')
                         .setAttr('data-id', this.id + '-Editor');
-                    this.editor = new modules.wysiwyg.Editor(this.$getInput(), {
-                        id: this.id + '-Editor',
-                        height: this.editorHeight,
-                        maxHeight: this.editorMaxHeight,
-                        toolbars: this.toolbars,
-                        fileUpload: this.fileUpload,
-                        imageUpload: this.imageUpload,
-                        videoUpload: this.videoUpload,
-                        uploader: this.getUploader(),
-                        listeners: {
-                            render: (editor) => {
-                                this.fireEvent('editorRender', [editor]);
-                            },
-                        },
-                    });
+                    this.getEditor();
                     super.render();
                     let sticky = '0px';
                     let parent = this.getParent();
