@@ -374,6 +374,8 @@ class Admin extends \Module
             \Header::location($route->getUrl() . $context->getPath());
         }
 
+        $this->getAdmin()->storeLog(true, true);
+
         /**
          * 기본 자바스크립트파일을 불러온다.
          * 사용되는 모든 스크립트 파일을 캐시를 이용해 압축한다.
