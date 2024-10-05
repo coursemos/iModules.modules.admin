@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 12.
+ * @modified 2024. 10. 5.
  */
 var Aui;
 (function (Aui) {
@@ -33,6 +33,7 @@ var Aui;
         class;
         hidden;
         disabled;
+        forceRender;
         scrollable;
         $scrollable;
         scroll;
@@ -59,6 +60,7 @@ var Aui;
             this.class = this.properties.class ?? null;
             this.hidden = this.properties.hidden ?? false;
             this.disabled = this.properties.disabled ?? false;
+            this.forceRender = this.properties.forceRender === true;
             this.scrollable = this.properties.scrollable ?? false;
             this.$component = Html.create('div', { 'data-component': this.id, 'tabindex': '-1' });
             this.$container = Html.create('div', { 'data-role': 'container' });
@@ -547,7 +549,7 @@ var Aui;
             if (this.isRendered() == false && this.isHidden() == true) {
                 this.$getComponent().hide();
             }
-            return this.isHidden() == false && this.isRendered() == false;
+            return (this.forceRender == true || this.isHidden() == false) && this.isRendered() == false;
         }
         /**
          * 컴포넌트의 랜더링여부를 가져온다.

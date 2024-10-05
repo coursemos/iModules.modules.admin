@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Component.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 12.
+ * @modified 2024. 10. 5.
  */
 namespace Aui {
     export namespace Component {
@@ -104,6 +104,11 @@ namespace Aui {
             disabled?: boolean;
 
             /**
+             * @type {boolean} forceRender - 컴포넌트가 랜더링될 수 없는 상황이라도 강제로 랜더링할지 여부
+             */
+            forceRender?: boolean;
+
+            /**
              * @type {'x'|'y'|boolean} scrollable - 컴포넌트 스크롤여부
              */
             scrollable?: 'x' | 'y' | boolean;
@@ -145,6 +150,7 @@ namespace Aui {
         class: string;
         hidden: boolean;
         disabled: boolean;
+        forceRender: boolean;
         scrollable: string | boolean;
         $scrollable: Dom;
         scroll: Aui.Scroll;
@@ -174,6 +180,7 @@ namespace Aui {
             this.class = this.properties.class ?? null;
             this.hidden = this.properties.hidden ?? false;
             this.disabled = this.properties.disabled ?? false;
+            this.forceRender = this.properties.forceRender === true;
             this.scrollable = this.properties.scrollable ?? false;
 
             this.$component = Html.create('div', { 'data-component': this.id, 'tabindex': '-1' });
@@ -729,7 +736,7 @@ namespace Aui {
             if (this.isRendered() == false && this.isHidden() == true) {
                 this.$getComponent().hide();
             }
-            return this.isHidden() == false && this.isRendered() == false;
+            return (this.forceRender == true || this.isHidden() == false) && this.isRendered() == false;
         }
 
         /**
