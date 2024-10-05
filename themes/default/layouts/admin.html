@@ -7,7 +7,7 @@
  * @file /modules/admin/themes/default/layouts/admin.html
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 4.
+ * @modified 2024. 10. 5.
  *
  * @var Theme $theme 현재 테마 클래스
  * @var \modules\member\dtos\Member $member 회원정보
@@ -24,7 +24,7 @@ if (defined('__IM__') == false) {
         </h1>
     
         <div>
-            <button type="button" data-action="user">
+            <button type="button" data-action="user" data-member-id="<?php echo $member->getId(); ?>">
                 <?php echo Html::element('i', ['style'=>'background-image:url('.$member->getPhoto().');'], ''); ?>
                 <b><?php echo $member->getName(); ?></b>
             </button>
