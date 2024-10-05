@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 30.
+ * @modified 2024. 10. 6.
  */
 namespace Aui {
     export namespace Grid {
@@ -79,9 +79,29 @@ namespace Aui {
                 ) => void;
 
                 /**
+                 * @type {Function} beforeEdit - 데이터를 편집하기 전
+                 */
+                beforeEdit?: (
+                    record: Aui.Data.Record,
+                    rowIndex: number,
+                    columnIndex: number,
+                    grid: Aui.Grid.Panel
+                ) => void;
+
+                /**
                  * @type {Function} edit - 데이터를 편집하였을 때
                  */
-                edit?: (record: Aui.Data.Record, grid: Aui.Grid.Panel) => void;
+                edit?: (record: Aui.Data.Record, rowIndex: number, columnIndex: number, grid: Aui.Grid.Panel) => void;
+
+                /**
+                 * @type {Function} edit - 데이터 편집을 취소하였을 때
+                 */
+                rollback?: (
+                    record: Aui.Data.Record,
+                    rowIndex: number,
+                    columnIndex: number,
+                    grid: Aui.Grid.Panel
+                ) => void;
             }
 
             export interface Selection {
@@ -682,6 +702,10 @@ namespace Aui {
                     return;
                 }
 
+                if (this.fireEvent('beforeEdit', [record, rowIndex, columnIndex, this]) === false) {
+                    return;
+                }
+
                 this.editingCell.rowIndex = rowIndex;
                 this.editingCell.columnIndex = columnIndex;
 
@@ -750,9 +774,10 @@ namespace Aui {
 
                 if (is_rollback === true || Format.isEqual(record.get(column.dataIndex), value) == true) {
                     Html.get('div[data-role=view]', $column).show();
+                    this.fireEvent('rollback', [record, rowIndex, columnIndex, this]);
                 } else {
                     this.getStore().getAt(rowIndex).set(column.dataIndex, value);
-                    this.fireEvent('edit', [record, this]);
+                    this.fireEvent('edit', [record, rowIndex, columnIndex, this]);
                 }
 
                 setTimeout(() => {
