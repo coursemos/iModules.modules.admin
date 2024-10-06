@@ -95,6 +95,11 @@
                 }
             }
         },
+        "components": {
+            "module": "모듈",
+            "plugin": "플러그인",
+            "widget": "위젯"
+        },
         "modules": {
             "title": "모듈명",
             "version": "버전",
@@ -278,6 +283,7 @@
                 "title": "관리자접속기록",
                 "time": "접근일시",
                 "name": "접근자명",
+                "component": "컴포넌트명",
                 "url": "접근주소"
             }
         },

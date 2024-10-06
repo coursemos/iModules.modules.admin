@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/administrators.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 10. 6.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -485,23 +485,6 @@ Admin.ready(async () => {
                         width: 200,
                         emptyText: (await me.getText('keyword')) as string,
                     }),
-                    new Aui.Form.Field.Select({
-                        width: 95,
-                        store: new Aui.Store.Local({
-                            fields: ['value'],
-                            records: [['HTTP'], ['GET'], ['POST'], ['PUT'], ['DELETE']],
-                        }),
-                        displayField: 'value',
-                        valueField: 'value',
-                        value: 'HTTP',
-                        listeners: {
-                            change: (_field, value) => {
-                                const logs = Aui.getComponent('logs') as Aui.Grid.Panel;
-                                logs.getStore().setParam('method', value);
-                                logs.getStore().loadPage(1);
-                            },
-                        },
-                    }),
                 ],
                 bottombar: new Aui.Grid.Pagination([
                     new Aui.Button({
@@ -528,6 +511,25 @@ Admin.ready(async () => {
                         dataIndex: 'name',
                         width: 150,
                         sortable: true,
+                        filter: new Aui.Grid.Filter.List({
+                            store: new Aui.Store.Remote({
+                                url: me.getProcessUrl('administrators'),
+                                sorters: { name: 'ASC' },
+                                limit: 50,
+                            }),
+                            multiple: true,
+                            search: true,
+                            valueField: 'member_id',
+                            displayField: 'name',
+                            renderer: (value, record) => {
+                                return (
+                                    '<i class="photo" style="background-image:url(' +
+                                    record.get('photo') +
+                                    ')"></i>' +
+                                    value
+                                );
+                            },
+                        }),
                         renderer: (value, record) => {
                             return (
                                 '<i class="photo" style="background-image:url(' +
@@ -538,16 +540,42 @@ Admin.ready(async () => {
                         },
                     },
                     {
-                        text: (await mMember.getText('admin.members.email')) as string,
-                        dataIndex: 'email',
-                        sortable: true,
+                        text: (await me.getText('admin.administrators.logs.component')) as string,
+                        dataIndex: 'component',
                         width: 200,
+                        filter: new Aui.Grid.Filter.List({
+                            store: new Aui.TreeStore.Remote({
+                                url: me.getProcessUrl('components'),
+                                sorters: { sort: 'ASC', title: 'ASC' },
+                            }),
+                            multiple: true,
+                            search: true,
+                            valueField: 'name',
+                            displayField: 'title',
+                            hideEdgeIcon: true,
+                            width: 240,
+                            renderer: (_display, record) => {
+                                return record.get('icon') + record.get('title');
+                            },
+                        }),
+                        renderer: (value) => {
+                            return value.icon + value.title;
+                        },
                     },
                     {
                         text: (await me.getText('admin.administrators.logs.url')) as string,
                         dataIndex: 'url',
                         minWidth: 250,
                         flex: 1,
+                        filter: new Aui.Grid.Filter.List({
+                            store: new Aui.Store.Local({
+                                fields: ['value'],
+                                records: [['GET'], ['POST'], ['PUT'], ['PATCH'], ['SYNC'], ['EXCEL'], ['DELETE']],
+                            }),
+                            multiple: true,
+                            valueField: 'value',
+                            displayField: 'value',
+                        }),
                         renderer: (value, record) => {
                             return (
                                 '<b class="method ' +
@@ -572,6 +600,7 @@ Admin.ready(async () => {
                     fields: [{ name: 'time', type: 'float' }],
                     limit: 50,
                     remoteSort: true,
+                    remoteFilter: true,
                     sorters: { time: 'DESC' },
                 }),
                 listeners: {

@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/administrators.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 10. 6.
  *
  * @var \modules\admin\Admin $me
  */
@@ -24,7 +24,7 @@ if ($me->getAdmin()->checkPermission('administrators') == false) {
     return;
 }
 
-$group_id = Request::get('group_id') ?? 'user';
+$group_id = Request::get('group_id');
 $sorters = Request::getJson('sorters');
 $start = Request::getInt('start') ?? 0;
 $limit = Request::getInt('limit') ?? 50;
@@ -32,7 +32,29 @@ $keyword = Request::get('keyword');
 
 $member_ids = [];
 
-if ($group_id == 'user') {
+if ($group_id === null) {
+    $group_member_ids = $me
+        ->db()
+        ->select(['member_id'])
+        ->from($me->table('group_administrators'))
+        ->get('member_id');
+
+    $administrator_member_ids = $me
+        ->db()
+        ->select(['member_id'])
+        ->from($me->table('administrators'))
+        ->where('permissions', 'false', '!=')
+        ->get('member_id');
+
+    $member_ids = array_unique(array_merge($group_member_ids, $administrator_member_ids));
+
+    foreach (\Modules::all() as $module) {
+        foreach ($module->getAdmin()?->getGroups() ?? [] as $group) {
+            $member_ids = array_merge($member_ids, $group->getAdministrators() ?? []);
+        }
+    }
+    $member_ids = array_unique($member_ids);
+} elseif ($group_id == 'user') {
     $group_member_ids = $me
         ->db()
         ->select(['member_id'])
@@ -79,8 +101,6 @@ if (count($member_ids) == 0) {
     return;
 }
 
-$results->member_ids = $member_ids;
-
 /**
  * @var \modules\member\Member $mMember
  */
@@ -110,12 +130,10 @@ if ($sorters !== null) {
 }
 
 $records = $records->limit($start, $limit)->get();
-
-$results->q = $me->db()->getLastQuery();
 foreach ($records as &$record) {
     $record = $me->getAdministrator($record->member_id)?->getJson() ?? null;
 }
 
 $results->success = true;
-$results->records = array_filter($records);
+$results->records = array_values(array_filter($records));
 $results->total = $total;
