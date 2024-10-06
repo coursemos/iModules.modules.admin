@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 16.
+ * @modified 2024. 10. 6.
  */
 var Aui;
 (function (Aui) {
@@ -33,6 +33,7 @@ var Aui;
             autoLoad;
             autoExpand;
             expandedDepth;
+            hideEdgeIcon;
             $header;
             $body;
             $footer;
@@ -86,6 +87,7 @@ var Aui;
                 this.autoExpand = this.properties.autoExpand !== false;
                 this.expandedDepth = this.properties.expandedDepth ?? false;
                 this.expandedDepth = this.expandedDepth === 0 ? false : this.expandedDepth;
+                this.hideEdgeIcon = this.properties.hideEdgeIcon === true;
                 this.initColumns();
                 this.$header = Html.create('div').setData('role', 'header');
                 this.$body = Html.create('div').setData('role', 'body');
@@ -1099,6 +1101,9 @@ var Aui;
                     }
                     else {
                         $row.addClass('edge');
+                        if (this.hideEdgeIcon === true) {
+                            $row.addClass('noicon');
+                        }
                     }
                     return $row;
                 }

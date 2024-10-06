@@ -2176,6 +2176,7 @@ var Aui;
                 list;
                 button;
                 width;
+                hideEdgeIcon;
                 renderer;
                 /**
                  * 컬럼 필터객체를 생성한다.
@@ -2190,6 +2191,7 @@ var Aui;
                     this.valueField = properties?.valueField ?? 'value';
                     this.multiple = properties?.multiple === true;
                     this.search = properties?.search === true;
+                    this.hideEdgeIcon = properties?.hideEdgeIcon === true;
                     this.renderer = properties?.renderer ?? null;
                 }
                 /**
@@ -2267,6 +2269,7 @@ var Aui;
                                 store: this.store,
                                 autoLoad: false,
                                 selection: { selectable: true, type: 'check', multiple: this.multiple, keepable: true },
+                                hideEdgeIcon: this.hideEdgeIcon,
                                 topbar: (() => {
                                     if (this.search === true) {
                                         return [

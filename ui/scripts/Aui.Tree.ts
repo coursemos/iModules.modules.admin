@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Tree.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 16.
+ * @modified 2024. 10. 6.
  */
 namespace Aui {
     export namespace Tree {
@@ -163,6 +163,11 @@ namespace Aui {
                 expandedDepth?: number | boolean;
 
                 /**
+                 * @type {boolean} hideEdgeIcon - 마지막 자식레코드의 토글 아이콘 숨김여부
+                 */
+                hideEdgeIcon?: boolean;
+
+                /**
                  * @type {string} loadingType - 로딩메시지 타입
                  */
                 loadingType?: Aui.Loading.Type;
@@ -203,6 +208,7 @@ namespace Aui {
             autoExpand: boolean;
 
             expandedDepth: number | boolean;
+            hideEdgeIcon: boolean;
 
             $header: Dom;
             $body: Dom;
@@ -265,6 +271,7 @@ namespace Aui {
 
                 this.expandedDepth = this.properties.expandedDepth ?? false;
                 this.expandedDepth = this.expandedDepth === 0 ? false : this.expandedDepth;
+                this.hideEdgeIcon = this.properties.hideEdgeIcon === true;
 
                 this.initColumns();
 
@@ -1400,6 +1407,10 @@ namespace Aui {
                         }
                     } else {
                         $row.addClass('edge');
+
+                        if (this.hideEdgeIcon === true) {
+                            $row.addClass('noicon');
+                        }
                     }
 
                     return $row;

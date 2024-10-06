@@ -6,7 +6,7 @@
  * @file /styles/Aui.Tree.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 16.
+ * @modified 2024. 10. 6.
  */
 div[data-component][data-type='panel'][data-role='tree'] {
     > div[data-role='container'] {
@@ -836,6 +836,18 @@ div[data-component][data-type='panel'][data-role='tree'] {
                                                 &::after {
                                                     display: none;
                                                 }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            &.noicon {
+                                > div[data-role='leaf'] {
+                                    > div[data-role='column'] {
+                                        &.header {
+                                            > div[data-role='toggle'] {
+                                                display: none;
                                             }
                                         }
                                     }

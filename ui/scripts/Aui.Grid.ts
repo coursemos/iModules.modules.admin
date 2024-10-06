@@ -2791,9 +2791,9 @@ namespace Aui {
                     search?: boolean;
 
                     /**
-                     * 목록 갯수제한
+                     * @type {boolean} hideEdgeIcon - 트리일 경우 마지막 자식레코드의 토글 아이콘 숨김여부
                      */
-                    limit?: number;
+                    hideEdgeIcon?: boolean;
 
                     /**
                      * @type {Function} renderer - 컬럼 랜더러
@@ -2819,6 +2819,7 @@ namespace Aui {
                 list: Aui.Grid.Panel | Aui.Tree.Panel;
                 button: Aui.Button;
                 width: number;
+                hideEdgeIcon: boolean;
                 renderer:
                     | ((
                           value: any,
@@ -2853,6 +2854,7 @@ namespace Aui {
                     this.valueField = properties?.valueField ?? 'value';
                     this.multiple = properties?.multiple === true;
                     this.search = properties?.search === true;
+                    this.hideEdgeIcon = properties?.hideEdgeIcon === true;
                     this.renderer = properties?.renderer ?? null;
                 }
 
@@ -2944,6 +2946,7 @@ namespace Aui {
                                 store: this.store,
                                 autoLoad: false,
                                 selection: { selectable: true, type: 'check', multiple: this.multiple, keepable: true },
+                                hideEdgeIcon: this.hideEdgeIcon,
                                 topbar: (() => {
                                     if (this.search === true) {
                                         return [
