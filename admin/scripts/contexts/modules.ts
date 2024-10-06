@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 23.
+ * @modified 2024. 10. 6.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -58,12 +58,14 @@ Admin.ready(async () => {
         store: new Aui.Store.Remote({
             url: me.getProcessUrl('modules'),
             primaryKeys: ['name'],
+            sorters: { title: 'ASC' },
         }),
         columns: [
             {
                 text: (await me.getText('admin.modules.title')) as string,
                 dataIndex: 'title',
                 width: 200,
+                sortable: true,
                 renderer: (value, record) => {
                     return record.get('icon') + value;
                 },
