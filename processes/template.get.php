@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/template.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 10. 8.
  *
  * @var \modules\admin\Admin $me
  */
@@ -18,8 +18,11 @@ if (defined('__IM_PROCESS__') == false) {
 $componentType = Request::get('componentType', true);
 $componentName = Request::get('componentName', true);
 
-if ($componentType == 'module') {
-    $component = Modules::get($componentName);
+$component = Component::get($componentType, $componentName);
+if ($component === null) {
+    $results->success = false;
+    $results->message = $me->getErrorText('NOT_FOUND_COMPONENT');
+    return;
 }
 
 $name = Request::get('name', true);

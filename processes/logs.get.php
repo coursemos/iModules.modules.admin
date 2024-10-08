@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/logs.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 6.
+ * @modified 2024. 10. 8.
  *
  * @var \modules\admin\Admin $me
  */
@@ -81,14 +81,11 @@ if ($sorters !== null) {
 }
 $records = $records->limit($start, $limit)->get();
 foreach ($records as &$record) {
-    $record->component = null;
-
-    if ($record->component_type == 'module') {
-        $record->component = [
-            'icon' => Modules::get($record->component_name)->getIcon(),
-            'title' => Modules::get($record->component_name)->getTitle(),
-        ];
-    }
+    $component = Component::get($record->component_type, $record->component_name);
+    $record->component = [
+        'icon' => $component?->getIcon() ?? '',
+        'title' => $component?->getTitle() ?? '',
+    ];
     $record->photo = $mMember->getMemberPhoto($record->member_id);
 }
 

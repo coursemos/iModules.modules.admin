@@ -7,7 +7,7 @@
  * @file /modules/admin/dtos/Permission.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2024. 10. 8.
  */
 namespace modules\admin\dtos;
 class Permission
@@ -74,10 +74,7 @@ class Permission
             $name = $matched[2];
             $code = $matched[3];
             $child = $matched[4];
-            $component = null;
-            if ($type == 'module') {
-                $component = \Modules::get($name);
-            }
+            $component = \Component::get($type, $name);
             if ($component === null) {
                 return $this;
             }

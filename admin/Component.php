@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Component.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 3. 11.
+ * @modified 2024. 10. 8.
  */
 namespace modules\admin\admin;
 abstract class Component
@@ -52,9 +52,7 @@ abstract class Component
             $type = $match[1];
             $name = str_replace('\\', '/', $match[2]);
 
-            if ($type == 'module') {
-                return \Modules::get($name);
-            }
+            return \Component::get($type, $name);
         }
 
         return null;
