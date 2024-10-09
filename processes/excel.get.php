@@ -35,4 +35,6 @@ Header::length(filesize($mAttachment->getTempPath() . '/' . $path[0] . '.xlsx'))
 Header::attachment($path[1]);
 
 readfile($mAttachment->getTempPath() . '/' . $path[0] . '.xlsx');
+
+unlink($mAttachment->getTempPath() . '/' . $path[0] . '.xlsx');
 exit();
