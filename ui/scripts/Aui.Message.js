@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 30.
+ * @modified 2024. 10. 9.
  */
 var Aui;
 (function (Aui) {
@@ -83,11 +83,25 @@ var Aui;
                 $icon.append(properties?.icon);
                 $messagebox.append($icon);
             }
-            const $message = Html.create('div', { 'data-role': 'message' });
-            $message.html('<div>' + (properties.message ?? '') + '</div>');
-            $messagebox.append($message);
-            $content.append($messagebox);
+            const items = properties.items ?? [];
+            if (items.length > 0) {
+                const $message = Html.create('div', { 'data-role': 'component' });
+                $messagebox.append($message);
+                $content.append($messagebox);
+                for (const item of items) {
+                    $message.append(item.$getComponent());
+                    item.setParent(Aui.Message.message);
+                    item.render();
+                }
+            }
+            else {
+                const $message = Html.create('div', { 'data-role': 'message' });
+                $messagebox.append($message);
+                $content.append($messagebox);
+                $message.html('<div>' + (properties.message ?? '') + '</div>');
+            }
             Aui.Message.message.show();
+            Aui.Message.message.items = items;
         }
         /**
          * 로딩메시지를 연다.
@@ -203,6 +217,8 @@ var Aui;
                             return progress.sync(url, params, callback);
                         case 'POST':
                             return progress.post(url, data, params, callback);
+                        case 'EXCEL':
+                            return progress.excel(url, data, params, callback);
                         case 'DELETE':
                             return progress.delete(url, params, callback);
                         default:

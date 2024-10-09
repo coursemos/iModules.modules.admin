@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Message.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 30.
+ * @modified 2024. 10. 9.
  */
 namespace Aui {
     export namespace Message {
@@ -83,7 +83,7 @@ namespace Aui {
                 /**
                  * @type {string} method - 프로그래스바를 호출할 메소드
                  */
-                method?: 'GET' | 'POST' | 'SYNC' | 'DELETE';
+                method?: 'GET' | 'POST' | 'SYNC' | 'EXCEL' | 'DELETE';
 
                 /**
                  * @type {string} url - 프로그래스바를 호출할 URL
@@ -123,6 +123,11 @@ namespace Aui {
                  * @type {string} message - 메시지
                  */
                 message?: string;
+
+                /**
+                 * @type {Aui.Component[]} items - 자식컴포넌트
+                 */
+                items?: Aui.Component[];
 
                 /**
                  * @type {string} url - 삭제를 처리할 프로세스 URL
@@ -232,12 +237,27 @@ namespace Aui {
                 $messagebox.append($icon);
             }
 
-            const $message = Html.create('div', { 'data-role': 'message' });
-            $message.html('<div>' + (properties.message ?? '') + '</div>');
-            $messagebox.append($message);
-            $content.append($messagebox);
+            const items = properties.items ?? [];
+
+            if (items.length > 0) {
+                const $message = Html.create('div', { 'data-role': 'component' });
+                $messagebox.append($message);
+                $content.append($messagebox);
+
+                for (const item of items) {
+                    $message.append(item.$getComponent());
+                    item.setParent(Aui.Message.message);
+                    item.render();
+                }
+            } else {
+                const $message = Html.create('div', { 'data-role': 'message' });
+                $messagebox.append($message);
+                $content.append($messagebox);
+                $message.html('<div>' + (properties.message ?? '') + '</div>');
+            }
 
             Aui.Message.message.show();
+            Aui.Message.message.items = items;
         }
 
         /**
@@ -375,6 +395,9 @@ namespace Aui {
 
                         case 'POST':
                             return progress.post(url, data, params, callback);
+
+                        case 'EXCEL':
+                            return progress.excel(url, data, params, callback);
 
                         case 'DELETE':
                             return progress.delete(url, params, callback);

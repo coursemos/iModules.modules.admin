@@ -6,14 +6,15 @@
  * @file /styles/Aui.Text.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 4.
+ * @modified 2024. 10. 8.
  */
 div[data-component][data-type='text'][data-role='text'] {
     > div[data-role='container'] {
         > div[data-role='content'] {
-            min-height: var(--aui-component-height-default);
             font-family: var(--aui-font-family-default);
             font-size: var(--aui-font-size-default);
+            padding-block: calc(var(--aui-component-gap));
+            line-height: calc(var(--aui-component-height-default) - var(--aui-component-gap) * 2);
         }
     }
 }

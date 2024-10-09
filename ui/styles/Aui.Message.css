@@ -6,7 +6,7 @@
  * @file /styles/Aui.Message.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 20.
+ * @modified 2024. 10. 9.
  */
 div[data-component][data-type='window'][data-role='message'] {
     > div[data-role='container'] > div[data-role='content'] {
@@ -86,6 +86,11 @@ div[data-component][data-type='window'][data-role='message'] {
                         line-height: 1.6;
                         word-break: break-all;
                     }
+                }
+
+                &[data-role='component'] {
+                    flex-grow: 1;
+                    display: block;
                 }
             }
         }
