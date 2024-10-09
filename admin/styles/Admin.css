@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/styles/Admin.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2024. 10. 9.
  */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 html,
@@ -47,6 +47,21 @@ body[data-type='login'] {
             height: calc(1lh + var(--aui-component-gap));
             margin-block: calc(var(--aui-component-gap) * -0.5);
             margin-right: var(--aui-component-gap);
+        }
+
+        i.icon.excel {
+            background: url(../../images/icon_excel.svg) no-repeat 50% 50%;
+            background-size: contain;
+        }
+
+        i.icon.word {
+            background: url(../../images/icon_word.svg) no-repeat 50% 50%;
+            background-size: contain;
+        }
+
+        i.icon.pdf {
+            background: url(../../images/icon_pdf.svg) no-repeat 50% 50%;
+            background-size: contain;
         }
 
         b.language,
