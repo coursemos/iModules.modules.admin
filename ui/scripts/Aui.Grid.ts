@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 6.
+ * @modified 2024. 10. 9.
  */
 namespace Aui {
     export namespace Grid {
@@ -2083,6 +2083,123 @@ namespace Aui {
             }
 
             /**
+             * 엑셀변환을 처리한다.
+             *
+             * @param {string} title - 엑셀파일명
+             * @param {string} url - 엑셀변환을 처리할 URL (NULL 인 경우 Store 에 따른 기본 URL 을 사용한다.)
+             */
+            saveExcel(title: string, url: string = null): void {
+                Aui.Message.show({
+                    title: Aui.printText('excel.save'),
+                    icon: Aui.Message.INFO,
+                    items: [
+                        new Aui.Form.Panel({
+                            layout: 'fit',
+                            padding: 0,
+                            border: false,
+                            items: [
+                                new Aui.Text({
+                                    text: Aui.printText('excel.grid'),
+                                }),
+                                new Aui.Form.Field.Check({
+                                    name: 'current',
+                                    hidden: this.store instanceof Aui.Store.Local || this.store.limit == 0,
+                                    boxLabel: Aui.printText('excel.current_page'),
+                                }),
+                            ],
+                        }),
+                    ],
+                    buttons: Aui.Message.OKCANCEL,
+                    handler: async (button) => {
+                        if (button.action == 'ok') {
+                            let params: { [key: string]: any } = {};
+                            if (url === null) {
+                                if (this.store instanceof Aui.Store.Remote) {
+                                    url = this.store.url;
+                                } else {
+                                    // @todo 공용 엑셀변환 주소
+                                }
+                            }
+
+                            const form = button.getParent().getItemAt(0) as Aui.Form.Panel;
+                            const current = form.getField('current').getValue() == true;
+
+                            let columns: { [key: string]: any }[] = [];
+                            for (const header of this.headers) {
+                                columns.push(header.toJSON());
+                            }
+
+                            let records: { [key: string]: any }[] = null;
+                            if (this.store instanceof Aui.Store.Local || current == true) {
+                                records = [];
+                                for (const record of this.store.getRecords()) {
+                                    records.push(record.getRecord());
+                                }
+                            } else {
+                                params = { ...(await this.store.getLoaderParams()) };
+                                if (params.limit > 0) {
+                                    delete params.start;
+                                    delete params.limit;
+                                }
+                            }
+
+                            if (url !== null) {
+                                Aui.Message.progress({
+                                    method: 'EXCEL',
+                                    url: url,
+                                    params: params,
+                                    data: { title: title, columns: columns, records: records },
+                                    message: Aui.printText('excel.convert'),
+                                    progress: (progress, results) => {
+                                        if (results.end == true) {
+                                            if (results.data?.download !== null) {
+                                                progress.setMessage(
+                                                    Aui.printText('excel.converted', {
+                                                        total: Format.number(results.total),
+                                                    })
+                                                );
+                                                const message = progress.getParent() as Aui.Window;
+                                                const confirm = message.buttons[1] as Aui.Button;
+                                                confirm.setIconClass('mi mi-download');
+                                                confirm.setText(Aui.printText('buttons.download'));
+                                            } else {
+                                                progress.setMessage(Aui.printText('excel.converted_fail'));
+                                            }
+                                        } else {
+                                            progress.setMessage(
+                                                Aui.printText('excel.convert', {
+                                                    current: Format.number(results.current),
+                                                    total: Format.number(results.total),
+                                                })
+                                            );
+                                        }
+                                    },
+                                    handler: async (_button, results) => {
+                                        const download = results?.data?.download ?? null;
+                                        if (download !== null) {
+                                            let $iframe = Html.get('iframe[name=download]');
+                                            if ($iframe.getEl() == null) {
+                                                $iframe = Html.create('iframe', { name: 'download' });
+                                                $iframe.setStyle('display', 'none');
+                                                Html.get('body').append($iframe);
+                                            }
+                                            ($iframe.getEl() as HTMLIFrameElement).contentWindow.location.replace(
+                                                download
+                                            );
+
+                                            await iModules.sleep(1000);
+                                        }
+                                    },
+                                });
+                            }
+                        } else {
+                            Aui.Message.close();
+                        }
+                    },
+                });
+            }
+
+            /**
              * 그리드 패널을 제거한다.
              */
             remove(): void {
@@ -4068,6 +4185,25 @@ namespace Aui {
                 }
 
                 super.remove();
+            }
+
+            /**
+             * JSON 으로 변환한다.
+             */
+            toJSON(): object {
+                const column: { [key: string]: any } = {
+                    dataIndex: this.dataIndex,
+                    text: this.text,
+                };
+
+                if (this.columns.length > 0) {
+                    column.columns = [];
+                    for (const child of this.columns) {
+                        column.columns.push(child.toJSON());
+                    }
+                }
+
+                return column;
             }
         }
 

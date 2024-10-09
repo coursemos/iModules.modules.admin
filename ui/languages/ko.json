@@ -13,7 +13,8 @@
         "file_select": "파일선택",
         "image_select": "이미지선택",
         "delete": "삭제",
-        "select_complete": "선택완료"
+        "select_complete": "선택완료",
+        "download": "다운로드"
     },
     "colors": {
         "auto": "자동",
@@ -24,6 +25,15 @@
         "true": "전체허용",
         "false": "최고관리자만 허용",
         "custom": "사용자정의"
+    },
+    "excel": {
+        "save": "엑셀변환",
+        "grid": "데이터를 엑셀파일로 변환하여 다운로드 받을 수 있습니다.",
+        "current_page": "현재 페이지만 엑셀로 변환합니다.",
+        "convert": "엑셀변환 준비중입니다.",
+        "converting": "${current}/${total}개 데이터를 변환중입니다.",
+        "converted": "${total}개 데이터에 대한 엑셀변환이 완료되었습니다.",
+        "converted_fail": "엑셀변환에 실패하였습니다."
     },
     "errors": {
         "TITLE": "에러",
