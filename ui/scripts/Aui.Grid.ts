@@ -2087,8 +2087,9 @@ namespace Aui {
              *
              * @param {string} title - 엑셀파일명
              * @param {string} url - 엑셀변환을 처리할 URL (NULL 인 경우 Store 에 따른 기본 URL 을 사용한다.)
+             * @param {Ajax.Params} params = 엑셀변환을 처리하기 위한 추가 매개변수
              */
-            saveExcel(title: string, url: string = null): void {
+            saveExcel(title: string, url: string = null, params: Ajax.Params = {}): void {
                 Aui.Message.show({
                     title: Aui.printText('excel.save'),
                     icon: Aui.Message.INFO,
@@ -2112,7 +2113,6 @@ namespace Aui {
                     buttons: Aui.Message.OKCANCEL,
                     handler: async (button) => {
                         if (button.action == 'ok') {
-                            let params: { [key: string]: any } = {};
                             if (url === null) {
                                 if (this.store instanceof Aui.Store.Remote) {
                                     url = this.store.url;
@@ -2136,8 +2136,8 @@ namespace Aui {
                                     records.push(record.getRecord());
                                 }
                             } else {
-                                params = { ...(await this.store.getLoaderParams()) };
-                                if (params.limit > 0) {
+                                params = { ...params, ...(await this.store.getLoaderParams()) };
+                                if (params.limit !== undefined) {
                                     delete params.start;
                                     delete params.limit;
                                 }
@@ -2174,9 +2174,11 @@ namespace Aui {
                                             );
                                         }
                                     },
-                                    handler: async (_button, results) => {
+                                    handler: async (button, results) => {
                                         const download = results?.data?.download ?? null;
                                         if (download !== null) {
+                                            button.setLoading(true);
+
                                             let $iframe = Html.get('iframe[name=download]');
                                             if ($iframe.getEl() == null) {
                                                 $iframe = Html.create('iframe', { name: 'download' });
