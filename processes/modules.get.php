@@ -7,7 +7,7 @@
  * @file /modules/admin/processes/modules.get.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 4. 19.
+ * @modified 2024. 10. 12.
  *
  * @var \modules\admin\Admin $me
  */
@@ -42,7 +42,7 @@ foreach ($modules as $module) {
         'status' =>
             $module->isInstalled() == false
                 ? 'NOT_INSTALLED'
-                : ($module->getPackage()->getHash() != $module->getInstalled()->hash
+                : ($module->isUpdatable() == true
                     ? 'NEED_UPDATE'
                     : 'INSTALLED'),
         'databases' => $module->getInstalled()?->databases ?? 0,
