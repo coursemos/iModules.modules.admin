@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 25.
+ * @modified 2024. 10. 12.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -387,6 +387,23 @@ class Admin extends \modules\admin\admin\Component
             ->update($this->table('groups'), ['administrators' => $administrators])
             ->where('group_id', $group_id)
             ->execute();
+    }
+
+    /**
+     * 권한식 프리셋을 가져온다.
+     *
+     * @return array $permissions
+     */
+    public function getPermissionPresets(): array
+    {
+        $permissions = [
+            $this->getPermissionExpression($this->getText('permissions.true'), 'true', 0),
+            $this->getPermissionExpression($this->getText('permissions.false'), 'false', 1),
+        ];
+
+        \Event::fireEvent($this->getComponent(), 'getPermissionPresets', [&$permissions, $this]);
+
+        return $permissions;
     }
 
     /**
