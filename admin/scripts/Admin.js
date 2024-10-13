@@ -172,6 +172,7 @@ var modules;
                                                         WIDGET: this.printText('admin.modules.show.properties.WIDGET'),
                                                         THEME: this.printText('admin.modules.show.properties.THEME'),
                                                         CRON: this.printText('admin.modules.show.properties.CRON'),
+                                                        LISTENERS: this.printText('admin.modules.show.properties.LISTENERS'),
                                                         CONFIGS: this.printText('admin.modules.show.properties.CONFIGS'),
                                                     },
                                                 }),
@@ -462,6 +463,7 @@ var modules;
                                                     options: {
                                                         GLOBAL: this.printText('admin.plugins.show.properties.GLOBAL'),
                                                         ADMIN: this.printText('admin.plugins.show.properties.ADMIN'),
+                                                        LISTENERS: this.printText('admin.plugins.show.properties.LISTENERS'),
                                                         CONFIGS: this.printText('admin.plugins.show.properties.CONFIGS'),
                                                     },
                                                 }),
