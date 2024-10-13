@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 10. 13.
  */
 var modules;
 (function (modules) {
@@ -186,7 +186,14 @@ var modules;
                                     tabIndex: -1,
                                     hidden: true,
                                     handler: (button) => {
-                                        this.modules.setConfigs(name, button.getParent().getData('configs'));
+                                        const window = button.getParent();
+                                        if (window.getData('configs')?.data?.properties?.includes('CONFIGS') == true) {
+                                            this.modules.setConfigs(name, button.getParent().getData('configs'));
+                                        }
+                                        else {
+                                            this.modules.install(name, button.getParent().getData('configs'));
+                                        }
+                                        window.close();
                                     },
                                 }),
                                 new Aui.Button({
@@ -265,6 +272,7 @@ var modules;
                             new Aui.Window({
                                 title: response.data.title,
                                 width: 680,
+                                maxHeight: 500,
                                 modal: true,
                                 resizable: false,
                                 items: [form],
@@ -333,6 +341,296 @@ var modules;
                         if (results.success == true) {
                             Aui.Message.close();
                             Aui.getComponent('modules')?.getStore().reload();
+                            return true;
+                        }
+                        else {
+                            if ((results.message ?? null) === null) {
+                                Aui.Message.close();
+                            }
+                        }
+                        return false;
+                    },
+                };
+                plugins = {
+                    /**
+                     * 플러그인정보를 확인한다.
+                     *
+                     * @param {string} name - 플러그인명
+                     */
+                    show: (name) => {
+                        new Aui.Window({
+                            title: 'Loading...',
+                            width: 680,
+                            modal: true,
+                            resizable: false,
+                            items: [
+                                new Aui.Form.Panel({
+                                    border: false,
+                                    layout: 'fit',
+                                    fieldDefaults: { labelWidth: 100, labelAlign: 'right' },
+                                    items: [
+                                        new Aui.Form.FieldSet({
+                                            title: this.printText('admin.plugins.show.defaults'),
+                                            items: [
+                                                new Aui.Form.Field.Container({
+                                                    direction: 'row',
+                                                    items: [
+                                                        new Aui.Form.Field.Container({
+                                                            width: 100,
+                                                            direction: 'column',
+                                                            items: [
+                                                                new Aui.Form.Field.Display({
+                                                                    name: 'icon',
+                                                                    renderer: (value) => {
+                                                                        const $box = Html.create('div');
+                                                                        $box.setStyle('margin-bottom', 'calc(var(--aui-component-gap) * -1)');
+                                                                        $box.setStyle('width', '100px');
+                                                                        $box.setStyle('height', '100px');
+                                                                        $box.setStyle('border', '1px solid transparent');
+                                                                        $box.setStyle('border-color', 'var(--aui-color-background-200)');
+                                                                        $box.setStyle('border-radius', '5px');
+                                                                        $box.setStyle('padding', '20px');
+                                                                        $box.setStyle('box-sizing', 'border-box');
+                                                                        const $icon = Html.html(value);
+                                                                        $icon.setStyle('width', '58px');
+                                                                        $icon.setStyle('height', '58px');
+                                                                        $icon.setStyle('line-height', '58px');
+                                                                        $icon.setStyle('text-align', 'center');
+                                                                        $icon.setStyle('font-size', '32px');
+                                                                        $box.append($icon);
+                                                                        return $box.toHtml();
+                                                                    },
+                                                                }),
+                                                                new Aui.Form.Field.Display({
+                                                                    name: 'version',
+                                                                    renderer: (value) => {
+                                                                        const $box = Html.create('div', null, value);
+                                                                        $box.setStyle('margin-top', 'calc(var(--aui-component-gap) * -1)');
+                                                                        $box.setStyle('width', '100px');
+                                                                        $box.setStyle('height', '30px');
+                                                                        $box.setStyle('background', 'var(--input-background-select)');
+                                                                        $box.setStyle('border-radius', '5px');
+                                                                        $box.setStyle('line-height', '30px');
+                                                                        $box.setStyle('text-align', 'center');
+                                                                        $box.setStyle('color', 'var(--input-color-select)');
+                                                                        return $box.toHtml();
+                                                                    },
+                                                                }),
+                                                            ],
+                                                        }),
+                                                        new Aui.Form.Field.Container({
+                                                            flex: 1,
+                                                            direction: 'column',
+                                                            items: [
+                                                                new Aui.Form.Field.Display({
+                                                                    label: this.printText('admin.plugins.author'),
+                                                                    name: 'author',
+                                                                }),
+                                                                new Aui.Form.Field.Display({
+                                                                    label: this.printText('admin.plugins.homepage'),
+                                                                    name: 'homepage',
+                                                                }),
+                                                                new Aui.Form.Field.Display({
+                                                                    label: this.printText('admin.plugins.language'),
+                                                                    name: 'language',
+                                                                }),
+                                                                new Aui.Form.Field.Display({
+                                                                    label: this.printText('admin.plugins.hash'),
+                                                                    name: 'hash',
+                                                                }),
+                                                            ],
+                                                        }),
+                                                    ],
+                                                }),
+                                            ],
+                                        }),
+                                        new Aui.Form.FieldSet({
+                                            title: this.printText('admin.plugins.show.details'),
+                                            items: [
+                                                new Aui.Form.Field.Display({
+                                                    name: 'description',
+                                                }),
+                                            ],
+                                        }),
+                                        new Aui.Form.FieldSet({
+                                            title: this.printText('admin.plugins.show.properties.title'),
+                                            items: [
+                                                new Aui.Form.Field.CheckGroup({
+                                                    name: 'properties',
+                                                    readonly: true,
+                                                    columns: 4,
+                                                    options: {
+                                                        GLOBAL: this.printText('admin.plugins.show.properties.GLOBAL'),
+                                                        ADMIN: this.printText('admin.plugins.show.properties.ADMIN'),
+                                                        CONFIGS: this.printText('admin.plugins.show.properties.CONFIGS'),
+                                                    },
+                                                }),
+                                            ],
+                                        }),
+                                    ],
+                                }),
+                            ],
+                            buttons: [
+                                new Aui.Button({
+                                    text: this.printText('buttons.configs'),
+                                    tabIndex: -1,
+                                    hidden: true,
+                                    handler: (button) => {
+                                        const window = button.getParent();
+                                        if (window.getData('configs')?.data?.properties?.includes('CONFIGS') == true) {
+                                            this.plugins.setConfigs(name, button.getParent().getData('configs'));
+                                        }
+                                        else {
+                                            this.plugins.install(name, button.getParent().getData('configs'));
+                                        }
+                                        window.close();
+                                    },
+                                }),
+                                new Aui.Button({
+                                    text: this.printText('buttons.close'),
+                                    buttonClass: 'confirm',
+                                    handler: (button) => {
+                                        const window = button.getParent();
+                                        window.close();
+                                    },
+                                }),
+                            ],
+                            listeners: {
+                                show: async (window) => {
+                                    const form = window.getItemAt(0);
+                                    const results = await form.load({
+                                        url: this.getProcessUrl('plugin'),
+                                        params: { name: name },
+                                    });
+                                    window.setData('configs', results);
+                                    if (results.success == true) {
+                                        window.getTitle().setTitle(results.data.title);
+                                        const button = window.buttons.at(0);
+                                        if (results.data.status == 'INSTALLED') {
+                                            if (results.data.properties.includes('CONFIGS') == true) {
+                                                button.show();
+                                            }
+                                        }
+                                        else if (results.data.status == 'NEED_UPDATE') {
+                                            button.setText((await this.getText('buttons.update')));
+                                            button.show();
+                                        }
+                                        else {
+                                            button.setText((await this.getText('buttons.install')));
+                                            button.show();
+                                        }
+                                    }
+                                    else {
+                                        window.close();
+                                    }
+                                },
+                            },
+                        }).show();
+                    },
+                    /**
+                     * 플러그인설정을 확인한다.
+                     *
+                     * @param {string} name - 플러그인명
+                     * @param {Ajax.Results} configs - 플러그인정보
+                     */
+                    setConfigs: async (name, configs = null) => {
+                        let response = configs;
+                        if (response === null) {
+                            Aui.Message.loading();
+                            response = await Ajax.get(this.getProcessUrl('plugin'), { name: name });
+                            Aui.Message.close();
+                        }
+                        if (response.data.properties.includes('CONFIGS') == true) {
+                            let form = (await globalThis.Admin.getModule(name)?.getConfigsForm()) ?? null;
+                            if (form !== null && form instanceof Aui.Form.Panel) {
+                                form.border = false;
+                                form.layout = 'fit';
+                            }
+                            else {
+                                form = new Aui.Form.Panel({
+                                    border: false,
+                                    layout: 'fit',
+                                    items: ((fields) => {
+                                        const items = [];
+                                        for (const field of fields) {
+                                            items.push(AdminUi.Form.Field.Create(field));
+                                        }
+                                        return items;
+                                    })(response.fields),
+                                });
+                            }
+                            new Aui.Window({
+                                title: response.data.title,
+                                width: 680,
+                                maxHeight: 500,
+                                modal: true,
+                                resizable: false,
+                                items: [form],
+                                buttons: [
+                                    new Aui.Button({
+                                        text: this.printText('buttons.cancel'),
+                                        tabIndex: -1,
+                                        handler: (button) => {
+                                            const window = button.getParent();
+                                            window.close();
+                                        },
+                                    }),
+                                    new Aui.Button({
+                                        text: this.printText('buttons.ok'),
+                                        buttonClass: 'confirm',
+                                        handler: async (button) => {
+                                            const window = button.getParent();
+                                            const form = window.getItemAt(0);
+                                            const isValid = await form.isValid();
+                                            if (isValid == true) {
+                                                const configs = form.getValues();
+                                                const success = await this.plugins.install(name, configs);
+                                                if (success == true) {
+                                                    window.close();
+                                                }
+                                            }
+                                        },
+                                    }),
+                                ],
+                                listeners: {
+                                    show: (window) => {
+                                        const form = window.getItemAt(0);
+                                        for (const field in response.configs ?? {}) {
+                                            form.getField(field)?.setValue(response.configs[field]);
+                                        }
+                                        form.fireEvent('load', [form, { data: response.configs }]);
+                                    },
+                                },
+                            }).show();
+                        }
+                        else {
+                        }
+                    },
+                    /**
+                     * 플러그인을 설치한다.
+                     *
+                     * @param {string} name - 플러그인명
+                     * @param {Ojbect} configs - 플러그인설정 (NULL 인 경우 플러그인설정여부를 확인 후 플러그인 설정을 먼저 한다.)
+                     */
+                    install: async (name, configs = null) => {
+                        if (configs === null) {
+                            Aui.Message.loading();
+                            const response = await Ajax.get(this.getProcessUrl('plugin'), { name: name });
+                            if (response.data.properties.includes('CONFIGS') == true) {
+                                Aui.Message.close();
+                                this.plugins.setConfigs(name, response);
+                                return false;
+                            }
+                        }
+                        Aui.Message.loading({
+                            title: (await this.getText('actions.installing_status')),
+                            message: (await this.getText('actions.installing')),
+                            type: 'atom',
+                        });
+                        const results = await Ajax.post(this.getProcessUrl('plugin'), { name: name, configs: configs }, {}, false);
+                        if (results.success == true) {
+                            Aui.Message.close();
+                            Aui.getComponent('plugins')?.getStore().reload();
                             return true;
                         }
                         else {

@@ -133,6 +133,35 @@
                 }
             }
         },
+        "plugins": {
+            "title": "플러그인명",
+            "version": "버전",
+            "description": "플러그인설명",
+            "author": "제작자",
+            "status": {
+                "title": "상태",
+                "INSTALLED": "정상설치",
+                "NEED_UPDATE": "업데이트필요",
+                "NOT_INSTALLED": "설치되지않음"
+            },
+            "databases": "DB용량",
+            "attachments": "첨부파일용량",
+            "update_size": "사용용량통계 갱신",
+            "homepage": "홈페이지",
+            "language": "기본언어",
+            "hash": "패키지해시",
+            "show": {
+                "title": "플러그인정보보기",
+                "defaults": "기본정보",
+                "details": "상세설명",
+                "properties": {
+                    "title": "플러그인속성",
+                    "GLOBAL": "전역플러그인",
+                    "ADMIN": "관리자",
+                    "CONFIGS": "플러그인환경설정"
+                }
+            }
+        },
         "sitemap": {
             "domains": {
                 "add": "도메인추가",

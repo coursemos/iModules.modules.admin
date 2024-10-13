@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 12.
+ * @modified 2024. 10. 13.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -88,6 +88,10 @@ class Admin extends \modules\admin\admin\Component
 
             case 'modules':
                 \Html::script($this->getBase() . '/scripts/contexts/modules.js');
+                break;
+
+            case 'plugins':
+                \Html::script($this->getBase() . '/scripts/contexts/plugins.js');
                 break;
 
             case 'sitemap':
