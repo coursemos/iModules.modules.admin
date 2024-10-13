@@ -616,7 +616,7 @@ namespace modules {
                         }
 
                         if (response.data.properties.includes('CONFIGS') == true) {
-                            let form = (await globalThis.Admin.getModule(name)?.getConfigsForm()) ?? null;
+                            let form = (await globalThis.Admin.getPlugin(name)?.getConfigsForm()) ?? null;
                             if (form !== null && form instanceof Aui.Form.Panel) {
                                 form.border = false;
                                 form.layout = 'fit';

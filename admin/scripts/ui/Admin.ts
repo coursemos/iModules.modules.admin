@@ -6,13 +6,14 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 5.
+ * @modified 2024. 10. 13.
  */
 namespace Admin {
     export let language: string = null;
     export let viewportListener: () => Promise<Aui.Component>;
     export let viewportRenderers: ((component: Aui.Component) => Promise<void>)[] = [];
     export const modules: Map<string, modules.admin.admin.Component> = new Map();
+    export const plugins: Map<string, modules.admin.admin.Component> = new Map();
 
     /**
      * 컴포넌트 관리자 클래스의 인터페이스를 가져온다.
@@ -63,6 +64,50 @@ namespace Admin {
         }
 
         return Admin.modules.get(name);
+    }
+
+    /**
+     * 플러그인의 관리자 클래스를 가져온다.
+     *
+     * @param {string} plugin - 플러그인명
+     * @return {modules.admin.admin.Component} - 모듈 관리자 클래스
+     */
+    export function getPlugin(name: string): modules.admin.admin.Component {
+        if (Admin.plugins.has(name) == false) {
+            const namespaces = name.split('/');
+            if (window['plugins'] === undefined) {
+                return null;
+            }
+
+            let namespace: Object | Admin.ComponentConstructor = window['plugins'];
+            for (const name of namespaces) {
+                if (namespace[name] === undefined) {
+                    return null;
+                }
+                namespace = namespace[name];
+            }
+            if (namespace['admin'] === undefined) {
+                return null;
+            }
+            namespace = namespace['admin'];
+
+            const classname = namespaces.pop().replace(/^[a-z]/, (char: string) => char.toUpperCase());
+            if (namespace[classname] === undefined) {
+                return null;
+            }
+
+            if (
+                typeof namespace[classname] == 'function' &&
+                namespace[classname].prototype instanceof globalThis.modules.admin.admin.Component
+            ) {
+                Admin.plugins.set(name, new (namespace[classname] as Admin.ComponentConstructor)('plugin', name));
+                return Admin.plugins.get(name);
+            }
+
+            return null;
+        }
+
+        return Admin.plugins.get(name);
     }
 
     /**

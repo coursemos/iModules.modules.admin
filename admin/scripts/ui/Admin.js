@@ -6,13 +6,14 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 5.
+ * @modified 2024. 10. 13.
  */
 var Admin;
 (function (Admin) {
     Admin.language = null;
     Admin.viewportRenderers = [];
     Admin.modules = new Map();
+    Admin.plugins = new Map();
     /**
      * 모듈의 관리자 클래스를 가져온다.
      *
@@ -50,6 +51,43 @@ var Admin;
         return Admin.modules.get(name);
     }
     Admin.getModule = getModule;
+    /**
+     * 플러그인의 관리자 클래스를 가져온다.
+     *
+     * @param {string} plugin - 플러그인명
+     * @return {modules.admin.admin.Component} - 모듈 관리자 클래스
+     */
+    function getPlugin(name) {
+        if (Admin.plugins.has(name) == false) {
+            const namespaces = name.split('/');
+            if (window['plugins'] === undefined) {
+                return null;
+            }
+            let namespace = window['plugins'];
+            for (const name of namespaces) {
+                if (namespace[name] === undefined) {
+                    return null;
+                }
+                namespace = namespace[name];
+            }
+            if (namespace['admin'] === undefined) {
+                return null;
+            }
+            namespace = namespace['admin'];
+            const classname = namespaces.pop().replace(/^[a-z]/, (char) => char.toUpperCase());
+            if (namespace[classname] === undefined) {
+                return null;
+            }
+            if (typeof namespace[classname] == 'function' &&
+                namespace[classname].prototype instanceof globalThis.modules.admin.admin.Component) {
+                Admin.plugins.set(name, new namespace[classname]('plugin', name));
+                return Admin.plugins.get(name);
+            }
+            return null;
+        }
+        return Admin.plugins.get(name);
+    }
+    Admin.getPlugin = getPlugin;
     /**
      * 세션 스토리지의 데이터를 처리한다.
      *

@@ -412,6 +412,10 @@ class Admin extends \Module
         \Html::script(\Cache::script('Admin.ui'), 15);
 
         \Cache::script('Admin.component', $this->getBase() . '/admin/scripts/Component.js');
+
+        /**
+         * 모든 모듈의 관리자 스크립트를 가져온다.
+         */
         foreach (\Modules::all(false) as $module) {
             if (is_file($module->getPath() . '/admin/scripts/' . $module->getClassName() . '.js') == true) {
                 \Cache::script(
@@ -425,6 +429,24 @@ class Admin extends \Module
                 \Cache::script('Admin.component', $script);
             }
         }
+
+        /**
+         * 모든 플러그인의 관리자 스크립트를 가져온다.
+         */
+        foreach (\Plugins::all(false) as $plugin) {
+            if (is_file($plugin->getPath() . '/admin/scripts/' . $plugin->getClassName() . '.js') == true) {
+                \Cache::script(
+                    'Admin.component',
+                    $plugin->getBase() . '/admin/scripts/' . $plugin->getClassName() . '.js'
+                );
+            }
+
+            $scripts = $plugin->getAdmin()?->getScripts() ?? [];
+            foreach ($scripts as $script) {
+                \Cache::script('Admin.component', $script);
+            }
+        }
+
         \Html::script(\Cache::script('Admin.component'), 20);
 
         \Cache::style('Aui', $this->getBase() . '/ui/styles/Aui.Base.css');
@@ -452,14 +474,11 @@ class Admin extends \Module
         \Html::style(\Cache::style('Aui'), 10);
 
         \Cache::style('Admin.Component', $this->getBase() . '/admin/styles/Admin.css');
-        foreach (\Modules::all() as $module) {
-            if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . '.scss') == true) {
-                \Cache::style(
-                    'Admin.Component',
-                    $module->getBase() . '/admin/styles/' . $module->getClassName() . '.scss'
-                );
-            }
 
+        /**
+         * 설치된 모듈의 관리자 스타일시트를 가져온다.
+         */
+        foreach (\Modules::all() as $module) {
             if (is_file($module->getPath() . '/admin/styles/' . $module->getClassName() . '.css') == true) {
                 \Cache::style(
                     'Admin.Component',
@@ -472,6 +491,24 @@ class Admin extends \Module
                 \Cache::style('Admin.Component', $style);
             }
         }
+
+        /**
+         * 설치된 플러그인의 관리자 스타일시트를 가져온다.
+         */
+        foreach (\Plugins::all() as $plugin) {
+            if (is_file($plugin->getPath() . '/admin/styles/' . $plugin->getClassName() . '.css') == true) {
+                \Cache::style(
+                    'Admin.Component',
+                    $plugin->getBase() . '/admin/styles/' . $plugin->getClassName() . '.css'
+                );
+            }
+
+            $styles = $plugin->getAdmin()?->getStyles() ?? [];
+            foreach ($styles as $style) {
+                \Cache::style('Admin.Component', $style);
+            }
+        }
+
         \Html::style(\Cache::style('Admin.Component'), 20);
 
         /**
