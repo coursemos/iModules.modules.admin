@@ -141,12 +141,10 @@ body[data-type='login'] {
                         font-variant-numeric: tabular-nums;
                     }
 
-                    > small {
-                        display: inline-block;
+                    small {
+                        display: inline;
                         color: var(--aui-color-text-300);
-                        vertical-align: baseline;
-                        margin-bottom: -2px;
-                        height: 1lh;
+                        vertical-align: top;
                     }
                 }
             }
