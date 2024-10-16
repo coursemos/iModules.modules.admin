@@ -7,7 +7,7 @@
  * @file /modules/admin/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 13.
+ * @modified 2024. 10. 16.
  */
 namespace modules\admin\admin;
 class Admin extends \modules\admin\admin\Component
@@ -405,7 +405,7 @@ class Admin extends \modules\admin\admin\Component
             $this->getPermissionExpression($this->getText('permissions.false'), 'false', 1),
         ];
 
-        \Event::fireEvent($this->getComponent(), 'getPermissionPresets', [&$permissions, $this]);
+        \Events::fireEvent($this->getComponent(), 'getPermissionPresets', [&$permissions, $this]);
 
         return $permissions;
     }
