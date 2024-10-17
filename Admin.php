@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 26.
+ * @modified 2024. 10. 17.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -348,7 +348,7 @@ class Admin extends \Module
             \Html::style($this->getBase() . '/ui/styles/Aui.Base.css');
             \Html::style($this->getBase() . '/admin/styles/Admin.css', 15);
 
-            return $theme->getLayout('login');
+            return $theme->getIndex($theme->getLayout('login'));
         }
 
         /**
@@ -523,7 +523,7 @@ class Admin extends \Module
 
         \Html::body('data-context-url', $context->getPath());
 
-        return $theme->getLayout('admin');
+        return $theme->getIndex($theme->getLayout('admin'));
     }
 
     /**
