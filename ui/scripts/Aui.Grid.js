@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 9.
+ * @modified 2024. 10. 22.
  */
 var Aui;
 (function (Aui) {
@@ -1833,7 +1833,7 @@ var Aui;
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records = [];
-                                                    const filters = Aui.getText('filters.text');
+                                                    const filters = Aui.getTexts('filters.text');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -1958,7 +1958,7 @@ var Aui;
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records = [];
-                                                    const filters = Aui.getText('filters.number');
+                                                    const filters = Aui.getTexts('filters.number');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -1999,7 +1999,7 @@ var Aui;
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records = [];
-                                                    const filters = Aui.getText('filters.number_start');
+                                                    const filters = Aui.getTexts('filters.number_start');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -2022,7 +2022,7 @@ var Aui;
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records = [];
-                                                    const filters = Aui.getText('filters.number_end');
+                                                    const filters = Aui.getTexts('filters.number_end');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -2155,7 +2155,7 @@ var Aui;
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records = [];
-                                                    const filters = Aui.getText('filters.date');
+                                                    const filters = Aui.getTexts('filters.date');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }

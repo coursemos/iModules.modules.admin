@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/modules.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 6.
+ * @modified 2024. 10. 22.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -16,14 +16,14 @@ Admin.ready(async () => {
         iconClass: 'mi mi-module',
         border: false,
         layout: 'fit',
-        title: (await me.getText('admin.contexts.modules')) as string,
+        title: await me.getText('admin.contexts.modules'),
         selection: { selectable: true },
         autoLoad: true,
         topbar: [
             new Aui.Form.Field.Search({
                 name: 'keyword',
                 width: 200,
-                emptyText: (await me.getText('keyword')) as string,
+                emptyText: await me.getText('keyword'),
                 liveSearch: true,
                 handler: async (keyword, field) => {
                     const grid = field.getParent().getParent() as Aui.Grid.Panel;
@@ -43,7 +43,7 @@ Admin.ready(async () => {
             '->',
             new Aui.Button({
                 iconClass: 'mi mi-refresh',
-                text: (await me.getText('admin.modules.update_size')) as string,
+                text: await me.getText('admin.modules.update_size'),
             }),
         ],
         bottombar: [
@@ -62,7 +62,7 @@ Admin.ready(async () => {
         }),
         columns: [
             {
-                text: (await me.getText('admin.modules.title')) as string,
+                text: await me.getText('admin.modules.title'),
                 dataIndex: 'title',
                 width: 200,
                 sortable: true,
@@ -71,23 +71,23 @@ Admin.ready(async () => {
                 },
             },
             {
-                text: (await me.getText('admin.modules.version')) as string,
+                text: await me.getText('admin.modules.version'),
                 dataIndex: 'version',
                 width: 80,
                 textAlign: 'center',
             },
             {
-                text: (await me.getText('admin.modules.description')) as string,
+                text: await me.getText('admin.modules.description'),
                 dataIndex: 'description',
                 minWidth: 200,
             },
             {
-                text: (await me.getText('admin.modules.author')) as string,
+                text: await me.getText('admin.modules.author'),
                 dataIndex: 'author',
                 width: 160,
             },
             {
-                text: (await me.getText('admin.modules.status.title')) as string,
+                text: await me.getText('admin.modules.status.title'),
                 dataIndex: 'status',
                 width: 100,
                 textAlign: 'center',
@@ -103,7 +103,7 @@ Admin.ready(async () => {
                 },
             },
             {
-                text: (await me.getText('admin.modules.databases')) as string,
+                text: await me.getText('admin.modules.databases'),
                 dataIndex: 'databases',
                 width: 100,
                 textAlign: 'right',
@@ -112,7 +112,7 @@ Admin.ready(async () => {
                 },
             },
             {
-                text: (await me.getText('admin.modules.attachments')) as string,
+                text: await me.getText('admin.modules.attachments'),
                 dataIndex: 'attachments',
                 width: 100,
                 textAlign: 'right',

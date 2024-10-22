@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 13.
+ * @modified 2024. 10. 22.
  */
 var modules;
 (function (modules) {
@@ -24,10 +24,10 @@ var modules;
                     return new Aui.Form.Panel({
                         items: [
                             new Aui.Form.FieldSet({
-                                title: (await this.getText('admin.configs.default')),
+                                title: await this.getText('admin.configs.default'),
                                 items: [
                                     new AdminUi.Form.Field.Theme({
-                                        label: (await this.getText('admin.configs.theme')),
+                                        label: await this.getText('admin.configs.theme'),
                                         name: 'theme',
                                         category: 'admin',
                                         componentType: this.getType(),
@@ -36,10 +36,10 @@ var modules;
                                 ],
                             }),
                             new Aui.Form.FieldSet({
-                                title: (await this.getText('admin.configs.security')),
+                                title: await this.getText('admin.configs.security'),
                                 items: [
                                     new Aui.Form.Field.Container({
-                                        label: (await this.getText('admin.configs.use_whitelist')),
+                                        label: await this.getText('admin.configs.use_whitelist'),
                                         direction: 'column',
                                         items: [
                                             new Aui.Form.Field.Check({
@@ -223,11 +223,11 @@ var modules;
                                             }
                                         }
                                         else if (results.data.status == 'NEED_UPDATE') {
-                                            button.setText((await this.getText('buttons.update')));
+                                            button.setText(await this.getText('buttons.update'));
                                             button.show();
                                         }
                                         else {
-                                            button.setText((await this.getText('buttons.install')));
+                                            button.setText(await this.getText('buttons.install'));
                                             button.show();
                                         }
                                     }
@@ -334,8 +334,8 @@ var modules;
                             }
                         }
                         Aui.Message.loading({
-                            title: (await this.getText('actions.installing_status')),
-                            message: (await this.getText('actions.installing')),
+                            title: await this.getText('actions.installing_status'),
+                            message: await this.getText('actions.installing'),
                             type: 'atom',
                         });
                         const results = await Ajax.post(this.getProcessUrl('module'), { name: name, configs: configs }, {}, false);
@@ -514,11 +514,11 @@ var modules;
                                             }
                                         }
                                         else if (results.data.status == 'NEED_UPDATE') {
-                                            button.setText((await this.getText('buttons.update')));
+                                            button.setText(await this.getText('buttons.update'));
                                             button.show();
                                         }
                                         else {
-                                            button.setText((await this.getText('buttons.install')));
+                                            button.setText(await this.getText('buttons.install'));
                                             button.show();
                                         }
                                     }
@@ -625,8 +625,8 @@ var modules;
                             }
                         }
                         Aui.Message.loading({
-                            title: (await this.getText('actions.installing_status')),
-                            message: (await this.getText('actions.installing')),
+                            title: await this.getText('actions.installing_status'),
+                            message: await this.getText('actions.installing'),
                             type: 'atom',
                         });
                         const results = await Ajax.post(this.getProcessUrl('plugin'), { name: name, configs: configs }, {}, false);
@@ -734,8 +734,8 @@ var modules;
                                             });
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')),
-                                                    message: (await this.getText('actions.saved')),
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -940,8 +940,8 @@ var modules;
                                             });
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')),
-                                                    message: (await this.getText('actions.saved')),
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -1307,8 +1307,8 @@ var modules;
                                             });
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')),
-                                                    message: (await this.getText('actions.saved')),
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -1651,8 +1651,8 @@ var modules;
                                             });
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')),
-                                                    message: (await this.getText('actions.saved')),
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -1924,7 +1924,7 @@ var modules;
                                         }
                                         if (member_ids.length == 0) {
                                             Aui.Message.show({
-                                                title: (await this.getText('info')),
+                                                title: await this.getText('info'),
                                                 message: (await this.getText('admin.administrators.lists.actions.unselected_members')),
                                                 icon: Aui.Message.INFO,
                                                 buttons: Aui.Message.OK,
@@ -1952,8 +1952,8 @@ var modules;
                                         }
                                         if (results.success == true) {
                                             Aui.Message.show({
-                                                title: (await this.getText('info')),
-                                                message: (await this.getText('actions.saved')),
+                                                title: await this.getText('info'),
+                                                message: await this.getText('actions.saved'),
                                                 icon: Aui.Message.INFO,
                                                 buttons: Aui.Message.OK,
                                                 handler: async () => {
@@ -2134,8 +2134,8 @@ var modules;
                                         });
                                         if (results.success == true) {
                                             Aui.Message.show({
-                                                title: (await this.getText('info')),
-                                                message: (await this.getText('actions.saved')),
+                                                title: await this.getText('info'),
+                                                message: await this.getText('actions.saved'),
                                                 icon: Aui.Message.INFO,
                                                 buttons: Aui.Message.OK,
                                                 handler: async () => {

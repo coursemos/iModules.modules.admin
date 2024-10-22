@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/database.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 10. 22.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin') as modules.admin.admin.Admin;
@@ -16,7 +16,7 @@ Admin.ready(async () => {
         border: false,
         layout: 'column',
         iconClass: 'mi mi-database',
-        title: (await me.getText('admin.contexts.database')) as string,
+        title: await me.getText('admin.contexts.database'),
         scrollable: true,
         items: [
             new Aui.Tree.Panel({
@@ -30,7 +30,7 @@ Admin.ready(async () => {
                     new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
-                        emptyText: (await me.getText('keyword')) as string,
+                        emptyText: await me.getText('keyword'),
                         liveSearch: true,
                         handler: async (keyword, field) => {
                             const tree = field.getParent().getParent() as Aui.Tree.Panel;
@@ -43,7 +43,7 @@ Admin.ready(async () => {
                     }),
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.database.tables.add')) as string,
+                        text: await me.getText('admin.database.tables.add'),
                         handler: () => {
                             //
                         },
@@ -65,7 +65,7 @@ Admin.ready(async () => {
                 }),
                 columns: [
                     {
-                        text: (await me.getText('admin.database.tables.name')) as string,
+                        text: await me.getText('admin.database.tables.name'),
                         dataIndex: 'name',
                         renderer: (value) => {
                             return value == '@' ? me.printText('admin.database.tables.all') : value;

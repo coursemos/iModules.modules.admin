@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/database.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 10. 22.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -15,7 +15,7 @@ Admin.ready(async () => {
         border: false,
         layout: 'column',
         iconClass: 'mi mi-database',
-        title: (await me.getText('admin.contexts.database')),
+        title: await me.getText('admin.contexts.database'),
         scrollable: true,
         items: [
             new Aui.Tree.Panel({
@@ -29,7 +29,7 @@ Admin.ready(async () => {
                     new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
-                        emptyText: (await me.getText('keyword')),
+                        emptyText: await me.getText('keyword'),
                         liveSearch: true,
                         handler: async (keyword, field) => {
                             const tree = field.getParent().getParent();
@@ -43,7 +43,7 @@ Admin.ready(async () => {
                     }),
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.database.tables.add')),
+                        text: await me.getText('admin.database.tables.add'),
                         handler: () => {
                             //
                         },
@@ -65,7 +65,7 @@ Admin.ready(async () => {
                 }),
                 columns: [
                     {
-                        text: (await me.getText('admin.database.tables.name')),
+                        text: await me.getText('admin.database.tables.name'),
                         dataIndex: 'name',
                         renderer: (value) => {
                             return value == '@' ? me.printText('admin.database.tables.all') : value;

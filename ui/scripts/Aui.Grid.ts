@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 9.
+ * @modified 2024. 10. 22.
  */
 namespace Aui {
     export namespace Grid {
@@ -2354,9 +2354,7 @@ namespace Aui {
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records: [string, string][] = [];
-                                                    const filters = Aui.getText('filters.text') as {
-                                                        [key: string]: string;
-                                                    };
+                                                    const filters = Aui.getTexts('filters.text');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -2515,9 +2513,7 @@ namespace Aui {
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records: [string, string][] = [];
-                                                    const filters = Aui.getText('filters.number') as {
-                                                        [key: string]: string;
-                                                    };
+                                                    const filters = Aui.getTexts('filters.number');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -2557,9 +2553,7 @@ namespace Aui {
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records: [string, string][] = [];
-                                                    const filters = Aui.getText('filters.number_start') as {
-                                                        [key: string]: string;
-                                                    };
+                                                    const filters = Aui.getTexts('filters.number_start');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -2582,9 +2576,7 @@ namespace Aui {
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records: [string, string][] = [];
-                                                    const filters = Aui.getText('filters.number_end') as {
-                                                        [key: string]: string;
-                                                    };
+                                                    const filters = Aui.getTexts('filters.number_end');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }
@@ -2743,9 +2735,7 @@ namespace Aui {
                                                 fields: ['value', 'display'],
                                                 records: (() => {
                                                     const records: [string, string][] = [];
-                                                    const filters = Aui.getText('filters.date') as {
-                                                        [key: string]: string;
-                                                    };
+                                                    const filters = Aui.getTexts('filters.date');
                                                     for (const code in filters) {
                                                         records.push([code, filters[code]]);
                                                     }

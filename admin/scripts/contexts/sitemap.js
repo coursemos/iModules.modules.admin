@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/sitemap.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 6.
+ * @modified 2024. 10. 22.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -15,7 +15,7 @@ Admin.ready(async () => {
         border: false,
         layout: 'column',
         iconClass: 'mi mi-sitemap',
-        title: (await me.getText('admin.contexts.sitemap')),
+        title: await me.getText('admin.contexts.sitemap'),
         scrollable: true,
         items: [
             new Aui.Grid.Panel({
@@ -31,7 +31,7 @@ Admin.ready(async () => {
                     new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
-                        emptyText: (await me.getText('keyword')),
+                        emptyText: await me.getText('keyword'),
                         liveSearch: true,
                         handler: async (keyword, field) => {
                             const grid = field.getParent().getParent();
@@ -45,7 +45,7 @@ Admin.ready(async () => {
                     }),
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.sitemap.domains.add')),
+                        text: await me.getText('admin.sitemap.domains.add'),
                         handler: () => {
                             me.sitemap.domains.add();
                         },
@@ -66,7 +66,7 @@ Admin.ready(async () => {
                 }),
                 columns: [
                     {
-                        text: (await me.getText('admin.sitemap.domains.host')),
+                        text: await me.getText('admin.sitemap.domains.host'),
                         dataIndex: 'host',
                     },
                 ],
@@ -131,7 +131,7 @@ Admin.ready(async () => {
                     new Aui.Form.Field.Search({
                         name: 'keyword',
                         flex: 1,
-                        emptyText: (await me.getText('keyword')),
+                        emptyText: await me.getText('keyword'),
                         liveSearch: true,
                         handler: async (keyword, field) => {
                             const grid = field.getParent().getParent();
@@ -148,7 +148,7 @@ Admin.ready(async () => {
                     }),
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.sitemap.sites.add')),
+                        text: await me.getText('admin.sitemap.sites.add'),
                         handler: () => {
                             me.sitemap.sites.add();
                         },
@@ -169,7 +169,7 @@ Admin.ready(async () => {
                 }),
                 columns: [
                     {
-                        text: (await me.getText('admin.sitemap.sites.title')),
+                        text: await me.getText('admin.sitemap.sites.title'),
                         dataIndex: 'title',
                         renderer: (value, record) => {
                             return '<b class="language">' + record.get('language') + '</b>' + value;
@@ -242,7 +242,7 @@ Admin.ready(async () => {
                     new Aui.Form.Field.Search({
                         name: 'keyword',
                         width: 200,
-                        emptyText: (await me.getText('keyword')),
+                        emptyText: await me.getText('keyword'),
                         liveSearch: true,
                         handler: async (keyword, field) => {
                             const tree = field.getParent().getParent();
@@ -260,7 +260,7 @@ Admin.ready(async () => {
                     '->',
                     new Aui.Button({
                         iconClass: 'mi mi-plus',
-                        text: (await me.getText('admin.sitemap.contexts.add')),
+                        text: await me.getText('admin.sitemap.contexts.add'),
                         handler: () => {
                             me.sitemap.contexts.add();
                         },
@@ -307,7 +307,7 @@ Admin.ready(async () => {
                 }),
                 columns: [
                     {
-                        text: (await me.getText('admin.sitemap.contexts.path')),
+                        text: await me.getText('admin.sitemap.contexts.path'),
                         dataIndex: 'path',
                         minWidth: 250,
                         renderer: (_value, record) => {
@@ -315,13 +315,13 @@ Admin.ready(async () => {
                         },
                     },
                     {
-                        text: (await me.getText('admin.sitemap.contexts.title')),
+                        text: await me.getText('admin.sitemap.contexts.title'),
                         dataIndex: 'title',
                         minWidth: 150,
                         flex: 1,
                     },
                     {
-                        text: (await me.getText('admin.sitemap.contexts.type')),
+                        text: await me.getText('admin.sitemap.contexts.type'),
                         dataIndex: 'type',
                         width: 250,
                         renderer: (value, record) => {
@@ -329,7 +329,7 @@ Admin.ready(async () => {
                         },
                     },
                     {
-                        text: (await me.getText('admin.sitemap.contexts.layout')),
+                        text: await me.getText('admin.sitemap.contexts.layout'),
                         dataIndex: 'layout',
                         width: 100,
                     },

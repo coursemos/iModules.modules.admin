@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 13.
+ * @modified 2024. 10. 22.
  */
 namespace modules {
     export namespace admin {
@@ -21,10 +21,10 @@ namespace modules {
                     return new Aui.Form.Panel({
                         items: [
                             new Aui.Form.FieldSet({
-                                title: (await this.getText('admin.configs.default')) as string,
+                                title: await this.getText('admin.configs.default'),
                                 items: [
                                     new AdminUi.Form.Field.Theme({
-                                        label: (await this.getText('admin.configs.theme')) as string,
+                                        label: await this.getText('admin.configs.theme'),
                                         name: 'theme',
                                         category: 'admin',
                                         componentType: this.getType(),
@@ -33,10 +33,10 @@ namespace modules {
                                 ],
                             }),
                             new Aui.Form.FieldSet({
-                                title: (await this.getText('admin.configs.security')) as string,
+                                title: await this.getText('admin.configs.security'),
                                 items: [
                                     new Aui.Form.Field.Container({
-                                        label: (await this.getText('admin.configs.use_whitelist')) as string,
+                                        label: await this.getText('admin.configs.use_whitelist'),
                                         direction: 'column',
                                         items: [
                                             new Aui.Form.Field.Check({
@@ -255,10 +255,10 @@ namespace modules {
                                                 button.show();
                                             }
                                         } else if (results.data.status == 'NEED_UPDATE') {
-                                            button.setText((await this.getText('buttons.update')) as string);
+                                            button.setText(await this.getText('buttons.update'));
                                             button.show();
                                         } else {
-                                            button.setText((await this.getText('buttons.install')) as string);
+                                            button.setText(await this.getText('buttons.install'));
                                             button.show();
                                         }
                                     } else {
@@ -371,8 +371,8 @@ namespace modules {
                         }
 
                         Aui.Message.loading({
-                            title: (await this.getText('actions.installing_status')) as string,
-                            message: (await this.getText('actions.installing')) as string,
+                            title: await this.getText('actions.installing_status'),
+                            message: await this.getText('actions.installing'),
                             type: 'atom',
                         });
 
@@ -586,10 +586,10 @@ namespace modules {
                                                 button.show();
                                             }
                                         } else if (results.data.status == 'NEED_UPDATE') {
-                                            button.setText((await this.getText('buttons.update')) as string);
+                                            button.setText(await this.getText('buttons.update'));
                                             button.show();
                                         } else {
-                                            button.setText((await this.getText('buttons.install')) as string);
+                                            button.setText(await this.getText('buttons.install'));
                                             button.show();
                                         }
                                     } else {
@@ -702,8 +702,8 @@ namespace modules {
                         }
 
                         Aui.Message.loading({
-                            title: (await this.getText('actions.installing_status')) as string,
-                            message: (await this.getText('actions.installing')) as string,
+                            title: await this.getText('actions.installing_status'),
+                            message: await this.getText('actions.installing'),
                             type: 'atom',
                         });
 
@@ -823,8 +823,8 @@ namespace modules {
 
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')) as string,
-                                                    message: (await this.getText('actions.saved')) as string,
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -1041,8 +1041,8 @@ namespace modules {
 
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')) as string,
-                                                    message: (await this.getText('actions.saved')) as string,
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -1434,8 +1434,8 @@ namespace modules {
 
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')) as string,
-                                                    message: (await this.getText('actions.saved')) as string,
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -1836,8 +1836,8 @@ namespace modules {
 
                                             if (results.success == true) {
                                                 Aui.Message.show({
-                                                    title: (await this.getText('info')) as string,
-                                                    message: (await this.getText('actions.saved')) as string,
+                                                    title: await this.getText('info'),
+                                                    message: await this.getText('actions.saved'),
                                                     icon: Aui.Message.INFO,
                                                     buttons: Aui.Message.OK,
                                                     handler: async () => {
@@ -2126,7 +2126,7 @@ namespace modules {
 
                                         if (member_ids.length == 0) {
                                             Aui.Message.show({
-                                                title: (await this.getText('info')) as string,
+                                                title: await this.getText('info'),
                                                 message: (await this.getText(
                                                     'admin.administrators.lists.actions.unselected_members'
                                                 )) as string,
@@ -2160,8 +2160,8 @@ namespace modules {
 
                                         if (results.success == true) {
                                             Aui.Message.show({
-                                                title: (await this.getText('info')) as string,
-                                                message: (await this.getText('actions.saved')) as string,
+                                                title: await this.getText('info'),
+                                                message: await this.getText('actions.saved'),
                                                 icon: Aui.Message.INFO,
                                                 buttons: Aui.Message.OK,
                                                 handler: async () => {
@@ -2388,8 +2388,8 @@ namespace modules {
 
                                         if (results.success == true) {
                                             Aui.Message.show({
-                                                title: (await this.getText('info')) as string,
-                                                message: (await this.getText('actions.saved')) as string,
+                                                title: await this.getText('info'),
+                                                message: await this.getText('actions.saved'),
                                                 icon: Aui.Message.INFO,
                                                 buttons: Aui.Message.OK,
                                                 handler: async () => {

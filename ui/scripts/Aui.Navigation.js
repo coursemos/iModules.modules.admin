@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Navigation.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2024. 10. 22.
  */
 var Aui;
 (function (Aui) {
@@ -195,7 +195,7 @@ var Aui;
                                         fields: ['display', 'value'],
                                         records: (() => {
                                             const records = [];
-                                            const smarts = Aui.getText('components.navigation.smart');
+                                            const smarts = Aui.getTexts('components.navigation.smart');
                                             for (const value in smarts) {
                                                 const record = [smarts[value], value];
                                                 records.push(record);
@@ -240,7 +240,7 @@ var Aui;
                                         }
                                         const properties = $folder.getData('properties');
                                         if (properties.title == values.title) {
-                                            form.getField('title').setError(true, (await Admin.getText('admin.navigation.folder.duplicated')));
+                                            form.getField('title').setError(true, await Admin.getText('admin.navigation.folder.duplicated'));
                                             return;
                                         }
                                     }
