@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 13.
+ * @modified 2024. 10. 22.
  */
 namespace Admin {
     export let language: string = null;
@@ -175,13 +175,21 @@ namespace Admin {
      *
      * @param {string} text - 언어팩코드
      * @param {Object} placeHolder - 치환자
-     * @return {string|Object} message - 치환된 메시지
+     * @return {Promise<string>} message - 치환된 메시지
      */
-    export async function getText(
-        text: string,
-        placeHolder: { [key: string]: string } = null
-    ): Promise<string | Object> {
+    export async function getText(text: string, placeHolder: { [key: string]: string } = null): Promise<string> {
         return Language.getText(text, placeHolder, ['/module/admin/language', '/languages']);
+    }
+
+    /**
+     * 언어팩 객체를 불러온다.
+     *
+     * @param {string} key - 언어팩키
+     * @param {Object} placeHolder - 치환자
+     * @return {Promise<object>} message - 치환된 메시지
+     */
+    export async function getTexts(key: string): Promise<{ [key: string]: any }> {
+        return Language.getTexts(key, ['/module/admin/language', '/languages']);
     }
 
     /**
@@ -189,7 +197,7 @@ namespace Admin {
      *
      * @param {string} error - 에러코드
      * @param {Object} placeHolder - 치환자
-     * @return {string} message - 치환된 메시지
+     * @return {Promise<string>} message - 치환된 메시지
      */
     export async function getErrorText(error: string, placeHolder: { [key: string]: string } = null): Promise<string> {
         return Language.getErrorText(error, placeHolder, ['/module/admin/language', '/languages']);
@@ -201,7 +209,7 @@ namespace Admin {
      *
      * @param {string} text - 언어팩코드
      * @param {Object} placeHolder - 치환자
-     * @return {string|Object} message - 치환된 메시지
+     * @return {string} message - 치환된 메시지
      */
     export function printText(text: string, placeHolder: { [key: string]: string } = null): string {
         return Language.printText(text, placeHolder, ['/module/admin/language', '/languages']);
@@ -213,7 +221,7 @@ namespace Admin {
      *
      * @param {string} error - 에러코드
      * @param {Object} placeHolder - 치환자
-     * @return {string|Object} message - 치환된 메시지
+     * @return {string} message - 치환된 메시지
      */
     export function printErrorText(error: string, placeHolder: { [key: string]: string } = null): string {
         return Language.printErrorText(error, placeHolder, ['/module/admin/language', '/languages']);

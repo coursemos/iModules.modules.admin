@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/ui/Admin.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 13.
+ * @modified 2024. 10. 22.
  */
 var Admin;
 (function (Admin) {
@@ -155,18 +155,29 @@ var Admin;
      *
      * @param {string} text - 언어팩코드
      * @param {Object} placeHolder - 치환자
-     * @return {string|Object} message - 치환된 메시지
+     * @return {Promise<string>} message - 치환된 메시지
      */
     async function getText(text, placeHolder = null) {
         return Language.getText(text, placeHolder, ['/module/admin/language', '/languages']);
     }
     Admin.getText = getText;
     /**
+     * 언어팩 객체를 불러온다.
+     *
+     * @param {string} key - 언어팩키
+     * @param {Object} placeHolder - 치환자
+     * @return {Promise<object>} message - 치환된 메시지
+     */
+    async function getTexts(key) {
+        return Language.getTexts(key, ['/module/admin/language', '/languages']);
+    }
+    Admin.getTexts = getTexts;
+    /**
      * 에러메시지를 불러온다.
      *
      * @param {string} error - 에러코드
      * @param {Object} placeHolder - 치환자
-     * @return {string} message - 치환된 메시지
+     * @return {Promise<string>} message - 치환된 메시지
      */
     async function getErrorText(error, placeHolder = null) {
         return Language.getErrorText(error, placeHolder, ['/module/admin/language', '/languages']);
@@ -178,7 +189,7 @@ var Admin;
      *
      * @param {string} text - 언어팩코드
      * @param {Object} placeHolder - 치환자
-     * @return {string|Object} message - 치환된 메시지
+     * @return {string} message - 치환된 메시지
      */
     function printText(text, placeHolder = null) {
         return Language.printText(text, placeHolder, ['/module/admin/language', '/languages']);
@@ -190,7 +201,7 @@ var Admin;
      *
      * @param {string} error - 에러코드
      * @param {Object} placeHolder - 치환자
-     * @return {string|Object} message - 치환된 메시지
+     * @return {string} message - 치환된 메시지
      */
     function printErrorText(error, placeHolder = null) {
         return Language.printErrorText(error, placeHolder, ['/module/admin/language', '/languages']);
