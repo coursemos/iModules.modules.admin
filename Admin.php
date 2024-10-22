@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 17.
+ * @modified 2024. 10. 22.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -337,9 +337,9 @@ class Admin extends \Module
         /**
          * BODY 타입을 지정한다.
          */
+        \Html::type('admin');
         \Html::body('data-role', 'module');
         \Html::body('data-module', 'admin');
-        \Html::body('data-type', 'admin');
 
         /**
          * 관리자가 아니라면 로그인 레이아웃을 출력한다.
