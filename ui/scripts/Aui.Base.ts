@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Base.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2024. 10. 22.
  */
 namespace Aui {
     export const items: Map<string, Aui.Base> = new Map();
@@ -192,9 +192,9 @@ namespace Aui {
      *
      * @param {string} text - 언어팩코드
      * @param {Object} placeHolder - 치환자
-     * @return {string|Object} message - 치환된 메시지
+     * @return {string} message - 치환된 메시지
      */
-    export function getText(text: string, placeHolder: { [key: string]: string } = null): string | object {
+    export function getText(text: string, placeHolder: { [key: string]: string } = null): string {
         const keys: string[] = text.split('.');
 
         let string = Aui.texts;
@@ -220,7 +220,33 @@ namespace Aui {
             return text;
         }
 
-        return string;
+        return JSON.stringify(string);
+    }
+
+    /**
+     * 언어팩을 불러온다.
+     *
+     * @param {string} key - 언어팩키
+     * @return {object} message - 치환된 메시지
+     */
+    export function getTexts(key: string): { [key: string]: any } {
+        const keys: string[] = key.split('.');
+
+        let string = Aui.texts;
+        keys.forEach((key) => {
+            if (string === null || string[key] === undefined) {
+                string = null;
+                return false;
+            }
+
+            string = string[key];
+        });
+
+        if (string === null) {
+            return { key: null };
+        }
+
+        return typeof string == 'string' ? { key: string } : string;
     }
 
     /**
