@@ -198,13 +198,16 @@ var Aui;
         if (string === null) {
             return text;
         }
-        if (typeof string == 'string' && placeHolder !== null) {
-            let text = string;
-            const templets = [...text.matchAll(/\$\{(.*?)\}/g)];
-            templets.forEach(([templet, key]) => {
-                text = text.replace(templet, placeHolder[key] ?? '');
-            });
-            return text;
+        if (typeof string == 'string') {
+            if (placeHolder !== null) {
+                let text = string;
+                const templets = [...text.matchAll(/\$\{(.*?)\}/g)];
+                templets.forEach(([templet, key]) => {
+                    text = text.replace(templet, placeHolder[key] ?? '');
+                });
+                return text;
+            }
+            return string;
         }
         return JSON.stringify(string);
     }
