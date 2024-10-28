@@ -164,6 +164,55 @@ body {
 
     section[data-role='admin'] {
         z-index: 0;
+
+        a {
+            color: var(--aui-color-accent-500);
+            font-variant-numeric: tabular-nums;
+            text-decoration: none;
+        }
+
+        i.icon,
+        i.photo {
+            font-style: normal;
+            font-weight: 400;
+            display: inline-block;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: 50% 50%;
+            text-align: center;
+            box-sizing: border-box;
+            background-clip: padding-box;
+            height: 1lh;
+            aspect-ratio: 1;
+            vertical-align: top;
+            margin-right: var(--aui-component-gap);
+        }
+
+        i.photo {
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            vertical-align: top;
+            line-height: inherit;
+            width: calc(1lh + var(--aui-component-gap));
+            height: calc(1lh + var(--aui-component-gap));
+            margin-block: calc(var(--aui-component-gap) * -0.5);
+            margin-right: var(--aui-component-gap);
+        }
+
+        i.icon.excel {
+            background: url(../../images/icon_excel.svg) no-repeat 50% 50%;
+            background-size: contain;
+        }
+
+        i.icon.word {
+            background: url(../../images/icon_word.svg) no-repeat 50% 50%;
+            background-size: contain;
+        }
+
+        i.icon.pdf {
+            background: url(../../images/icon_pdf.svg) no-repeat 50% 50%;
+            background-size: contain;
+        }
     }
 
     section[data-role='admin'][data-type='absolute'] {
