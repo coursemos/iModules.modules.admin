@@ -6,7 +6,7 @@
  * @file /styles/Aui.Grid.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 4.
+ * @modified 2024. 10. 28.
  */
 div[data-component][data-type='panel'][data-role='grid'] {
     > div[data-role='container'] {
@@ -684,18 +684,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
 
                                     i.icon {
                                         display: inline-block;
-                                        width: 16px;
-                                        height: 16px;
-                                        margin-top: calc(
-                                            (var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 16px) *
-                                                0.5
-                                        );
-                                        margin-bottom: calc(
-                                            (var(--aui-component-height-default) - var(--aui-component-gap) * 2 - 16px) *
-                                                0.5
-                                        );
-                                        margin-right: 5px;
-                                        line-height: 16px;
+                                        margin-right: var(--aui-component-gap);
                                         vertical-align: top;
                                         font-size: var(--aui-font-size-default);
                                     }

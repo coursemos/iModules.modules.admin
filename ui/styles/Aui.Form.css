@@ -6,7 +6,7 @@
  * @file /styles/Aui.Form.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 8.
+ * @modified 2024. 10. 28.
  */
 div[data-component][data-type='panel'][data-role='form'] {
     > div[data-role='container'] {
@@ -1484,6 +1484,16 @@ div[data-component][data-type='form'][data-role='field'] {
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+
+                i.icon {
+                    height: calc(1lh + 2px);
+                    margin-block: -1px;
+                }
+
+                i.icon,
+                i.photo {
+                    margin-right: var(--aui-component-gap);
+                }
             }
 
             &::before {

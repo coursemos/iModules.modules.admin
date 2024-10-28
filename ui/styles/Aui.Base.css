@@ -6,7 +6,7 @@
  * @file /styles/Aui.Base.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 9. 2.
+ * @modified 2024. 10. 28.
  */
 :root {
     --aui-color-scrollbar: #000;
@@ -185,7 +185,11 @@ body {
             height: 1lh;
             aspect-ratio: 1;
             vertical-align: top;
-            margin-right: var(--aui-component-gap);
+        }
+
+        i.icon[style] {
+            border: 2px solid transparent;
+            background-clip: border-box;
         }
 
         i.photo {
