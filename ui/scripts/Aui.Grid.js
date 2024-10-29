@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 22.
+ * @modified 2024. 10. 29.
  */
 var Aui;
 (function (Aui) {
@@ -1041,7 +1041,10 @@ var Aui;
                         }
                         $check.append($button);
                         $row.append($check);
-                        leftPosition = Html.get('div[data-role=check]', this.$header).getWidth() + 1;
+                        const width = Html.get('div[data-role=check]', this.$header).getData('width') ??
+                            Html.get('div[data-role=check]', this.$header).getWidth() + 1;
+                        Html.get('div[data-role=check]', this.$header).setData('width', width);
+                        leftPosition = width;
                     }
                     this.getColumns().forEach((column, columnIndex) => {
                         const value = record.get(column.dataIndex);
