@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 5.
+ * @modified 2024. 10. 28.
  */
 var Aui;
 (function (Aui) {
@@ -4432,6 +4432,9 @@ var Aui;
                             name: this.inputName,
                             rows: this.rows.toString(),
                         });
+                        if (this.readonly == true) {
+                            this.$input.setAttr('readonly', 'readonly');
+                        }
                         this.$input.on('input', (e) => {
                             const input = e.currentTarget;
                             if (this.autoHeight == true) {

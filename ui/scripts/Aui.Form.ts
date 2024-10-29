@@ -6,7 +6,7 @@
  * @file /scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 5.
+ * @modified 2024. 10. 28.
  */
 namespace Aui {
     export namespace Form {
@@ -5722,6 +5722,9 @@ namespace Aui {
                             name: this.inputName,
                             rows: this.rows.toString(),
                         });
+                        if (this.readonly == true) {
+                            this.$input.setAttr('readonly', 'readonly');
+                        }
                         this.$input.on('input', (e: InputEvent) => {
                             const input = e.currentTarget as HTMLTextAreaElement;
                             if (this.autoHeight == true) {
