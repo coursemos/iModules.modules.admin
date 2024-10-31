@@ -6,7 +6,7 @@
  * @file /modules/admin/admin/scripts/contexts/database.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 22.
+ * @modified 2024. 10. 30.
  */
 Admin.ready(async () => {
     const me = Admin.getModule('admin');
@@ -191,7 +191,7 @@ Admin.ready(async () => {
                                         {
                                             text: me.printText('admin.database.tables.status'),
                                             dataIndex: 'status',
-                                            width: 80,
+                                            width: 90,
                                             textAlign: 'center',
                                             renderer: (value, _record, $column) => {
                                                 if (value == 'USED') {
