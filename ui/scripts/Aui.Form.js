@@ -3,10 +3,10 @@
  *
  * 폼 클래스를 정의한다.
  *
- * @file /scripts/Aui.Form.ts
+ * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 28.
+ * @modified 2024. 11. 8.
  */
 var Aui;
 (function (Aui) {
@@ -1498,6 +1498,8 @@ var Aui;
                 emptyText;
                 format;
                 displayFormat;
+                allowInput;
+                textAlign;
                 absolute;
                 calendar;
                 $input;
@@ -1506,7 +1508,7 @@ var Aui;
                 /**
                  * 텍스트필드 클래스 생성한다.
                  *
-                 * @param {Aui.Form.Field.Text.Properties} properties - 객체설정
+                 * @param {Aui.Form.Field.Date.Properties} properties - 객체설정
                  */
                 constructor(properties = null) {
                     super(properties);
@@ -1514,6 +1516,8 @@ var Aui;
                     this.emptyText = this.emptyText.length == 0 ? null : this.emptyText;
                     this.format = this.properties.format ?? 'Y-m-d';
                     this.displayFormat = this.properties.displayFormat ?? 'Y-m-d';
+                    this.allowInput = this.properties.allowInput !== false;
+                    this.textAlign = this.properties.textAlign ?? 'left';
                 }
                 /**
                  * 절대위치 목록 컴포넌트를 가져온다.
@@ -1570,6 +1574,19 @@ var Aui;
                             type: 'text',
                             name: this.inputName,
                         });
+                        this.$input.setStyle('text-align', this.textAlign);
+                        if (this.allowInput == false) {
+                            this.$input.setAttr('readonly', 'readonly');
+                            this.$input.on('pointerdown', (e) => {
+                                if (this.isExpand() == true) {
+                                    this.collapse();
+                                }
+                                else {
+                                    this.expand();
+                                }
+                                e.stopImmediatePropagation();
+                            });
+                        }
                         this.$input.on('input', () => {
                             const value = this.$input.getValue();
                             if (value.length == 0) {
@@ -1762,13 +1779,13 @@ var Aui;
                     return null;
                 }
                 /**
-                 * moment 값을 가져온다.
+                 * Timestamp 값을 가져온다.
                  *
-                 * @return {Object} momentValue
+                 * @return {moment} momentValue
                  */
-                getRawValue() {
+                getTime() {
                     if (this.value instanceof moment) {
-                        return this.value;
+                        return this.value.unix();
                     }
                     return null;
                 }

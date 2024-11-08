@@ -3,10 +3,10 @@
  *
  * 폼 클래스를 정의한다.
  *
- * @file /scripts/Aui.Form.ts
+ * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 28.
+ * @modified 2024. 11. 8.
  */
 namespace Aui {
     export namespace Form {
@@ -2017,6 +2017,11 @@ namespace Aui {
                      * @type {string} displayFormat - 필드에 보일 날짜포맷
                      */
                     displayFormat?: string;
+
+                    /**
+                     * @type {boolean} allowInput - 직접 날짜를 입력을 할 수 있는지 여부
+                     */
+                    allowInput?: boolean;
                 }
             }
 
@@ -2026,6 +2031,8 @@ namespace Aui {
 
                 format: string;
                 displayFormat: string;
+                allowInput: boolean;
+                textAlign: string;
 
                 absolute: Aui.Absolute;
                 calendar: Aui.Form.Field.Date.Calendar;
@@ -2037,9 +2044,9 @@ namespace Aui {
                 /**
                  * 텍스트필드 클래스 생성한다.
                  *
-                 * @param {Aui.Form.Field.Text.Properties} properties - 객체설정
+                 * @param {Aui.Form.Field.Date.Properties} properties - 객체설정
                  */
-                constructor(properties: Aui.Form.Field.Text.Properties = null) {
+                constructor(properties: Aui.Form.Field.Date.Properties = null) {
                     super(properties);
 
                     this.emptyText = this.properties.emptyText ?? '';
@@ -2047,6 +2054,8 @@ namespace Aui {
 
                     this.format = this.properties.format ?? 'Y-m-d';
                     this.displayFormat = this.properties.displayFormat ?? 'Y-m-d';
+                    this.allowInput = this.properties.allowInput !== false;
+                    this.textAlign = this.properties.textAlign ?? 'left';
                 }
 
                 /**
@@ -2108,6 +2117,21 @@ namespace Aui {
                             type: 'text',
                             name: this.inputName,
                         });
+                        this.$input.setStyle('text-align', this.textAlign);
+
+                        if (this.allowInput == false) {
+                            this.$input.setAttr('readonly', 'readonly');
+                            this.$input.on('pointerdown', (e: PointerEvent) => {
+                                if (this.isExpand() == true) {
+                                    this.collapse();
+                                } else {
+                                    this.expand();
+                                }
+
+                                e.stopImmediatePropagation();
+                            });
+                        }
+
                         this.$input.on('input', () => {
                             const value = this.$input.getValue();
                             if (value.length == 0) {
@@ -2322,13 +2346,13 @@ namespace Aui {
                 }
 
                 /**
-                 * moment 값을 가져온다.
+                 * Timestamp 값을 가져온다.
                  *
-                 * @return {Object} momentValue
+                 * @return {moment} momentValue
                  */
-                getRawValue(): Object {
+                getTime(): number {
                     if (this.value instanceof moment) {
-                        return this.value;
+                        return this.value.unix();
                     }
 
                     return null;
