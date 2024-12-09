@@ -7,7 +7,7 @@
  * @file /modules/admin/classes/Event.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 16.
+ * @modified 2024. 11. 18.
  */
 namespace modules\admin;
 class Event extends \Event
@@ -19,6 +19,13 @@ class Event extends \Event
      * @param \modules\admin\admin\Admin $mAdmin 관리자 객체
      */
     public static function getPermissionPresets(array &$permissions, \modules\admin\admin\Admin $mAdmin): void
+    {
+    }
+
+    /**
+     * 어드민페이지가 열렸을 때
+     */
+    public static function beforeAdminLayout(): void
     {
     }
 }

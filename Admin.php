@@ -8,7 +8,7 @@
  * @file /modules/admin/Admin.php
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 22.
+ * @modified 2024. 11. 18.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -315,6 +315,8 @@ class Admin extends \Module
                 return \ErrorHandler::print(\ErrorHandler::error('NOT_FOUND_URL'));
             }
         }
+
+        \Events::fireEvent($this, 'beforeAdminLayout', []);
 
         /**
          * 아이모듈 관리자 테마를 설정한다.
