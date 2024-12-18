@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 11. 8.
+ * @modified 2024. 12. 18.
  */
 namespace Aui {
     export namespace Form {
@@ -2524,28 +2524,34 @@ namespace Aui {
                     renderTop(): void {
                         const $prev = Html.create('button', { type: 'button', 'data-action': 'prev' });
                         this.$getTop().append($prev);
-                        $prev.on('mousedown', () => {
+                        $prev.on('pointerdown', (e: PointerEvent) => {
                             this.startSpin('prev');
+                            e.stopPropagation();
                         });
-                        $prev.on('mouseup', () => {
+                        $prev.on('pointerup', (e: PointerEvent) => {
                             this.stopSpin();
+                            e.stopPropagation();
                         });
-                        $prev.on('mouseout', () => {
+                        $prev.on('pointerout', (e: PointerEvent) => {
                             this.stopSpin();
+                            e.stopPropagation();
                         });
 
                         const $month = this.$getMonth();
                         this.$getTop().append($month);
 
                         const $next = Html.create('button', { type: 'button', 'data-action': 'next' });
-                        $next.on('mousedown', () => {
+                        $next.on('pointerdown', (e: PointerEvent) => {
                             this.startSpin('next');
+                            e.stopPropagation();
                         });
-                        $next.on('mouseup', () => {
+                        $next.on('pointerup', (e: PointerEvent) => {
                             this.stopSpin();
+                            e.stopPropagation();
                         });
-                        $next.on('mouseout', () => {
+                        $next.on('pointerdown', (e: PointerEvent) => {
                             this.stopSpin();
+                            e.stopPropagation();
                         });
                         this.$getTop().append($next);
                     }
