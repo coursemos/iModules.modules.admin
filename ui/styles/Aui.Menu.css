@@ -3,10 +3,10 @@
  *
  * 메뉴 스타일시트를 정의한다.
  * 
- * @file /styles/Aui.Menu.css
+ * @file /modules/admin/ui/styles/Aui.Menu.css
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 8. 29.
+ * @modified 2025. 1. 8.
  */
 div[data-component][data-type='menu'][data-role='menu'] {
     position: absolute;
@@ -169,6 +169,23 @@ div[data-component][data-type='menu'][data-role='item'] {
                         > aside,
                         > span {
                             background: var(--aui-color-selection-500);
+                        }
+                    }
+
+                    &[disabled] {
+                        opacity: 0.7;
+                        cursor: not-allowed;
+                        pointer-events: none;
+
+                        > i {
+                            > i.icon {
+                                font-family: moimz !important;
+                                animation: mi-loading 2s infinite linear !important;
+
+                                &::before {
+                                    content: '\efff';
+                                }
+                            }
                         }
                     }
                 }

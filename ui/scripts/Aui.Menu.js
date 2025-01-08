@@ -3,7 +3,7 @@
  *
  * 모달 윈도우 클래스를 정의한다.
  *
- * @file /scripts/Aui.Menu.ts
+ * @file /modules/admin/ui/scripts/Aui.Menu.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2024. 8. 29.
@@ -492,6 +492,14 @@ var Aui;
                 if (this.iconClass !== null) {
                     $icon.addClass(...this.iconClass.split(' '));
                 }
+            }
+            /**
+             * 메뉴 로딩상태를 변경한다.
+             *
+             * @param {boolean} is_loading - 로딩여부
+             */
+            setLoading(is_loading) {
+                this.$getButton().setDisabled(is_loading);
             }
             /**
              * 서브메뉴를 오픈한다.
