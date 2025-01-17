@@ -1992,12 +1992,8 @@ namespace modules {
                                                 {
                                                     text: mMember.printText('admin.members.email'),
                                                     dataIndex: 'email',
-                                                    width: 200,
-                                                },
-                                                {
-                                                    text: mMember.printText('admin.members.nickname'),
-                                                    dataIndex: 'nickname',
-                                                    width: 150,
+                                                    minWidth: 200,
+                                                    flex: 1,
                                                 },
                                             ],
                                             store: new Aui.Store.Remote({
@@ -2006,7 +2002,6 @@ namespace modules {
                                                     { name: 'member_id', type: 'int' },
                                                     'email',
                                                     'name',
-                                                    'nickname',
                                                     'photo',
                                                     'joined_at',
                                                     'logged_at',
