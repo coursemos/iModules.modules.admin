@@ -4,9 +4,9 @@
  * 폼 클래스를 정의한다.
  *
  * @file /modules/admin/ui/scripts/Aui.Form.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 12. 18.
+ * @modified 2025. 1. 22.
  */
 var Aui;
 (function (Aui) {
@@ -2602,7 +2602,10 @@ var Aui;
                 list;
                 store;
                 tagField;
+                valueField;
                 listField;
+                filterPickList;
+                renderer;
                 listRenderer;
                 url;
                 $tags;
@@ -2616,8 +2619,29 @@ var Aui;
                     super(properties);
                     this.store = this.properties.store ?? null;
                     this.tagField = this.properties.tagField ?? 'tag';
+                    this.valueField = this.properties.valueField ?? 'value';
                     this.listField = this.properties.listField ?? this.tagField;
+                    this.filterPickList = this.properties.filterPickList ?? false;
                     this.listRenderer = this.properties.listRenderer ?? null;
+                    this.renderer =
+                        this.properties.renderer ??
+                            ((display) => {
+                                if (Array.isArray(display) == true) {
+                                    if (display.length > 1) {
+                                        return Aui.printText('components.form.select.values', {
+                                            display: display[0],
+                                            count: (display.length - 1).toString(),
+                                        });
+                                    }
+                                    else {
+                                        return display[0];
+                                    }
+                                }
+                                else if (typeof display == 'string' && display.length > 0) {
+                                    return display;
+                                }
+                                return '';
+                            });
                 }
                 /**
                  * 절대위치 목록 컴포넌트를 가져온다.
@@ -2705,9 +2729,6 @@ var Aui;
                                     this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                 },
-                                focusMove: (_rowIndex, _columnIndex, _value, record) => {
-                                    this.$getInput().setValue(record.get(this.tagField));
-                                },
                                 selectionChange: (selections) => {
                                     if (selections.length == 1) {
                                         this.addTag(selections[0].get(this.tagField));
@@ -2746,10 +2767,25 @@ var Aui;
                  * @param {string} tag - 태그
                  * @return {Dom} $tag
                  */
-                $getTag(tag) {
+                async $getTag(tag) {
                     const $tag = Html.create('div', { 'data-role': 'tag' });
-                    $tag.setData('tag', tag, false);
-                    const $span = Html.create('span').html(tag);
+                    const $span = Html.create('span');
+                    const record = await this.getValueToRecord(tag);
+                    if (record == null) {
+                        return null;
+                    }
+                    else {
+                        if (this.getValue() !== null && this.getValue().includes(record.get(this.valueField))) {
+                            return null;
+                        }
+                        $tag.setData('tag', record.get(this.valueField), false);
+                        if (this.renderer === null) {
+                            $span.html(tag);
+                        }
+                        else {
+                            $span.html(this.renderer(this.tagField ?? '', record, this.$getTags(), this));
+                        }
+                    }
                     $span.on('click', () => {
                         $tag.append(this.$getInput());
                         this.$getInput().setValue($tag.getData('tag'));
@@ -2840,11 +2876,13 @@ var Aui;
                  *
                  * @param {string} tag - 추가할 태그
                  */
-                addTag(tag) {
+                async addTag(tag) {
                     const index = this.$getInput().getIndex();
-                    const $tag = this.$getTag(tag);
+                    const $tag = await this.$getTag(tag);
                     this.$getInput().setValue('');
-                    this.$getTags().append($tag, index);
+                    if ($tag !== null) {
+                        this.$getTags().append($tag, index);
+                    }
                     this.updateValue();
                 }
                 /**
@@ -2854,7 +2892,7 @@ var Aui;
                  * @param {string} tag - 태그명
                  * @param {'last'|'next'} position - 수정 후 INPUT 위치
                  */
-                setTag($dom, tag, position = 'last') {
+                async setTag($dom, tag, position = 'last') {
                     const index = $dom.getIndex();
                     this.$getInput().setValue('');
                     if (position == 'last') {
@@ -2863,8 +2901,39 @@ var Aui;
                     else {
                         this.$getTags().append(this.$getInput(), index + 1);
                     }
-                    $dom.replaceWith(this.$getTag(tag));
+                    const $tag = await this.$getTag(tag);
+                    if ($tag !== null) {
+                        $dom.replaceWith($tag);
+                    }
                     this.updateValue();
+                }
+                /**
+                 * 필드값으로 데이터스토어의 레코드를 가져온다.
+                 *
+                 * @param {any} value - 필드값
+                 * @return {Promise<Aui.Data.Record>} record
+                 */
+                async getValueToRecord(value) {
+                    const target = {};
+                    target[this.tagField] = value;
+                    if (this.getStore().isLoaded() == false) {
+                        await this.getStore().load();
+                        return this.getValueToRecord(value);
+                    }
+                    const record = this.getStore().find(target);
+                    if (record !== null) {
+                        return record;
+                    }
+                    else {
+                        const store = this.getStore();
+                        if (store instanceof Aui.TreeStore) {
+                            const parents = await store.getParents(target);
+                            if (parents !== null) {
+                                return this.getValueToRecord(value);
+                            }
+                        }
+                    }
+                    return null;
                 }
                 /**
                  * 선택목록을 확장한다.
@@ -2919,6 +2988,8 @@ var Aui;
                  * 필드값을 갱신한다.
                  */
                 updateValue() {
+                    const value = this.getValue();
+                    this.properties.store.setFilter(this.valueField, value, 'not_in');
                     super.setValue(this.getValue());
                 }
                 /**

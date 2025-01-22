@@ -4,9 +4,9 @@
  * 폼 클래스를 정의한다.
  *
  * @file /modules/admin/ui/scripts/Aui.Form.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 12. 18.
+ * @modified 2025. 1. 22.
  */
 namespace Aui {
     export namespace Form {
@@ -3393,9 +3393,29 @@ namespace Aui {
                     tagField?: string;
 
                     /**
+                     * @type {string} valueField - 폼 전송시 전송될 값을 지정할 store 의 field 명
+                     */
+                    valueField?: string;
+
+                    /**
                      * @type {string} listField - 태그목록 항목에 표시할 store 의 field 명
                      */
                     listField?: string;
+
+                    /**
+                     * @type {boolean} filterPickList - 현재 선택된 값을 태그목록에서 숨김 여부.
+                     */
+                    filterPickList?: boolean;
+
+                    /**
+                     * @type {Function} renderer - 선택된 항목을 보일 때 사용할 렌더링 함수
+                     */
+                    renderer?: (
+                        display: string | string[],
+                        record: Aui.Data.Record | Aui.Data.Record[],
+                        $display: Dom,
+                        field: Aui.Form.Field.Tags
+                    ) => string;
 
                     /**
                      * @type {Function} renderer - 목록 항목을 보일 때 사용할 렌더링 함수
@@ -3411,7 +3431,16 @@ namespace Aui {
                 list: Aui.Grid.Panel;
                 store: Aui.Store.Remote;
                 tagField: string;
+                valueField: string;
                 listField: string;
+                filterPickList: boolean;
+
+                renderer: (
+                    display: string | string[],
+                    record: Aui.Data.Record | Aui.Data.Record[],
+                    $display: Dom,
+                    field: Aui.Form.Field.Tags
+                ) => string;
 
                 listRenderer: (display: string, record: Aui.Data.Record, $dom: Dom) => string;
 
@@ -3429,8 +3458,29 @@ namespace Aui {
 
                     this.store = this.properties.store ?? null;
                     this.tagField = this.properties.tagField ?? 'tag';
+                    this.valueField = this.properties.valueField ?? 'value';
                     this.listField = this.properties.listField ?? this.tagField;
+                    this.filterPickList = this.properties.filterPickList ?? false;
                     this.listRenderer = this.properties.listRenderer ?? null;
+
+                    this.renderer =
+                        this.properties.renderer ??
+                        ((display): string => {
+                            if (Array.isArray(display) == true) {
+                                if (display.length > 1) {
+                                    return Aui.printText('components.form.select.values', {
+                                        display: display[0],
+                                        count: (display.length - 1).toString(),
+                                    });
+                                } else {
+                                    return display[0];
+                                }
+                            } else if (typeof display == 'string' && display.length > 0) {
+                                return display;
+                            }
+
+                            return '';
+                        });
                 }
 
                 /**
@@ -3522,9 +3572,6 @@ namespace Aui {
                                     this.getList().setMaxWidth(this.getAbsolute().getPosition().maxWidth - 2);
                                     this.getList().setMaxHeight(this.getAbsolute().getPosition().maxHeight - 2);
                                 },
-                                focusMove: (_rowIndex, _columnIndex, _value, record) => {
-                                    this.$getInput().setValue(record.get(this.tagField));
-                                },
                                 selectionChange: (selections: Aui.Data.Record[]) => {
                                     if (selections.length == 1) {
                                         this.addTag(selections[0].get(this.tagField));
@@ -3567,10 +3614,27 @@ namespace Aui {
                  * @param {string} tag - 태그
                  * @return {Dom} $tag
                  */
-                $getTag(tag: string): Dom {
+                async $getTag(tag: string): Promise<Dom | null> {
                     const $tag = Html.create('div', { 'data-role': 'tag' });
-                    $tag.setData('tag', tag, false);
-                    const $span = Html.create('span').html(tag);
+
+                    const $span = Html.create('span');
+                    const record = await this.getValueToRecord(tag);
+                    if (record == null) {
+                        return null;
+                    } else {
+                        if (this.getValue() !== null && this.getValue().includes(record.get(this.valueField))) {
+                            return null;
+                        }
+
+                        $tag.setData('tag', record.get(this.valueField), false);
+
+                        if (this.renderer === null) {
+                            $span.html(tag);
+                        } else {
+                            $span.html(this.renderer(this.tagField ?? '', record, this.$getTags(), this));
+                        }
+                    }
+
                     $span.on('click', () => {
                         $tag.append(this.$getInput());
                         this.$getInput().setValue($tag.getData('tag'));
@@ -3673,11 +3737,16 @@ namespace Aui {
                  *
                  * @param {string} tag - 추가할 태그
                  */
-                addTag(tag: string): void {
+                async addTag(tag: string): Promise<void> {
                     const index = this.$getInput().getIndex();
-                    const $tag = this.$getTag(tag);
+
+                    const $tag = await this.$getTag(tag);
                     this.$getInput().setValue('');
-                    this.$getTags().append($tag, index);
+
+                    if ($tag !== null) {
+                        this.$getTags().append($tag, index);
+                    }
+
                     this.updateValue();
                 }
 
@@ -3688,7 +3757,7 @@ namespace Aui {
                  * @param {string} tag - 태그명
                  * @param {'last'|'next'} position - 수정 후 INPUT 위치
                  */
-                setTag($dom: Dom, tag: string, position: 'last' | 'next' = 'last'): void {
+                async setTag($dom: Dom, tag: string, position: 'last' | 'next' = 'last'): Promise<void> {
                     const index = $dom.getIndex();
                     this.$getInput().setValue('');
 
@@ -3697,8 +3766,45 @@ namespace Aui {
                     } else {
                         this.$getTags().append(this.$getInput(), index + 1);
                     }
-                    $dom.replaceWith(this.$getTag(tag));
+
+                    const $tag = await this.$getTag(tag);
+
+                    if ($tag !== null) {
+                        $dom.replaceWith($tag);
+                    }
+
                     this.updateValue();
+                }
+
+                /**
+                 * 필드값으로 데이터스토어의 레코드를 가져온다.
+                 *
+                 * @param {any} value - 필드값
+                 * @return {Promise<Aui.Data.Record>} record
+                 */
+                async getValueToRecord(value: any): Promise<Aui.Data.Record> {
+                    const target = {};
+                    target[this.tagField] = value;
+                    if (this.getStore().isLoaded() == false) {
+                        await this.getStore().load();
+                        return this.getValueToRecord(value);
+                    }
+
+                    const record = this.getStore().find(target);
+
+                    if (record !== null) {
+                        return record;
+                    } else {
+                        const store = this.getStore();
+                        if (store instanceof Aui.TreeStore) {
+                            const parents = await store.getParents(target);
+                            if (parents !== null) {
+                                return this.getValueToRecord(value);
+                            }
+                        }
+                    }
+
+                    return null;
                 }
 
                 /**
@@ -3761,6 +3867,8 @@ namespace Aui {
                  * 필드값을 갱신한다.
                  */
                 updateValue(): void {
+                    const value = this.getValue();
+                    this.properties.store.setFilter(this.valueField, value, 'not_in');
                     super.setValue(this.getValue());
                 }
 
