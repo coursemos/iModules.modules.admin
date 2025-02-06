@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 1. 22.
+ * @modified 2025. 2. 6.
  */
 namespace Aui {
     export namespace Form {
@@ -3759,13 +3759,6 @@ namespace Aui {
                  */
                 async setTag($dom: Dom, tag: string, position: 'last' | 'next' = 'last'): Promise<void> {
                     const index = $dom.getIndex();
-                    this.$getInput().setValue('');
-
-                    if (position == 'last') {
-                        this.$getTags().append(this.$getInput());
-                    } else {
-                        this.$getTags().append(this.$getInput(), index + 1);
-                    }
 
                     const $tag = await this.$getTag(tag);
 
@@ -3774,6 +3767,14 @@ namespace Aui {
                     }
 
                     this.updateValue();
+
+                    if (position == 'last') {
+                        this.$getTags().append(this.$getInput());
+                    } else {
+                        this.$getTags().append(this.$getInput(), index + 1);
+                    }
+
+                    this.$getInput().focus();
                 }
 
                 /**

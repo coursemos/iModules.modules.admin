@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 1. 22.
+ * @modified 2025. 2. 6.
  */
 var Aui;
 (function (Aui) {
@@ -2894,18 +2894,18 @@ var Aui;
                  */
                 async setTag($dom, tag, position = 'last') {
                     const index = $dom.getIndex();
-                    this.$getInput().setValue('');
+                    const $tag = await this.$getTag(tag);
+                    if ($tag !== null) {
+                        $dom.replaceWith($tag);
+                    }
+                    this.updateValue();
                     if (position == 'last') {
                         this.$getTags().append(this.$getInput());
                     }
                     else {
                         this.$getTags().append(this.$getInput(), index + 1);
                     }
-                    const $tag = await this.$getTag(tag);
-                    if ($tag !== null) {
-                        $dom.replaceWith($tag);
-                    }
-                    this.updateValue();
+                    this.$getInput().focus();
                 }
                 /**
                  * 필드값으로 데이터스토어의 레코드를 가져온다.
