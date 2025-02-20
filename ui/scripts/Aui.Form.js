@@ -711,14 +711,6 @@ var Aui;
                     return validation === true;
                 }
                 /**
-                 * 공백 허용여부를 저장한다.
-                 *
-                 * @param {boolean} allowBlank - 공백허용여부
-                 */
-                setAllowBlank(allowBlank) {
-                    this.allowBlank = allowBlank !== false;
-                }
-                /**
                  * 필드값이 유효한지 확인한다.
                  *
                  * @return {boolean|string} validation

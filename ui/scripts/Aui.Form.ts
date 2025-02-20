@@ -1039,15 +1039,6 @@ namespace Aui {
                 }
 
                 /**
-                 * 공백 허용여부를 저장한다.
-                 *
-                 * @param {boolean} allowBlank - 공백허용여부
-                 */
-                setAllowBlank(allowBlank: boolean): void {
-                    this.allowBlank = allowBlank !== false;
-                }
-
-                /**
                  * 필드값이 유효한지 확인한다.
                  *
                  * @return {boolean|string} validation
