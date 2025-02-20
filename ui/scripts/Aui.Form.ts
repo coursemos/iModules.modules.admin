@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 2. 6.
+ * @modified 2025. 2. 20.
  */
 namespace Aui {
     export namespace Form {
@@ -1036,6 +1036,15 @@ namespace Aui {
                     }
 
                     return validation === true;
+                }
+
+                /**
+                 * 공백 허용여부를 저장한다.
+                 *
+                 * @param {boolean} allowBlank - 공백허용여부
+                 */
+                setAllowBlank(allowBlank: boolean): void {
+                    this.allowBlank = allowBlank !== false;
                 }
 
                 /**

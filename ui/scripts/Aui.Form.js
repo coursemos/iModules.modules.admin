@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 2. 6.
+ * @modified 2025. 2. 20.
  */
 var Aui;
 (function (Aui) {
@@ -709,6 +709,14 @@ var Aui;
                         this.setError(false);
                     }
                     return validation === true;
+                }
+                /**
+                 * 공백 허용여부를 저장한다.
+                 *
+                 * @param {boolean} allowBlank - 공백허용여부
+                 */
+                setAllowBlank(allowBlank) {
+                    this.allowBlank = allowBlank !== false;
                 }
                 /**
                  * 필드값이 유효한지 확인한다.
