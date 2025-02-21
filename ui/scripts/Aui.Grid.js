@@ -3,7 +3,7 @@
  *
  * 그리드패널 클래스를 정의한다.
  *
- * @file /scripts/Aui.Grid.ts
+ * @file /modules/admin/ui/scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
  * @modified 2024. 10. 29.
@@ -1682,7 +1682,7 @@ var Aui;
                                             }
                                         }
                                         else {
-                                            progress.setMessage(Aui.printText('excel.convert', {
+                                            progress.setMessage(Aui.printText('excel.converting', {
                                                 current: Format.number(results.current),
                                                 total: Format.number(results.total),
                                             }));
