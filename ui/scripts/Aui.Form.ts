@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 2. 6.
+ * @modified 2025. 2. 20.
  */
 namespace Aui {
     export namespace Form {
