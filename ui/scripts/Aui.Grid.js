@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Grid.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 10. 29.
+ * @modified 2025. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -461,6 +461,9 @@ var Aui;
              */
             completeEdit(is_rollback = false) {
                 if (this.editingField === null) {
+                    return;
+                }
+                if (this.editingField instanceof Aui.Form.Field.Select && this.editingField.loading.isShow() === true) {
                     return;
                 }
                 const rowIndex = this.editingCell.rowIndex;
