@@ -3,10 +3,10 @@
  *
  * 로딩 메시지 클래스를 정의한다.
  *
- * @file /scripts/Aui.Loading.ts
+ * @file /modules/admin/ui/scripts/Aui.Loading.ts
  * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2024. 2. 23.
+ * @modified 2025. 2. 24.
  */
 namespace Aui {
     export namespace Loading {
@@ -123,6 +123,15 @@ namespace Aui {
         }
 
         /**
+         * 로딩창이 보이는 중인지 확인한다.
+         *
+         * @return {boolean} isShow
+         */
+        isShow(): boolean {
+            return this.$getLoading().hasClass('show');
+        }
+
+        /**
          * 로딩메시지를 보인다.
          */
         show(): Aui.Loading {
@@ -134,7 +143,7 @@ namespace Aui {
          * 로딩메시지를 숨긴다.
          */
         hide(): void {
-            this.$getLoading().addClass('hide');
+            this.$getLoading().removeClass('show').addClass('hide');
         }
 
         /**
