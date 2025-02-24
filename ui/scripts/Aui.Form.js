@@ -4,9 +4,9 @@
  * 폼 클래스를 정의한다.
  *
  * @file /modules/admin/ui/scripts/Aui.Form.ts
- * @author sungjin <esung246@naddle.net>
+ * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2025. 2. 20.
+ * @modified 2025. 2. 24.
  */
 var Aui;
 (function (Aui) {
@@ -4249,11 +4249,14 @@ var Aui;
                     if (this.isExpand() == true) {
                         return;
                     }
+                    if (this.loading.isShow() == true) {
+                        return;
+                    }
+                    this.loading.show();
                     if (this.matchingValue !== null) {
                         await this.matchingValue;
                     }
                     this.getAbsolute().show();
-                    this.loading.hide();
                     this.getList().resetSelections();
                     const value = this.value;
                     if (value !== null) {
@@ -4279,6 +4282,7 @@ var Aui;
                                     }
                                 }
                                 this.fireEvent('expand', [this]);
+                                this.loading.hide();
                             });
                         }
                         else {
@@ -4293,8 +4297,12 @@ var Aui;
                                     this.getList().focusCell(index, 0);
                                 }
                                 this.fireEvent('expand', [this]);
+                                this.loading.hide();
                             });
                         }
+                    }
+                    else {
+                        this.loading.hide();
                     }
                 }
                 /**
@@ -4325,6 +4333,9 @@ var Aui;
                  * 선택목록을 최소화한다.
                  */
                 collapse() {
+                    if (this.loading.isShow() == true) {
+                        return;
+                    }
                     if (this.isExpand() == true) {
                         this.getAbsolute().hide();
                     }

@@ -4,9 +4,9 @@
  * 폼 클래스를 정의한다.
  *
  * @file /modules/admin/ui/scripts/Aui.Form.ts
- * @author sungjin <esung246@naddle.net>
+ * @author Arzz <arzz@arzz.com>
  * @license MIT License
- * @modified 2025. 2. 20.
+ * @modified 2025. 2. 24.
  */
 namespace Aui {
     export namespace Form {
@@ -5526,12 +5526,17 @@ namespace Aui {
                         return;
                     }
 
+                    if (this.loading.isShow() == true) {
+                        return;
+                    }
+
+                    this.loading.show();
+
                     if (this.matchingValue !== null) {
                         await this.matchingValue;
                     }
 
                     this.getAbsolute().show();
-                    this.loading.hide();
 
                     this.getList().resetSelections();
 
@@ -5562,6 +5567,7 @@ namespace Aui {
                                 }
 
                                 this.fireEvent('expand', [this]);
+                                this.loading.hide();
                             });
                         } else {
                             this.getValueToIndex(value).then((index) => {
@@ -5576,8 +5582,11 @@ namespace Aui {
                                 }
 
                                 this.fireEvent('expand', [this]);
+                                this.loading.hide();
                             });
                         }
+                    } else {
+                        this.loading.hide();
                     }
                 }
 
@@ -5607,6 +5616,10 @@ namespace Aui {
                  * 선택목록을 최소화한다.
                  */
                 collapse(): void {
+                    if (this.loading.isShow() == true) {
+                        return;
+                    }
+
                     if (this.isExpand() == true) {
                         this.getAbsolute().hide();
                     }
