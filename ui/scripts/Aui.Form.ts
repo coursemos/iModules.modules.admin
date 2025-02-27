@@ -5530,6 +5530,10 @@ namespace Aui {
                         return;
                     }
 
+                    if (this.isDisabled()) {
+                        return;
+                    }
+
                     this.loading.show();
 
                     if (this.matchingValue !== null) {

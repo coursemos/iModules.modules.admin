@@ -4252,6 +4252,9 @@ var Aui;
                     if (this.loading.isShow() == true) {
                         return;
                     }
+                    if (this.isDisabled()) {
+                        return;
+                    }
                     this.loading.show();
                     if (this.matchingValue !== null) {
                         await this.matchingValue;
