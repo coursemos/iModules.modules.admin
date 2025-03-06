@@ -4,9 +4,9 @@
  * 그리드패널 클래스를 정의한다.
  *
  * @file /modules/admin/ui/scripts/Aui.Grid.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 2. 24.
+ * @modified 2025. 3. 6.
  */
 namespace Aui {
     export namespace Grid {
@@ -1819,6 +1819,23 @@ namespace Aui {
                 if (this.summary == true) {
                     let leftPosition = 0;
                     const $summary = Html.create('div', { 'data-role': 'summary' });
+
+                    if (this.selection.type === 'check') {
+                        const $check = Html.create('div', { 'data-role': 'check' });
+                        const $button = Html.create('button', { 'type': 'button' });
+
+                        $button.disable();
+
+                        $check.addClass('sticky');
+                        if (this.freeze == 0) {
+                            $check.addClass('end');
+                        }
+                        $check.append($button);
+
+                        $summary.append($check);
+                        leftPosition = $check.getWidth() + 1;
+                    }
+
                     this.getColumns().forEach((column: Aui.Grid.Column, columnIndex: number) => {
                         const $column = Html.create('div').setData('role', 'column').setData('column', columnIndex);
                         if (column.width) {
@@ -1844,6 +1861,7 @@ namespace Aui {
                             }
                         }
                     });
+
                     $summary.prepend(Html.create('div', { 'data-column-type': 'fill' }));
                     this.$body.append($summary);
                 }
