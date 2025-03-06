@@ -1318,6 +1318,9 @@ var Aui;
                     this.$body.setStyle('width', `${this.$header.getEl().scrollWidth}px`);
                     return;
                 }
+                else {
+                    this.$body.removeAttr('style');
+                }
                 let $group = null;
                 if (this.grouper === null || this.grouper.dataIndex === null) {
                     $group = Html.create('div', { 'data-role': 'rows' });

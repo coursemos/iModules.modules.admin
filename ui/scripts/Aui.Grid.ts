@@ -1743,6 +1743,8 @@ namespace Aui {
                 if (this.getStore().getCount() == 0) {
                     this.$body.setStyle('width', `${this.$header.getEl().scrollWidth}px`);
                     return;
+                } else {
+                    this.$body.removeAttr('style');
                 }
 
                 let $group: Dom = null;
