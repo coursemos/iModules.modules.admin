@@ -1053,20 +1053,21 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     }
                 }
 
-                &:has(div[data-role='empty']) {
+                &[data-empty-text]:empty {
                     flex-grow: 1;
                     display: flex;
                     background: var(--aui-color-background-400);
                     opacity: 0.7;
 
-                    > div[data-role='empty'] {
+                    &::before {
                         position: sticky;
-                        left: 0px;
+                        left: 50%;
+                        transform: translateX(-50%);
                         display: flex;
                         align-items: center;
-                        justify-content: center;
                         font-family: var(--aui-font-family-default);
                         font-size: var(--aui-font-size-default);
+                        content: attr(data-empty-text);
                     }
                 }
             }

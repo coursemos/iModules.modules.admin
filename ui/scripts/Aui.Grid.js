@@ -101,6 +101,9 @@ var Aui;
                     text: this.properties.loadingText ?? null,
                 });
                 this.emptyText = this.properties.emptyText ?? null;
+                if (this.emptyText !== null) {
+                    this.$body.setAttr('data-empty-text', this.emptyText);
+                }
                 this.setRowClass = this.properties.setRowClass ?? null;
             }
             /**
@@ -1313,9 +1316,6 @@ var Aui;
                 this.$body.empty();
                 if (this.getStore().getCount() == 0) {
                     this.$body.setStyle('width', `${this.$header.getEl().scrollWidth}px`);
-                    let $empty = Html.create('div', { 'data-role': 'empty' }, this.emptyText);
-                    $empty.setStyle('width', `${this.$getContent().getWidth()}px`);
-                    this.$body.append($empty);
                     return;
                 }
                 let $group = null;
