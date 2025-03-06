@@ -4,9 +4,9 @@
  * 그리드패널 스타일시트를 정의한다.
  * 
  * @file /styles/Aui.Grid.css
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 10. 28.
+ * @modified 2025. 3. 6.
  */
 div[data-component][data-type='panel'][data-role='grid'] {
     > div[data-role='container'] {
@@ -1053,20 +1053,20 @@ div[data-component][data-type='panel'][data-role='grid'] {
                     }
                 }
 
-                &[data-empty-text]:empty {
+                &:has(div[data-role='empty']) {
                     flex-grow: 1;
                     display: flex;
-                    justify-content: center;
-                    align-items: center;
                     background: var(--aui-color-background-400);
                     opacity: 0.7;
 
-                    &::before {
-                        width: 100%;
-                        text-align: center;
+                    > div[data-role='empty'] {
+                        position: sticky;
+                        left: 0px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                         font-family: var(--aui-font-family-default);
                         font-size: var(--aui-font-size-default);
-                        content: attr(data-empty-text);
                     }
                 }
             }
