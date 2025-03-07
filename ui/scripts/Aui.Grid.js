@@ -1323,7 +1323,9 @@ var Aui;
                 }
                 this.$body.empty();
                 if (this.getStore().getCount() == 0) {
-                    this.$body.setStyle('width', `${this.$header.getEl().scrollWidth}px`);
+                    if (this.$header.getEl().scrollWidth !== 0) {
+                        this.$body.setStyle('width', `${this.$header.getEl().scrollWidth}px`);
+                    }
                     return;
                 }
                 else {
