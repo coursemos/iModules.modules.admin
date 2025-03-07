@@ -764,7 +764,7 @@ namespace Aui {
 
                 const record = $row.getData('record') as Aui.Data.Record;
 
-                const $column = Html.get('div[data-role=column][data-column="' + columnIndex ?? 0 + '"]', $row);
+                const $column = Html.get(`div[data-role=column][data-column="${columnIndex ?? 0}"]`, $row);
                 if ($column.getEl() == null) return;
 
                 const column = this.columns[columnIndex ?? 0];
@@ -1178,6 +1178,15 @@ namespace Aui {
                         $column.setStyle('flexBasis', '');
                         $column.setStyle('width', column.width + 'px');
                     });
+
+                    if (this.summary) {
+                        Html.all('div[data-role=summary]', this.$body).forEach(($summary: Dom) => {
+                            const $column = Html.all('div[data-role=column]', $summary).get(columnIndex);
+                            $column.setStyle('flexGrow', 0);
+                            $column.setStyle('flexBasis', '');
+                            $column.setStyle('width', column.width + 'px');
+                        });
+                    }
                 }
 
                 return isUpdated;

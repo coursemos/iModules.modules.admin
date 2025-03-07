@@ -472,7 +472,7 @@ var Aui;
                 if ($row === null)
                     return;
                 const record = $row.getData('record');
-                const $column = Html.get('div[data-role=column][data-column="' + columnIndex ?? 0 + '"]', $row);
+                const $column = Html.get(`div[data-role=column][data-column="${columnIndex ?? 0}"]`, $row);
                 if ($column.getEl() == null)
                     return;
                 const column = this.columns[columnIndex ?? 0];
@@ -845,6 +845,14 @@ var Aui;
                         $column.setStyle('flexBasis', '');
                         $column.setStyle('width', column.width + 'px');
                     });
+                    if (this.summary) {
+                        Html.all('div[data-role=summary]', this.$body).forEach(($summary) => {
+                            const $column = Html.all('div[data-role=column]', $summary).get(columnIndex);
+                            $column.setStyle('flexGrow', 0);
+                            $column.setStyle('flexBasis', '');
+                            $column.setStyle('width', column.width + 'px');
+                        });
+                    }
                 }
                 return isUpdated;
             }
