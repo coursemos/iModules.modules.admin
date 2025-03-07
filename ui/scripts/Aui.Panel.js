@@ -4,9 +4,9 @@
  * 패널 클래스를 정의한다.
  *
  * @file /scripts/Aui.Panel.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 9. 19.
+ * @modified 2025. 3. 7.
  */
 var Aui;
 (function (Aui) {
@@ -183,8 +183,10 @@ var Aui;
                     maxWidth: this.maxWidth,
                     listeners: {
                         end: (_$target, rect) => {
-                            this.setWidth(rect.width);
-                            this.setHeight(rect.height);
+                            if (directions[1] || directions[3])
+                                this.setWidth(rect.width);
+                            if (directions[0] || directions[2])
+                                this.setHeight(rect.height);
                             this.fireEvent('resize', [this, rect.width, rect.height]);
                         },
                     },
