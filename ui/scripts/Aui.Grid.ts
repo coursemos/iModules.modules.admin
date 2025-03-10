@@ -1797,15 +1797,11 @@ namespace Aui {
 
                                     if (this.selection.type === 'check') {
                                         const $check = Html.create('div', { 'data-role': 'check' });
-                                        const $button = Html.create('button', { 'type': 'button' });
-
-                                        $button.disable();
 
                                         $check.addClass('sticky');
                                         if (this.freeze == 0) {
                                             $check.addClass('end');
                                         }
-                                        $check.append($button);
 
                                         $summary.append($check);
                                         leftPosition = $check.getWidth() + 1;
@@ -1853,15 +1849,11 @@ namespace Aui {
 
                     if (this.selection.type === 'check') {
                         const $check = Html.create('div', { 'data-role': 'check' });
-                        const $button = Html.create('button', { 'type': 'button' });
-
-                        $button.disable();
 
                         $check.addClass('sticky');
                         if (this.freeze == 0) {
                             $check.addClass('end');
                         }
-                        $check.append($button);
 
                         $summary.append($check);
                         leftPosition = $check.getWidth() + 1;
