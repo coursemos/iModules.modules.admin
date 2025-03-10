@@ -8,6 +8,16 @@
  * @license MIT License
  * @modified 2025. 3. 10.
  */
+:root {
+    --grid-empty-color-background: #f7f7f7;
+}
+body {
+    &[data-color-scheme='dark'],
+    &[data-color-scheme='auto'][data-prefers-color-scheme='dark'] {
+        --grid-empty-color-background: #202020;
+    }
+}
+
 div[data-component][data-type='panel'][data-role='grid'] {
     > div[data-role='container'] {
         position: relative;
@@ -1072,7 +1082,7 @@ div[data-component][data-type='panel'][data-role='grid'] {
             }
 
             &:has(> div[data-role='body'][data-empty-text]:empty) {
-                background: var(--aui-color-background-400);
+                background: var(--grid-empty-color-background);
             }
         }
     }
