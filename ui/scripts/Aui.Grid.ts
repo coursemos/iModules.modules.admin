@@ -1750,6 +1750,9 @@ namespace Aui {
                 this.$body.empty();
 
                 if (this.getStore().getCount() == 0) {
+                    if (this.$header.getEl().scrollWidth !== 0) {
+                        this.$body.setStyle('width', `${this.$header.getEl().scrollWidth}px`);
+                    }
                     return;
                 } else {
                     this.$body.removeAttr('style');
@@ -4066,6 +4069,10 @@ namespace Aui {
                                     this.grid.getScroll().setScrollable(this.grid.scrollable);
                                     this.grid.$getHeader().removeClass('locked');
                                     this.grid.$getHeader().removeClass('resizing');
+
+                                    if (this.grid.getStore().getCount() == 0) {
+                                        this.grid.$body.setStyle('width', `${this.grid.$header.getEl().scrollWidth}px`);
+                                    }
                                 },
                             },
                         });
