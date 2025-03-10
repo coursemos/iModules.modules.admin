@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Grid.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 3. 7.
+ * @modified 2025. 3. 10.
  */
 var Aui;
 (function (Aui) {
@@ -1323,9 +1323,6 @@ var Aui;
                 }
                 this.$body.empty();
                 if (this.getStore().getCount() == 0) {
-                    if (this.$header.getEl().scrollWidth !== 0) {
-                        this.$body.setStyle('width', `${this.$header.getEl().scrollWidth}px`);
-                    }
                     return;
                 }
                 else {
@@ -3105,9 +3102,6 @@ var Aui;
                                     this.grid.getScroll().setScrollable(this.grid.scrollable);
                                     this.grid.$getHeader().removeClass('locked');
                                     this.grid.$getHeader().removeClass('resizing');
-                                    if (this.grid.getStore().getCount() == 0) {
-                                        this.grid.$body.setStyle('width', `${this.grid.$header.getEl().scrollWidth}px`);
-                                    }
                                 },
                             },
                         });
