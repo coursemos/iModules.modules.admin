@@ -4252,7 +4252,10 @@ var Aui;
                     if (this.loading.isShow() == true) {
                         return;
                     }
-                    if (this.isDisabled()) {
+                    if (this.isDisabled() == true) {
+                        return;
+                    }
+                    if (this.readonly == true) {
                         return;
                     }
                     this.loading.show();

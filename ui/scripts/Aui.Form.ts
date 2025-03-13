@@ -5530,7 +5530,11 @@ namespace Aui {
                         return;
                     }
 
-                    if (this.isDisabled()) {
+                    if (this.isDisabled() == true) {
+                        return;
+                    }
+
+                    if (this.readonly == true) {
                         return;
                     }
 
