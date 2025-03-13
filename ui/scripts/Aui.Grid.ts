@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Grid.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 3. 10.
+ * @modified 2025. 3. 13.
  */
 namespace Aui {
     export namespace Grid {
@@ -1292,7 +1292,7 @@ namespace Aui {
                     });
                     this.freezeWidth = leftPosition;
 
-                    Html.all('div[data-role=row]', this.$body).forEach(($row: Dom) => {
+                    Html.all('div[data-role=row], div[data-role=summary]', this.$body).forEach(($row: Dom) => {
                         let leftPosition = 0;
                         Html.all('> div[data-role=column]', $row).forEach(($column: Dom, columnIndex: number) => {
                             const column = this.columns[columnIndex];
