@@ -5,9 +5,9 @@
  * 관리자 권한범위 구조체를 정의한다.
  *
  * @file /modules/admin/dtos/Scope.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2025. 3. 18.
  */
 namespace modules\admin\dtos;
 class Scope
@@ -45,7 +45,7 @@ class Scope
     /**
      * 새로운 관리자 권한범위 구조체를 가져온다.
      *
-     * @param \modules\admin\admin\Admin $admin 컨텍스트의 관리자클래스
+     * @param \modules\admin\admin\Component $admin 컨텍스트의 관리자클래스
      * @return \modules\admin\dtos\Scope $scope
      */
     public static function init(\modules\admin\admin\Component $admin): \modules\admin\dtos\Scope
