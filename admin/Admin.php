@@ -147,7 +147,7 @@ class Admin extends \modules\admin\admin\Component
 
         $scopes[] = \modules\admin\dtos\Scope::init($this)->setScope(
             'database',
-            $this->getText('admin.scopes.database')
+            $this->getText('admin.scopes.databases')
         );
 
         return $this->setScopes($scopes);
