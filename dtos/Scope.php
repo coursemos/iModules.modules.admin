@@ -35,7 +35,7 @@ class Scope
     /**
      * 관리자 권한범위 구조체를 정의한다.
      *
-     * @param \modules\admin\admin\Admin $admin 컨텍스트의 관리자클래스
+     * @param \modules\admin\admin\Component $admin 컨텍스트의 관리자클래스
      */
     public function __construct(\modules\admin\admin\Component $admin)
     {

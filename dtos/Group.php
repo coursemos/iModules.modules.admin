@@ -5,9 +5,9 @@
  * 관리자 그룹 구조체를 정의한다.
  *
  * @file /modules/admin/dtos/Group.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2025. 3. 18.
  */
 namespace modules\admin\dtos;
 class Group
@@ -55,7 +55,7 @@ class Group
     /**
      * 관리자 그룹 구조체를 정의한다.
      *
-     * @param \modules\admin\admin\Admin $admin 컨텍스트의 관리자클래스
+     * @param \modules\admin\admin\Component $admin 컨텍스트의 관리자클래스
      */
     public function __construct(\modules\admin\admin\Component $admin)
     {
@@ -65,7 +65,7 @@ class Group
     /**
      * 새로운 관리자 그룹 구조체를 가져온다.
      *
-     * @param \modules\admin\admin\Admin $admin 컨텍스트의 관리자클래스
+     * @param \modules\admin\admin\Component $admin 컨텍스트의 관리자클래스
      * @return \modules\admin\dtos\Group $group
      */
     public static function init(\modules\admin\admin\Component $admin): \modules\admin\dtos\Group
