@@ -5,9 +5,9 @@
  * 컴포넌트 관리자 클래스를 정의하기 위한 가상 컴포넌트 클래스를 정의한다.
  *
  * @file /modules/admin/admin/Component.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 10. 8.
+ * @modified 2025. 3. 18.
  */
 namespace modules\admin\admin;
 abstract class Component
@@ -43,9 +43,9 @@ abstract class Component
     /**
      * 관리자 컨텍스트를 처리할 컴포넌트 클래스를 가져온다.
      *
-     * @return \Component $component
+     * @return ?\Component $component
      */
-    final public function getComponent(): \Component
+    final public function getComponent(): ?\Component
     {
         $regExp = '/^(module|plugin|widget)s\\\(.*?)\\\admin\\\(.*?)$/';
         if (preg_match($regExp, get_called_class(), $match) == true) {
@@ -62,8 +62,8 @@ abstract class Component
      * 각 컴포넌트에서 사용할 데이터베이스 인터페이스 클래스를 가져온다.
      *
      * @param ?string $name 데이터베이스 인터페이스 고유명
-     * @param ?DatabaseConnector $connector 데이터베이스정보
-     * @return DatabaseInterface $interface
+     * @param ?\DatabaseConnector $connector 데이터베이스정보
+     * @return \DatabaseInterface $interface
      */
     final public function db(?string $name = null, ?\DatabaseConnector $connector = null): \DatabaseInterface
     {
