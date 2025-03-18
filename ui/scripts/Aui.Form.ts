@@ -2135,6 +2135,7 @@ namespace Aui {
                         this.$input.on('input', () => {
                             const value = this.$input.getValue();
                             if (value.length == 0) {
+                                this.setValue('');
                                 this.$getEmptyText().show();
                             } else {
                                 this.$getEmptyText().hide();
