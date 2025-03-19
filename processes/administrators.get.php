@@ -114,8 +114,7 @@ $records = $me
     ->where('m.member_id', $member_ids, 'IN');
 
 if ($keyword !== null) {
-    $records->where('(m.member_id = ? or m.name like ? or m.email like ?)', [
-        $keyword,
+    $records->where('(m.member_id like ? or m.name like ? or m.email like ?)', [
         '%' . $keyword . '%',
         '%' . $keyword . '%',
         '%' . $keyword . '%',
