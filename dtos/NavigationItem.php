@@ -5,9 +5,9 @@
  * 관리자 네비게이션 구조체를 정의한다.
  *
  * @file /modules/admin/dtos/Navigation.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 8. 25.
+ * @modified 2025. 3. 19.
  */
 namespace modules\admin\dtos;
 class NavigationItem
@@ -202,8 +202,8 @@ class NavigationItem
             $this->_title = $path->title;
             $this->_smart = $path->smart ?? 'none';
             $children = $path->children ?? [];
-            foreach ($children as $sort => $child) {
-                $this->_children[] = \modules\admin\dtos\NavigationItem::set($child, $sort, $is_user, true);
+            foreach ($children as $child_sort => $child) {
+                $this->_children[] = \modules\admin\dtos\NavigationItem::set($child, $child_sort, $is_user, true);
             }
 
             $this->_smart = $path->smart ?? 'none';
