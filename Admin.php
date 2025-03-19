@@ -6,9 +6,9 @@
  * 아이모듈 관리자 페이지를 구성한다.
  *
  * @file /modules/admin/Admin.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 11. 18.
+ * @modified 2025. 3. 19.
  */
 namespace modules\admin;
 class Admin extends \Module
@@ -173,7 +173,6 @@ class Admin extends \Module
             $path = implode('/', $routes);
             if (in_array($path, $paths) == true) {
                 return $contexts[$path];
-                break;
             }
 
             array_pop($routes);
@@ -312,7 +311,7 @@ class Admin extends \Module
             }
 
             if ($checked === false) {
-                return \ErrorHandler::print(\ErrorHandler::error('NOT_FOUND_URL'));
+                \ErrorHandler::print(\ErrorHandler::error('NOT_FOUND_URL'));
             }
         }
 

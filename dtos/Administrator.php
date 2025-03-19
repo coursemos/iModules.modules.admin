@@ -5,9 +5,9 @@
  * 관리자 정보 구조체를 정의한다.
  *
  * @file /modules/admin/dtos/Administrator.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 8. 25.
+ * @modified 2025. 3. 19.
  */
 namespace modules\admin\dtos;
 class Administrator
@@ -265,9 +265,9 @@ class Administrator
              * 네비게이션 설정에서 접근가능한 모든 네비게이션을 가져온다.
              */
             $this->_navigation = \modules\admin\dtos\NavigationItem::all($contexts);
-
-            return $this->_navigation;
         }
+        
+        return $this->_navigation;
     }
 
     /**

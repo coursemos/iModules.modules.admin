@@ -7,7 +7,7 @@
  * @file /modules/admin/dtos/Context.php
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 3. 18.
+ * @modified 2025. 3. 19.
  */
 namespace modules\admin\dtos;
 class Context
@@ -209,7 +209,6 @@ class Context
                 } else {
                     return '/' . $component->getType() . '/' . $component->getName() . '/' . $this->_path;
                 }
-                break;
 
             case 'LINK':
                 return $this->_path;

@@ -5,9 +5,9 @@
  * 컨텍스트를 가져온다.
  *
  * @file /modules/admin/processes/contexts.get.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2025. 3. 19.
  *
  * @var \modules\admin\Admin $me
  */
@@ -25,7 +25,7 @@ if ($me->getAdmin()->checkPermission('sitemap', ['contexts']) == false) {
 }
 
 /**
- * @var \modules\admin\AdminAdmin $mAdmin
+ * @var \modules\admin\Admin\Admin $mAdmin
  */
 $mAdmin = $me->getAdmin();
 

@@ -5,17 +5,17 @@
  * 관리자 그룹할당 구조체를 정의한다.
  *
  * @file /modules/admin/dtos/AdministratorGroup.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 1. 26.
+ * @modified 2025. 3. 19.
  */
 namespace modules\admin\dtos;
 class AdministratorGroup
 {
     /**
-     * @var string $_member_id 회원고유값
+     * @var int $_member_id 회원고유값
      */
-    private string $_member_id;
+    private int $_member_id;
 
     /**
      * @var string $_group_id 그룹고유값

@@ -5,9 +5,9 @@
  * 컨텍스트를 변경사항을 저장한다.
  *
  * @file /modules/admin/processes/contexts.patch.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 4. 18.
+ * @modified 2025. 3. 19.
  *
  * @var \modules\admin\Admin $me
  */
@@ -24,10 +24,6 @@ if ($me->getAdmin()->checkPermission('sitemap', ['contexts']) == false) {
     return;
 }
 
-/**
- * @var \modules\admin\AdminAdmin $mAdmin
- */
-$mAdmin = $me->getAdmin();
 $records = Input::get('records') ?? [];
 foreach ($records as $record) {
     iModules::db()
