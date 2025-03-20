@@ -4,9 +4,9 @@
  * 네비게이션 클래스를 정의한다.
  *
  * @file /scripts/Aui.Navigation.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 10. 22.
+ * @modified 2025. 3. 20.
  */
 var Aui;
 (function (Aui) {
@@ -290,6 +290,14 @@ var Aui;
                     flex: 1,
                     layout: 'column-item',
                     emptyText: 'Search...',
+                    listeners: {
+                        change: async (field, value) => {
+                            const contexts = field.getParent().contexts;
+                            contexts.forEach((item) => {
+                                item.search(value);
+                            });
+                        },
+                    },
                 });
                 keyword.setParent(this);
                 $top.append(keyword.$getComponent());
@@ -574,6 +582,24 @@ var Aui;
                     });
                 }
                 super.remove();
+            }
+            /**
+             * 컨텍스트를 검색한다.
+             *
+             * @param value - 검색한 값
+             */
+            search(value) {
+                if (this.contextType === 'CONTEXT') {
+                    this.setHidden(value !== '' && !this.title.includes(value));
+                    return;
+                }
+                let hasVisibleChild = 0;
+                this.children.forEach((item) => {
+                    item.search(value);
+                    if (!item.isHidden())
+                        hasVisibleChild++;
+                });
+                this.setHidden(value !== '' && !hasVisibleChild);
             }
         }
         Navigation.Context = Context;
