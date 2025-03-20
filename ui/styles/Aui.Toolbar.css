@@ -4,9 +4,9 @@
  * 툴바 스타일시트를 정의한다.
  * 
  * @file /styles/Aui.Toolbar.css
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 9. 18.
+ * @modified 2025. 3. 20.
  */
 div[data-component][data-type='toolbar'][data-role='bar'] {
     > div[data-role='container'] {
@@ -56,16 +56,6 @@ div[data-component][data-type='toolbar'][data-role='bar'] {
 
                 > div[data-component] {
                     flex-shrink: 0;
-
-                    &:last-child::after {
-                        content: ' ';
-                        display: block;
-                        position: absolute;
-                        top: 0;
-                        right: calc(var(--aui-component-gap) * -1);
-                        width: var(--aui-component-gap);
-                        height: 1px;
-                    }
                 }
             }
 
