@@ -4,7 +4,7 @@
  * 관리자모듈 클래스를 정의한다.
  *
  * @file /modules/admin/scripts/Admin.ts
- * @author Arzz <arzz@arzz.com>
+ * @author youlapark <youlapark@naddle.net>
  * @license MIT License
  * @modified 2024. 9. 24.
  */
@@ -123,6 +123,11 @@ namespace modules {
                                 new Aui.Menu.Item({
                                     iconClass: 'mi mi-user-profile',
                                     text: globalThis.Admin.getModule('member').printText('buttons.edit'),
+                                    handler: async () => {
+                                        const mMember = Modules.get('member') as modules.member.Member;
+                                        await mMember.getPopup();
+                                        return true;
+                                    },
                                 }),
                                 new Aui.Menu.Item({
                                     iconClass: 'mi mi-logout',
