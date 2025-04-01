@@ -5,9 +5,9 @@
  * 관리자 권한 구조체를 정의한다.
  *
  * @file /modules/admin/dtos/Permission.php
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 10. 8.
+ * @modified 2025. 4. 1.
  */
 namespace modules\admin\dtos;
 class Permission
@@ -260,19 +260,17 @@ class Permission
             return;
         }
 
-        if ($permissions === false) {
+        if ($permissions === false || $this->_permissions === true || $this->_permissions === false) {
             return;
         }
 
-        if ($this->_permissions === true || $this->_permissions === false) {
-            return;
-        }
-
-        $uniqueComponentTypes = [];
         foreach ($permissions as $componentType => $componentNames) {
-            $uniqueComponentNames = [];
+            if (!isset($this->_permissions->{$componentType})) {
+                continue;
+            }
+
             foreach ($componentNames as $componentName => $scopes) {
-                if (($this->_permissions->{$componentType}?->{$componentName} ?? null) === null) {
+                if (!isset($this->_permissions->{$componentType}->{$componentName})) {
                     continue;
                 }
 
@@ -285,10 +283,9 @@ class Permission
                     continue;
                 }
 
-                $uniqueScopes = [];
-                if (is_object($scopes) === true) {
+                if (is_object($scopes)) {
                     foreach ($scopes as $scope => $children) {
-                        if (($this->_permissions->{$componentType}->{$componentName}->{$scope} ?? null) === null) {
+                        if (!isset($this->_permissions->{$componentType}->{$componentName}->{$scope})) {
                             continue;
                         }
 
@@ -301,42 +298,32 @@ class Permission
                             continue;
                         }
 
-                        if (is_array($children) === true) {
-                            $uniqueChildren = [];
-                            foreach ($this->_permissions->{$componentType}->{$componentName}->{$scope} as $child) {
-                                if (in_array($child, $children) === false) {
-                                    $uniqueChildren[] = $child;
-                                }
-                            }
+                        if (is_array($children)) {
+                            $uniqueChildren = array_filter(
+                                $this->_permissions->{$componentType}->{$componentName}->{$scope},
+                                fn($child) => !in_array($child, $children)
+                            );
 
-                            if (count($uniqueChildren) === 0) {
+                            if (empty($uniqueChildren)) {
                                 unset($this->_permissions->{$componentType}->{$componentName}->{$scope});
-                                continue;
+                            } else {
+                                $this->_permissions->{$componentType}->{$componentName}->{$scope} = array_values($uniqueChildren);
                             }
-
-                            $this->_permissions->{$componentType}->{$componentName}->{$scope} = $uniqueChildren;
-                            $uniqueScopes[] = $scope;
                         }
                     }
-                }
 
-                if (count($uniqueScopes) == 0) {
-                    unset($this->_permissions->{$componentType}->{$componentName});
-                    continue;
+                    if (empty((array)$this->_permissions->{$componentType}->{$componentName})) {
+                        unset($this->_permissions->{$componentType}->{$componentName});
+                    }
                 }
-
-                $uniqueComponentNames[] = $componentName;
             }
 
-            if (count($uniqueComponentNames) == 0) {
+            if (empty((array)$this->_permissions->{$componentType})) {
                 unset($this->_permissions->{$componentType});
-                continue;
             }
-
-            $uniqueComponentTypes[] = $componentType;
         }
 
-        if (count($uniqueComponentTypes) == 0) {
+        if (empty((array)$this->_permissions)) {
             $this->_permissions = false;
         }
     }
