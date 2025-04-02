@@ -4,9 +4,9 @@
  * 폼 클래스를 정의한다.
  *
  * @file /modules/admin/ui/scripts/Aui.Form.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 2. 24.
+ * @modified 2025. 4. 2.
  */
 namespace Aui {
     export namespace Form {
@@ -349,6 +349,13 @@ namespace Aui {
         }
 
         export namespace FieldSet {
+            export interface Listeners extends Aui.Component.Listeners {
+                /**
+                 * @var {Function} collapse - 필드셋이 축소될 때
+                 */
+                collapse?: (field: Aui.Form.FieldSet) => void;
+            }
+
             export interface Properties extends Aui.Component.Properties {
                 /**
                  * @type {string} title - 필드셋 제목
@@ -374,6 +381,11 @@ namespace Aui {
                  * @type {Aui.Form.FieldDefaults} fieldDefaults - 필드셋 내부 필드 기본 설정
                  */
                 fieldDefaults?: Aui.Form.FieldDefaults;
+
+                /**
+                 * @type {Aui.Form.FieldSet.Listeners} listeners - 이벤트리스너
+                 */
+                listeners?: Aui.Form.FieldSet.Listeners;
             }
         }
 
@@ -553,6 +565,8 @@ namespace Aui {
                 } else {
                     this.collapse(animated);
                 }
+
+                this.fireEvent('collapse', [this]);
             }
 
             /**
@@ -571,6 +585,8 @@ namespace Aui {
                         }
                     );
                 }
+
+                this.collapsed = false;
             }
 
             /**
@@ -589,6 +605,15 @@ namespace Aui {
                 } else {
                     this.$getContainer().addClass('collapsed');
                 }
+
+                this.collapsed = true;
+            }
+
+            /**
+             * 축소여부를 가져온다.
+             */
+            getCollapse(): boolean {
+                return this.collapsed;
             }
 
             /**
@@ -1053,6 +1078,15 @@ namespace Aui {
                     }
 
                     return true;
+                }
+
+                /**
+                 * 공백 허용여부를 저장한다.
+                 *
+                 * @param {boolean} allowBlank - 공백허용여부
+                 */
+                setAllowBlank(allowBlank: boolean): void {
+                    this.allowBlank = allowBlank !== false;
                 }
 
                 /**

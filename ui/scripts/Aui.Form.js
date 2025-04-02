@@ -4,9 +4,9 @@
  * 폼 클래스를 정의한다.
  *
  * @file /modules/admin/ui/scripts/Aui.Form.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 2. 24.
+ * @modified 2025. 4. 2.
  */
 var Aui;
 (function (Aui) {
@@ -391,6 +391,7 @@ var Aui;
                 else {
                     this.collapse(animated);
                 }
+                this.fireEvent('collapse', [this]);
             }
             /**
              * 필드셋을 확장한다.
@@ -403,6 +404,7 @@ var Aui;
                         this.$getContainer().removeClass('collapsed');
                     });
                 }
+                this.collapsed = false;
             }
             /**
              * 필드셋을 축소한다.
@@ -417,6 +419,13 @@ var Aui;
                 else {
                     this.$getContainer().addClass('collapsed');
                 }
+                this.collapsed = true;
+            }
+            /**
+             * 축소여부를 가져온다.
+             */
+            getCollapse() {
+                return this.collapsed;
             }
             /**
              * 자식 컴포넌트를 추가한다.
@@ -723,6 +732,14 @@ var Aui;
                         return await this.validator(this.getValue(), this);
                     }
                     return true;
+                }
+                /**
+                 * 공백 허용여부를 저장한다.
+                 *
+                 * @param {boolean} allowBlank - 공백허용여부
+                 */
+                setAllowBlank(allowBlank) {
+                    this.allowBlank = allowBlank !== false;
                 }
                 /**
                  * 추가적인 에러검증없이 현재 에러가 존재하는지 확인한다.
