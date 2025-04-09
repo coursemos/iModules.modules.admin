@@ -19,7 +19,7 @@ div[data-role='resizer'] {
         width: 7px;
         height: 100%;
         top: 0;
-        left: -3px;
+        left: 0;
         cursor: ew-resize;
     }
 
@@ -27,14 +27,14 @@ div[data-role='resizer'] {
         width: 7px;
         height: 100%;
         top: 0;
-        right: -3px;
+        right: 0;
         cursor: ew-resize;
     }
 
     &[data-direction='top'] {
         width: 100%;
         height: 7px;
-        top: -3px;
+        top: 0;
         left: 0;
         cursor: ns-resize;
     }
@@ -42,7 +42,7 @@ div[data-role='resizer'] {
     &[data-direction='bottom'] {
         width: 100%;
         height: 7px;
-        bottom: -3px;
+        bottom: 0;
         left: 0;
         cursor: ns-resize;
     }
@@ -50,8 +50,8 @@ div[data-role='resizer'] {
     &[data-direction='topLeft'] {
         width: 7px;
         height: 7px;
-        top: -3px;
-        left: -3px;
+        top: 0;
+        left: 0;
         z-index: 1005;
         background: transparent;
         cursor: nwse-resize;
@@ -60,8 +60,8 @@ div[data-role='resizer'] {
     &[data-direction='topRight'] {
         width: 7px;
         height: 7px;
-        top: -3px;
-        right: -3px;
+        top: 0;
+        right: 0;
         z-index: 1005;
         background: transparent;
         cursor: nesw-resize;
@@ -70,8 +70,8 @@ div[data-role='resizer'] {
     &[data-direction='bottomLeft'] {
         width: 7px;
         height: 7px;
-        bottom: -3px;
-        left: -3px;
+        bottom: 0;
+        left: 0;
         z-index: 1005;
         background: transparent;
         cursor: nesw-resize;
@@ -80,8 +80,8 @@ div[data-role='resizer'] {
     &[data-direction='bottomRight'] {
         width: 7px;
         height: 7px;
-        bottom: -3px;
-        right: -3px;
+        bottom: 0;
+        right: 0;
         z-index: 1005;
         background: transparent;
         cursor: nwse-resize;
