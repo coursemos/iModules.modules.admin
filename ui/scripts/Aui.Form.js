@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 4. 2.
+ * @modified 2025. 4. 11.
  */
 var Aui;
 (function (Aui) {
@@ -638,6 +638,9 @@ var Aui;
                         return values;
                     }
                     if (this.getValue() !== null) {
+                        values[this.inputName] = this.getValue();
+                    }
+                    if (this.field === 'date') {
                         values[this.inputName] = this.getValue();
                     }
                     return values;

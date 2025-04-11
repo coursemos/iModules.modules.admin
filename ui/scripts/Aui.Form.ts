@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Form.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 4. 2.
+ * @modified 2025. 4. 11.
  */
 namespace Aui {
     export namespace Form {
@@ -973,6 +973,10 @@ namespace Aui {
                     }
 
                     if (this.getValue() !== null) {
+                        values[this.inputName] = this.getValue();
+                    }
+
+                    if (this.field === 'date') {
                         values[this.inputName] = this.getValue();
                     }
 
