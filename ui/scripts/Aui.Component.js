@@ -4,9 +4,9 @@
  * Aui 컴포넌트의 공통 클래스를 정의한다.
  *
  * @file /scripts/Aui.Component.ts
- * @author Arzz <arzz@arzz.com>
+ * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2024. 10. 5.
+ * @modified 2025. 4. 15.
  */
 var Aui;
 (function (Aui) {
@@ -37,6 +37,7 @@ var Aui;
         scrollable;
         $scrollable;
         scroll;
+        selectable;
         /**
          * 컴포넌트를 생성한다.
          *
@@ -62,6 +63,7 @@ var Aui;
             this.disabled = this.properties.disabled ?? false;
             this.forceRender = this.properties.forceRender === true;
             this.scrollable = this.properties.scrollable ?? false;
+            this.selectable = this.properties.selectable ?? false;
             this.$component = Html.create('div', { 'data-component': this.id, 'tabindex': '-1' });
             this.$container = Html.create('div', { 'data-role': 'container' });
             this.$scrollable = this.$container;
@@ -620,6 +622,9 @@ var Aui;
             }
             if (this.class !== null) {
                 this.$getComponent().addClass(...this.class.split(' '));
+            }
+            if (this.selectable === true) {
+                this.$getComponent().addClass('selectable');
             }
             if (this.isRenderable() == true) {
                 this.$getComponent().append(this.$container);
