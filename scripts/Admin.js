@@ -116,8 +116,8 @@ var modules;
                                     iconClass: 'mi mi-user-profile',
                                     text: globalThis.Admin.getModule('member').printText('buttons.edit'),
                                     handler: async () => {
-                                        // const mMember = Modules.get('member') as modules.member.Member;
-                                        // await mMember.getPopup();
+                                        const mMember = Modules.get('member');
+                                        await mMember.getPopup();
                                         return true;
                                     },
                                 }),
