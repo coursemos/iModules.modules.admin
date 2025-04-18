@@ -124,9 +124,9 @@ namespace modules {
                                     iconClass: 'mi mi-user-profile',
                                     text: globalThis.Admin.getModule('member').printText('buttons.edit'),
                                     handler: async () => {
-                                        const mMember = Modules.get('member') as modules.member.Member;
-                                        await mMember.getPopup();
-                                        return true;
+                                        // const mMember = Modules.get('member') as modules.member.Member;
+                                        // await mMember.getPopup();
+                                        // return true;
                                     },
                                 }),
                                 new Aui.Menu.Item({
