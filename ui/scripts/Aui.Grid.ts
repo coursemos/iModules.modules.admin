@@ -1646,7 +1646,10 @@ namespace Aui {
                             const column = summary[index];
                             let value = null;
                             if (column.type instanceof Function) {
-                                value = (column.type as (records: Aui.Data.Record[]) => number)(column.value);
+                                value = (column.type as (records: Aui.Data.Record[], $summary: Dom) => number)(
+                                    column.value,
+                                    $summary
+                                );
                             } else if (column.type == 'average') {
                                 value = column.value[1] == 0 ? 0 : column.value[0] / column.value[1];
                             } else {
@@ -1794,6 +1797,7 @@ namespace Aui {
                                 if (this.grouper.summary == true) {
                                     let leftPosition = 0;
                                     const $summary = Html.create('div', { 'data-role': 'summary' });
+                                    $summary.setData('group', record.get(this.grouper.dataIndex));
 
                                     if (this.selection.type === 'check') {
                                         const $check = Html.create('div', { 'data-role': 'check' });
@@ -3418,7 +3422,7 @@ namespace Aui {
                  * @type {Object} summary - 합계설정
                  */
                 summary?: {
-                    type: 'sum' | 'count' | 'average' | ((records: Aui.Data.Record[]) => number);
+                    type: 'sum' | 'count' | 'average' | ((records: Aui.Data.Record[], $summary: Dom) => number);
                     dataIndex?: string;
                     textAlign?: string;
                     textClass?: string;
