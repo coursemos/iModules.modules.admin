@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Grid.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 3. 13.
+ * @modified 2025. 5. 2.
  */
 var Aui;
 (function (Aui) {
@@ -2910,6 +2910,14 @@ var Aui;
              */
             isFreezeColumn() {
                 return this.grid.freezeColumn > this.columnIndex;
+            }
+            /**
+             * 컬럼명을 변경한다.
+             *
+             * @param {string} text - 변경할 컬럼명
+             */
+            setText(text) {
+                this.text = text;
             }
             /**
              * 컬럼의 헤더컬럼 레이아웃을 가져온다.

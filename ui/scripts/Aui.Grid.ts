@@ -6,7 +6,7 @@
  * @file /modules/admin/ui/scripts/Aui.Grid.ts
  * @author sungjin <esung246@naddle.net>
  * @license MIT License
- * @modified 2025. 3. 13.
+ * @modified 2025. 5. 2.
  */
 namespace Aui {
     export namespace Grid {
@@ -3839,6 +3839,15 @@ namespace Aui {
              */
             isFreezeColumn(): boolean {
                 return this.grid.freezeColumn > this.columnIndex;
+            }
+
+            /**
+             * 컬럼명을 변경한다.
+             *
+             * @param {string} text - 변경할 컬럼명
+             */
+            setText(text: string) {
+                this.text = text;
             }
 
             /**
