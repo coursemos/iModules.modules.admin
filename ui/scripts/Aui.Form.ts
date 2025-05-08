@@ -2045,6 +2045,12 @@ namespace Aui {
             }
 
             export namespace Date {
+                export interface Listeners extends Aui.Form.Field.Base.Listeners {
+                    /**
+                     * @type {Function} collapse - 선택항목이 숨겨졌을 때
+                     */
+                    collapse?: (field: Aui.Form.Field.Select) => void;
+                }
                 export interface Properties extends Aui.Form.Field.Text.Properties {
                     /**
                      * @type {string} format - 데이터 전송시 날짜포맷
@@ -2060,6 +2066,11 @@ namespace Aui {
                      * @type {boolean} allowInput - 직접 날짜를 입력을 할 수 있는지 여부
                      */
                     allowInput?: boolean;
+
+                    /**
+                     * @type {Aui.Form.Field.Date.Listeners} listeners - 이벤트리스너
+                     */
+                    listeners?: Aui.Form.Field.Date.Listeners;
                 }
             }
 
@@ -2132,6 +2143,7 @@ namespace Aui {
                     if (this.calendar === undefined) {
                         this.calendar = new Aui.Form.Field.Date.Calendar({
                             parent: this,
+                            current: this.value,
                             listeners: {
                                 change: (value) => {
                                     this.setValue(value);
@@ -2290,7 +2302,6 @@ namespace Aui {
                  * 캘린더를 표시한다.
                  */
                 expand(): void {
-                    this.getCalendar().setValue(this.value);
                     this.getAbsolute().show();
                 }
 
@@ -2299,6 +2310,7 @@ namespace Aui {
                  */
                 collapse(): void {
                     this.getAbsolute().hide();
+                    this.fireEvent('collapse', [this]);
                 }
 
                 /**

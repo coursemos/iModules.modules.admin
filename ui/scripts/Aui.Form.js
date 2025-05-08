@@ -1573,6 +1573,7 @@ var Aui;
                     if (this.calendar === undefined) {
                         this.calendar = new Aui.Form.Field.Date.Calendar({
                             parent: this,
+                            current: this.value,
                             listeners: {
                                 change: (value) => {
                                     this.setValue(value);
@@ -1714,7 +1715,6 @@ var Aui;
                  * 캘린더를 표시한다.
                  */
                 expand() {
-                    this.getCalendar().setValue(this.value);
                     this.getAbsolute().show();
                 }
                 /**
@@ -1722,6 +1722,7 @@ var Aui;
                  */
                 collapse() {
                     this.getAbsolute().hide();
+                    this.fireEvent('collapse', [this]);
                 }
                 /**
                  * 캘린더가 보이는 상태인지 확인한다.
