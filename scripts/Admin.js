@@ -6,7 +6,7 @@
  * @file /modules/admin/scripts/Admin.ts
  * @author youlapark <youlapark@naddle.net>
  * @license MIT License
- * @modified 2024. 9. 24.
+ * @modified 2025. 5. 16.
  */
 var modules;
 (function (modules) {
@@ -115,11 +115,21 @@ var modules;
                                 new Aui.Menu.Item({
                                     iconClass: 'mi mi-user-profile',
                                     text: globalThis.Admin.getModule('member').printText('buttons.edit'),
-                                    // handler: async () => {
-                                    // const mMember = Modules.get('member') as modules.member.Member;
-                                    // await mMember.getPopup();
-                                    // return true;
-                                    // },
+                                    handler: async () => {
+                                        Aui.Message.show({
+                                            title: Aui.getErrorText('INFO'),
+                                            message: globalThis.Admin.getModule('member').printText('buttons.actions.edit'),
+                                            buttons: Aui.Message.OK,
+                                            handler: async () => {
+                                                Aui.Message.close();
+                                                window.close();
+                                            },
+                                        });
+                                        return false;
+                                        // const mMember = Modules.get('member') as modules.member.Member;
+                                        // await mMember.getPopup();
+                                        // return true;
+                                    },
                                 }),
                                 new Aui.Menu.Item({
                                     iconClass: 'mi mi-logout',
